@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 2 of 97 tasks started, 2 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 3 of 97 tasks started, 3 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -10,7 +10,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
-| 01 | Foundation | 8 | 2 | 2 | In progress (2/8) |
+| 01 | Foundation | 8 | 3 | 3 | In progress (3/8) |
 | 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **2** | **2** | |
+| **Total** | | **97** | **3** | **3** | |
 
 ## Task register
 
@@ -27,7 +27,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | --- | --- | --- | --- | --- | --- | --- |
 | 01.01 | Repository and documentation | DONE | PASS: git diff --check, git check-ignore, git status | None available (manual checklist) | None (ready for 01.02) | bc0af8b |
 | 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
-| 01.03 | MySQL | NOT_STARTED | Not run | — | Depends on 01.02 | — |
+| 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | [pending commit] |
 | 01.04 | React/Vite | NOT_STARTED | Not run | — | Depends on 01.01 | — |
 | 01.05 | SSR | NOT_STARTED | Not run | — | Depends on 01.04 | — |
 | 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
@@ -273,4 +273,71 @@ Blockers/owner inputs:
   None. Task 01.02 complete and verified.
 Next task:
   Phase 01 — Task 01.03: MySQL database setup, testing DB isolation, and SchemaTest.
+```
+
+
+---
+
+## Task 01.03 Execution Report
+
+```text
+Task ID: 01.03
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/01.03-mysql
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: [will record commit hash upon commit]
+Files changed:
+  Created:
+    - backend/.env.testing.example
+    - backend/tests/Feature/Database/SchemaTest.php
+  Modified:
+    - backend/.env.example (configured mysql driver, port 3306, utf8mb4_unicode_ci)
+    - backend/config/database.php (set default collation to utf8mb4_unicode_ci)
+    - backend/phpunit.xml (enforced portfolio_testing DB and utf8mb4_unicode_ci)
+    - docs/PROGRESS.md (marked 01.03 DONE, recorded execution evidence)
+Tests written first:
+  backend/tests/Feature/Database/SchemaTest.php:
+    - test_tests_run_against_isolated_testing_database:
+      assert configured database is portfolio_testing, assert active connection is portfolio_testing,
+      assert never portfolio_dev or production.
+    - test_schema_constraints_and_tables_exist:
+      assert users, password_reset_tokens, sessions, cache, jobs, failed_jobs exist;
+      assert users columns and unique email constraint.
+    - test_migration_up_down_cycle_on_disposable_database:
+      assert migrate, migrate:reset, and migrate up cycle on disposable DB.
+  Observed RED state:
+    SQLSTATE[HY000]: General error: 1273 Unknown collation: 'utf8mb4_0900_ai_ci'
+  Observed GREEN state:
+    Tests: 3 passed (21 assertions) in 1.02s.
+    Full suite: 6 passed (34 assertions) in 1.38s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for MySQL database schema testing.
+Unavailable skills and fallback checklist:
+  - testing, tdd, backend-testing: NOT AVAILABLE.
+  - Fallback checklist applied: isolated database assertion before test execution, schema constraints tested, up/down migration cycle verified, secret exclusion checked.
+Commands executed and exact results:
+  1. MySQL daemon started and verified on port 3307 (MariaDB 10.4).
+  2. Created databases portfolio_dev and portfolio_testing with utf8mb4 / utf8mb4_unicode_ci.
+  3. cd backend; php artisan test --filter=SchemaTest ->
+     RED: Unknown collation utf8mb4_0900_ai_ci.
+  4. Updated database config and env to utf8mb4_unicode_ci.
+  5. cd backend; php artisan test --filter=SchemaTest ->
+     GREEN: PASS Tests\Feature\Database\SchemaTest (3 passed, 21 assertions, 1.02s).
+  6. cd backend; php artisan test ->
+     GREEN: PASS all 6 tests (34 assertions, 1.38s).
+  7. cd backend; php artisan migrate:status ->
+     All core migrations (users, cache, jobs) in [1] Ran status.
+  8. cd backend; php artisan migrate --env=testing ->
+     Nothing to migrate (clean test DB).
+Security/privacy/SEO considerations:
+  - Strict isolation: test runner verifies connection to portfolio_testing and throws error if dev/prod is targeted.
+  - backend/.env and backend/.env.testing are confirmed ignored by Git.
+  - Zero sensitive database credentials committed.
+Blockers/owner inputs:
+  None. Task 01.03 complete and verified.
+Next task:
+  Phase 01 — Task 01.04: React/Vite frontend setup (`frontend/package.json`, `src/app/{App,routes}.jsx`, `src/pages/{HomePage,AdminPlaceholder}.jsx`, `src/styles/{tokens,global}.css`, `vite.config.js`, Vitest smoke tests).
 ```
