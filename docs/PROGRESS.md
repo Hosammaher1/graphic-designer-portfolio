@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 5 of 97 tasks started, 5 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 6 of 97 tasks started, 6 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -10,7 +10,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
-| 01 | Foundation | 8 | 5 | 5 | In progress (5/8) |
+| 01 | Foundation | 8 | 6 | 6 | In progress (6/8) |
 | 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **5** | **5** | |
+| **Total** | | **97** | **6** | **6** | |
 
 ## Task register
 
@@ -30,7 +30,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | a799e00 |
 | 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | 3e435c8 |
 | 01.05 | SSR | DONE | PASS: Vitest SSR (3 passed), client/server build, curl /ar/ | None available (manual checklist) | None (ready for 01.06) | 0b795f4 |
-| 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
+| 01.06 | Localization | DONE | PASS: Vitest localization (5 passed), smoke (5 passed), ssr (3 passed) = 13/13 total | None available (manual checklist) | None (ready for 01.07) | — |
 | 01.07 | Test harness | NOT_STARTED | Not run | — | Depends on 01.02-01.06 | — |
 | 01.08 | CI | NOT_STARTED | Not run | — | Depends on 01.07 | — |
 | 02.01 | Admin user model/seed | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -473,4 +473,62 @@ Blockers/owner inputs:
   None. Task 01.05 complete and verified.
 Next task:
   Phase 01 — Task 01.06: Localization (`src/i18n/{ar,en}.json`, `config.js`, `LanguageSwitcher.jsx`, tests).
+```
+
+
+---
+
+## Task 01.06 Execution Report
+
+```text
+Task ID: 01.06
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/01.06-localization
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - frontend/src/i18n/ar.json (Arabic translations: site, nav, home, language, footer)
+    - frontend/src/i18n/en.json (English translations: site, nav, home, language, footer)
+    - frontend/src/i18n/config.js (t(), getLocaleFromPath(), getDirection(), switchLocalePath(), supportedLocales, defaultLocale)
+    - frontend/src/components/LanguageSwitcher.jsx (locale toggle Link component)
+    - frontend/tests/localization.test.jsx (5 localization tests)
+  Modified:
+    - frontend/src/app/App.jsx (uses i18n t(), imports LanguageSwitcher)
+    - frontend/src/pages/HomePage.jsx (uses t() for all copy)
+    - frontend/tests/smoke.test.jsx (updated regex to match full i18n English title)
+    - docs/PROGRESS.md (marked 01.06 DONE, recorded execution evidence)
+Tests written first:
+  frontend/tests/localization.test.jsx:
+    - verifies translation files contain matching top-level keys
+    - translates keys with fallback to Arabic default
+    - identifies locale correctly from URL path
+    - renders LanguageSwitcher component with toggle link to opposite locale
+    - server renders /ar/ with lang="ar" dir="rtl" and /en/ with lang="en" dir="ltr"
+  Observed fix cycle:
+    RED: LanguageSwitcher aria-label="Switch to English" overrode accessible name, test queried { name: 'English' }.
+    Fix: Removed aria-label from LanguageSwitcher; visible text label is the accessible name (WCAG SC 2.5.3).
+    GREEN: All 5 localization tests pass.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React i18n implementation.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, react, accessibility: NOT AVAILABLE.
+  - Fallback checklist applied: WCAG SC 2.5.3 (Label in Name) — accessible name derived from visible text, not aria-label override; locale fallback verified; bilingual smoke tests passing.
+Commands executed and exact results:
+  1. cd frontend; npm.cmd run test -- --run ->
+     RED (initial): 12/13 pass. FAIL: LanguageSwitcher accessible name mismatch.
+  2. Removed aria-label from LanguageSwitcher.jsx; updated smoke.test.jsx regex.
+  3. cd frontend; npm.cmd run test -- --run ->
+     GREEN: Test Files: 3 passed (3), Tests: 13 passed (13). Duration: 1.12s.
+Security/privacy/SEO considerations:
+  - hrefLang and lang attributes on LanguageSwitcher links inform search engines of locale alternatives.
+  - No locale preference stored in localStorage yet (Phase 06 consent gate required first).
+  - Translation files contain zero sensitive data.
+Blockers/owner inputs:
+  None. Task 01.06 complete and verified.
+Next task:
+  Phase 01 — Task 01.07: Test harness (Playwright e2e setup, vitest config separation, CI-ready test suites).
 ```

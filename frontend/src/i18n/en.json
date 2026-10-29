@@ -1,0 +1,31 @@
+{
+  "site": {
+    "title": "Mohammed — Graphic & Brand Identity Designer",
+    "description": "Curated portfolio of brand identities, print artifacts, and creative digital designs.",
+    "designerName": "Mohammed",
+    "role": "Graphic & Brand Identity Designer"
+  },
+  "nav": {
+    "home": "Home",
+    "work": "Work",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "home": {
+    "badge": "Graphic & Brand Identity Designer",
+    "heroTitle": "Intentional visual design blending minimalist craft with creative impact",
+    "heroSubtitle": "Curated portfolio of brand identities, print artifacts, and creative digital designs.",
+    "featuredWork": "Featured Projects",
+    "viewProject": "View Project",
+    "placeholderNotice": "Published projects will load here in Phase 03"
+  },
+  "language": {
+    "switchTo": "العربية",
+    "current": "English"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

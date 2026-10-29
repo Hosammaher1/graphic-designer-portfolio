@@ -1,8 +1,7 @@
 import React from 'react';
+import { t } from '../i18n/config.js';
 
 export default function HomePage({ locale = 'ar' }) {
-  const isArabic = locale === 'ar';
-
   return (
     <div className="home-page site-container">
       <header className="hero-section" style={{ padding: 'var(--space-16) 0 var(--space-8)' }}>
@@ -13,7 +12,7 @@ export default function HomePage({ locale = 'ar' }) {
           color: 'var(--color-text-secondary)',
           marginBottom: 'var(--space-2)'
         }}>
-          {isArabic ? 'مصمم جرافيك ومصمم هوية بصرية' : 'Graphic & Brand Identity Designer'}
+          {t('home.badge', locale)}
         </p>
         <h1 style={{
           fontSize: 'clamp(2rem, 5vw, var(--font-size-5xl))',
@@ -22,9 +21,7 @@ export default function HomePage({ locale = 'ar' }) {
           maxWidth: '800px',
           color: 'var(--color-text-primary)'
         }}>
-          {isArabic
-            ? 'تصميم بصري هادف يجمع بين البساطة والأثر الإبداعي'
-            : 'Intentional visual design blending minimalist craft with creative impact'}
+          {t('home.heroTitle', locale)}
         </h1>
         <p style={{
           fontSize: 'var(--font-size-lg)',
@@ -33,9 +30,7 @@ export default function HomePage({ locale = 'ar' }) {
           maxWidth: '600px',
           lineHeight: 'var(--line-height-relaxed)'
         }}>
-          {isArabic
-            ? 'معرض أعمال وتجارب بصرية في تصميم الهويات التجارية، المطبوعات، والمنصات الرقمية.'
-            : 'Curated portfolio of brand identities, print artifacts, and creative digital designs.'}
+          {t('home.heroSubtitle', locale)}
         </p>
       </header>
 
@@ -46,7 +41,7 @@ export default function HomePage({ locale = 'ar' }) {
           borderBottom: '1px solid var(--color-border)',
           paddingBottom: 'var(--space-2)'
         }}>
-          {isArabic ? 'أعمال مختارة' : 'Featured Projects'}
+          {t('home.featuredWork', locale)}
         </h2>
         <div className="projects-grid" style={{
           display: 'grid',
@@ -61,7 +56,7 @@ export default function HomePage({ locale = 'ar' }) {
             textAlign: 'center'
           }}>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-              {isArabic ? 'سيتم تحميل الأعمال المنشورة في المرحلة 03' : 'Published projects will load here in Phase 03'}
+              {t('home.placeholderNotice', locale)}
             </p>
           </article>
         </div>

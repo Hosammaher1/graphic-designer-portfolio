@@ -42,7 +42,7 @@ describe('Frontend Smoke Tests', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Mohammed — Graphic Designer/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mohammed — Graphic/i)).toBeInTheDocument();
     expect(screen.getByText('العربية')).toBeInTheDocument();
     expect(screen.getByText('Admin')).toBeInTheDocument();
   });

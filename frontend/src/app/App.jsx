@@ -1,17 +1,21 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { routes } from './routes.jsx';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
+import { getLocaleFromPath, getDirection, t } from '../i18n/config.js';
 
 export default function App() {
   const location = useLocation();
-  const isArabic = location.pathname.startsWith('/ar');
+  const currentLocale = getLocaleFromPath(location.pathname);
+  const currentDir = getDirection(currentLocale);
+  const isArabic = currentLocale === 'ar';
 
   useEffect(() => {
-    const dir = isArabic ? 'rtl' : 'ltr';
-    const lang = isArabic ? 'ar' : 'en';
-    document.documentElement.setAttribute('dir', dir);
-    document.documentElement.setAttribute('lang', lang);
-  }, [isArabic]);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('dir', currentDir);
+      document.documentElement.setAttribute('lang', currentLocale);
+    }
+  }, [currentLocale, currentDir]);
 
   return (
     <div className="portfolio-app-root">
@@ -25,26 +29,19 @@ export default function App() {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <Link to={isArabic ? '/ar/' : '/en/'} style={{
+          <Link to={`/${currentLocale}/`} style={{
             fontSize: 'var(--font-size-xl)',
             fontWeight: 'var(--font-weight-bold)'
           }}>
-            {isArabic ? 'محمد — مصمم جرافيك' : 'Mohammed — Graphic Designer'}
+            {t('site.title', currentLocale)}
           </Link>
           <nav style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-            <Link to={isArabic ? '/en/' : '/ar/'} style={{
-              fontSize: 'var(--font-size-sm)',
-              padding: 'var(--space-1) var(--space-3)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)'
-            }}>
-              {isArabic ? 'English' : 'العربية'}
-            </Link>
+            <LanguageSwitcher currentLocale={currentLocale} />
             <Link to="/admin/" style={{
               fontSize: 'var(--font-size-sm)',
               color: 'var(--color-text-secondary)'
             }}>
-              {isArabic ? 'لوحة التحكم' : 'Admin'}
+              {t('nav.admin', currentLocale)}
             </Link>
           </nav>
         </div>
@@ -67,7 +64,7 @@ export default function App() {
         textAlign: 'center'
       }}>
         <div className="site-container">
-          <p>© {new Date().getFullYear()} Mohammed. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {t('site.designerName', currentLocale)}. {t('footer.rights', currentLocale)}</p>
         </div>
       </footer>
     </div>
