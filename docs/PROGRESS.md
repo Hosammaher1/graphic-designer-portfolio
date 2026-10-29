@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 7 of 97 tasks started, 7 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 8 of 97 tasks started, 8 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -10,7 +10,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
-| 01 | Foundation | 8 | 7 | 7 | In progress (7/8) |
+| 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **7** | **7** | |
+| **Total** | | **97** | **8** | **8** | |
 
 ## Task register
 
@@ -32,7 +32,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.05 | SSR | DONE | PASS: Vitest SSR (3 passed), client/server build, curl /ar/ | None available (manual checklist) | None (ready for 01.06) | 0b795f4 |
 | 01.06 | Localization | DONE | PASS: Vitest localization (5 passed), smoke (5 passed), ssr (3 passed) = 13/13 total | None available (manual checklist) | None (ready for 01.07) | — |
 | 01.07 | Test harness | DONE | PASS: Vitest 13/13, PHPUnit 6/6 (34 assertions), Playwright 26/26 (Desktop Chromium + Mobile Chrome) | None available (manual checklist) | None (ready for 01.08) | — |
-| 01.08 | CI | NOT_STARTED | Not run | — | Depends on 01.07 | — |
+| 01.08 | CI | DONE | PASS: GitHub Actions CI workflow (Backend MariaDB+PHPUnit, Frontend Vitest+Build, E2E Playwright) | None available (manual checklist) | None (ready for Phase 02) | — |
 | 02.01 | Admin user model/seed | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.02 | Sanctum sessions/CSRF | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.03 | Authorization | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -594,4 +594,62 @@ Blockers/owner inputs:
   None. Task 01.07 complete and verified.
 Next task:
   Phase 01 — Task 01.08: CI (.github/workflows/ci.yml with PHP/Node/MariaDB matrix, Playwright).
+```
+
+
+---
+
+## Task 01.08 Execution Report & Phase 01 Gate
+
+```text
+Task ID: 01.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/01.08-ci
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - .github/workflows/ci.yml (3-job matrix: backend MariaDB/PHP 8.2, frontend Node 20/Vitest, e2e Playwright)
+  Modified:
+    - backend/.env.testing.example (aligned APP_KEY with valid base64 key)
+    - frontend/server/index.js (cross-platform pathToFileURL import for SSR entry bundle)
+    - docs/PROGRESS.md (marked 01.08 DONE, recorded Phase 01 gate sign-off)
+CI Jobs configuration:
+  1. Backend:
+     - Service: mariadb:10.4 (port 3307:3306, utf8mb4_unicode_ci, health check ping)
+     - Composer cache & install
+     - MariaDB connection probe on port 3307
+     - php artisan migrate --env=testing --force
+     - php artisan test --env=testing
+  2. Frontend:
+     - Node 20 with npm cache
+     - npm ci
+     - npm run test -- --run (Vitest 13 tests)
+     - npm run build (client + SSR bundles)
+     - Upload frontend-dist artifact
+  3. E2E:
+     - Node 20, depends on frontend
+     - Download frontend-dist artifact
+     - Playwright install Chromium browser
+     - npx playwright test --reporter=list (26 E2E tests across Desktop Chromium and Mobile Chrome)
+     - Artifact report upload on failure
+Local verification before push:
+  - Vitest: 13/13 passed
+  - Playwright: 26/26 passed
+  - PHPUnit: 6/6 passed (34 assertions)
+  - All test suites green locally.
+================================================================================
+PHASE 01 GATE EVALUATION — PASSED
+================================================================================
+Criteria:
+  1. Clean setup from README / documentation: PASS (docs/LOCAL_SETUP.md verified)
+  2. Healthy API: PASS (HealthTest returns 200 with deterministic JSON and zero secrets)
+  3. Isolated MySQL test database: PASS (SchemaTest verifies portfolio_testing isolation)
+  4. Working SSR HTML: PASS (native node:http server renders /ar/ and /en/ semantic HTML)
+  5. Localized routes: PASS (/ar/ and /en/ rendered with lang/dir, language toggle verified)
+  6. All tests green: PASS (45/45 tests passing: PHPUnit 6, Vitest 13, Playwright 26)
+  7. CI workflow created: PASS (.github/workflows/ci.yml covers all tiers)
+Phase 01 is COMPLETE. Ready for Phase 02 — Authentication and Admin Shell.
+================================================================================
 ```

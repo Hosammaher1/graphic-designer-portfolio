@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +35,7 @@ async function createServer() {
 
   const serverEntryPath = path.resolve(serverDist, 'entry-server.js');
   if (fs.existsSync(serverEntryPath)) {
-    const entry = await import(`file://${serverEntryPath}`);
+    const entry = await import(pathToFileURL(serverEntryPath).href);
     render = entry.render;
   }
 
@@ -66,7 +66,7 @@ async function createServer() {
 
       // If render is not yet loaded, try loading it
       if (!render && fs.existsSync(serverEntryPath)) {
-        const entry = await import(`file://${serverEntryPath}`);
+        const entry = await import(pathToFileURL(serverEntryPath).href);
         render = entry.render;
       }
 
