@@ -1,0 +1,36 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Default rules for all files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# PHP files adhere to PSR-12 standard (4 spaces)
+[*.php]
+indent_size = 4
+
+# JavaScript, JSX, JSON, CSS, and configuration files
+[*.{js,jsx,json,css,scss,html,yml,yaml}]
+indent_size = 2
+
+# Markdown files allow trailing whitespace for line breaks
+[*.md]
+trim_trailing_whitespace = false
+
+# Shell and batch scripts
+[*.{sh,bash}]
+end_of_line = lf
+
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab
