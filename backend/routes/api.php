@@ -23,4 +23,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
         Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me'])->name('api.v1.auth.me');
     });
+
+    // Protected Admin routes
+    Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
+    });
 });

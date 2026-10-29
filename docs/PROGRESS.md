@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 10 of 97 tasks started, 10 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 11 of 97 tasks started, 11 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 2 | 2 | In progress (2/8) |
+| 02 | Authentication and Admin Shell | 8 | 3 | 3 | In progress (3/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **10** | **10** | |
+| **Total** | | **97** | **11** | **11** | |
 
 ## Task register
 
@@ -35,7 +35,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.08 | CI | DONE | PASS: GitHub Actions CI workflow (Backend MariaDB+PHPUnit, Frontend Vitest+Build, E2E Playwright) | None available (manual checklist) | None (ready for Phase 02) | — |
 | 02.01 | Admin user model/seed | DONE | PASS: AdminSeedTest (3 passed, 15 assertions: idempotent seed, no hardcoded password, no public register) | None available (manual checklist) | None (ready for 02.02) | — |
 | 02.02 | Sanctum sessions/CSRF | DONE | PASS: SanctumAuthTest (6 passed, 24 assertions: session rotation, invalid login 401, logout, me endpoint, prod cookie flags) | None available (manual checklist) | None (ready for 02.03) | — |
-| 02.03 | Authorization | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.03 | Authorization | DONE | PASS: AuthorizationTest (6 passed, 27 assertions: 401 unauthenticated, 403 non-admin, admin authorized, malicious ID blocked, self-delete blocked) | None available (manual checklist) | None (ready for 02.04) | — |
 | 02.04 | Rate limiting and brute-force protection | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.05 | Admin shell UI | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.06 | Profile/password | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -745,4 +745,52 @@ Blockers/owner inputs:
   None. Task 02.02 complete and verified.
 Next task:
   Phase 02 — Task 02.03: Authorization (app/Policies/*, middleware, route guards, malicious object ID tests).
+```
+
+
+---
+
+## Task 02.03 Execution Report
+
+```text
+Task ID: 02.03
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.03-authorization
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_29_203000_add_is_admin_to_users_table.php (boolean is_admin column)
+    - backend/app/Policies/UserPolicy.php (viewAny, view, update, delete authorization)
+    - backend/app/Http/Middleware/EnsureUserIsAdmin.php (admin guard returning 401 unauthenticated or 403 forbidden)
+    - backend/app/Http/Controllers/Api/V1/Admin/UserController.php (protected admin CRUD operations)
+    - backend/tests/Feature/Auth/AuthorizationTest.php (6 targeted tests)
+  Modified:
+    - backend/app/Models/User.php (added is_admin fillable/cast and isAdmin() method)
+    - backend/database/seeders/AdminUserSeeder.php (sets is_admin = true)
+    - backend/bootstrap/app.php (registered admin middleware alias)
+    - backend/routes/api.php (registered protected /api/v1/admin/users route group)
+    - docs/PROGRESS.md (marked 02.03 DONE, recorded execution evidence)
+Tests written first:
+  backend/tests/Feature/Auth/AuthorizationTest.php:
+    - test_unauthenticated_request_to_admin_routes_returns_401
+    - test_regular_non_admin_user_cannot_access_admin_routes_returns_403
+    - test_authenticated_admin_is_authorized_for_admin_endpoints
+    - test_malicious_object_id_cannot_bypass_policy_returns_403
+    - test_admin_can_view_specific_user_by_id
+    - test_admin_cannot_delete_themselves
+  Observed RED state:
+    SQLSTATE[42S22]: Column not found: 1054 Unknown column 'is_admin' in 'field list'.
+  Observed GREEN state:
+    Tests: 6 passed (27 assertions) in 1.38s.
+Security considerations:
+  - Strict middleware check EnsureUserIsAdmin blocks all non-admin requests with 403 Forbidden.
+  - Policy enforcement via Gate::authorize prevents horizontal privilege escalation.
+  - Active administrator account cannot delete itself (anti-lockout protection).
+  - Malicious object ID manipulation verified to return 403.
+Blockers/owner inputs:
+  None. Task 02.03 complete and verified.
+Next task:
+  Phase 02 — Task 02.04: Rate limiting and brute-force protection (Laravel limiter, failed logins 429, audit log secret redaction).
 ```
