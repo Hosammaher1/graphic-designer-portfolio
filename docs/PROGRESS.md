@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 11 of 97 tasks started, 11 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 12 of 97 tasks started, 12 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 3 | 3 | In progress (3/8) |
+| 02 | Authentication and Admin Shell | 8 | 4 | 4 | In progress (4/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **11** | **11** | |
+| **Total** | | **97** | **12** | **12** | |
 
 ## Task register
 
@@ -36,7 +36,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.01 | Admin user model/seed | DONE | PASS: AdminSeedTest (3 passed, 15 assertions: idempotent seed, no hardcoded password, no public register) | None available (manual checklist) | None (ready for 02.02) | — |
 | 02.02 | Sanctum sessions/CSRF | DONE | PASS: SanctumAuthTest (6 passed, 24 assertions: session rotation, invalid login 401, logout, me endpoint, prod cookie flags) | None available (manual checklist) | None (ready for 02.03) | — |
 | 02.03 | Authorization | DONE | PASS: AuthorizationTest (6 passed, 27 assertions: 401 unauthenticated, 403 non-admin, admin authorized, malicious ID blocked, self-delete blocked) | None available (manual checklist) | None (ready for 02.04) | — |
-| 02.04 | Rate limiting and brute-force protection | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.04 | Rate limiting and brute-force protection | DONE | PASS: RateLimitingTest (3 passed, 13 assertions: 5-attempt threshold, 429 status with retry_after, success resets counter, audit log redacts passwords) | None available (manual checklist) | None (ready for 02.05) | — |
 | 02.05 | Admin shell UI | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.06 | Profile/password | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.07 | Admin audit log | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -793,4 +793,41 @@ Blockers/owner inputs:
   None. Task 02.03 complete and verified.
 Next task:
   Phase 02 — Task 02.04: Rate limiting and brute-force protection (Laravel limiter, failed logins 429, audit log secret redaction).
+```
+
+
+---
+
+## Task 02.04 Execution Report
+
+```text
+Task ID: 02.04
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.04-rate-limiting
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/tests/Feature/Auth/RateLimitingTest.php (3 tests: 429 throttling, limiter reset on success, password redaction in logs)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/AuthController.php (RateLimiter integration, 5-attempt threshold, 60s decay, redacted audit logging)
+    - docs/PROGRESS.md (marked 02.04 DONE, recorded execution evidence)
+Tests written first:
+  backend/tests/Feature/Auth/RateLimitingTest.php:
+    - test_repeated_failed_logins_trigger_429_too_many_requests
+    - test_successful_login_clears_rate_limiter_attempts
+    - test_auth_event_logging_redacts_passwords_and_secrets
+  Observed RED state:
+    6th attempt returned 401 instead of 429; Log::warning was not called.
+  Observed GREEN state:
+    Tests: 3 passed (13 assertions) in 2.56s.
+Security considerations:
+  - Brute force protection: Throttles after 5 consecutive failed attempts per email + IP combination.
+  - Return HTTP 429 with retry_after header and JSON payload.
+  - Audit logging records only email, ip, and user_agent; plaintext passwords are never captured or logged.
+Blockers/owner inputs:
+  None. Task 02.04 complete and verified.
+Next task:
+  Phase 02 — Task 02.05: Admin shell UI (frontend/src/layouts/AdminLayout.jsx, sidebar/header/nav, login page, protected routes, Vitest component tests).
 ```
