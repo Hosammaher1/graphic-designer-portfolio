@@ -28,7 +28,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.01 | Repository and documentation | DONE | PASS: git diff --check, git check-ignore, git status | None available (manual checklist) | None (ready for 01.02) | bc0af8b |
 | 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
 | 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | a799e00 |
-| 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | [pending commit] |
+| 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | 3e435c8 |
 | 01.05 | SSR | NOT_STARTED | Not run | — | Depends on 01.04 | — |
 | 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
 | 01.07 | Test harness | NOT_STARTED | Not run | — | Depends on 01.02-01.06 | — |
@@ -353,7 +353,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.04-react-vite
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: [will record commit hash upon commit]
+  Commit: 3e435c8
 Files changed:
   Created:
     - frontend/index.html
