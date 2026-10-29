@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+/**
+ * Vite build configuration.
+ * Test configuration is now in vitest.config.js (Task 01.07).
+ */
 export default defineConfig({
   plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './tests/setup.js',
-  },
   server: {
     port: 5173,
+  },
+  build: {
+    outDir: 'dist/client',
+    rollupOptions: {
+      input: 'index.html',
+    },
   },
 });
