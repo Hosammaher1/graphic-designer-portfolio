@@ -4,6 +4,7 @@ import HomePage from '../pages/HomePage.jsx';
 import LoginPage from '../pages/admin/LoginPage.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import DashboardPage from '../pages/admin/DashboardPage.jsx';
+import ProfilePage from '../pages/admin/ProfilePage.jsx';
 
 export const routes = [
   {
@@ -29,6 +30,10 @@ export const routes = [
       {
         path: '',
         element: <DashboardPage />,
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
       },
       {
         path: '*',

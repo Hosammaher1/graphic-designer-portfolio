@@ -26,6 +26,10 @@ Route::prefix('v1')->group(function () {
 
     // Protected Admin routes
     Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::get('/profile', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'show'])->name('api.v1.admin.profile.show');
+        Route::put('/profile', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'update'])->name('api.v1.admin.profile.update');
+        Route::put('/profile/password', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'updatePassword'])->name('api.v1.admin.profile.password');
+
         Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
     });
 });

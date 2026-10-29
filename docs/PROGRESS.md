@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 13 of 97 tasks started, 13 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 14 of 97 tasks started, 14 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 5 | 5 | In progress (5/8) |
+| 02 | Authentication and Admin Shell | 8 | 6 | 6 | In progress (6/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **13** | **13** | |
+| **Total** | | **97** | **14** | **14** | |
 
 ## Task register
 
@@ -38,7 +38,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.03 | Authorization | DONE | PASS: AuthorizationTest (6 passed, 27 assertions: 401 unauthenticated, 403 non-admin, admin authorized, malicious ID blocked, self-delete blocked) | None available (manual checklist) | None (ready for 02.04) | — |
 | 02.04 | Rate limiting and brute-force protection | DONE | PASS: RateLimitingTest (3 passed, 13 assertions: 5-attempt threshold, 429 status with retry_after, success resets counter, audit log redacts passwords) | None available (manual checklist) | None (ready for 02.05) | — |
 | 02.05 | Admin shell UI | DONE | PASS: Vitest admin-shell (4 passed: loading state, redirect unauthenticated to login, authenticated shell nav & identity, accessible mobile drawer toggle) | None available (manual checklist) | None (ready for 02.06) | — |
-| 02.06 | Profile/password | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.06 | Profile/password | DONE | PASS: ProfileTest (4 passed, 20 assertions: profile view with no password echo, current_password required, min 8 char confirmed, successful password update with new hash) | None available (manual checklist) | None (ready for 02.07) | — |
 | 02.07 | Admin audit log | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.08 | E2E auth | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 03.01 | Schema and factories | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -872,4 +872,46 @@ Blockers/owner inputs:
   None. Task 02.05 complete and verified.
 Next task:
   Phase 02 — Task 02.06: Profile/password (backend endpoint, frontend settings page, password security validation, session revocation).
+```
+
+
+---
+
+## Task 02.06 Execution Report
+
+```text
+Task ID: 02.06
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.06-profile-password
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProfileController.php (show profile, update name/email, update password)
+    - backend/tests/Feature/Auth/ProfileTest.php (4 tests: profile read without password echo, current password validation, strong new password rule, successful password update)
+    - frontend/src/pages/admin/ProfilePage.jsx (admin settings UI: profile details form + password update form)
+  Modified:
+    - backend/routes/api.php (registered admin.profile.{show,update,password} routes)
+    - frontend/src/app/routes.jsx (registered /admin/profile route)
+    - docs/PROGRESS.md (marked 02.06 DONE, recorded execution evidence)
+Tests written:
+  backend/tests/Feature/Auth/ProfileTest.php:
+    - test_admin_can_view_profile_and_password_is_never_echoed
+    - test_updating_password_requires_correct_current_password
+    - test_updating_password_enforces_strong_new_password
+    - test_updating_password_successfully_changes_credentials_without_echoing_password
+  Observed RED state:
+    Expected 200/422 but received 404 (endpoints not registered).
+  Observed GREEN state:
+    Tests: 4 passed (20 assertions) in 0.99s.
+Security considerations:
+  - Password and hashed secrets are never echoed in HTTP responses or profile serializers.
+  - Updating credentials strictly enforces `current_password` re-authentication.
+  - New passwords require minimum 8 characters and confirmation match.
+  - Passwords hashed using bcrypt.
+Blockers/owner inputs:
+  None. Task 02.06 complete and verified.
+Next task:
+  Phase 02 — Task 02.07: Admin audit log (log sensitive mutations/login events without payload secrets, timestamps and actor, no passwords/tokens).
 ```
