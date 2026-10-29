@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 9 of 97 tasks started, 9 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 10 of 97 tasks started, 10 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 1 | 1 | In progress (1/8) |
+| 02 | Authentication and Admin Shell | 8 | 2 | 2 | In progress (2/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **9** | **9** | |
+| **Total** | | **97** | **10** | **10** | |
 
 ## Task register
 
@@ -34,7 +34,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.07 | Test harness | DONE | PASS: Vitest 13/13, PHPUnit 6/6 (34 assertions), Playwright 26/26 (Desktop Chromium + Mobile Chrome) | None available (manual checklist) | None (ready for 01.08) | — |
 | 01.08 | CI | DONE | PASS: GitHub Actions CI workflow (Backend MariaDB+PHPUnit, Frontend Vitest+Build, E2E Playwright) | None available (manual checklist) | None (ready for Phase 02) | — |
 | 02.01 | Admin user model/seed | DONE | PASS: AdminSeedTest (3 passed, 15 assertions: idempotent seed, no hardcoded password, no public register) | None available (manual checklist) | None (ready for 02.02) | — |
-| 02.02 | Sanctum sessions/CSRF | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.02 | Sanctum sessions/CSRF | DONE | PASS: SanctumAuthTest (6 passed, 24 assertions: session rotation, invalid login 401, logout, me endpoint, prod cookie flags) | None available (manual checklist) | None (ready for 02.03) | — |
 | 02.03 | Authorization | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.04 | Rate limiting and brute-force protection | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.05 | Admin shell UI | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -694,4 +694,55 @@ Blockers/owner inputs:
   None. Task 02.01 complete and verified.
 Next task:
   Phase 02 — Task 02.02: Sanctum sessions/CSRF (Auth controller, session config, login/logout routes, tests).
+```
+
+
+---
+
+## Task 02.02 Execution Report
+
+```text
+Task ID: 02.02
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.02-sanctum-sessions-csrf
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/AuthController.php (login, logout, me endpoints)
+    - backend/config/sanctum.php (published Sanctum config)
+    - backend/database/migrations/2026_10_29_200813_create_personal_access_tokens_table.php (personal_access_tokens table)
+    - backend/tests/Feature/Auth/SanctumAuthTest.php (6 tests: valid login, invalid login, logout, me unauthenticated 401, me authenticated 200, prod cookie security flags)
+  Modified:
+    - backend/composer.json (added laravel/sanctum v4.3.3)
+    - backend/composer.lock (locked sanctum)
+    - backend/app/Models/User.php (added HasApiTokens trait)
+    - backend/bootstrap/app.php (configured statefulApi middleware)
+    - backend/config/session.php (enforced secure flag default in production environment)
+    - backend/routes/api.php (registered api.v1.auth.{login,logout,me} routes)
+    - docs/PROGRESS.md (marked 02.02 DONE, recorded execution evidence)
+Tests written first:
+  backend/tests/Feature/Auth/SanctumAuthTest.php:
+    - test_login_with_valid_credentials_authenticates_and_rotates_session
+    - test_login_with_invalid_credentials_returns_unauthorized_and_keeps_guest
+    - test_logout_invalidates_session_and_clears_authentication
+    - test_unauthenticated_request_to_me_endpoint_returns_401
+    - test_authenticated_user_can_access_me_endpoint
+    - test_cookie_security_flags_in_production_environment
+  Observed RED state:
+    Expected response status code [200] but received 404 (endpoints not registered).
+  Observed GREEN state:
+    Tests: 6 passed (24 assertions) in 1.32s.
+    All Auth tests (AdminSeedTest + SanctumAuthTest): 9 passed (39 assertions) in 1.27s.
+    Full backend suite: 15 passed (73 assertions) in 2.58s.
+Security considerations:
+  - Session fixation defense: $request->session()->regenerate() called upon successful login.
+  - Logout invalidation: session()->invalidate() and session()->regenerateToken() called on logout.
+  - Cookie security: secure flag forced in production config, http_only enabled, SameSite=lax enforced.
+  - Rate limiting & brute force protection to be hardened in Task 02.04.
+Blockers/owner inputs:
+  None. Task 02.02 complete and verified.
+Next task:
+  Phase 02 — Task 02.03: Authorization (app/Policies/*, middleware, route guards, malicious object ID tests).
 ```
