@@ -30,6 +30,8 @@ Route::prefix('v1')->group(function () {
         Route::put('/profile', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'update'])->name('api.v1.admin.profile.update');
         Route::put('/profile/password', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'updatePassword'])->name('api.v1.admin.profile.password');
 
+        Route::get('/audit-logs', [\App\Http\Controllers\Api\V1\Admin\AuditLogController::class, 'index'])->name('api.v1.admin.audit.index');
+
         Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
     });
 });

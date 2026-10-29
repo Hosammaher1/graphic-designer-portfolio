@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,8 @@ class AuthController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
+            AuditLogger::log('auth.login.failed', ['email' => $credentials['email']], null, $request);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid credentials.',
@@ -81,6 +84,8 @@ class AuthController extends Controller
             'email' => $user->email,
             'ip' => $request->ip(),
         ]);
+
+        AuditLogger::log('auth.login.success', ['email' => $user->email], $user, $request);
 
         return response()->json([
             'status' => 'success',
@@ -108,6 +113,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'ip' => $request->ip(),
             ]);
+
+            AuditLogger::log('auth.logout', ['email' => $user->email], $user, $request);
         }
 
         Auth::guard('web')->logout();

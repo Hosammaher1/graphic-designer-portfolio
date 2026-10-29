@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +45,10 @@ class ProfileController extends Controller
 
         $user->update($validated);
 
+        AuditLogger::log('admin.profile.updated', [
+            'updated_fields' => array_keys($validated),
+        ], $user, $request);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profile updated successfully.',
@@ -73,6 +78,8 @@ class ProfileController extends Controller
         $user->update([
             'password' => Hash::make($validated['password']),
         ]);
+
+        AuditLogger::log('admin.password.updated', [], $user, $request);
 
         return response()->json([
             'status' => 'success',

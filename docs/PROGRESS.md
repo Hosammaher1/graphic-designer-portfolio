@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 14 of 97 tasks started, 14 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 15 of 97 tasks started, 15 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 6 | 6 | In progress (6/8) |
+| 02 | Authentication and Admin Shell | 8 | 7 | 7 | In progress (7/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **14** | **14** | |
+| **Total** | | **97** | **15** | **15** | |
 
 ## Task register
 
@@ -39,7 +39,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.04 | Rate limiting and brute-force protection | DONE | PASS: RateLimitingTest (3 passed, 13 assertions: 5-attempt threshold, 429 status with retry_after, success resets counter, audit log redacts passwords) | None available (manual checklist) | None (ready for 02.05) | — |
 | 02.05 | Admin shell UI | DONE | PASS: Vitest admin-shell (4 passed: loading state, redirect unauthenticated to login, authenticated shell nav & identity, accessible mobile drawer toggle) | None available (manual checklist) | None (ready for 02.06) | — |
 | 02.06 | Profile/password | DONE | PASS: ProfileTest (4 passed, 20 assertions: profile view with no password echo, current_password required, min 8 char confirmed, successful password update with new hash) | None available (manual checklist) | None (ready for 02.07) | — |
-| 02.07 | Admin audit log | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.07 | Admin audit log | DONE | PASS: AuditLogTest (4 passed, 29 assertions: actor & timestamp recorded, automatic secret/token redaction, paginated admin index, 401/403 access control) | None available (manual checklist) | None (ready for 02.08) | — |
 | 02.08 | E2E auth | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 03.01 | Schema and factories | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.02 | Project CRUD API | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -914,4 +914,46 @@ Blockers/owner inputs:
   None. Task 02.06 complete and verified.
 Next task:
   Phase 02 — Task 02.07: Admin audit log (log sensitive mutations/login events without payload secrets, timestamps and actor, no passwords/tokens).
+```
+
+
+---
+
+## Task 02.07 Execution Report
+
+```text
+Task ID: 02.07
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.07-admin-audit-log
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_29_204000_create_audit_logs_table.php (append-only audit_logs schema)
+    - backend/app/Models/AuditLog.php (AuditLog model, json details cast, relation to User)
+    - backend/app/Services/AuditLogger.php (event logger with recursive secret & password scrubbing)
+    - backend/app/Http/Controllers/Api/V1/Admin/AuditLogController.php (paginated index endpoint)
+    - backend/tests/Feature/Auth/AuditLogTest.php (4 tests: event persistence, secret scrubbing, pagination, access control)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/AuthController.php (audit logging for login success/failure and logout)
+    - backend/app/Http/Controllers/Api/V1/Admin/ProfileController.php (audit logging for profile and password changes)
+    - backend/routes/api.php (registered admin.audit.index route)
+    - docs/PROGRESS.md (marked 02.07 DONE, recorded execution evidence)
+Tests written:
+  backend/tests/Feature/Auth/AuditLogTest.php:
+    - test_audit_event_is_persisted_to_database_with_actor_and_timestamp
+    - test_audit_log_scrubs_passwords_and_sensitive_tokens_from_payload
+    - test_admin_can_retrieve_paginated_audit_logs
+    - test_unauthenticated_or_regular_user_cannot_access_audit_logs
+  Results:
+    PASS: 4/4 targeted tests green (29 assertions) in 1.11s.
+Security considerations:
+  - Recursive scrubbing sanitizes keys containing password, token, secret, api_key, authorization.
+  - Audit trail is append-only with immutable timestamps ($timestamps = false, no updated_at).
+  - Protected behind EnsureUserIsAdmin middleware; unauthenticated or regular users cannot view logs.
+Blockers/owner inputs:
+  None. Task 02.07 complete and verified.
+Next task:
+  Phase 02 — Task 02.08: E2E auth (e2e/tests/admin-auth.spec.js: successful login, wrong password, refresh session, logout, blocked admin route, mobile UI; Phase 02 gate evaluation).
 ```
