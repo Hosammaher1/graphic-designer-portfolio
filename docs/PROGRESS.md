@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 4 of 97 tasks started, 4 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 5 of 97 tasks started, 5 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -10,7 +10,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
-| 01 | Foundation | 8 | 4 | 4 | In progress (4/8) |
+| 01 | Foundation | 8 | 5 | 5 | In progress (5/8) |
 | 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **4** | **4** | |
+| **Total** | | **97** | **5** | **5** | |
 
 ## Task register
 
@@ -29,7 +29,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
 | 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | a799e00 |
 | 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | 3e435c8 |
-| 01.05 | SSR | NOT_STARTED | Not run | — | Depends on 01.04 | — |
+| 01.05 | SSR | DONE | PASS: Vitest SSR (3 passed), client/server build, curl /ar/ | None available (manual checklist) | None (ready for 01.06) | [pending commit] |
 | 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
 | 01.07 | Test harness | NOT_STARTED | Not run | — | Depends on 01.02-01.06 | — |
 | 01.08 | CI | NOT_STARTED | Not run | — | Depends on 01.07 | — |
@@ -407,4 +407,70 @@ Blockers/owner inputs:
   None. Task 01.04 complete and verified.
 Next task:
   Phase 01 — Task 01.05: SSR (`src/entry-client.jsx`, `src/entry-server.jsx`, `server/index.js`, `tests/ssr.test.jsx`).
+```
+
+
+---
+
+## Task 01.05 Execution Report
+
+```text
+Task ID: 01.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/01.05-ssr
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: [will record commit hash upon commit]
+Files changed:
+  Created:
+    - frontend/src/entry-client.jsx
+    - frontend/src/entry-server.jsx
+    - frontend/server/index.js (native node:http server, zero Express dependency per ADR-009)
+    - frontend/tests/ssr.test.jsx
+  Modified:
+    - frontend/index.html (configured ssr outlet and entry-client.jsx)
+    - frontend/package.json (added build:client, build:server, serve:ssr scripts)
+    - docs/PROGRESS.md (marked 01.05 DONE, recorded execution evidence)
+Tests written first:
+  frontend/tests/ssr.test.jsx:
+    - renders Arabic route with title and semantic HTML before client JS
+    - renders English route with English title and LTR direction
+    - renders Admin placeholder route on the server without errors
+  Observed RED state:
+    Failed to resolve import "../src/entry-server.jsx" from "tests/ssr.test.jsx". Does the file exist?
+  Observed GREEN state:
+    tests/ssr.test.jsx: 3 passed (3) in 16ms.
+    All frontend tests: 8 passed across 2 suites in 1.13s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for SSR / Vite frontend architecture.
+Unavailable skills and fallback checklist:
+  - frontend-architecture, react-ssr, webapp-testing: NOT AVAILABLE.
+  - Fallback checklist applied: RED -> GREEN TDD cycle executed manually, native HTTP handler implemented without extra dependencies (ADR-009), StaticRouter configured, hydration tags verified, curl probe verified.
+Commands executed and exact results:
+  1. cd frontend; npm.cmd run test -- --run tests/ssr.test.jsx ->
+     RED: Failed to resolve import ../src/entry-server.jsx.
+  2. [Implementation of entry-client.jsx, entry-server.jsx, server/index.js, index.html]
+  3. cd frontend; npm.cmd run test -- --run tests/ssr.test.jsx ->
+     GREEN: PASS tests/ssr.test.jsx (3 tests passed, 16ms).
+  4. cd frontend; npm.cmd run build ->
+     Built client bundle (dist/client/) and SSR server bundle (dist/server/entry-server.js).
+  5. Probed production SSR server on port 3000:
+     - curl http://localhost:3000/ar/ ->
+       <html lang="ar" dir="rtl">
+       <title>محمد — مصمم جرافيك</title>
+       Semantic Arabic HTML rendered before client JS.
+     - curl http://localhost:3000/en/ ->
+       <html lang="en" dir="ltr">
+       <title>Mohammed — Graphic Designer</title>
+       Semantic English HTML rendered before client JS.
+Security/privacy/SEO considerations:
+  - Zero Express dependency: lean standard library node:http server reduces attack surface and eliminates dependency bloat.
+  - Initial request-derived state serialized into <script id="__INITIAL_DATA__"> prevents hydration mismatch.
+  - Proper lang and dir attributes injected at the HTML root for search engine crawlers and screen readers.
+Blockers/owner inputs:
+  None. Task 01.05 complete and verified.
+Next task:
+  Phase 01 — Task 01.06: Localization (`src/i18n/{ar,en}.json`, `config.js`, `LanguageSwitcher.jsx`, tests).
 ```
