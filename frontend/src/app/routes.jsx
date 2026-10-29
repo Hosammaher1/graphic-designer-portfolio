@@ -1,7 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage.jsx';
-import AdminPlaceholder from '../pages/AdminPlaceholder.jsx';
+import LoginPage from '../pages/admin/LoginPage.jsx';
+import AdminLayout from '../layouts/AdminLayout.jsx';
+import DashboardPage from '../pages/admin/DashboardPage.jsx';
 
 export const routes = [
   {
@@ -17,7 +19,21 @@ export const routes = [
     element: <HomePage locale="en" />,
   },
   {
-    path: '/admin/*',
-    element: <AdminPlaceholder />,
+    path: '/admin/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        path: '',
+        element: <DashboardPage />,
+      },
+      {
+        path: '*',
+        element: <DashboardPage />,
+      },
+    ],
   },
 ];

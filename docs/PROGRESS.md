@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 12 of 97 tasks started, 12 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 13 of 97 tasks started, 13 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 4 | 4 | In progress (4/8) |
+| 02 | Authentication and Admin Shell | 8 | 5 | 5 | In progress (5/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **12** | **12** | |
+| **Total** | | **97** | **13** | **13** | |
 
 ## Task register
 
@@ -37,7 +37,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.02 | Sanctum sessions/CSRF | DONE | PASS: SanctumAuthTest (6 passed, 24 assertions: session rotation, invalid login 401, logout, me endpoint, prod cookie flags) | None available (manual checklist) | None (ready for 02.03) | — |
 | 02.03 | Authorization | DONE | PASS: AuthorizationTest (6 passed, 27 assertions: 401 unauthenticated, 403 non-admin, admin authorized, malicious ID blocked, self-delete blocked) | None available (manual checklist) | None (ready for 02.04) | — |
 | 02.04 | Rate limiting and brute-force protection | DONE | PASS: RateLimitingTest (3 passed, 13 assertions: 5-attempt threshold, 429 status with retry_after, success resets counter, audit log redacts passwords) | None available (manual checklist) | None (ready for 02.05) | — |
-| 02.05 | Admin shell UI | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.05 | Admin shell UI | DONE | PASS: Vitest admin-shell (4 passed: loading state, redirect unauthenticated to login, authenticated shell nav & identity, accessible mobile drawer toggle) | None available (manual checklist) | None (ready for 02.06) | — |
 | 02.06 | Profile/password | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.07 | Admin audit log | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.08 | E2E auth | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -830,4 +830,46 @@ Blockers/owner inputs:
   None. Task 02.04 complete and verified.
 Next task:
   Phase 02 — Task 02.05: Admin shell UI (frontend/src/layouts/AdminLayout.jsx, sidebar/header/nav, login page, protected routes, Vitest component tests).
+```
+
+
+---
+
+## Task 02.05 Execution Report
+
+```text
+Task ID: 02.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.05-admin-shell-ui
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - frontend/src/context/AuthContext.jsx (AuthProvider, useAuth, session check, login/logout actions)
+    - frontend/src/pages/admin/LoginPage.jsx (accessible login form with aria-live error banner)
+    - frontend/src/pages/admin/DashboardPage.jsx (admin overview dashboard)
+    - frontend/src/layouts/AdminLayout.jsx (admin shell, responsive sidebar, mobile drawer, keyboard accessible nav)
+    - frontend/tests/admin-shell.test.jsx (4 Vitest component tests)
+  Modified:
+    - frontend/src/app/App.jsx (AuthProvider wrapping, isolated admin routing without public chrome)
+    - frontend/src/app/routes.jsx (integrated /admin/login and /admin nested layout routes)
+    - docs/PROGRESS.md (marked 02.05 DONE, recorded execution evidence)
+Tests written:
+  frontend/tests/admin-shell.test.jsx:
+    - renders loading state when authentication is being verified
+    - redirects unauthenticated user to /admin/login
+    - renders authenticated admin shell with navigation and user identity
+    - toggles mobile drawer with aria-expanded attribute for assistive tech and keyboard nav
+  Results:
+    PASS: 4/4 component tests green in 1.06s.
+Accessibility & UI:
+  - Form controls have explicit associated <label> elements.
+  - Authentication errors announced with role="alert" and aria-live="assertive".
+  - Mobile drawer toggle communicates state via aria-expanded and aria-controls="admin-sidebar".
+  - Public chrome (site header/footer) suppressed inside admin routes to maintain clean separation.
+Blockers/owner inputs:
+  None. Task 02.05 complete and verified.
+Next task:
+  Phase 02 — Task 02.06: Profile/password (backend endpoint, frontend settings page, password security validation, session revocation).
 ```

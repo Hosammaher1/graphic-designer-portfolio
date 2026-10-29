@@ -3,12 +3,13 @@ import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { routes } from './routes.jsx';
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 import { getLocaleFromPath, getDirection, t } from '../i18n/config.js';
+import { AuthProvider } from '../context/AuthContext.jsx';
 
 export default function App() {
   const location = useLocation();
   const currentLocale = getLocaleFromPath(location.pathname);
   const currentDir = getDirection(currentLocale);
-  const isArabic = currentLocale === 'ar';
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -17,56 +18,94 @@ export default function App() {
     }
   }, [currentLocale, currentDir]);
 
-  return (
-    <div className="portfolio-app-root">
-      <header style={{
-        borderBottom: '1px solid var(--color-border)',
-        padding: 'var(--space-4) 0',
-        background: 'var(--color-bg)'
-      }}>
-        <div className="site-container" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <Link to={`/${currentLocale}/`} style={{
-            fontSize: 'var(--font-size-xl)',
-            fontWeight: 'var(--font-weight-bold)'
-          }}>
-            {t('site.title', currentLocale)}
-          </Link>
-          <nav style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-            <LanguageSwitcher currentLocale={currentLocale} />
-            <Link to="/admin/" style={{
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-text-secondary)'
-            }}>
-              {t('nav.admin', currentLocale)}
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main>
+  if (isAdminRoute) {
+    return (
+      <AuthProvider>
         <Routes>
           {routes.map((route, idx) => (
-            <Route key={idx} path={route.path} element={route.element} />
+            <Route key={idx} path={route.path} element={route.element}>
+              {route.children?.map((child, cIdx) => (
+                <Route key={cIdx} path={child.path} element={child.element} />
+              ))}
+            </Route>
           ))}
         </Routes>
-      </main>
+      </AuthProvider>
+    );
+  }
 
-      <footer style={{
-        borderTop: '1px solid var(--color-border)',
-        padding: 'var(--space-8) 0',
-        marginTop: 'auto',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-secondary)',
-        textAlign: 'center'
-      }}>
-        <div className="site-container">
-          <p>© {new Date().getFullYear()} {t('site.designerName', currentLocale)}. {t('footer.rights', currentLocale)}</p>
-        </div>
-      </footer>
-    </div>
+  return (
+    <AuthProvider>
+      <div className="portfolio-app-root">
+        <header
+          style={{
+            borderBottom: '1px solid var(--color-border)',
+            padding: 'var(--space-4) 0',
+            background: 'var(--color-bg)',
+          }}
+        >
+          <div
+            className="site-container"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Link
+              to={`/${currentLocale}/`}
+              style={{
+                fontSize: 'var(--font-size-xl)',
+                fontWeight: 'var(--font-weight-bold)',
+              }}
+            >
+              {t('site.title', currentLocale)}
+            </Link>
+            <nav style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
+              <LanguageSwitcher currentLocale={currentLocale} />
+              <Link
+                to="/admin/"
+                style={{
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                {t('nav.admin', currentLocale)}
+              </Link>
+            </nav>
+          </div>
+        </header>
+
+        <main>
+          <Routes>
+            {routes.map((route, idx) => (
+              <Route key={idx} path={route.path} element={route.element}>
+                {route.children?.map((child, cIdx) => (
+                  <Route key={cIdx} path={child.path} element={child.element} />
+                ))}
+              </Route>
+            ))}
+          </Routes>
+        </main>
+
+        <footer
+          style={{
+            borderTop: '1px solid var(--color-border)',
+            padding: 'var(--space-8) 0',
+            marginTop: 'auto',
+            fontSize: 'var(--font-size-sm)',
+            color: 'var(--color-text-secondary)',
+            textAlign: 'center',
+          }}
+        >
+          <div className="site-container">
+            <p>
+              © {new Date().getFullYear()} {t('site.designerName', currentLocale)}.{' '}
+              {t('footer.rights', currentLocale)}
+            </p>
+          </div>
+        </footer>
+      </div>
+    </AuthProvider>
   );
 }
