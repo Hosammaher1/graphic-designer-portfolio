@@ -33,6 +33,18 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the model is the system administrator.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => config('portfolio.admin_name', 'Mohammed Maher'),
+            'email' => config('portfolio.admin_email', 'admin@mohammed-portfolio.test'),
+            'email_verified_at' => now(),
+        ]);
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static

@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 8 of 97 tasks started, 8 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 9 of 97 tasks started, 9 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
+| 02 | Authentication and Admin Shell | 8 | 1 | 1 | In progress (1/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **8** | **8** | |
+| **Total** | | **97** | **9** | **9** | |
 
 ## Task register
 
@@ -33,7 +33,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.06 | Localization | DONE | PASS: Vitest localization (5 passed), smoke (5 passed), ssr (3 passed) = 13/13 total | None available (manual checklist) | None (ready for 01.07) | — |
 | 01.07 | Test harness | DONE | PASS: Vitest 13/13, PHPUnit 6/6 (34 assertions), Playwright 26/26 (Desktop Chromium + Mobile Chrome) | None available (manual checklist) | None (ready for 01.08) | — |
 | 01.08 | CI | DONE | PASS: GitHub Actions CI workflow (Backend MariaDB+PHPUnit, Frontend Vitest+Build, E2E Playwright) | None available (manual checklist) | None (ready for Phase 02) | — |
-| 02.01 | Admin user model/seed | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.01 | Admin user model/seed | DONE | PASS: AdminSeedTest (3 passed, 15 assertions: idempotent seed, no hardcoded password, no public register) | None available (manual checklist) | None (ready for 02.02) | — |
 | 02.02 | Sanctum sessions/CSRF | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.03 | Authorization | NOT_STARTED | Not run | — | Phase 01 gate | — |
 | 02.04 | Rate limiting and brute-force protection | NOT_STARTED | Not run | — | Phase 01 gate | — |
@@ -652,4 +652,46 @@ Criteria:
   7. CI workflow created: PASS (.github/workflows/ci.yml covers all tiers)
 Phase 01 is COMPLETE. Ready for Phase 02 — Authentication and Admin Shell.
 ================================================================================
+```
+
+
+---
+
+## Task 02.01 Execution Report
+
+```text
+Task ID: 02.01
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.01-admin-user-seed
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - backend/config/portfolio.php (admin configuration with ENV overrides)
+    - backend/database/seeders/AdminUserSeeder.php (idempotent seeder, secure password generation fallback)
+    - backend/tests/Feature/Auth/AdminSeedTest.php (3 tests: idempotent seed, password security, no public register)
+  Modified:
+    - backend/database/factories/UserFactory.php (added admin() state method)
+    - backend/database/seeders/DatabaseSeeder.php (delegates to AdminUserSeeder)
+    - docs/PROGRESS.md (marked 02.01 DONE, recorded execution evidence)
+Tests written first:
+  backend/tests/Feature/Auth/AdminSeedTest.php:
+    - test_admin_seeder_creates_admin_user_idempotently (assertDatabaseCount 1 after repeated runs)
+    - test_admin_seeder_throws_or_uses_secure_bootstrap_if_no_password (never hardcoded password)
+    - test_no_public_registration_endpoint_exists (assert no register route name, 404 on POST /api/v1/register and /register)
+  Observed RED state:
+    BindingResolutionException: Target class [Database\Seeders\AdminUserSeeder] does not exist.
+  Observed GREEN state:
+    Tests: 3 passed (15 assertions) in 1.06s.
+    Full suite: 9 passed (49 assertions) in 1.60s.
+Security considerations:
+  - AdminUserSeeder never uses hardcoded default passwords (e.g. 'password', 'admin').
+  - Str::random(32) cryptographically secure string generated if ADMIN_PASSWORD is unset in bootstrap.
+  - No public registration routes exposed in web or API routing table.
+  - User passwords always hashed using bcrypt with rounds defined in phpunit.xml.
+Blockers/owner inputs:
+  None. Task 02.01 complete and verified.
+Next task:
+  Phase 02 — Task 02.02: Sanctum sessions/CSRF (Auth controller, session config, login/logout routes, tests).
 ```
