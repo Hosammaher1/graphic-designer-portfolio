@@ -29,7 +29,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
 | 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | a799e00 |
 | 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | 3e435c8 |
-| 01.05 | SSR | DONE | PASS: Vitest SSR (3 passed), client/server build, curl /ar/ | None available (manual checklist) | None (ready for 01.06) | [pending commit] |
+| 01.05 | SSR | DONE | PASS: Vitest SSR (3 passed), client/server build, curl /ar/ | None available (manual checklist) | None (ready for 01.06) | 0b795f4 |
 | 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
 | 01.07 | Test harness | NOT_STARTED | Not run | — | Depends on 01.02-01.06 | — |
 | 01.08 | CI | NOT_STARTED | Not run | — | Depends on 01.07 | — |
@@ -420,7 +420,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.05-ssr
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: [will record commit hash upon commit]
+  Commit: 0b795f4
 Files changed:
   Created:
     - frontend/src/entry-client.jsx
