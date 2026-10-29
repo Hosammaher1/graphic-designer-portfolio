@@ -26,7 +26,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
 | 01.01 | Repository and documentation | DONE | PASS: git diff --check, git check-ignore, git status | None available (manual checklist) | None (ready for 01.02) | bc0af8b |
-| 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | [pending commit] |
+| 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
 | 01.03 | MySQL | NOT_STARTED | Not run | — | Depends on 01.02 | — |
 | 01.04 | React/Vite | NOT_STARTED | Not run | — | Depends on 01.01 | — |
 | 01.05 | SSR | NOT_STARTED | Not run | — | Depends on 01.04 | — |
@@ -222,7 +222,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.02-laravel-api
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: [will record commit hash upon commit]
+  Commit: f01d304
 Files changed:
   Created:
     - backend/app/Http/Controllers/Api/V1/HealthController.php
