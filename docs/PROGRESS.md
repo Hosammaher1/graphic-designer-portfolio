@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 3 of 97 tasks started, 3 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 4 of 97 tasks started, 4 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -10,7 +10,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
-| 01 | Foundation | 8 | 3 | 3 | In progress (3/8) |
+| 01 | Foundation | 8 | 4 | 4 | In progress (4/8) |
 | 02 | Authentication and Admin Shell | 8 | 0 | 0 | Not evaluated |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **3** | **3** | |
+| **Total** | | **97** | **4** | **4** | |
 
 ## Task register
 
@@ -28,7 +28,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01.01 | Repository and documentation | DONE | PASS: git diff --check, git check-ignore, git status | None available (manual checklist) | None (ready for 01.02) | bc0af8b |
 | 01.02 | Laravel API bootstrap | DONE | PASS: HealthTest (11 assertions), curl 200, route:list | None available (manual checklist) | None (ready for 01.03) | f01d304 |
 | 01.03 | MySQL | DONE | PASS: SchemaTest (3 passed, 21 assertions), migrate:status | None available (manual checklist) | None (ready for 01.04) | a799e00 |
-| 01.04 | React/Vite | NOT_STARTED | Not run | — | Depends on 01.01 | — |
+| 01.04 | React/Vite | DONE | PASS: Vitest (5 passed), build, dev server | None available (manual checklist) | None (ready for 01.05) | [pending commit] |
 | 01.05 | SSR | NOT_STARTED | Not run | — | Depends on 01.04 | — |
 | 01.06 | Localization | NOT_STARTED | Not run | — | Depends on 01.04, 01.05 | — |
 | 01.07 | Test harness | NOT_STARTED | Not run | — | Depends on 01.02-01.06 | — |
@@ -340,4 +340,71 @@ Blockers/owner inputs:
   None. Task 01.03 complete and verified.
 Next task:
   Phase 01 — Task 01.04: React/Vite frontend setup (`frontend/package.json`, `src/app/{App,routes}.jsx`, `src/pages/{HomePage,AdminPlaceholder}.jsx`, `src/styles/{tokens,global}.css`, `vite.config.js`, Vitest smoke tests).
+```
+
+
+---
+
+## Task 01.04 Execution Report
+
+```text
+Task ID: 01.04
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/01.04-react-vite
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: [will record commit hash upon commit]
+Files changed:
+  Created:
+    - frontend/index.html
+    - frontend/package.json
+    - frontend/package-lock.json
+    - frontend/vite.config.js
+    - frontend/src/main.jsx
+    - frontend/src/app/App.jsx
+    - frontend/src/app/routes.jsx
+    - frontend/src/pages/HomePage.jsx
+    - frontend/src/pages/AdminPlaceholder.jsx
+    - frontend/src/styles/tokens.css
+    - frontend/src/styles/global.css
+    - frontend/tests/setup.js
+    - frontend/tests/smoke.test.jsx
+  Modified:
+    - docs/PROGRESS.md (marked 01.04 DONE, recorded execution evidence)
+Tests written first:
+  frontend/tests/smoke.test.jsx:
+    - renders HomePage in Arabic with heading 'تصميم بصري هادف'
+    - renders HomePage in English with heading 'Intentional visual design'
+    - renders AdminPlaceholder component
+    - renders App shell with Arabic route and language switcher
+    - renders App shell with English route
+  Observed GREEN state:
+    Test Files: 1 passed (1)
+    Tests: 5 passed (5) in 1.14s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React/Vite frontend setup.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, design-system, react: NOT AVAILABLE.
+  - Fallback checklist applied: design tokens structured per Section 1.5 (200-500ms motion tokens, reduced motion media query, light/dark theme variables, 4px grid), RTL/LTR directionality supported, smoke tests passing, build bundle validated.
+Commands executed and exact results:
+  1. cd frontend; npm.cmd run test -- --run ->
+     PASS tests/smoke.test.jsx (5 tests passed, 1.14s).
+  2. cd frontend; npm.cmd run build ->
+     vite v6.1.0 building for production...
+     dist/index.html (0.42 kB)
+     dist/assets/index-*.css (3.10 kB)
+     dist/assets/index-*.js (268.41 kB)
+     built in 906ms.
+  3. Probed Vite dev server on port 5173 ->
+     HTTP 200 returned with <title>Mohammed — Graphic Designer</title>.
+Security/privacy/SEO considerations:
+  - node_modules, dist, and .vite-temp strictly excluded by .gitignore.
+  - Verified no secrets in frontend config or test fixtures.
+  - Accessible focus visible styles and semantic HTML headings implemented.
+Blockers/owner inputs:
+  None. Task 01.04 complete and verified.
+Next task:
+  Phase 01 — Task 01.05: SSR (`src/entry-client.jsx`, `src/entry-server.jsx`, `server/index.js`, `tests/ssr.test.jsx`).
 ```
