@@ -137,3 +137,20 @@ This document records the architectural and execution decisions made for the **G
 - **Consequences:**
   - Reliable asynchronous task execution using the existing MySQL instance.
   - Can seamlessly migrate to Redis in the future if job volume demands it.
+
+
+---
+
+## ADR-009: Lean Native Node.js SSR Handler (Zero Express Dependency)
+
+- **Status:** Accepted
+- **Context:**
+  The master plan specifies React + Vite SSR with `entry-server.jsx`, `entry-client.jsx`, and a production server script in `server/index.js` listening on port 3000 (Tasks 01.05 and 09.02). `docs/ARCHITECTURE.md` initially referenced Express as an assumed server implementation. However, Express was not in the approved stack and is not required.
+- **Decision:**
+  1. Do not introduce Express or any other third-party Node web framework into production.
+  2. Implement `frontend/server/index.js` using Node's standard library `node:http` module directly.
+  3. The native HTTP listener receives requests proxied from Nginx on `localhost:3000`, invokes the Vite SSR render bundle (`entry-server.jsx`), injects the serialized HTML and hydration tags, and streams the response.
+  4. Keeps dependencies lean, eliminates third-party routing overhead, and avoids introducing an unapproved production web framework.
+- **Consequences:**
+  - Zero extra production dependencies for the SSR script.
+  - Complete fidelity to the approved master plan (Node SSR on port 3000 per Task 01.05 and 09.02) without unapproved framework bloat.

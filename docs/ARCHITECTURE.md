@@ -25,7 +25,7 @@ The application is architected as a decoupled, modular system with a unified rev
            v                                                    v
 +-----------------------+                            +-----------------------+
 |  Laravel 11 REST API  |                            |   Node.js SSR Server  |
-|  (PHP-FPM, Port 9000) |                            |  (Express, Port 3000) |
+|  (PHP-FPM, Port 9000) |                            |  (Native HTTP, Port 3000)|
 +-----------+-----------+                            +-----------+-----------+
             |                                                    |
             | Relational Queries                                 | Internal API (Fast path)
