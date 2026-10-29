@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 15 of 97 tasks started, 15 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-29. **Implementation:** 16 of 97 tasks started, 16 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -11,7 +11,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
-| 02 | Authentication and Admin Shell | 8 | 7 | 7 | In progress (7/8) |
+| 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
@@ -19,7 +19,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **15** | **15** | |
+| **Total** | | **97** | **16** | **16** | |
 
 ## Task register
 
@@ -40,7 +40,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.05 | Admin shell UI | DONE | PASS: Vitest admin-shell (4 passed: loading state, redirect unauthenticated to login, authenticated shell nav & identity, accessible mobile drawer toggle) | None available (manual checklist) | None (ready for 02.06) | — |
 | 02.06 | Profile/password | DONE | PASS: ProfileTest (4 passed, 20 assertions: profile view with no password echo, current_password required, min 8 char confirmed, successful password update with new hash) | None available (manual checklist) | None (ready for 02.07) | — |
 | 02.07 | Admin audit log | DONE | PASS: AuditLogTest (4 passed, 29 assertions: actor & timestamp recorded, automatic secret/token redaction, paginated admin index, 401/403 access control) | None available (manual checklist) | None (ready for 02.08) | — |
-| 02.08 | E2E auth | NOT_STARTED | Not run | — | Phase 01 gate | — |
+| 02.08 | E2E auth | DONE | PASS: Playwright admin-auth (10 passed) + Full E2E suite (36 passed across Desktop Chromium & Mobile Chrome) | None available (manual checklist) | None (ready for Phase 03) | — |
 | 03.01 | Schema and factories | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.02 | Project CRUD API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.03 | Category CRUD/reorder | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -956,4 +956,43 @@ Blockers/owner inputs:
   None. Task 02.07 complete and verified.
 Next task:
   Phase 02 — Task 02.08: E2E auth (e2e/tests/admin-auth.spec.js: successful login, wrong password, refresh session, logout, blocked admin route, mobile UI; Phase 02 gate evaluation).
+```
+
+
+---
+
+## Task 02.08 Execution Report & Phase 02 Gate
+
+```text
+Task ID: 02.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/02.08-e2e-auth
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created:
+    - e2e/tests/admin-auth.spec.js (10 E2E tests: login form render, invalid credentials alert, successful authentication to admin shell, session reload, logout redirect, mobile drawer toggle)
+  Modified:
+    - frontend/server/index.js (reverse proxy for /api/ routes to Laravel backend)
+    - frontend/src/layouts/AdminLayout.jsx (SSR rendering fallback to LoginPage for unauthenticated requests)
+    - frontend/tests/ssr.test.jsx (updated admin SSR test to assert LoginPage render)
+    - docs/PROGRESS.md (marked 02.08 DONE, recorded Phase 02 gate sign-off)
+Test results:
+  - Playwright admin-auth targeted: 10/10 passed (4.4s)
+  - Full Phase 02 regression checks:
+    * Backend PHPUnit: 32/32 tests passed (162 assertions) in 38.03s
+    * Frontend Vitest: 17/17 tests passed in 1.25s
+    * E2E Playwright: 36/36 tests passed in 6.1s (Desktop Chromium + Mobile Chrome)
+    * TOTAL: 85 tests across all layers, 100% green.
+================================================================================
+PHASE 02 GATE EVALUATION — PASSED
+================================================================================
+Criteria:
+  1. Admin can securely log in and out: PASS (SanctumAuthTest + Playwright admin-auth pass)
+  2. Anonymous users cannot access admin API: PASS (EnsureUserIsAdmin middleware returns 401/403)
+  3. Protected shell works on mobile: PASS (Responsive drawer toggle verified on Pixel 5 Mobile Chrome)
+  4. All tests green across PHPUnit, Vitest, and Playwright: PASS (85/85 tests passed)
+Phase 02 is COMPLETE. Ready for Phase 03 — Projects, Categories, Media.
+================================================================================
 ```

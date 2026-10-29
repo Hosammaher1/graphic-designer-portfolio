@@ -22,9 +22,9 @@ describe('Server-Side Rendering (SSR)', () => {
     expect(result.title).toContain('Mohammed — Graphic Designer');
   });
 
-  it('renders Admin placeholder route on the server without errors', () => {
-    const result = renderServer('/admin/');
+  it('renders Admin authentication route on the server without errors', () => {
+    const result = renderServer('/admin/login');
     expect(result).toBeDefined();
-    expect(result.html).toContain('Admin Dashboard');
+    expect(result.html).toContain('Portfolio Administration');
   });
 });

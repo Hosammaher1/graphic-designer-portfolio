@@ -57,6 +57,32 @@ async function createServer() {
         return;
       }
 
+      // Proxy /api/ requests to Laravel API backend
+      if (cleanUrl.startsWith('/api/')) {
+        const backendOrigin = process.env.BACKEND_URL || 'http://127.0.0.1:8001';
+        const targetUrl = new URL(url, backendOrigin);
+        const proxyHeaders = { ...req.headers, host: targetUrl.host };
+        const proxyReq = http.request(
+          targetUrl,
+          {
+            method: req.method,
+            headers: proxyHeaders,
+          },
+          (proxyRes) => {
+            res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+            proxyRes.pipe(res);
+          }
+        );
+
+        proxyReq.on('error', () => {
+          res.writeHead(502, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'API Gateway connection failure.' }));
+        });
+
+        req.pipe(proxyReq);
+        return;
+      }
+
       // Root redirect to default locale /ar/
       if (cleanUrl === '/' || cleanUrl === '') {
         res.writeHead(302, { Location: '/ar/' });

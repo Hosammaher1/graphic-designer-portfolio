@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import LoginPage from '../pages/admin/LoginPage.jsx';
 
 export default function AdminLayout() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -26,6 +27,9 @@ export default function AdminLayout() {
   }
 
   if (!isAuthenticated) {
+    if (typeof window === 'undefined') {
+      return <LoginPage />;
+    }
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
