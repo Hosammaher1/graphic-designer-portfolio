@@ -15,3 +15,4 @@ export { Container } from './Container.jsx';
 export { Grid } from './Grid.jsx';
 export { Flex, Stack } from './Flex.jsx';
 export { SkipToContent } from './SkipToContent.jsx';
+export { Reveal } from './Reveal.jsx';

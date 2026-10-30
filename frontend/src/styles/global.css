@@ -2158,3 +2158,38 @@ button {
   max-width: 500px;
   line-height: var(--line-height-relaxed);
 }
+
+
+/* ==========================================================================
+   Subtle Motion & Transitions (Task 04.08)
+   ========================================================================== */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+.reveal-wrap {
+  pointer-events: auto;
+  transition: opacity var(--motion-normal), transform var(--motion-normal);
+}
+
+.reveal-hidden.reveal-up {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal-hidden {
+  opacity: 0;
+}
+
+.reveal-wrap.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-wrap.reduced-motion-active {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}

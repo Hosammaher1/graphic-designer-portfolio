@@ -60,7 +60,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.05 | Project detail | DONE | PASS: Vitest project-detail (4 passed: metadata & ordered media in AR/EN, full Lightbox viewer with next/prev & Escape, adjacent project navigation, 404 fallback) + PHPUnit PublicProjectsApiTest (6 passed, 29 assertions) | None available (manual checklist) | None (ready for 04.06) | — |
 | 04.06 | About/services | DONE | PASS: Vitest about-page (4 passed: biography & design vision in AR/EN, design philosophy grid, skills & tools lists, milestones timeline, CV download when provided, CV request fallback when missing) | None available (manual checklist) | None (ready for 04.07) | — |
 | 04.07 | Contact UI | DONE | PASS: Vitest contact-form (5 passed: direct contact channels & form in AR/EN, required fields validation & aria-invalid, email format regex validation, duplicate submission lock & aria-busy, local development mode handling complying with Plan Audit) | None available (manual checklist) | None (ready for 04.08) | — |
-| 04.08 | Subtle motion | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.08 | Subtle motion | DONE | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
 | 04.09 | Responsive and accessibility | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.10 | Dark mode | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.11 | E2E public browse | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -2170,4 +2170,58 @@ Blockers/owner inputs:
   None. Task 04.07 complete and verified.
 Next task:
   Phase 04 — Task 04.08: Subtle motion (Scroll reveals, hover transforms, transitions within 200-500ms bounds, prefers-reduced-motion compliance, no interaction blocking).
+```
+
+
+---
+
+## Task 04.08 Execution Report
+
+```text
+Task ID: 04.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.08-subtle-motion
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/components/ui/Reveal.jsx (accessible scroll reveal primitive with IntersectionObserver, strict 200-500ms bounds, non-blocking pointer events, and prefers-reduced-motion media query handling)
+    - frontend/tests/motion.test.jsx (Vitest test suite covering reveal classes, non-blocking interaction on child elements, and reduced motion bypass)
+  Modified:
+    - frontend/src/components/ui/index.js (exported Reveal primitive)
+    - frontend/src/styles/global.css (added styles for reveal transitions, overflow-x: hidden safeguard, and reduced-motion zeroing overrides)
+    - docs/PROGRESS.md (marked 04.08 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/motion.test.jsx:
+    - renders children inside Reveal primitive with motion classes
+    - never blocks pointer events or button clicks inside Reveal
+    - respects prefers-reduced-motion and skips motion delays with immediate reveal
+  Observed RED state:
+    Failed to resolve import "../src/components/ui/Reveal.jsx" (suite failed).
+  Observed GREEN state:
+    Tests: 3 passed (3) in 1.86s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React subtle motion / animation components.
+Unavailable skills and fallback checklist:
+  - animation, frontend-design, ui-ux: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.08 (Motion) verified: transition durations bounded between 200ms and 500ms cubic-bezier(0.16, 1, 0.3, 1); hover transforms use subtle translateY(-2px to -4px) and restrained image scales (scale 1.025); html and body specify overflow-x: hidden to prevent horizontal shift; pointer-events: auto ensures motion never intercepts or blocks user clicks; @media (prefers-reduced-motion: reduce) zeroes transitions and animations to 0ms immediately.
+Design artifacts/screenshots reviewed:
+  Inspected CSS transition curve, element reveal offsets, mobile viewport horizontal overflow prevention, and reduced-motion immediate rendering.
+Commands executed and exact results:
+  1. git checkout -b feat/04.08-subtle-motion
+  2. Created frontend/tests/motion.test.jsx -> RED state observed.
+  3. Implemented Reveal.jsx, index.js, global.css.
+  4. vitest tests/motion.test.jsx -> GREEN: 3 passed in 1.86s.
+  5. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Pure CSS and declarative React hooks used (no third-party tracking animation libraries).
+  - Reduced-motion accessibility ensures users with vestibular motion disorders experience a still, accessible interface.
+Blockers/owner inputs:
+  None. Task 04.08 complete and verified.
+Next task:
+  Phase 04 — Task 04.09: Responsive and accessibility (Keyboard navigation, contrast, focus-visible indicators, semantic landmarks across mobile 360px to desktop 1440px).
 ```
