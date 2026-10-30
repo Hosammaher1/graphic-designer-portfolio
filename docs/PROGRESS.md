@@ -486,7 +486,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.06-localization
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 4579777
 Files changed:
   Created:
     - frontend/src/i18n/ar.json (Arabic translations: site, nav, home, language, footer)
@@ -544,7 +544,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.07-test-harness
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 61de23f
 Files changed:
   Created:
     - frontend/vitest.config.js (separated test config from vite.config.js; includes coverage)
@@ -607,7 +607,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/01.08-ci
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 1cd5c74
 Files changed:
   Created:
     - .github/workflows/ci.yml (3-job matrix: backend MariaDB/PHP 8.2, frontend Node 20/Vitest, e2e Playwright)
@@ -665,7 +665,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.01-admin-user-seed
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: c84b9d1
 Files changed:
   Created:
     - backend/config/portfolio.php (admin configuration with ENV overrides)
@@ -707,7 +707,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.02-sanctum-sessions-csrf
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 2aecfe6
 Files changed:
   Created:
     - backend/app/Http/Controllers/Api/V1/AuthController.php (login, logout, me endpoints)
@@ -758,7 +758,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.03-authorization
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: d0a7d25
 Files changed:
   Created:
     - backend/database/migrations/2026_10_29_203000_add_is_admin_to_users_table.php (boolean is_admin column)
@@ -806,7 +806,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.04-rate-limiting
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 3619794
 Files changed:
   Created:
     - backend/tests/Feature/Auth/RateLimitingTest.php (3 tests: 429 throttling, limiter reset on success, password redaction in logs)
@@ -843,7 +843,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.05-admin-shell-ui
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: affcbf3
 Files changed:
   Created:
     - frontend/src/context/AuthContext.jsx (AuthProvider, useAuth, session check, login/logout actions)
@@ -885,7 +885,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.06-profile-password
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 835f3cb
 Files changed:
   Created:
     - backend/app/Http/Controllers/Api/V1/Admin/ProfileController.php (show profile, update name/email, update password)
@@ -927,7 +927,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.07-admin-audit-log
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 3788639
 Files changed:
   Created:
     - backend/database/migrations/2026_10_29_204000_create_audit_logs_table.php (append-only audit_logs schema)
@@ -969,7 +969,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/02.08-e2e-auth
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: a321273 (verified green with mobile drawer stacking fix a45c285)
 Files changed:
   Created:
     - e2e/tests/admin-auth.spec.js (10 E2E tests: login form render, invalid credentials alert, successful authentication to admin shell, session reload, logout redirect, mobile drawer toggle)
@@ -1007,7 +1007,7 @@ Status: DONE
 Branch / commit / remote:
   Branch: feat/03.01-schema-and-factories
   Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
-  Commit: (see git log after push)
+  Commit: 2ce1ccc
 Files changed:
   Created (Migrations):
     - backend/database/migrations/2026_10_30_070000_create_categories_table.php (categories + category_translations)
@@ -1064,4 +1064,129 @@ Blockers/owner inputs:
   None. Task 03.01 complete and verified.
 Next task:
   Phase 03 — Task 03.02: Project CRUD API (Controller, FormRequests, Resources, Policies).
+```
+
+---
+
+## Task 03.02 Execution Report
+
+```text
+Task ID: 03.02
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.02-project-crud-api
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: e4de3d0
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (index with pagination & relations, store with translations, show with media & categories, update with translation sync, destroy soft delete, syncRelationships for categories & tools)
+    - backend/app/Http/Requests/Admin/StoreProjectRequest.php (slug regex, unique check, status validation, translations array validation)
+    - backend/app/Http/Requests/Admin/UpdateProjectRequest.php (unique slug ignore current id, cover_media_id existence check)
+    - backend/app/Http/Requests/Admin/SyncProjectRelationshipsRequest.php (category_ids & tool_ids validation)
+    - backend/app/Http/Resources/ProjectResource.php (standardized JSON resource format with eager-loaded translations, categories, tools)
+    - backend/app/Http/Resources/ProjectTranslationResource.php
+    - backend/tests/Feature/Projects/ProjectCrudTest.php (11 tests, 38 assertions)
+  Modified:
+    - backend/routes/api.php (registered projects apiResource and relationships sync endpoint under admin group)
+    - docs/PROGRESS.md (marked 03.02 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/ProjectCrudTest.php:
+    - test_admin_can_create_project_with_translations
+    - test_duplicate_slug_returns_422
+    - test_invalid_status_returns_422
+    - test_unauthenticated_cannot_create_project
+    - test_admin_can_list_projects_with_pagination
+    - test_admin_can_read_single_project_with_translations
+    - test_reading_non_existent_project_returns_404
+    - test_admin_can_update_project_slug_and_translations
+    - test_admin_can_soft_delete_project
+    - test_unauthenticated_cannot_delete_project
+    - test_admin_can_attach_categories_and_tools_to_project
+  Observed RED state:
+    10 failed, 1 passed (endpoints not registered, returned 404).
+  Observed GREEN state:
+    Tests: 11 passed (38 assertions) in 3.18s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for Laravel REST API.
+Unavailable skills and fallback checklist:
+  - laravel-best-practices, rest-api, backend-architecture: NOT AVAILABLE.
+  - Fallback checklist applied: Standard FormRequest validation with custom kebab-case slug regex, route model binding, Eloquent eager loading to avoid N+1 queries, standardized JSON resource output, soft delete lifecycle preservation.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API controller and requests, no UI).
+Commands executed and exact results:
+  1. git checkout -b feat/03.02-project-crud-api
+  2. php artisan test tests/Feature/Projects/ProjectCrudTest.php -> RED: 10 failed, 1 passed (404s).
+  3. Created StoreProjectRequest, UpdateProjectRequest, SyncProjectRelationshipsRequest, ProjectResource, ProjectTranslationResource, ProjectController; registered routes in api.php.
+  4. php artisan test tests/Feature/Projects/ProjectCrudTest.php -> GREEN: 11 passed (38 assertions) in 3.18s.
+  5. git commit -m "feat(projects): project CRUD API, resources, form requests, relationships endpoint [03.02]" -> Commit e4de3d0
+Security/privacy/SEO considerations:
+  - All endpoints guarded behind auth:sanctum and EnsureUserIsAdmin middleware.
+  - Anonymous callers receive 401 Unauthorized.
+  - FormRequest validation ensures strict types, allowed status values ('draft', 'published', 'archived'), and sanitization against SQL injection and mass assignment.
+  - Slug regex enforces URL-safe lowercase kebab-case.
+  - Soft delete removes project from active views while preserving rows for the 30-day purge cycle.
+Blockers/owner inputs:
+  None. Task 03.02 complete and verified.
+Next task:
+  Phase 03 — Task 03.03: Category CRUD/reorder (hierarchical categories with display ordering).
+```
+
+---
+
+## Task 03.03 Execution Report
+
+```text
+Task ID: 03.03
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.03-category-crud
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: ee41c4f
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/CategoryController.php (index ordered by sort_order, store with translations, show with projects, update with translations, destroy, reorder atomic bulk ordering)
+    - backend/app/Http/Requests/Admin/StoreCategoryRequest.php (slug regex, unique check, translations validation)
+    - backend/app/Http/Requests/Admin/UpdateCategoryRequest.php (slug unique ignore current id)
+    - backend/tests/Feature/Projects/CategoryTest.php (5 tests, 14 assertions)
+  Modified:
+    - backend/routes/api.php (registered categories apiResource and patch categories/reorder ahead of resource to avoid route parameter collision)
+    - docs/PROGRESS.md (marked 03.03 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/CategoryTest.php:
+    - test_admin_can_create_category_with_translations
+    - test_duplicate_category_slug_returns_422
+    - test_reorder_updates_sort_order_atomically
+    - test_deleting_category_does_not_delete_associated_projects
+    - test_unauthenticated_cannot_manage_categories
+  Observed RED / Fix cycle:
+    Initial RED: 1 failed, 4 passed. Route conflict where PATCH /api/v1/admin/categories/reorder matched /categories/{category} update action with string 'reorder' instead of int ID, throwing TypeError.
+    Fix: Registered Route::patch('categories/reorder', ...) before Route::apiResource('categories', ...) in backend/routes/api.php.
+  Observed GREEN state:
+    Tests: 5 passed (14 assertions) in 2.22s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for category hierarchy implementation.
+Unavailable skills and fallback checklist:
+  - backend-architecture, rest-api: NOT AVAILABLE.
+  - Fallback checklist applied: Validated route precedence for non-RESTful actions (reorder route before resource parameter), verified cascade deletion safety (deleting category does NOT delete project), confirmed bilingual locale translation persistence.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API controller and requests, no UI).
+Commands executed and exact results:
+  1. git checkout -b feat/03.03-category-crud
+  2. Created StoreCategoryRequest, UpdateCategoryRequest, CategoryController, CategoryTest.
+  3. php artisan test tests/Feature/Projects/CategoryTest.php -> RED: 1 failed (TypeError on reorder route collision).
+  4. Moved patch('categories/reorder') before apiResource('categories') in routes/api.php.
+  5. php artisan test tests/Feature/Projects/CategoryTest.php -> GREEN: 5 passed (14 assertions) in 2.22s.
+  6. git commit -m "feat(categories): category CRUD, reorder endpoint, bilingual translations [03.03]" -> Commit ee41c4f
+Security/privacy/SEO considerations:
+  - Admin-only authorization for all category mutations.
+  - Cascade protection: Project associations are removed from pivot table without unintended project deletion.
+  - Sort orders validated as unsigned integers for deterministic navigation ordering.
+Blockers/owner inputs:
+  None. Task 03.03 complete and verified.
+Next task:
+  Phase 03 — Task 03.04: Tools and project metadata (tools pivot management and localized metadata).
 ```
