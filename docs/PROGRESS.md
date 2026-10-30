@@ -45,7 +45,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.02 | Project CRUD API | DONE | PASS: ProjectCrudTest (11 passed, 38 assertions: create/read/list/update/delete/relationships, 422 validation, 401 auth guards) | None available | None | — |
 | 03.03 | Category CRUD/reorder | DONE | PASS: CategoryTest (5 passed, 14 assertions: create/translations, unique slug, bulk reorder, cascade safety, auth guard) | None available | None | — |
 | 03.04 | Tools and project metadata | DONE | PASS: ToolAndMetadataTest (7 passed, 24 assertions: create/list, unique slug, update/delete, filter by year/tool, pivot uniqueness, auth guard) | None available | None | — |
-| 03.05 | Cloudinary adapter | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.05 | Cloudinary adapter | DONE | PASS: MediaStorageTest (8 passed, 25 assertions: metadata normalization, MIME check, size cap, safe naming, delete, delivery/watermark URLs, secret redaction, DI container binding) | None available | None | — |
 | 03.06 | Multi-image upload UI/API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.07 | Media ordering/cover | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.08 | Watermark transformation | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1248,4 +1248,65 @@ Blockers/owner inputs:
   None. Task 03.04 complete and verified.
 Next task:
   Phase 03 — Task 03.05: Cloudinary adapter (app/Services/Media/MediaStorageInterface.php, CloudinaryMediaStorage.php, fake implementation).
+```
+
+---
+
+## Task 03.05 Execution Report
+
+```text
+Task ID: 03.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.05-cloudinary-adapter
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 81054a0
+Files changed:
+  Created:
+    - backend/app/Services/Media/MediaStorageInterface.php (storage contract: upload, delete, getDeliveryUrl, getWatermarkedUrl)
+    - backend/app/Services/Media/CloudinaryMediaStorage.php (production Cloudinary adapter, transforms, watermark overlays, strict secret isolation)
+    - backend/app/Services/Media/FakeMediaStorage.php (isolated fake storage for tests/CI, MIME validation, 15MB cap, safe naming, dimensions)
+    - backend/tests/Feature/Media/MediaStorageTest.php (8 tests, 25 assertions)
+  Modified:
+    - backend/app/Providers/AppServiceProvider.php (singleton binding MediaStorageInterface -> FakeMediaStorage fallback or CloudinaryMediaStorage when configured)
+    - backend/config/services.php (added cloudinary config keys: cloud_name, api_key, api_secret)
+    - docs/PROGRESS.md (marked 03.05 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Media/MediaStorageTest.php:
+    - test_fake_media_storage_uploads_image_and_returns_structured_metadata
+    - test_media_storage_rejects_disallowed_mime_types
+    - test_media_storage_rejects_files_exceeding_max_file_size
+    - test_media_storage_generates_safe_sanitized_file_names
+    - test_media_storage_deletes_asset
+    - test_media_storage_generates_delivery_and_watermark_urls
+    - test_cloudinary_adapter_does_not_expose_api_secret_in_urls_or_metadata
+    - test_service_container_resolves_media_storage_interface
+  Observed RED state:
+    8 failed, 0 passed (Classes App\Services\Media\* not found, BindingResolutionException).
+  Observed GREEN state:
+    Tests: 8 passed (25 assertions) in 1.16s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for media storage integration.
+Unavailable skills and fallback checklist:
+  - backend-architecture, media-processing: NOT AVAILABLE.
+  - Fallback checklist applied: Validated Plan Audit Item 03.05 / 03.08 (fake adapter used for local dev/testing, zero credential leakage, access-controlled delivery URL transformations, safe sanitized filenames, strict size and MIME checks).
+Design artifacts/screenshots reviewed:
+  N/A (media adapter service layer, no UI).
+Commands executed and exact results:
+  1. git checkout -b feat/03.05-cloudinary-adapter
+  2. Created MediaStorageTest, MediaStorageInterface, FakeMediaStorage, CloudinaryMediaStorage; updated AppServiceProvider.php and config/services.php.
+  3. php artisan test tests/Feature/Media/MediaStorageTest.php -> RED: 8 failed (initial classes not found).
+  4. Implemented interfaces and service bindings.
+  5. php artisan test tests/Feature/Media/MediaStorageTest.php -> GREEN: 8 passed (25 assertions) in 1.16s.
+Security/privacy/SEO considerations:
+  - API secret is never concatenated or exposed in client-facing delivery or watermark URLs.
+  - MIME types strictly enforced against allowlist (JPG, PNG, WebP) to prevent arbitrary file upload execution.
+  - Max file size strictly capped at 15MB to prevent storage/memory exhaustion.
+  - Filenames sanitized using Str::slug and random entropy; path traversal sequences ('..') stripped.
+Blockers/owner inputs:
+  None. Live Cloudinary credentials can be added to .env at deploy time without code changes (per ADR-004).
+Next task:
+  Phase 03 — Task 03.06: Multi-image upload UI/API (drag/drop, progress, cancel, per-file retry, concurrency limits).
 ```
