@@ -8,7 +8,7 @@ const { test, expect } = require('@playwright/test');
  * - Unauthenticated visitor visiting /admin/login sees login form
  * - Failed login shows accessible error banner
  * - Successful login redirects to /admin/ and displays administrator shell
- * - Authenticated admin sees sidebar links and sign out button
+ * - Authenticated admin sees sidebar links and sign out button (with mobile drawer support)
  * - Sign out clears session and redirects to /admin/login
  * - Mobile viewport responsive drawer toggle
  */
@@ -88,6 +88,14 @@ test.describe('Admin Authentication Flow', () => {
     // After login, client navigates to /admin/
     await expect(page).toHaveURL(/\/admin/);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Admin Dashboard');
+
+    // On mobile viewports, the sidebar is inside a drawer opened via menu toggle
+    const menuToggle = page.getByRole('button', { name: 'Toggle navigation menu' });
+    const isMobile = await menuToggle.isVisible();
+    if (isMobile) {
+      await menuToggle.click();
+    }
+
     await expect(page.getByText('admin@mohammed-portfolio.test', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Projects' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Categories' })).toBeVisible();
@@ -146,10 +154,18 @@ test.describe('Admin Authentication Flow', () => {
     await page.getByLabel('Password').fill('CorrectAdminPass123!');
     await page.getByRole('button', { name: 'Sign In' }).click();
 
-    await expect(page.getByRole('button', { name: 'Sign Out' })).toBeVisible();
+    await expect(page).toHaveURL(/\/admin/);
 
-    // Click Sign Out
-    await page.getByRole('button', { name: 'Sign Out' }).click();
+    // On mobile viewports, open drawer to reveal Sign Out button
+    const menuToggle = page.getByRole('button', { name: 'Toggle navigation menu' });
+    const isMobile = await menuToggle.isVisible();
+    if (isMobile) {
+      await menuToggle.click();
+    }
+
+    const signOutBtn = page.getByRole('button', { name: 'Sign Out' });
+    await expect(signOutBtn).toBeVisible();
+    await signOutBtn.click();
 
     // Should redirect to /admin/login
     await expect(page).toHaveURL(/\/admin\/login/);
