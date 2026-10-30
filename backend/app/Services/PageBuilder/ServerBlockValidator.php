@@ -12,6 +12,15 @@ class ServerBlockValidator
         'spacing',
         'color_theme',
         'background_color',
+        'bg_theme',
+        'padding_y',
+        'padding_x',
+        'gap',
+        'columns',
+        'align',
+        'typography_scale',
+        'aspect_ratio',
+        'motion_preset',
         'animation',
         'layout',
         'custom_classes',
@@ -188,6 +197,16 @@ class ServerBlockValidator
         if (isset($settings['color_theme'])) {
             if (!in_array($settings['color_theme'], self::ALLOWED_COLOR_THEMES, true)) {
                 $errors[] = "Invalid color theme '{$settings['color_theme']}' at '{$path}'.";
+            }
+        }
+        if (isset($settings['bg_theme'])) {
+            if (!in_array($settings['bg_theme'], self::ALLOWED_COLOR_THEMES, true)) {
+                $errors[] = "Invalid color theme '{$settings['bg_theme']}' at '{$path}'.";
+            }
+        }
+        if (isset($settings['padding_y'])) {
+            if (!in_array($settings['padding_y'], self::ALLOWED_SPACING_TOKENS, true)) {
+                $errors[] = "Invalid spacing token '{$settings['padding_y']}' for padding_y at '{$path}'.";
             }
         }
 

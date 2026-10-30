@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 46 of 97 tasks started, 46 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 47 of 97 tasks started, 47 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 7 | 7 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 8 | 8 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **46** | **46** | |
+| **Total** | | **97** | **47** | **47** | |
 
 ## Task register
 
@@ -71,7 +71,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.05 | Layout controls | DONE | PASS: Vitest page-builder-layout-controls (7 passed: columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, unsafe CSS injection rejection) | None available (manual checklist) | None (ready for 05.06) | a0e29db |
 | 05.06 | Image/text blocks | DONE | PASS: Vitest page-builder-media-text (5 passed: published media filtering, asset selection with normalized metadata, bilingual text editing with tabs, Arabic & English fallbacks) | None available (manual checklist) | None (ready for 05.07) | d75fc64 |
 | 05.07 | Device previews | DONE | PASS: Vitest page-builder-device-previews (5 passed: default desktop viewport, tablet 768px transition, mobile 390px transition, content/state preservation, live canvas integration) | None available (manual checklist) | None (ready for 05.08) | 4d67604 |
-| 05.08 | Draft save | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.08 | Draft save | DONE | PASS: PHPUnit PageDraftSaveTest (5 passed, 19 assertions) + Vitest page-builder-draft-save (4 passed: explicit save with lockVersion, 409 conflict alert & state retention, failure retention, API client normalization) | None available (manual checklist) | None (ready for 05.09) | 8e7ea6f |
 | 05.09 | Secure preview | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.10 | Atomic publish | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.11 | Project layout builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2832,4 +2832,72 @@ Blockers/owner inputs:
   None. Task 05.07 complete and verified.
 Next task:
   Phase 05 — Task 05.08: Draft save (Debounced or explicit save with optimistic concurrency/versioning. Tests: stale update conflict, failed save retains editor changes, published page unaffected).
+```
+
+---
+
+## Task 05.08 Execution Report
+
+```text
+Task ID: 05.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.08-draft-save
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 8e7ea6f
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_30_090000_create_pages_and_page_versions_tables.php (Database migration creating `pages` table with optimistic `lock_version` and separate `published_version_id` / `current_draft_version_id` pointers, and `page_versions` immutable snapshot history table)
+    - backend/app/Models/Page.php (Page Eloquent model defining relationships to publishedVersion, currentDraftVersion, and versions history)
+    - backend/app/Models/PageVersion.php (PageVersion Eloquent model storing JSON blocks document, metadata, version_number, and creator user)
+    - backend/app/Http/Controllers/Api/V1/Admin/PageBuilderController.php (Admin page builder controller implementing atomic transaction draft saves, optimistic concurrency 409 conflict detection, and strict server block validation)
+    - backend/tests/Feature/PageDraftSaveTest.php (PHPUnit test suite with 5 tests verifying draft save, stale lock 409 conflict, published snapshot isolation, auth guards, and 422 block validation)
+    - frontend/src/page-builder/pageBuilderApi.js (Frontend REST client for page builder draft fetching and saving with 409 conflict and 422 error normalization)
+    - frontend/tests/page-builder-draft-save.test.jsx (Vitest unit test suite with 4 tests verifying explicit save with lockVersion, conflict banner and editor state retention on 409, failure retention, and API client normalization)
+  Modified:
+    - backend/app/Services/PageBuilder/ServerBlockValidator.php (Expanded allowed settings keys to include bg_theme, padding_y, gap, columns, aspect_ratio, typography_scale, and motion_preset)
+    - backend/routes/api.php (Registered admin routes for `GET/POST /api/v1/admin/pages/{slug}/draft`)
+    - frontend/src/page-builder/BuilderCanvas.jsx (Integrated optimistic lockVersion, saving indicators, debounced auto-save, and accessible conflict error banner with change retention)
+    - docs/PROGRESS.md (marked Task 05.08 DONE, updated Phase 05 count to 8/12 and total to 47/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/PageDraftSaveTest.php:
+    - admin can save new page draft
+    - stale update conflict returns 409
+    - draft save does not mutate active published version
+    - unauthenticated request is denied
+    - invalid block payload is rejected with 422
+  frontend/tests/page-builder-draft-save.test.jsx:
+    - triggers onSave callback with current blocks and lockVersion on explicit save
+    - displays conflict banner and retains editor changes on 409 conflict
+    - retains modified blocks in editor and localStorage on network failure
+    - pageBuilderApi savePageDraft normalizes 409 conflict response correctly
+  Observed GREEN state:
+    PHPUnit PageDraftSaveTest: 5 passed (19 assertions) in 2.48s.
+    Vitest page-builder-draft-save: 4 passed (4) in 3.71s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for draft persistence and optimistic concurrency.
+Unavailable skills and fallback checklist:
+  - optimistic-concurrency, draft-persistence: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.08 and ADR-002 / ADR-006 verified: `pages.lock_version` increments on every draft save; mismatched lock version triggers HTTP 409 Conflict without clearing editor content; active published snapshot (`published_version_id`) is strictly decoupled from drafts, guaranteeing zero leakage of staging edits to public visitors; ServerBlockValidator validates block payload before writing to database.
+Design artifacts/screenshots reviewed:
+  Inspected conflict alert banner, error handling states, and save button busy indicator in canvas interface.
+Commands executed and exact results:
+  1. git checkout -b feat/05.08-draft-save
+  2. Created backend/tests/Feature/PageDraftSaveTest.php (RED state: 5 failed tests).
+  3. Created migration 2026_10_30_090000_create_pages_and_page_versions_tables.php and ran php artisan migrate.
+  4. Created Page and PageVersion models, PageBuilderController, and routes in api.php.
+  5. Created frontend/src/page-builder/pageBuilderApi.js and updated BuilderCanvas.jsx with optimistic save and conflict banner.
+  6. Created frontend/tests/page-builder-draft-save.test.jsx.
+  7. cd backend; php artisan test tests/Feature/PageDraftSaveTest.php -> GREEN: 5 passed (19 assertions) in 2.48s.
+  8. npm.cmd --prefix frontend test tests/page-builder-draft-save.test.jsx -- --run -> GREEN: 4 passed in 3.71s.
+  9. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Draft pages are strictly inaccessible to anonymous visitors (enforced by `auth:sanctum` and `admin` middleware); published version pointer is isolated, ensuring draft edits never leak into search engine indexes or SSR responses.
+Blockers/owner inputs:
+  None. Task 05.08 complete and verified.
+Next task:
+  Phase 05 — Task 05.09: Secure preview (Admin-only or short-lived signed preview URL, noindex, no cache. Tests: anonymous denied, expired signature denied, draft visible only authorized).
 ```

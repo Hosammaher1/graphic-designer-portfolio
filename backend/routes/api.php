@@ -82,5 +82,9 @@ Route::prefix('v1')->group(function () {
         Route::post('media/upload-batch', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'uploadBatch'])->name('api.v1.admin.media.uploadBatch');
         Route::patch('media/{media}/watermark', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'toggleWatermark'])->name('api.v1.admin.media.watermark');
         Route::delete('media/{id}', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'destroy'])->name('api.v1.admin.media.destroy');
+
+        // Page Builder Draft & Publishing
+        Route::get('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'getDraft'])->name('api.v1.admin.pages.draft.get');
+        Route::post('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'saveDraft'])->name('api.v1.admin.pages.draft.save');
     });
 });

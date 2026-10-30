@@ -52,8 +52,11 @@ const BLOCK_LABELS = {
 export function BuilderCanvas({
   pageId = 'home',
   initialBlocks = [],
+  lockVersion = 1,
   locale = 'ar',
   onSave = null,
+  autoSave = false,
+  autoSaveDelay = 2000,
 }) {
   const isAr = locale === 'ar';
   const storageKey = `page-builder-recovery-${pageId}`;
@@ -68,6 +71,9 @@ export function BuilderCanvas({
   const [hasRecoverableDraft, setHasRecoverableDraft] = useState(false);
   const [savedNotice, setSavedNotice] = useState(false);
   const [previewViewport, setPreviewViewport] = useState('desktop');
+  const [isSaving, setIsSaving] = useState(false);
+  const [conflictError, setConflictError] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   // Check for local storage recovery draft on mount
   useEffect(() => {
@@ -195,14 +201,46 @@ export function BuilderCanvas({
     setHasRecoverableDraft(false);
   };
 
-  // Explicit Save
-  const handleSave = () => {
-    if (typeof onSave === 'function') {
-      onSave(blocks);
+  // Explicit & Managed Save
+  const handleSave = async () => {
+    setIsSaving(true);
+    setConflictError(null);
+    setSaveError(null);
+    try {
+      if (typeof onSave === 'function') {
+        const res = await onSave({ blocks, lockVersion });
+        if (res && res.conflict) {
+          setConflictError(
+            isAr
+              ? `تعارض في التحديث: تم تعديل هذه الصفحة في جلسة أخرى (النسخة الحالية: ${res.current_lock_version}). تم الاحتفاظ بتعديلاتك في المحرر.`
+              : `Stale update conflict: Page was modified elsewhere (current lock: ${res.current_lock_version}). Your changes have been retained.`
+          );
+          setIsSaving(false);
+          return;
+        }
+        if (res && res.success === false) {
+          setSaveError(res.message || (isAr ? 'فشل حفظ المسودة' : 'Failed to save draft'));
+          setIsSaving(false);
+          return;
+        }
+      }
+      setSavedNotice(true);
+      setTimeout(() => setSavedNotice(false), 3000);
+    } catch (err) {
+      setSaveError(err.message || (isAr ? 'حدث خطأ أثناء الحفظ' : 'An error occurred while saving'));
+    } finally {
+      setIsSaving(false);
     }
-    setSavedNotice(true);
-    setTimeout(() => setSavedNotice(false), 3000);
   };
+
+  // Debounced auto-save if enabled
+  useEffect(() => {
+    if (!autoSave || isFirstRender.current || typeof onSave !== 'function') return;
+    const timer = setTimeout(() => {
+      handleSave();
+    }, autoSaveDelay);
+    return () => clearTimeout(timer);
+  }, [blocks, autoSave, autoSaveDelay]);
 
   return (
     <div className="builder-canvas-wrapper" dir={isAr ? 'rtl' : 'ltr'}>
@@ -252,6 +290,40 @@ export function BuilderCanvas({
           </div>
         </Container>
       </header>
+
+      {/* Conflict Error Banner */}
+      {conflictError && (
+        <div className="builder-conflict-banner" role="alert">
+          <Container size="site">
+            <div className="flex items-center justify-between p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20 my-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={18} aria-hidden="true" />
+                <span className="text-sm font-medium">{conflictError}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setConflictError(null)}>
+                {isAr ? 'إغلاق' : 'Dismiss'}
+              </Button>
+            </div>
+          </Container>
+        </div>
+      )}
+
+      {/* Save Error Banner */}
+      {saveError && (
+        <div className="builder-save-error-banner" role="alert">
+          <Container size="site">
+            <div className="flex items-center justify-between p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20 my-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={18} aria-hidden="true" />
+                <span className="text-sm font-medium">{saveError}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSaveError(null)}>
+                {isAr ? 'إغلاق' : 'Dismiss'}
+              </Button>
+            </div>
+          </Container>
+        </div>
+      )}
 
       {/* 2. Recovery Banner */}
       {hasRecoverableDraft && (
