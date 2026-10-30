@@ -54,6 +54,8 @@ Route::prefix('v1')->group(function () {
             ->name('api.v1.admin.projects.forceDelete');
         Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
             ->name('api.v1.admin.projects.relationships');
+        Route::put('projects/{project}/layout', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'updateLayout'])
+            ->name('api.v1.admin.projects.layout');
         Route::post('projects/{project}/publish', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'publish'])
             ->name('api.v1.admin.projects.publish');
         Route::post('projects/{project}/unpublish', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'unpublish'])

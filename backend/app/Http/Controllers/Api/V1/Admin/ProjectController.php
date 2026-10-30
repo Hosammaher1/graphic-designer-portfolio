@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreProjectRequest;
 use App\Http\Requests\Admin\SyncProjectRelationshipsRequest;
 use App\Http\Requests\Admin\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use App\Models\MediaAsset;
 use App\Models\Project;
 use App\Models\ProjectMedia;
 use App\Services\AuditLogger;
@@ -334,6 +335,65 @@ class ProjectController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Project permanently deleted.',
+        ]);
+    }
+
+    public function updateLayout(Request $request, int $id): JsonResponse
+    {
+        $project = Project::with('media')->find($id);
+
+        if (!$project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        $request->validate([
+            'layout_blocks' => ['required', 'array'],
+        ]);
+
+        $blocks = $request->input('layout_blocks', []);
+        $allowedTypes = ['text', 'image', 'gallery', 'columns', 'spacer', 'heading', 'cta', 'stats'];
+
+        // 1. Validate restricted block types
+        foreach ($blocks as $block) {
+            $type = $block['type'] ?? '';
+            if (!in_array($type, $allowedTypes, true)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Block type '{$type}' is not allowed in project layouts.",
+                    'restricted_type' => true,
+                ], 422);
+            }
+        }
+
+        // 2. Validate media permissions (project-specific media isolation)
+        $attachedMediaAssetIds = $project->media->pluck('media_asset_id')->filter()->all();
+
+        foreach ($blocks as $block) {
+            $data = $block['data'] ?? [];
+            if (!empty($data['media_asset_id'])) {
+                $assetId = (int) $data['media_asset_id'];
+                $isAttached = in_array($assetId, $attachedMediaAssetIds, true);
+                if (!$isAttached) {
+                    $asset = MediaAsset::find($assetId);
+                    $isPubliclyAvailable = $asset && $asset->projects()->where('status', 'published')->exists();
+                    if (!$isPubliclyAvailable) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Media permission denied: media asset #{$assetId} is not attached to this project or part of a published project.",
+                            'media_permission_denied' => true,
+                        ], 422);
+                    }
+                }
+            }
+        }
+
+        $project->update([
+            'layout_blocks' => $blocks,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'project' => $project->fresh(),
         ]);
     }
 }

@@ -19,6 +19,7 @@ import {
   Button,
   Badge,
 } from '../components/ui';
+import { DocumentRenderer } from '../page-builder/BlockRenderer.jsx';
 
 export default function ProjectDetailPage({ locale = 'ar' }) {
   const { slug } = useParams();
@@ -239,6 +240,13 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
               />
             </div>
           </Container>
+        </section>
+      )}
+
+      {/* 2.5 Dynamic Custom Layout Blocks */}
+      {project.layout_blocks && project.layout_blocks.length > 0 && (
+        <section className="project-custom-layout-section my-8" aria-label="Project Layout">
+          <DocumentRenderer blocks={project.layout_blocks} locale={locale} />
         </section>
       )}
 

@@ -85,6 +85,7 @@ class ProjectPublishingService
                     'icon_url' => $t->icon_url,
                 ])->all(),
                 'media'            => $mediaList,
+                'layout_blocks'    => $project->layout_blocks ?? [],
             ];
 
             $project->update([

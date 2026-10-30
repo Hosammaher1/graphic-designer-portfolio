@@ -24,6 +24,7 @@ class Project extends Model
         'view_count',
         'enable_watermark',
         'published_snapshot',
+        'layout_blocks',
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Project extends Model
         'year' => 'integer',
         'view_count' => 'integer',
         'published_snapshot' => 'array',
+        'layout_blocks' => 'array',
     ];
 
     // --- Relationships ---

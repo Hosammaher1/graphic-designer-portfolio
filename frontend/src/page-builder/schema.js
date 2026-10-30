@@ -33,6 +33,17 @@ export const SUPPORTED_BLOCK_TYPES = [
   'featured_work',
 ];
 
+export const PROJECT_RESTRICTED_BLOCK_TYPES = [
+  'text',
+  'image',
+  'gallery',
+  'columns',
+  'spacer',
+  'heading',
+  'cta',
+  'stats'
+];
+
 export const ALLOWED_TOP_LEVEL_KEYS = [
   'id',
   'type',

@@ -138,6 +138,7 @@ class PublicProjectController extends Controller
                     'categories'      => $snapshot['categories'] ?? [],
                     'tools'           => $snapshot['tools'] ?? [],
                     'media'           => $snapshot['media'] ?? [],
+                    'layout_blocks'   => $snapshot['layout_blocks'] ?? [],
                     'prev_project'    => $prevProject ? [
                         'slug'  => $prevProject->slug,
                         'title' => $prevTrans['title'] ?? $prevProject->slug,

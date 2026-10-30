@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 49 of 97 tasks started, 49 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 50 of 97 tasks started, 50 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 10 | 10 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 11 | 11 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **49** | **49** | |
+| **Total** | | **97** | **50** | **50** | |
 
 ## Task register
 
@@ -74,7 +74,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.08 | Draft save | DONE | PASS: PHPUnit PageDraftSaveTest (5 passed, 19 assertions) + Vitest page-builder-draft-save (4 passed: explicit save with lockVersion, 409 conflict alert & state retention, failure retention, API client normalization) | None available (manual checklist) | None (ready for 05.09) | 8e7ea6f |
 | 05.09 | Secure preview | DONE | PASS: PHPUnit PageSecurePreviewTest (6 passed, 20 assertions: admin access, anonymous 403, valid signed URL access, expired signature 403, tampered 403, signed URL generation, X-Robots-Tag noindex) + Vitest page-builder-secure-preview (4 passed) | None available (manual checklist) | None (ready for 05.10) | f24fba3 |
 | 05.10 | Atomic publish | DONE | PASS: PHPUnit PageAtomicPublishTest (5 passed, 20 assertions: atomic publish transaction, localized completeness policy 422, rollback resilience, public endpoint isolation, auth guard) + Vitest page-builder-atomic-publish (4 passed) | None available (manual checklist) | None (ready for 05.11) | 87d6ac1 |
-| 05.11 | Project layout builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.11 | Project layout builder | DONE | PASS: PHPUnit ProjectLayoutBuilderTest (4 passed, 15 assertions: restricted blocks, global block 422 rejection, media asset permissions 422 rejection, published snapshot isolation) + Vitest project-layout-builder (3 passed) | None available (manual checklist) | None (ready for 05.12) | 5e6d9c7 |
 | 05.12 | Builder E2E | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 06.01 | Search indexing | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.02 | Search API and UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3028,4 +3028,71 @@ Blockers/owner inputs:
   None. Task 05.10 complete and verified.
 Next task:
   Phase 05 — Task 05.11: Project layout builder (Reuse renderer with restricted blocks; tests: project-specific media permissions, dynamic layout on detail page, published snapshot isolation).
+```
+
+---
+
+## Task 05.11 Execution Report
+
+```text
+Task ID: 05.11
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.11-project-layout-builder
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 5e6d9c7
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_31_000000_add_layout_blocks_to_projects_table.php (Database migration adding `layout_blocks` JSON column to `projects` table)
+    - backend/tests/Feature/ProjectLayoutBuilderTest.php (PHPUnit test suite with 4 tests verifying valid project layout blocks save, global block 422 rejection, media asset permissions 422 rejection, and published snapshot isolation)
+    - frontend/tests/project-layout-builder.test.jsx (Vitest unit test suite with 3 tests verifying restricted block types list, dynamic custom layout blocks rendering in ProjectDetailPage, and standard layout fallback)
+  Modified:
+    - backend/app/Models/Project.php (Added layout_blocks to fillable and array cast)
+    - backend/app/Services/Publishing/ProjectPublishingService.php (Included layout_blocks in published_snapshot)
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (Implemented updateLayout with restricted block type allowlist and media asset permission checks)
+    - backend/app/Http/Controllers/Api/V1/PublicProjectController.php (Served layout_blocks from published_snapshot for public visitors)
+    - backend/routes/api.php (Registered `PUT /api/v1/admin/projects/{project}/layout`)
+    - frontend/src/page-builder/schema.js (Exported PROJECT_RESTRICTED_BLOCK_TYPES)
+    - frontend/src/pages/ProjectDetailPage.jsx (Integrated dynamic DocumentRenderer for custom layout blocks with fallback)
+    - docs/PROGRESS.md (marked Task 05.11 DONE, updated Phase 05 count to 11/12 and total to 50/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/ProjectLayoutBuilderTest.php:
+    - admin can save valid project layout blocks
+    - rejects disallowed global blocks on projects
+    - rejects media assets not belonging to project or published
+    - published snapshot isolation for project layout
+  frontend/tests/project-layout-builder.test.jsx:
+    - restricts project block types to presentation components and disallows global page blocks
+    - renders dynamic custom layout blocks on ProjectDetailPage when layout_blocks are present
+    - falls back gracefully to standard description layout when layout_blocks is absent
+  Observed GREEN state:
+    PHPUnit ProjectLayoutBuilderTest: 4 passed (15 assertions) in 2.82s.
+    Vitest project-layout-builder: 3 passed (3) in 77ms.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for project layout customization.
+Unavailable skills and fallback checklist:
+  - project-layout-builder, restricted-blocks: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.11 verified: project layout builder restricts allowable block types strictly to content presentation primitives (`text`, `image`, `gallery`, `columns`, `spacer`, `heading`, `cta`, `stats`), disallowing global page sections (`category_preview`, `featured_work`, `services`); cross-project media isolation enforces that referenced media assets belong to the target project or are approved published assets; ProjectDetailPage seamlessly renders custom layout blocks when present while falling back to the standard description and gallery; published snapshot isolation guarantees draft layout edits never leak to public visitors.
+Design artifacts/screenshots reviewed:
+  Inspected ProjectDetailPage dynamic custom layout section and verified standard layout fallback presentation.
+Commands executed and exact results:
+  1. git checkout -b feat/05.11-project-layout-builder
+  2. Created backend/tests/Feature/ProjectLayoutBuilderTest.php (RED state: 4 failed tests).
+  3. Created migration 2026_10_31_000000_add_layout_blocks_to_projects_table.php and ran php artisan migrate.
+  4. Updated Project.php, ProjectPublishingService.php, ProjectController.php, and PublicProjectController.php.
+  5. Registered route in backend/routes/api.php.
+  6. Updated schema.js and ProjectDetailPage.jsx.
+  7. Created frontend/tests/project-layout-builder.test.jsx.
+  8. cd backend; php artisan test tests/Feature/ProjectLayoutBuilderTest.php -> GREEN: 4 passed (15 assertions) in 2.82s.
+  9. npm.cmd --prefix frontend test tests/project-layout-builder.test.jsx -- --run -> GREEN: 3 passed in 77ms.
+  10. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Cross-project media validation strictly prevents leaking private unattached media from other projects; snapshot isolation guarantees draft layout modifications remain confidential until explicitly published.
+Blockers/owner inputs:
+  None. Task 05.11 complete and verified.
+Next task:
+  Phase 05 — Task 05.12: Builder E2E (Edit hero -> add gallery -> reorder -> preview -> publish -> SSR public updated -> draft edit does not change public. Verify all suites and evaluate Phase 05 Gate).
 ```
