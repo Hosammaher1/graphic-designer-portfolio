@@ -107,17 +107,20 @@ export default function ProjectFormPage({ initialMedia = [] }) {
     if (!isDirty) setIsDirty(true);
   };
 
-  const handleMediaUploadSuccess = (asset) => {
+  const handleMediaUploadSuccess = (assets) => {
     markDirty();
-    const newItem = {
-      id: Date.now(),
-      media_asset_id: asset.id,
-      file_name: asset.file_name,
-      original_url: asset.original_url,
-      is_cover: mediaList.length === 0,
-      sort_order: mediaList.length + 1,
-    };
-    setMediaList((prev) => [...prev, newItem]);
+    const assetList = Array.isArray(assets) ? assets : [assets];
+    setMediaList((prev) => {
+      const newItems = assetList.map((asset, index) => ({
+        id: asset.id || Date.now() + index,
+        media_asset_id: asset.id,
+        file_name: asset.file_name || 'media-item.png',
+        original_url: asset.original_url || '',
+        is_cover: prev.length === 0 && index === 0,
+        sort_order: prev.length + index + 1,
+      }));
+      return [...prev, ...newItems];
+    });
   };
 
   const handleMoveMedia = (index, direction) => {

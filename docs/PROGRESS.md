@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 27 of 97 tasks started, 27 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 28 of 97 tasks started, 28 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -12,14 +12,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
-| 03 | Projects, Categories, Media | 12 | 11 | 11 | Not evaluated |
+| 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **27** | **27** | |
+| **Total** | | **97** | **28** | **28** | |
 
 ## Task register
 
@@ -52,7 +52,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.09 | Project drafts/publish | DONE | PASS: PublicProjectsApiTest (6 passed, 29 assertions: publish/unpublish, draft exclusion, draft leak isolation, preview noindex, view count increment) | None available | None | eda4be1 |
 | 03.10 | Trash and 30-day soft delete | DONE | PASS: ProjectTrashTest (6 passed, 36 assertions: soft-deleted hidden, restore, force delete, 30-day purge, shared media protection, retry resilience, audit logs) | None available | None | 5d6c960 |
 | 03.11 | Admin project/category pages | DONE | PASS: Vitest admin-projects-categories (8 passed: loading/empty/error states, trash tab restore, validation errors, keyboard media reordering, unsaved changes warning, category creation/reordering) | None available | None | 97548a3 |
-| 03.12 | E2E content workflow | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.12 | E2E content workflow | DONE | PASS: Playwright projects.spec (2 passed) + Full Phase 03 Gate Suite (100 PHPUnit, 29 Vitest, 38 Playwright = 167 passed) | None available | None (ready for Phase 04) | 12e9b37 |
 | 04.01 | Design tokens and reset | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.02 | Public shell and navigation | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.03 | Home page | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1679,4 +1679,44 @@ Blockers/owner inputs:
   None. Task 03.11 complete and verified.
 Next task:
   Phase 03 — Task 03.12: E2E content workflow & Phase 03 Gate.
+```
+
+
+---
+
+## Task 03.12 Execution Report & Phase 03 Gate
+
+```text
+Task ID: 03.12
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.12-e2e-content-workflow
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 12e9b37
+Files changed:
+  Created:
+    - e2e/tests/projects.spec.js (Comprehensive E2E test verifying full admin content lifecycle: admin login, navigation with mobile drawer handling, bilingual project creation, multi-image upload, keyboard-accessible media reordering, single cover selection, category assignment, draft verification, publish action, soft-delete to trash, trash view, and restore)
+  Modified:
+    - frontend/src/layouts/AdminLayout.jsx (added automatic mobile drawer dismissal on route navigation)
+    - frontend/src/pages/admin/ProjectFormPage.jsx (normalized media upload handling to accept array payloads and guarantee single cover invariant on batch uploads)
+    - docs/PROGRESS.md (marked 03.12 DONE, recorded Phase 03 gate sign-off)
+Test results:
+  - Playwright projects.spec targeted: 2/2 passed (Desktop Chromium + Mobile Chrome) in 2.6s
+  - Full Phase 03 Gate regression checks:
+    * Backend PHPUnit: 100/100 tests passed (404 assertions) in 55.16s
+    * Frontend Vitest: 29/29 tests passed across 6 test suites in 4.05s
+    * E2E Playwright: 38/38 tests passed across Desktop Chromium & Mobile Chrome in 6.0s
+    * TOTAL: 167 tests across all layers, 100% green.
+================================================================================
+PHASE 03 GATE EVALUATION — PASSED
+================================================================================
+Criteria:
+  1. Reliable end-to-end content management:
+     PASS: Admin can create bilingual projects, attach/reorder media with keyboard controls, select cover images, assign categories, publish, trash, and restore seamlessly across desktop and mobile viewports.
+  2. Original images preserved:
+     PASS: Display transformations and watermarks are computed dynamically without destructive binary overwrites (WatermarkTransformationTest); unshared media is safely pruned on permanent delete while shared media is strictly preserved across projects (ProjectTrashTest).
+  3. Public never sees draft or deleted projects:
+     PASS: Public API and SSR read exclusively from frozen `published_snapshot` records (PublicProjectsApiTest); draft and soft-deleted projects return 404 and are excluded from public index queries; unpublished changes never leak.
+Phase 03 is COMPLETE. Ready for Phase 04 — Public Website and Motion.
+================================================================================
 ```
