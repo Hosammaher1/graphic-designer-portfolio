@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage.jsx';
 import WorkPage from '../pages/WorkPage.jsx';
+import ProjectDetailPage from '../pages/ProjectDetailPage.jsx';
 import LoginPage from '../pages/admin/LoginPage.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import DashboardPage from '../pages/admin/DashboardPage.jsx';
@@ -38,6 +39,14 @@ export const routes = [
   {
     path: '/en/projects',
     element: <Navigate to="/en/work" replace />,
+  },
+  {
+    path: '/ar/projects/:slug',
+    element: <ProjectDetailPage locale="ar" />,
+  },
+  {
+    path: '/en/projects/:slug',
+    element: <ProjectDetailPage locale="en" />,
   },
   {
     path: '/admin/login',

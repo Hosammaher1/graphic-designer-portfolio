@@ -87,6 +87,38 @@ class PublicProjectController extends Controller
         $snapshot = $project->published_snapshot ?? [];
         $trans = $snapshot['translations'][$locale] ?? $snapshot['translations']['ar'] ?? [];
 
+        // Adjacent published projects for deterministic next/previous navigation
+        $prevProject = Project::published()
+            ->whereNotNull('published_snapshot')
+            ->where('id', '!=', $project->id)
+            ->where(function ($q) use ($project) {
+                $q->where('published_at', '<', $project->published_at)
+                    ->orWhere(function ($sub) use ($project) {
+                        $sub->where('published_at', '=', $project->published_at)
+                            ->where('id', '<', $project->id);
+                    });
+            })
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->first();
+
+        $nextProject = Project::published()
+            ->whereNotNull('published_snapshot')
+            ->where('id', '!=', $project->id)
+            ->where(function ($q) use ($project) {
+                $q->where('published_at', '>', $project->published_at)
+                    ->orWhere(function ($sub) use ($project) {
+                        $sub->where('published_at', '=', $project->published_at)
+                            ->where('id', '>', $project->id);
+                    });
+            })
+            ->orderBy('published_at')
+            ->orderBy('id')
+            ->first();
+
+        $prevTrans = $prevProject ? ($prevProject->published_snapshot['translations'][$locale] ?? $prevProject->published_snapshot['translations']['ar'] ?? []) : [];
+        $nextTrans = $nextProject ? ($nextProject->published_snapshot['translations'][$locale] ?? $nextProject->published_snapshot['translations']['ar'] ?? []) : [];
+
         return response()->json([
             'status' => 'success',
             'data'   => [
@@ -106,6 +138,14 @@ class PublicProjectController extends Controller
                     'categories'      => $snapshot['categories'] ?? [],
                     'tools'           => $snapshot['tools'] ?? [],
                     'media'           => $snapshot['media'] ?? [],
+                    'prev_project'    => $prevProject ? [
+                        'slug'  => $prevProject->slug,
+                        'title' => $prevTrans['title'] ?? $prevProject->slug,
+                    ] : null,
+                    'next_project'    => $nextProject ? [
+                        'slug'  => $nextProject->slug,
+                        'title' => $nextTrans['title'] ?? $nextProject->slug,
+                    ] : null,
                 ],
             ],
         ]);

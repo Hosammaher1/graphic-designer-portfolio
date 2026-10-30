@@ -54,6 +54,26 @@
     "loadMore": "Load More Projects",
     "loading": "Loading work..."
   },
+  "project": {
+    "client": "Client",
+    "year": "Year",
+    "disciplines": "Disciplines",
+    "tools": "Tools Used",
+    "overview": "Project Overview",
+    "gallery": "Visual Documentation & Gallery",
+    "prevProject": "Previous Project",
+    "nextProject": "Next Project",
+    "backToWork": "Back to All Work",
+    "notFoundTitle": "Project Not Found",
+    "notFoundDesc": "The requested project is not available or has not been published yet.",
+    "viewCount": "views"
+  },
+  "lightbox": {
+    "close": "Close image viewer",
+    "next": "Next image",
+    "prev": "Previous image",
+    "imageCount": "Image {current} of {total}"
+  },
   "services": {
     "branding": {
       "title": "Brand Identity & Strategy",

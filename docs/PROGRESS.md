@@ -57,7 +57,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.02 | Public shell and navigation | DONE | PASS: Vitest public-shell (6 passed: Header desktop links in AR/EN, ThemeToggle light/dark state and persistence, mobile drawer keyboard/backdrop/close toggle, Footer social rel=noopener, PublicLayout SkipToContent) | None available (manual checklist) | None (ready for 04.03) | — |
 | 04.03 | Home page | DONE | PASS: Vitest home-page (3 passed: Hero CTAs & content in AR/EN, featured projects grid with cover/badges/links, missing content fallback state) + PHPUnit PublicCategoryTest (1 passed, 7 assertions) | None available (manual checklist) | None (ready for 04.04) | — |
 | 04.04 | Work grid and filter | DONE | PASS: Vitest work-gallery (5 passed: gallery header & category tabs in AR/EN, category filtering with URL params, empty state, error retry, multi-page load more) | None available (manual checklist) | None (ready for 04.05) | — |
-| 04.05 | Project detail | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.05 | Project detail | DONE | PASS: Vitest project-detail (4 passed: metadata & ordered media in AR/EN, full Lightbox viewer with next/prev & Escape, adjacent project navigation, 404 fallback) + PHPUnit PublicProjectsApiTest (6 passed, 29 assertions) | None available (manual checklist) | None (ready for 04.06) | — |
 | 04.06 | About/services | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.07 | Contact UI | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.08 | Subtle motion | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1989,4 +1989,68 @@ Blockers/owner inputs:
   None. Task 04.04 complete and verified.
 Next task:
   Phase 04 — Task 04.05: Project detail (Public project presentation, cover image, thumbnail navigation, lightbox/viewer, localized metadata, next/previous).
+```
+
+
+---
+
+## Task 04.05 Execution Report
+
+```text
+Task ID: 04.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.05-project-detail
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/pages/ProjectDetailPage.jsx (public project presentation with cover image, client/year/category/tools metadata, overview text, ordered visual gallery, keyboard-accessible full-screen Lightbox viewer with counter and navigation controls, adjacent project footer links, and 404 fallback state)
+    - frontend/tests/project-detail.test.jsx (Vitest test suite covering project metadata presentation, ordered gallery rendering, Lightbox modal interactions and Escape key dismiss, adjacent navigation links, and 404 error state)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/PublicProjectController.php (enhanced show endpoint to compute adjacent prev_project and next_project from published snapshots)
+    - frontend/src/app/routes.jsx (registered /ar/projects/:slug and /en/projects/:slug routes)
+    - frontend/src/i18n/ar.json (added translations for project metadata labels, visual documentation gallery heading, next/prev project, back to work, not found state, and lightbox counter)
+    - frontend/src/i18n/en.json (added translations for project metadata labels, visual documentation gallery heading, next/prev project, back to work, not found state, and lightbox counter)
+    - frontend/src/styles/global.css (added styles for project detail header, meta card, cover image aspect container, thumbnail gallery cards, adjacent project footer, and full-screen lightbox dialog with backdrop blur)
+    - docs/PROGRESS.md (marked 04.05 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/project-detail.test.jsx:
+    - renders project metadata, cover, and ordered media in English
+    - opens and navigates Lightbox image viewer with keyboard (Escape, Arrow keys) and buttons
+    - renders previous and next project navigation links
+    - renders 404 state when project is not found
+  backend/tests/Feature/Projects/PublicProjectsApiTest.php:
+    - 6 tests passed (29 assertions) confirming snapshot-driven public presentation and draft isolation
+  Observed RED state:
+    Failed to resolve import "../src/pages/ProjectDetailPage.jsx" (suite failed).
+  Observed GREEN state:
+    frontend/tests/project-detail.test.jsx: 4 passed (4) in 3.50s.
+    backend/tests/Feature/Projects/PublicProjectsApiTest.php: 6 passed (29 assertions) in 2.84s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React project detail / lightbox components.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, react: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.05 verified: cover image and gallery thumbnails preserve strict aspect ratio bounds (16:9 and 4:3); media order matches snapshot sort_order deterministically; Lightbox provides accessible modal dialog role, counter, backdrop dismissal, keyboard arrows, and Escape key listener; document.title updates dynamically with localized SEO title; adjacent navigation enables uninterrupted project browsing; invalid slugs return clean 404 UI with gallery backlink.
+Design artifacts/screenshots reviewed:
+  Inspected hero typographic hierarchy, metadata definition list layout, full-screen lightbox backdrop blur and contrast, keyboard focus indicators, and mobile responsive stacking.
+Commands executed and exact results:
+  1. git checkout -b feat/04.05-project-detail
+  2. Updated PublicProjectController.php with prev_project and next_project computation.
+  3. php artisan test --filter=PublicProjectsApiTest -> PASS: 6 passed (29 assertions).
+  4. Created frontend/tests/project-detail.test.jsx -> RED state observed.
+  5. Implemented ProjectDetailPage.jsx, routes.jsx, global.css, ar.json, en.json.
+  6. vitest tests/project-detail.test.jsx -> GREEN: 4 passed in 3.50s.
+  7. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Project detail queries strictly verify status = 'published' and whereNotNull('published_snapshot').
+  - Soft-deleted, draft, or unapproved revisions return 404 and never leak unapproved images or copy.
+  - Dynamic document.title update ensures localized SEO titles for search indexing.
+Blockers/owner inputs:
+  None. Task 04.05 complete and verified.
+Next task:
+  Phase 04 — Task 04.06: About page (Biography, design philosophy, skills, services, and CV download fallback).
 ```
