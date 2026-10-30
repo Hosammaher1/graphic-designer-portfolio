@@ -95,6 +95,7 @@ export function Header({ locale = 'ar' }) {
           <aside
             id="mobile-nav"
             className="mobile-drawer-dialog"
+            data-testid="mobile-drawer"
             role="dialog"
             aria-modal="true"
             aria-label={t('nav.menuDialog', locale)}

@@ -36,6 +36,7 @@ export function ThemeToggle({ locale = 'ar', className = '' }) {
   return (
     <button
       type="button"
+      data-testid="theme-toggle"
       onClick={toggleTheme}
       aria-label={label}
       title={label}

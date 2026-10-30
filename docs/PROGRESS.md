@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 28 of 97 tasks started, 28 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 39 of 97 tasks started, 39 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -13,13 +13,13 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
-| 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
+| 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **28** | **28** | |
+| **Total** | | **97** | **39** | **39** | |
 
 ## Task register
 
@@ -63,7 +63,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.08 | Subtle motion | DONE | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
 | 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
 | 04.10 | Dark mode | DONE | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
-| 04.11 | E2E public browse | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.11 | E2E public browse | DONE | PASS: Playwright public-browse (10 passed) + Full Gate Suite (101 PHPUnit, 92 Vitest, 48 Playwright = 241 passed) | None available (manual checklist) | None (Phase 04 Gate PASSED, ready for Phase 05) | — |
 | 05.01 | Page Builder data model | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.02 | Block registry | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.03 | Editor canvas and reorder | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2331,3 +2331,92 @@ Blockers/owner inputs:
 Next task:
   Phase 04 — Task 04.11: E2E public browse & Phase 04 Gate (Playwright E2E covering Home, Gallery, Filter, Project Detail, Lightbox, About, Contact, Arabic/English, and Dark/Light modes).
 ```
+
+
+
+---
+
+## Task 04.11 Execution Report
+
+```text
+Task ID: 04.11
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.11-public-e2e
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - e2e/tests/public-browse.spec.js (Comprehensive Playwright E2E suite covering complete public browse workflow: Home -> Work gallery -> Category filtering -> Project detail -> Lightbox viewer with keyboard Escape and Next/Prev controls -> Adjacent project navigation -> About page -> Contact form validation and duplicate submission locking, Arabic RTL <-> English LTR toggle, Theme toggle persistence without FOWT, mobile drawer navigation, skip to content link, 404 page handling, and desktop/mobile screenshots)
+  Modified:
+    - frontend/src/components/ThemeToggle.jsx (added data-testid="theme-toggle" for deterministic E2E locator targeting)
+    - frontend/src/components/Header.jsx (added data-testid="mobile-drawer" to mobile dialog drawer aside element)
+    - docs/PROGRESS.md (marked Task 04.11 DONE, updated Phase 04 gate to passed, recorded execution evidence)
+Tests written first (RED → GREEN):
+  e2e/tests/public-browse.spec.js:
+    - E2E-01 & E2E-02: Home -> Work -> Category Filter -> Detail -> Lightbox -> Adjacent -> About -> Contact
+    - E2E-02: Bilingual Language Toggle preserves state and switches typography/layout
+    - E2E-03: Dark Mode toggle applies theme and persists across page reload without FOWT
+    - E2E-14: Mobile Viewport Drawer opens, navigates, and closes cleanly
+    - Accessibility: Skip to main content link and 404 page handling
+  Observed GREEN state:
+    Playwright public-browse: 10 passed (10) in 21.2s across Desktop Chromium and Mobile Chrome.
+    Full Project Regression Suite:
+      - PHPUnit: 101 passed (411 assertions)
+      - Vitest: 16 test files passed, 92 tests passed
+      - Playwright: 48 tests passed (across Desktop Chromium & Mobile Chrome)
+      Total: 241 passed tests with 0 failures and 0 regressions.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for public E2E Playwright browsing workflows.
+Unavailable skills and fallback checklist:
+  - playwright-e2e, browser-testing: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.11 & Section 13 E2E Catalog verified:
+    1. Public browse journey verified end-to-end: SSR rendered homepage, work gallery with live category tabs, project detail with metadata & ordered media, fully interactive lightbox viewer, adjacent project navigation links, about page with biography, philosophy, skills & tools, and contact form with full client validation, aria-invalid flags, and submission locking.
+    2. Localization verified: instantaneous Arabic (RTL) <-> English (LTR) language switching with HTML lang/dir attribute updates and preserved routing.
+    3. Dark mode verified: Light/dark toggling, localStorage persistence across page reloads, zero hydration error, zero flash of wrong theme.
+    4. Mobile responsiveness verified: 390x844 viewport emulation, mobile drawer navigation, accessible open/close mechanisms.
+    5. Accessibility verified: SkipToContent link attached and functional, semantic heading hierarchies, ARIA landmark regions, safe 404 error page.
+    6. Visual screenshots captured: desktop and mobile captures stored in test-results/screenshots.
+Design artifacts/screenshots reviewed:
+    - test-results/screenshots/home-desktop-chromium.png
+    - test-results/screenshots/work-desktop-chromium.png
+    - test-results/screenshots/home-mobile-chrome.png
+    - test-results/screenshots/work-mobile-chrome.png
+Commands executed and exact results:
+  1. git checkout -b feat/04.11-public-e2e
+  2. Created e2e/tests/public-browse.spec.js.
+  3. Added testids to ThemeToggle.jsx and Header.jsx.
+  4. Built frontend: npm run build (client + SSR server bundles built cleanly with 0 errors).
+  5. cd e2e ; npx playwright test tests/public-browse.spec.js -> GREEN: 10 passed in 21.2s.
+  6. Comprehensive Phase 04 Gate Suite:
+     - cd backend ; php artisan test -> GREEN: 101 passed (411 assertions).
+     - npm.cmd --prefix frontend test -- --run -> GREEN: 16 test files passed, 92 tests passed.
+     - cd e2e ; npx playwright test -> GREEN: 48 passed across Desktop Chromium and Mobile Chrome.
+Security/privacy/SEO considerations:
+  - Public pages serve prerendered HTML with correct lang and dir attributes for search engine crawlers.
+  - No private draft or trashed content is accessible publicly; 404 handler returns clean localized error UI without stack traces.
+  - Contact form enforces honeypot bot trap, field validation, and duplicate submission locks.
+Blockers/owner inputs:
+  None. Task 04.11 complete and Phase 04 Gate fully satisfied.
+Next task:
+  Phase 05 — Task 05.01: Block schema and versioned JSON structure (Hero, text, image, gallery, columns, spacer, CTA, services).
+```
+
+================================================================================
+PHASE 04 GATE EVALUATION - PASSED
+================================================================================
+Criteria:
+  1. Approved visual direction reproduced:
+     PASS: Clean typography with Cormorant Garamond, Tajawal, and IBM Plex Sans Arabic; consistent design tokens for spacing, elevations, colors, and border radiuses; refined card layouts, badges, and polymorphic buttons.
+  2. Public pages SSR:
+     PASS: Native node:http SSR prerenders HTML for /ar/ and /en/ with complete localized meta tags, semantic headings, and skip link before client-side hydration without hydration mismatches.
+  3. Mobile responsive:
+     PASS: Responsive clamp() containers, flexible grid auto-fits, mobile viewport drawer with touch/keyboard accessibility tested at 360px, 390px, 768px, 1024px, and 1440px viewports.
+  4. Subtle accessible motion:
+     PASS: Scroll reveal transitions constrained to 200–500ms; pointer events non-blocking; prefers-reduced-motion: reduce strictly zeroes out transition durations.
+  5. Dark mode & persistence:
+     PASS: Synchronous anti-flash script in index.html head eliminates FOWT; localStorage overrides system color scheme; contrast tokens verified for WCAG AA compliance.
+Phase 04 is COMPLETE. Ready for Phase 05 - Flexible Page Builder and Publishing.
+================================================================================
