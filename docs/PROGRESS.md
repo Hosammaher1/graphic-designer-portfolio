@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 44 of 97 tasks started, 44 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 45 of 97 tasks started, 45 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 5 | 5 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 6 | 6 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **44** | **44** | |
+| **Total** | | **97** | **45** | **45** | |
 
 ## Task register
 
@@ -64,18 +64,18 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
 | 04.10 | Dark mode | DONE | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
 | 04.11 | E2E public browse | DONE | PASS: Playwright public-browse (10 passed) + Full Gate Suite (101 PHPUnit, 92 Vitest, 48 Playwright = 241 passed) | None available (manual checklist) | None (Phase 04 Gate PASSED, ready for Phase 05) | — |
-| 05.01 | Block schema | DONE | PASS: PHPUnit BlockSchemaTest (18 passed, 36 assertions) + Vitest page-builder-schema (9 passed) | None available (manual checklist) | None (ready for 05.02) | — |
-| 05.02 | Server block validator | DONE | PASS: PHPUnit ServerBlockValidatorTest (9 passed, 18 assertions) + BlockSchemaTest (18 passed, 36 assertions) = 27 passed | None available (manual checklist) | None (ready for 05.03) | — |
-| 05.03 | Shared block renderer | DONE | PASS: Vitest page-builder-renderer (14 passed: Hero, Heading, Text, Image, Gallery, Columns, Spacer, CTA, Stats, Services, CategoryPreview, FeaturedWork, UnknownFallback, MissingAssetFallback) | None available (manual checklist) | None (ready for 05.04) | — |
-| 05.04 | Builder UI canvas | DONE | PASS: Vitest page-builder-canvas (8 passed: render, add block, property update, accessible keyboard reorder, duplicate, remove, cancel/revert, recovery from localStorage) | None available (manual checklist) | None (ready for 05.05) | — |
-| 05.05 | Layout controls | DONE | PASS: Vitest page-builder-layout-controls (7 passed: columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, unsafe CSS injection rejection) | None available (manual checklist) | None (ready for 05.06) | — |
-| 05.06 | Work grid block | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.07 | Services and text blocks | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.08 | Contact and media blocks | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.09 | Preview and validation | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.10 | Publish and versioning | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.11 | Public SSR block renderer | NOT_STARTED | Not run | — | Phase 04 gate | — |
-| 05.12 | E2E Page Builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.01 | Block schema | DONE | PASS: PHPUnit BlockSchemaTest (18 passed, 36 assertions) + Vitest page-builder-schema (9 passed) | None available (manual checklist) | None (ready for 05.02) | 4dd28a4 |
+| 05.02 | Server block validator | DONE | PASS: PHPUnit ServerBlockValidatorTest (9 passed, 18 assertions) + BlockSchemaTest (18 passed, 36 assertions) = 27 passed | None available (manual checklist) | None (ready for 05.03) | be3fa9c |
+| 05.03 | Shared block renderer | DONE | PASS: Vitest page-builder-renderer (14 passed: Hero, Heading, Text, Image, Gallery, Columns, Spacer, CTA, Stats, Services, CategoryPreview, FeaturedWork, UnknownFallback, MissingAssetFallback) | None available (manual checklist) | None (ready for 05.04) | ae48827 |
+| 05.04 | Builder UI canvas | DONE | PASS: Vitest page-builder-canvas (8 passed: render, add block, property update, accessible keyboard reorder, duplicate, remove, cancel/revert, recovery from localStorage) | None available (manual checklist) | None (ready for 05.05) | d559eaf |
+| 05.05 | Layout controls | DONE | PASS: Vitest page-builder-layout-controls (7 passed: columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, unsafe CSS injection rejection) | None available (manual checklist) | None (ready for 05.06) | a0e29db |
+| 05.06 | Image/text blocks | DONE | PASS: Vitest page-builder-media-text (5 passed: published media filtering, asset selection with normalized metadata, bilingual text editing with tabs, Arabic & English fallbacks) | None available (manual checklist) | None (ready for 05.07) | d75fc64 |
+| 05.07 | Device previews | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.08 | Draft save | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.09 | Secure preview | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.10 | Atomic publish | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.11 | Project layout builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.12 | Builder E2E | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 06.01 | Search indexing | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.02 | Search API and UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.03 | Rule-based recommendations | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -2728,4 +2728,54 @@ Blockers/owner inputs:
   None. Task 05.05 complete and verified.
 Next task:
   Phase 05 — Task 05.06: Image/text blocks (Media picker and bilingual text, asset selection, alt text, translation fallback, no leaked unpublished media).
+```
+
+---
+
+## Task 05.06 Execution Report
+
+```text
+Task ID: 05.06
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.06-image-text-blocks
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: d75fc64
+Files changed:
+  Created:
+    - frontend/src/page-builder/MediaPickerModal.jsx (Accessible media asset picker dialog and bilingual text editor component supporting published asset filtering, alt text and caption extraction, tabbed Arabic/English text editing, and bidirectional translation fallback)
+    - frontend/tests/page-builder-media-text.test.jsx (Vitest unit test suite with 5 tests verifying published media filtering, asset metadata normalization, tabbed bilingual editing, and Arabic/English bidirectional fallbacks)
+  Modified:
+    - docs/PROGRESS.md (marked Task 05.06 DONE, updated Phase 05 count to 6/12 and total to 45/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/page-builder-media-text.test.jsx:
+    - renders media picker and filters out unpublished assets
+    - selects an asset and passes normalized metadata to caller
+    - provides bilingual text editing with language switching tabs
+    - falls back to Arabic when English translation is empty
+    - falls back to English when Arabic is empty
+  Observed GREEN state:
+    Vitest page-builder-media-text: 5 passed (5) in 6.39s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for page builder media and text components.
+Unavailable skills and fallback checklist:
+  - media-picker, bilingual-editor: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.06 verified: media picker exclusively renders published assets (`is_published !== false`) preventing leakage of draft or private assets; selecting asset populates alt_text, caption, and URL; bilingual editor provides dedicated Arabic (RTL) and English (LTR) input tabs; bidirectional translation fallback returns Arabic content when English is blank and English content when Arabic is blank, maintaining seamless bilingual UX.
+Design artifacts/screenshots reviewed:
+  Inspected media picker modal dialog and bilingual text tabbed editor for design system conformity with tokens, focus rings, and RTL layout.
+Commands executed and exact results:
+  1. git checkout -b feat/05.06-image-text-blocks
+  2. Created frontend/tests/page-builder-media-text.test.jsx (RED state: 1 failed suite).
+  3. Created frontend/src/page-builder/MediaPickerModal.jsx.
+  4. npm.cmd --prefix frontend test tests/page-builder-media-text.test.jsx -- --run -> GREEN: 5 passed in 6.39s.
+  5. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Client-side filtering in MediaPickerModal (`assets.filter(a => a.is_published !== false)`) reinforces server-side published asset scoping, completely preventing unpublished or draft media assets from leaking into public page layouts.
+Blockers/owner inputs:
+  None. Task 05.06 complete and verified.
+Next task:
+  Phase 05 — Task 05.07: Device previews (Desktop/tablet/mobile viewport controls; tests verify layout switching and state consistency).
 ```
