@@ -46,5 +46,11 @@ Route::prefix('v1')->group(function () {
 
         // Tool CRUD
         Route::apiResource('tools', \App\Http\Controllers\Api\V1\Admin\ToolController::class);
+
+        // Media Upload & Management
+        Route::get('media', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'index'])->name('api.v1.admin.media.index');
+        Route::post('media/upload', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'upload'])->name('api.v1.admin.media.upload');
+        Route::post('media/upload-batch', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'uploadBatch'])->name('api.v1.admin.media.uploadBatch');
+        Route::delete('media/{id}', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'destroy'])->name('api.v1.admin.media.destroy');
     });
 });

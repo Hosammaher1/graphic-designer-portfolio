@@ -46,7 +46,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.03 | Category CRUD/reorder | DONE | PASS: CategoryTest (5 passed, 14 assertions: create/translations, unique slug, bulk reorder, cascade safety, auth guard) | None available | None | — |
 | 03.04 | Tools and project metadata | DONE | PASS: ToolAndMetadataTest (7 passed, 24 assertions: create/list, unique slug, update/delete, filter by year/tool, pivot uniqueness, auth guard) | None available | None | — |
 | 03.05 | Cloudinary adapter | DONE | PASS: MediaStorageTest (8 passed, 25 assertions: metadata normalization, MIME check, size cap, safe naming, delete, delivery/watermark URLs, secret redaction, DI container binding) | None available | None | — |
-| 03.06 | Multi-image upload UI/API | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.06 | Multi-image upload UI/API | DONE | PASS: MediaUploadApiTest (5 passed, 13 assertions) + Vitest media-uploader (4 passed) | None available | None | — |
 | 03.07 | Media ordering/cover | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.08 | Watermark transformation | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.09 | Public projects API | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1309,4 +1309,70 @@ Blockers/owner inputs:
   None. Live Cloudinary credentials can be added to .env at deploy time without code changes (per ADR-004).
 Next task:
   Phase 03 — Task 03.06: Multi-image upload UI/API (drag/drop, progress, cancel, per-file retry, concurrency limits).
+```
+
+---
+
+## Task 03.06 Execution Report
+
+```text
+Task ID: 03.06
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.06-multi-image-upload
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 02a8245
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/MediaController.php (upload single, uploadBatch up to 20 files, destroy, index pagination)
+    - backend/tests/Feature/Media/MediaUploadApiTest.php (5 tests, 13 assertions)
+    - frontend/src/components/admin/MediaUploader.jsx (drag/drop, concurrency limiter, cancel controller, retry, progress indicator, accessible live regions)
+    - frontend/tests/media-uploader.test.jsx (4 Vitest tests)
+  Modified:
+    - backend/routes/api.php (registered admin.media.{index,upload,uploadBatch,destroy} endpoints)
+    - docs/PROGRESS.md (marked 03.06 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  Backend (backend/tests/Feature/Media/MediaUploadApiTest.php):
+    - test_admin_can_upload_single_image_and_persists_media_asset
+    - test_admin_can_upload_batch_images
+    - test_upload_rejects_disallowed_mime_type
+    - test_unauthenticated_cannot_upload_media
+    - test_admin_can_delete_media_asset
+  Frontend (frontend/tests/media-uploader.test.jsx):
+    - renders upload dropzone with accessible labels and instructions
+    - rejects disallowed file format immediately with accessible error message
+    - successfully uploads valid image file and calls onUploadSuccess callback
+    - displays Retry button on upload failure and allows retrying
+  Observed RED state:
+    Backend: 5 failed with 404 (routes and controller not yet registered).
+  Observed GREEN state:
+    Backend: 5 passed (13 assertions) in 3.71s.
+    Frontend: 4 passed in 313ms.
+    Frontend build: production client and SSR bundles build cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for multi-image upload UI/API.
+Unavailable skills and fallback checklist:
+  - ui-ux, react, file-upload, backend-architecture: NOT AVAILABLE.
+  - Fallback checklist applied: Standard FormRequest-grade file validation (mimes: jpeg,png,jpg,webp, max: 15360KB), queue concurrency limiter with AbortController for cancelation, aria-live="polite" status updates and role="alert" announcements for assistive tech.
+Design artifacts/screenshots reviewed:
+  N/A (Admin media uploader component tested via React Testing Library).
+Commands executed and exact results:
+  1. git checkout -b feat/03.06-multi-image-upload
+  2. php artisan test tests/Feature/Media/MediaUploadApiTest.php -> RED: 5 failed (404s).
+  3. Created MediaController and registered routes in api.php.
+  4. php artisan test tests/Feature/Media/MediaUploadApiTest.php -> GREEN: 5 passed (13 assertions) in 3.71s.
+  5. Created MediaUploader.jsx and media-uploader.test.jsx.
+  6. npm.cmd test tests/media-uploader.test.jsx -> GREEN: 4 passed in 313ms.
+  7. npm.cmd run build -> client 287.48 kB, server 46.35 kB built successfully.
+Security/privacy/SEO considerations:
+  - All upload endpoints require authenticated admin session.
+  - File MIME types validated against strict image whitelist.
+  - File size restricted to 15MB max per item.
+  - Upload batch limited to max 20 items per request to prevent resource exhaustion.
+Blockers/owner inputs:
+  None. Task 03.06 complete and verified.
+Next task:
+  Phase 03 — Task 03.07: Media ordering/cover (deterministic sort, exactly one valid cover, cross-project media assignment denied).
 ```
