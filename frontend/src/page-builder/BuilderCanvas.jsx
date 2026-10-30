@@ -29,6 +29,7 @@ import {
 } from '../components/ui';
 import { createDefaultBlock, SUPPORTED_BLOCK_TYPES } from './schema.js';
 import { DocumentRenderer, BlockRenderer } from './BlockRenderer.jsx';
+import { DevicePreviewFrame } from './DevicePreviewFrame.jsx';
 
 /**
  * Human-readable labels for block types
@@ -66,6 +67,7 @@ export function BuilderCanvas({
   const [recoveryDraft, setRecoveryDraft] = useState(null);
   const [hasRecoverableDraft, setHasRecoverableDraft] = useState(false);
   const [savedNotice, setSavedNotice] = useState(false);
+  const [previewViewport, setPreviewViewport] = useState('desktop');
 
   // Check for local storage recovery draft on mount
   useEffect(() => {
@@ -533,9 +535,15 @@ export function BuilderCanvas({
               </h2>
             </div>
 
-            <div className="preview-canvas-box border rounded-lg p-6 bg-base">
-              <DocumentRenderer blocks={blocks} locale={locale} isEditor={true} />
-            </div>
+            <DevicePreviewFrame
+              locale={locale}
+              currentViewport={previewViewport}
+              onViewportChange={setPreviewViewport}
+            >
+              <div className="preview-canvas-box border rounded-lg p-6 bg-base">
+                <DocumentRenderer blocks={blocks} locale={locale} isEditor={true} />
+              </div>
+            </DevicePreviewFrame>
           </section>
         </Container>
       </main>

@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 45 of 97 tasks started, 45 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 46 of 97 tasks started, 46 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 6 | 6 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 7 | 7 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **45** | **45** | |
+| **Total** | | **97** | **46** | **46** | |
 
 ## Task register
 
@@ -70,7 +70,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.04 | Builder UI canvas | DONE | PASS: Vitest page-builder-canvas (8 passed: render, add block, property update, accessible keyboard reorder, duplicate, remove, cancel/revert, recovery from localStorage) | None available (manual checklist) | None (ready for 05.05) | d559eaf |
 | 05.05 | Layout controls | DONE | PASS: Vitest page-builder-layout-controls (7 passed: columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, unsafe CSS injection rejection) | None available (manual checklist) | None (ready for 05.06) | a0e29db |
 | 05.06 | Image/text blocks | DONE | PASS: Vitest page-builder-media-text (5 passed: published media filtering, asset selection with normalized metadata, bilingual text editing with tabs, Arabic & English fallbacks) | None available (manual checklist) | None (ready for 05.07) | d75fc64 |
-| 05.07 | Device previews | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.07 | Device previews | DONE | PASS: Vitest page-builder-device-previews (5 passed: default desktop viewport, tablet 768px transition, mobile 390px transition, content/state preservation, live canvas integration) | None available (manual checklist) | None (ready for 05.08) | 4d67604 |
 | 05.08 | Draft save | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.09 | Secure preview | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.10 | Atomic publish | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2778,4 +2778,58 @@ Blockers/owner inputs:
   None. Task 05.06 complete and verified.
 Next task:
   Phase 05 — Task 05.07: Device previews (Desktop/tablet/mobile viewport controls; tests verify layout switching and state consistency).
+```
+
+---
+
+## Task 05.07 Execution Report
+
+```text
+Task ID: 05.07
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.07-device-previews
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 4d67604
+Files changed:
+  Created:
+    - frontend/src/page-builder/DevicePreviewFrame.jsx (Reusable viewport switcher toolbar and device frame container supporting Desktop full-width, Tablet 768px, and Mobile 390px with responsive bezel framing, accessible ARIA pressed toggles, and bilingual labels)
+    - frontend/tests/page-builder-device-previews.test.jsx (Vitest unit test suite with 5 tests verifying default desktop viewport, tablet 768px transition, mobile 390px transition, content/state preservation across transitions, and BuilderCanvas live integration)
+  Modified:
+    - frontend/src/page-builder/BuilderCanvas.jsx (integrated DevicePreviewFrame into live preview section with synchronized viewport state)
+    - docs/PROGRESS.md (marked Task 05.07 DONE, updated Phase 05 count to 7/12 and total to 46/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/page-builder-device-previews.test.jsx:
+    - renders device preview toolbar with Desktop as default active viewport
+    - switches viewport to Tablet (768px) and updates active state and styling
+    - switches viewport to Mobile (390px) and updates active state and styling
+    - preserves child content and document state across all viewport transitions
+    - integrates device preview toolbar within BuilderCanvas maintaining live editing consistency
+  Observed GREEN state:
+    Vitest page-builder-device-previews: 5 passed (5) in 3.11s.
+    Vitest page-builder-canvas: 8 passed (8) in 3.00s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for device preview viewport switcher.
+Unavailable skills and fallback checklist:
+  - viewport-controls, responsive-preview: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.07 verified: explicit Desktop (100%), Tablet (768px), and Mobile (390px) controls provided; active viewport state is tracked and synchronized with accessible `aria-pressed` attributes; viewport transitions smoothly animate width changes while preserving the complete block tree and document state; live property editing immediately reflects inside whichever viewport mode is selected without resetting layout or selection.
+Design artifacts/screenshots reviewed:
+  Inspected device preview frame container, rounded phone/tablet bezels, shadow elevation tokens, and viewport switcher toolbar buttons for visual conformity.
+Commands executed and exact results:
+  1. git checkout -b feat/05.07-device-previews
+  2. Created frontend/tests/page-builder-device-previews.test.jsx (RED state: 1 failed suite, missing import).
+  3. Created frontend/src/page-builder/DevicePreviewFrame.jsx.
+  4. Updated frontend/src/page-builder/BuilderCanvas.jsx with DevicePreviewFrame integration.
+  5. npm.cmd --prefix frontend test tests/page-builder-device-previews.test.jsx -- --run -> GREEN: 5 passed in 3.11s.
+  6. npm.cmd --prefix frontend test tests/page-builder-canvas.test.jsx -- --run -> GREEN: 8 passed in 3.00s.
+  7. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Device viewport switching operates strictly on client-side container layout geometry and CSS max-width rules without introducing iframe injection vulnerabilities or arbitrary external viewport loading vectors.
+Blockers/owner inputs:
+  None. Task 05.07 complete and verified.
+Next task:
+  Phase 05 — Task 05.08: Draft save (Debounced or explicit save with optimistic concurrency/versioning. Tests: stale update conflict, failed save retains editor changes, published page unaffected).
 ```
