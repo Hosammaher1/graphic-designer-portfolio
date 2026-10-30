@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/health', [HealthController::class, 'health'])->name('api.v1.health');
 
+    // Public Projects API
+    Route::get('/projects', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'index'])->name('api.v1.projects.index');
+    Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
+
     // Authentication routes
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->name('api.v1.auth.login');
@@ -38,6 +42,12 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('projects', \App\Http\Controllers\Api\V1\Admin\ProjectController::class);
         Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
             ->name('api.v1.admin.projects.relationships');
+        Route::post('projects/{project}/publish', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'publish'])
+            ->name('api.v1.admin.projects.publish');
+        Route::post('projects/{project}/unpublish', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'unpublish'])
+            ->name('api.v1.admin.projects.unpublish');
+        Route::get('projects/{project}/preview', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'preview'])
+            ->name('api.v1.admin.projects.preview');
 
         // Project Media Management (Attach, Reorder, Cover, Detach)
         Route::post('projects/{project}/media', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'attach'])

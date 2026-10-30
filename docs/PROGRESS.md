@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-29. **Implementation:** 16 of 97 tasks started, 16 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 25 of 97 tasks started, 25 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -12,14 +12,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
-| 03 | Projects, Categories, Media | 12 | 0 | 0 | Not evaluated |
+| 03 | Projects, Categories, Media | 12 | 9 | 9 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **16** | **16** | |
+| **Total** | | **97** | **25** | **25** | |
 
 ## Task register
 
@@ -49,7 +49,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.06 | Multi-image upload UI/API | DONE | PASS: MediaUploadApiTest (5 passed, 13 assertions) + Vitest media-uploader (4 passed) | None available | None | — |
 | 03.07 | Media ordering/cover | DONE | PASS: ProjectMediaOrderingTest (7 passed, 23 assertions: attach with order, deterministic reorder, single cover invariant, cross-project denial, detach cascade safety) | None available | None | — |
 | 03.08 | Watermark transformation | DONE | PASS: WatermarkTransformationTest (5 passed, 14 assertions: watermark generation, clean URL on disabled project, original preserved untouched, project & media toggle API) | None available | None | — |
-| 03.09 | Public projects API | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.09 | Project drafts/publish | DONE | PASS: PublicProjectsApiTest (6 passed, 29 assertions: publish/unpublish, draft exclusion, draft leak isolation, preview noindex, view count increment) | None available | None | eda4be1 |
 | 03.10 | Trash and 30-day soft delete | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.11 | Media cleanup job | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.12 | E2E project management | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1493,4 +1493,65 @@ Blockers/owner inputs:
   None. Task 03.08 complete and verified.
 Next task:
   Phase 03 — Task 03.09: Project drafts/publish (public projects API, immutable published snapshot, draft isolation).
+```
+
+
+---
+
+## Task 03.09 Execution Report
+
+```text
+Task ID: 03.09
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.09-project-drafts-publish
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: eda4be1
+Files changed:
+  Created:
+    - backend/app/Services/Publishing/ProjectPublishingService.php (atomic snapshot freezing, publish/unpublish workflow)
+    - backend/app/Http/Controllers/Api/V1/PublicProjectController.php (public index with locale/filters, public show with snapshot unpacking & view counter)
+    - backend/tests/Feature/Projects/PublicProjectsApiTest.php (6 tests, 29 assertions)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (added publish, unpublish, and preview endpoints)
+    - backend/routes/api.php (registered public projects index/show routes and admin publish/unpublish/preview routes)
+    - docs/PROGRESS.md (marked 03.09 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/PublicProjectsApiTest.php:
+    - test_admin_can_publish_and_unpublish_project
+    - test_public_projects_index_strictly_excludes_draft_and_trashed_projects
+    - test_public_project_detail_returns_404_for_draft_projects
+    - test_public_api_reads_from_immutable_snapshot_so_draft_edits_never_leak
+    - test_admin_can_preview_draft_project_with_noindex_header
+    - test_public_detail_view_increments_view_count
+  Observed RED state:
+    6 failed (routes not yet registered, 404 responses).
+  Observed GREEN state:
+    Tests: 6 passed (29 assertions) in 2.16s.
+    ProjectCrudTest regression check: 11 passed (38 assertions) in 2.19s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for project publishing workflow.
+Unavailable skills and fallback checklist:
+  - backend-architecture, publishing-systems: NOT AVAILABLE.
+  - Fallback checklist applied: Plan Audit Section 3.01 & 3.09 verified: public API and SSR read strictly from immutable `published_snapshot` JSON column; subsequent draft edits to translations, media, or categories do not leak to public until re-published; admin preview returns live draft with `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store, private`; public show increments `view_count`.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API endpoints for publishing and public consumption).
+Commands executed and exact results:
+  1. git checkout -b feat/03.09-project-drafts-publish
+  2. Created PublicProjectsApiTest.php.
+  3. php artisan test tests/Feature/Projects/PublicProjectsApiTest.php -> RED: 6 failed (404s).
+  4. Implemented ProjectPublishingService.php, PublicProjectController.php, updated ProjectController.php, registered routes in routes/api.php.
+  5. php artisan test tests/Feature/Projects/PublicProjectsApiTest.php -> GREEN: 6 passed (29 assertions) in 2.16s.
+  6. php artisan test tests/Feature/Projects/ProjectCrudTest.php -> GREEN: 11 passed (38 assertions) in 2.19s.
+Security/privacy/SEO considerations:
+  - Draft isolation guaranteed: unpublished projects strictly 404 on public endpoints.
+  - No draft leak: edits made in admin drafts never appear publicly until explicitly published.
+  - Admin preview protected behind auth:sanctum + admin middleware, sending `X-Robots-Tag: noindex, nofollow` to prevent search crawlers from indexing preview URLs.
+  - Atomic publish/unpublish preserves snapshot integrity in DB transaction.
+Blockers/owner inputs:
+  None. Task 03.09 complete and verified.
+Next task:
+  Phase 03 — Task 03.10: Trash and 30-day soft delete (admin trash endpoint, restore, permanent delete, scheduled prune job).
 ```

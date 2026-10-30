@@ -169,4 +169,68 @@ class ProjectController extends Controller
             ]],
         ]);
     }
+
+    public function publish(int $id, \App\Services\Publishing\ProjectPublishingService $service): JsonResponse
+    {
+        $project = Project::find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        $published = $service->publish($project);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['project' => new ProjectResource($published)],
+        ]);
+    }
+
+    public function unpublish(int $id, \App\Services\Publishing\ProjectPublishingService $service): JsonResponse
+    {
+        $project = Project::find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        $unpublished = $service->unpublish($project);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['project' => new ProjectResource($unpublished)],
+        ]);
+    }
+
+    public function preview(int $id): JsonResponse
+    {
+        $project = Project::with(['translations', 'categories.translations', 'tools', 'media.mediaAsset', 'coverMedia'])
+            ->find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        $trans = $project->translation() ?: $project->translations->first();
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'project' => [
+                    'id'               => $project->id,
+                    'slug'             => $project->slug,
+                    'status'           => $project->status,
+                    'title'            => $trans?->title ?? '',
+                    'summary'          => $trans?->summary ?? '',
+                    'description'      => $trans?->description ?? '',
+                    'enable_watermark' => (bool) $project->enable_watermark,
+                    'categories'       => $project->categories,
+                    'tools'            => $project->tools,
+                    'media'            => $project->media,
+                ],
+            ],
+        ])
+        ->header('X-Robots-Tag', 'noindex, nofollow')
+        ->header('Cache-Control', 'no-store, private');
+    }
 }
