@@ -42,6 +42,18 @@
     "contactCtaSubtitle": "Let's collaborate on creating a distinctive visual presence that captures the essence of your brand.",
     "contactCtaButton": "Start a Conversation"
   },
+  "work": {
+    "title": "Selected Work & Projects",
+    "subtitle": "A curated collection of brand identities, packaging, and visual systems crafted with precision.",
+    "allCategories": "All Projects",
+    "emptyTitle": "No Projects Found",
+    "emptyDesc": "Try selecting a different discipline or explore all work.",
+    "errorTitle": "Unable to Load Projects",
+    "errorDesc": "An unexpected error occurred while fetching projects. Please try again.",
+    "retry": "Retry",
+    "loadMore": "Load More Projects",
+    "loading": "Loading work..."
+  },
   "services": {
     "branding": {
       "title": "Brand Identity & Strategy",

@@ -1102,3 +1102,163 @@ button {
   line-height: var(--line-height-relaxed);
   margin-bottom: var(--space-2);
 }
+
+
+/* ==========================================================================
+   Work Gallery Styles (Task 04.04)
+   ========================================================================== */
+.work-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-16);
+}
+
+.work-header-section {
+  padding: var(--space-16) 0 var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: radial-gradient(circle at 50% 0%, var(--color-surface) 0%, transparent 80%);
+}
+
+.work-header-content {
+  max-width: 800px;
+  margin-bottom: var(--space-8);
+}
+
+.work-title {
+  font-size: clamp(2.25rem, 4.5vw, var(--font-size-4xl));
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.work-subtitle {
+  font-size: clamp(1rem, 2vw, var(--font-size-lg));
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Category Tabs */
+.category-tabs-nav {
+  margin-top: var(--space-4);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--space-2);
+}
+
+.category-tabs-list {
+  display: inline-flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+
+.category-tab-btn {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: all var(--motion-fast);
+  white-space: nowrap;
+}
+
+.category-tab-btn:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.category-tab-btn.active {
+  color: var(--color-accent-contrast);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Work Grid Section */
+.work-grid-section {
+  padding: var(--space-6) 0 var(--space-12);
+}
+
+/* Skeletons */
+.project-skeleton-card {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-hover) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+.skeleton-body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-line {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-hover) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+.skeleton-line.sm { width: 35%; height: 0.75rem; }
+.skeleton-line.md { width: 70%; }
+.skeleton-line.lg { width: 90%; height: 1.25rem; }
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error card */
+.work-error-card {
+  border: 1px solid var(--color-danger-border);
+  background-color: var(--color-danger-bg);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.work-error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.work-error-icon {
+  color: var(--color-danger);
+}
+
+.work-error-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger-text);
+}
+
+.work-error-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger-text);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-2);
+}
+
+/* Load More */
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-12);
+}

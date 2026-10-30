@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage.jsx';
+import WorkPage from '../pages/WorkPage.jsx';
 import LoginPage from '../pages/admin/LoginPage.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import DashboardPage from '../pages/admin/DashboardPage.jsx';
@@ -21,6 +22,22 @@ export const routes = [
   {
     path: '/en/',
     element: <HomePage locale="en" />,
+  },
+  {
+    path: '/ar/work',
+    element: <WorkPage locale="ar" />,
+  },
+  {
+    path: '/en/work',
+    element: <WorkPage locale="en" />,
+  },
+  {
+    path: '/ar/projects',
+    element: <Navigate to="/ar/work" replace />,
+  },
+  {
+    path: '/en/projects',
+    element: <Navigate to="/en/work" replace />,
   },
   {
     path: '/admin/login',
@@ -59,5 +76,9 @@ export const routes = [
         element: <DashboardPage />,
       },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/ar/" replace />,
   },
 ];
