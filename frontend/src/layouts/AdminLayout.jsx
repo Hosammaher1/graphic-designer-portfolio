@@ -73,6 +73,7 @@ export default function AdminLayout() {
         className={`admin-sidebar ${mobileDrawerOpen ? 'open' : ''}`}
         aria-label="Admin Navigation"
         style={{
+          position: 'relative',
           width: '260px',
           borderRight: '1px solid var(--color-border)',
           background: 'var(--color-surface)',
