@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 42 of 97 tasks started, 42 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 43 of 97 tasks started, 43 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 3 | 3 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 4 | 4 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **42** | **42** | |
+| **Total** | | **97** | **43** | **43** | |
 
 ## Task register
 
@@ -67,7 +67,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.01 | Block schema | DONE | PASS: PHPUnit BlockSchemaTest (18 passed, 36 assertions) + Vitest page-builder-schema (9 passed) | None available (manual checklist) | None (ready for 05.02) | — |
 | 05.02 | Server block validator | DONE | PASS: PHPUnit ServerBlockValidatorTest (9 passed, 18 assertions) + BlockSchemaTest (18 passed, 36 assertions) = 27 passed | None available (manual checklist) | None (ready for 05.03) | — |
 | 05.03 | Shared block renderer | DONE | PASS: Vitest page-builder-renderer (14 passed: Hero, Heading, Text, Image, Gallery, Columns, Spacer, CTA, Stats, Services, CategoryPreview, FeaturedWork, UnknownFallback, MissingAssetFallback) | None available (manual checklist) | None (ready for 05.04) | — |
-| 05.04 | Block property inspector | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.04 | Builder UI canvas | DONE | PASS: Vitest page-builder-canvas (8 passed: render, add block, property update, accessible keyboard reorder, duplicate, remove, cancel/revert, recovery from localStorage) | None available (manual checklist) | None (ready for 05.05) | — |
 | 05.05 | Hero block | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.06 | Work grid block | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.07 | Services and text blocks | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2619,4 +2619,60 @@ Blockers/owner inputs:
   None. Task 05.03 complete and verified.
 Next task:
   Phase 05 — Task 05.04: Builder UI canvas (Add/remove/duplicate/reorder blocks, property inspector, keyboard reordering alternative, cancel and failed-save recovery per PLAN_AUDIT).
+```
+
+
+---
+
+## Task 05.04 Execution Report
+
+```text
+Task ID: 05.04
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.04-builder-ui-canvas
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/page-builder/BuilderCanvas.jsx (Interactive page builder workspace with block outline panel, modal block library palette for all 12 block types, accessible keyboard Move Up/Down reordering controls, block duplication with UUID generation, block removal, real-time property inspector updating live preview, cancel/revert to initial document state, and localStorage failed-save recovery per ADR-006 / PLAN_AUDIT)
+    - frontend/tests/page-builder-canvas.test.jsx (Vitest test suite with 8 tests verifying outline rendering, block addition from palette, live property inspector updates, accessible keyboard reordering, duplication, removal, cancel/revert, and localStorage draft recovery)
+  Modified:
+    - docs/PROGRESS.md (marked Task 05.04 DONE, updated Phase 05 started/done counts, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/page-builder-canvas.test.jsx:
+    - renders builder canvas with initial block items and controls
+    - adds a new block from the block library palette
+    - selects a block and updates properties in real-time
+    - reorders blocks using accessible Move Up and Move Down buttons
+    - duplicates a block creating a clone with a new unique ID
+    - removes a block from the canvas
+    - cancels unsaved modifications and reverts to initial document state
+    - recovers unsaved draft from localStorage if present
+  Observed GREEN state:
+    Vitest page-builder-canvas: 8 passed (8) in 3.05s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for builder canvas UI.
+Unavailable skills and fallback checklist:
+  - canvas-editor, page-builder: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.04 & PLAN_AUDIT finding 05.04 verified: Add/remove/duplicate/reorder blocks implemented; accessible Move Up and Move Down buttons provide keyboard alternative to drag-and-drop; property inspector updates live preview in real time; cancel button reverts uncommitted changes to initial state; failed-save recovery persists work-in-progress to localStorage without overwriting on mount, displaying alert banner when recoverable session is detected.
+Design artifacts/screenshots reviewed:
+  Inspected outline panel layout, property inspector inputs, and live preview container in Arabic RTL and English LTR.
+Commands executed and exact results:
+  1. git checkout -b feat/05.04-builder-ui-canvas
+  2. Created frontend/tests/page-builder-canvas.test.jsx (RED state: 1 failed suite).
+  3. Created frontend/src/page-builder/BuilderCanvas.jsx.
+  4. Fixed auto-persistence mount timing in BuilderCanvas.jsx to preserve recovery drafts.
+  5. npm.cmd --prefix frontend test tests/page-builder-canvas.test.jsx -- --run -> GREEN: 8 passed in 3.05s.
+  6. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Local recovery storage uses page-scoped keys (`page-builder-recovery-${pageId}`) and stores only schema-compliant block arrays.
+  - Property updates mutate state immutably without dangerous HTML evaluation.
+Blockers/owner inputs:
+  None. Task 05.04 complete and verified.
+Next task:
+  Phase 05 — Task 05.05: Layout controls (Columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, no unsafe CSS injection).
 ```
