@@ -68,6 +68,26 @@
     "notFoundDesc": "The requested project is not available or has not been published yet.",
     "viewCount": "views"
   },
+  "about": {
+    "pageTitle": "About Mohammed",
+    "lead": "Graphic & brand identity designer dedicated to crafting timeless visual languages, meticulous packaging, and cohesive brand systems.",
+    "bioTitle": "Journey & Design Vision",
+    "bioParagraph1": "Over years of partnering with forward-thinking brands, cultural institutions, and founders, I have refined an approach that prioritizes conceptual clarity, understated elegance, and problem-solving through design craft.",
+    "bioParagraph2": "I believe that an enduring visual identity is more than surface decoration—it is a strategic visual language that communicates values with authenticity and poetic restraint.",
+    "philosophyTitle": "Design Philosophy",
+    "philosophy1Title": "Intentional Simplicity",
+    "philosophy1Desc": "Eliminating the superfluous to focus on core visual elements that grant identities longevity and purpose.",
+    "philosophy2Title": "Typographic Precision",
+    "philosophy2Desc": "Meticulous attention to rhythm, proportions, kerning, and hierarchy across both Arabic and Latin typefaces.",
+    "philosophy3Title": "Tactile & Material Craft",
+    "philosophy3Desc": "Deep appreciation for paper stock, debossing, foil stamping, and how design is experienced physically in the hand.",
+    "skillsTitle": "Disciplines & Expertise",
+    "toolsTitle": "Tools & Technologies",
+    "experienceTitle": "Selected Milestones & Experience",
+    "cvDownload": "Download Curriculum Vitae (PDF)",
+    "cvUponRequest": "Curriculum Vitae is available upon request for prospective collaborations and design commissions.",
+    "requestCv": "Request CV"
+  },
   "lightbox": {
     "close": "Close image viewer",
     "next": "Next image",

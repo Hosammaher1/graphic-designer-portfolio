@@ -58,7 +58,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.03 | Home page | DONE | PASS: Vitest home-page (3 passed: Hero CTAs & content in AR/EN, featured projects grid with cover/badges/links, missing content fallback state) + PHPUnit PublicCategoryTest (1 passed, 7 assertions) | None available (manual checklist) | None (ready for 04.04) | — |
 | 04.04 | Work grid and filter | DONE | PASS: Vitest work-gallery (5 passed: gallery header & category tabs in AR/EN, category filtering with URL params, empty state, error retry, multi-page load more) | None available (manual checklist) | None (ready for 04.05) | — |
 | 04.05 | Project detail | DONE | PASS: Vitest project-detail (4 passed: metadata & ordered media in AR/EN, full Lightbox viewer with next/prev & Escape, adjacent project navigation, 404 fallback) + PHPUnit PublicProjectsApiTest (6 passed, 29 assertions) | None available (manual checklist) | None (ready for 04.06) | — |
-| 04.06 | About/services | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.06 | About/services | DONE | PASS: Vitest about-page (4 passed: biography & design vision in AR/EN, design philosophy grid, skills & tools lists, milestones timeline, CV download when provided, CV request fallback when missing) | None available (manual checklist) | None (ready for 04.07) | — |
 | 04.07 | Contact UI | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.08 | Subtle motion | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.09 | Responsive and accessibility | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -2053,4 +2053,62 @@ Blockers/owner inputs:
   None. Task 04.05 complete and verified.
 Next task:
   Phase 04 — Task 04.06: About page (Biography, design philosophy, skills, services, and CV download fallback).
+```
+
+
+---
+
+## Task 04.06 Execution Report
+
+```text
+Task ID: 04.06
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.06-about-page
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/pages/AboutPage.jsx (comprehensive about page presenting designer biography, design vision, 3-pillar design philosophy, core disciplines checklist, software tools tags, experience milestone timeline, conditional CV download button, missing CV fallback card linking to contact, and contact CTA banner)
+    - frontend/tests/about-page.test.jsx (Vitest test suite covering bilingual English and Arabic content, design philosophy cards, skills/tools presentation, downloadable CV link verification, and missing asset fallback)
+  Modified:
+    - frontend/src/app/routes.jsx (registered /ar/about and /en/about public routes)
+    - frontend/src/i18n/ar.json (added translations for about page title, lead narrative, bio paragraphs, philosophy cards, skills/tools headings, experience milestones, CV download, and fallback copy)
+    - frontend/src/i18n/en.json (added translations for about page title, lead narrative, bio paragraphs, philosophy cards, skills/tools headings, experience milestones, CV download, and fallback copy)
+    - frontend/src/styles/global.css (added styles for about header, narrative card, philosophy 3-column grid, skills checklist, tool tags, timeline layout, and CV action card)
+    - docs/PROGRESS.md (marked 04.06 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/about-page.test.jsx:
+    - renders biography, design philosophy, skills, tools, and experience in English
+    - renders translated content correctly in Arabic
+    - renders downloadable CV button when cvUrl is supplied with download attribute
+    - renders graceful fallback when CV asset is missing without broken links
+  Observed RED state:
+    Failed to resolve import "../src/pages/AboutPage.jsx" (suite failed).
+  Observed GREEN state:
+    Tests: 4 passed (4) in 4.42s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React portfolio about/biography components.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, react: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.06 verified: comprehensive narrative articulates design journey, vision, and typographic philosophy in both Arabic and English; disciplines and software tools clearly structured with semantic HTML lists; experience milestones formatted cleanly; CV download enforces safety: only presents download attribute when verified asset is supplied, falling back gracefully to "available upon request" contact link without dead links or broken downloads.
+Design artifacts/screenshots reviewed:
+  Inspected typographic scale, philosophy cards hover elevation, timeline period alignment, tool tag pill borders, and responsive single-column layout on mobile.
+Commands executed and exact results:
+  1. git checkout -b feat/04.06-about-page
+  2. Created frontend/tests/about-page.test.jsx -> RED state observed.
+  3. Implemented AboutPage.jsx, routes.jsx, global.css, ar.json, en.json.
+  4. vitest tests/about-page.test.jsx -> GREEN: 4 passed in 4.42s.
+  5. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Safe asset delivery: CV download link points only to safe relative asset or verified HTTPS URL with download attribute.
+  - No broken links when CV is not provided; fallback directs to verified contact route.
+  - Semantic headings and landmark sections ensure clean indexation by search engines.
+Blockers/owner inputs:
+  None. Task 04.06 complete and verified.
+Next task:
+  Phase 04 — Task 04.07: Contact UI (Contact methods, validated form UI, local submission handling, success/failure states, duplicate submit prevention).
 ```
