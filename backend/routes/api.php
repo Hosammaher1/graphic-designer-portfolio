@@ -24,6 +24,8 @@ Route::prefix('v1')->group(function () {
 
     // Secure Preview Route (Authorized via Cryptographic Signature or Admin Session)
     Route::get('/pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview.signed');
+    // Public Published Page Route
+    Route::get('/pages/{slug}', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'showPublic'])->name('api.v1.pages.show');
 
     // Authentication routes
     Route::prefix('auth')->group(function () {
@@ -91,5 +93,6 @@ Route::prefix('v1')->group(function () {
         Route::post('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'saveDraft'])->name('api.v1.admin.pages.draft.save');
         Route::get('pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.admin.pages.preview');
         Route::post('pages/{slug}/preview-url', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'createPreviewUrl'])->name('api.v1.admin.pages.preview.url');
+        Route::post('pages/{slug}/publish', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'publish'])->name('api.v1.admin.pages.publish');
     });
 });

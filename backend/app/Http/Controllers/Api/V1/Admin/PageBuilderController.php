@@ -9,6 +9,7 @@ use App\Models\PageVersion;
 use App\Services\PageBuilder\ServerBlockValidator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
@@ -199,5 +200,94 @@ class PageBuilderController extends Controller
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    /**
+     * Atomically publish the current draft version and update the active published pointer.
+     */
+    public function publish(Request $request, string $slug): JsonResponse
+    {
+        $page = Page::with('currentDraftVersion')->where('slug', $slug)->firstOrFail();
+
+        // 1. Localized Completeness Policy: Both Arabic and English titles are required for publication
+        if (empty(trim((string) $page->title_ar)) || empty(trim((string) $page->title_en))) {
+            $errors = [];
+            if (empty(trim((string) $page->title_ar))) {
+                $errors['title_ar'] = ['The title_ar field is required to publish this page.'];
+            }
+            if (empty(trim((string) $page->title_en))) {
+                $errors['title_en'] = ['The title_en field is required to publish this page.'];
+            }
+
+            return response()->json([
+                'message' => 'Localized completeness policy violation: Both Arabic and English titles are required for publication.',
+                'policy_violation' => true,
+                'errors' => $errors,
+            ], 422);
+        }
+
+        $draft = $page->currentDraftVersion;
+        if (!$draft) {
+            return response()->json([
+                'message' => 'No active draft version available to publish.',
+            ], 400);
+        }
+
+        // 2. Atomic Database Transaction
+        return DB::transaction(function () use ($page, $draft, $slug, $request) {
+            // Mark draft status as published
+            $draft->status = 'published';
+            $draft->save();
+
+            // Update page published_version_id pointer
+            $page->published_version_id = $draft->id;
+            $page->save();
+
+            // Invalidate public page and sitemap caches
+            Cache::forget("page_public_{$slug}");
+            Cache::forget("sitemap");
+            Cache::forget("public_pages_index");
+
+            // Audit log
+            if (class_exists(AuditLog::class) && method_exists(AuditLog::class, 'record')) {
+                AuditLog::record(
+                    auth()->id(),
+                    'page_published',
+                    "Published version {$draft->version_number} of page '{$slug}'",
+                    $request->ip(),
+                    ['slug' => $slug, 'version' => $draft->version_number, 'published_version_id' => $draft->id]
+                );
+            }
+
+            return response()->json([
+                'message' => 'Page published successfully.',
+                'page' => $page,
+                'published_version' => $draft,
+            ], 200);
+        });
+    }
+
+    /**
+     * Public endpoint: Serves only the published immutable version.
+     */
+    public function showPublic(string $slug): JsonResponse
+    {
+        $page = Page::with('publishedVersion')->where('slug', $slug)->first();
+
+        if (!$page || !$page->publishedVersion) {
+            return response()->json([
+                'message' => 'Page not found or not published.',
+            ], 404);
+        }
+
+        return response()->json([
+            'page' => [
+                'slug' => $page->slug,
+                'title_ar' => $page->title_ar,
+                'title_en' => $page->title_en,
+                'published_at' => $page->publishedVersion->updated_at,
+            ],
+            'blocks' => $page->publishedVersion->blocks ?? [],
+        ], 200);
     }
 }

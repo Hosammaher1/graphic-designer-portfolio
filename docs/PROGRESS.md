@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 48 of 97 tasks started, 48 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 49 of 97 tasks started, 49 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 9 | 9 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 10 | 10 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **48** | **48** | |
+| **Total** | | **97** | **49** | **49** | |
 
 ## Task register
 
@@ -73,7 +73,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.07 | Device previews | DONE | PASS: Vitest page-builder-device-previews (5 passed: default desktop viewport, tablet 768px transition, mobile 390px transition, content/state preservation, live canvas integration) | None available (manual checklist) | None (ready for 05.08) | 4d67604 |
 | 05.08 | Draft save | DONE | PASS: PHPUnit PageDraftSaveTest (5 passed, 19 assertions) + Vitest page-builder-draft-save (4 passed: explicit save with lockVersion, 409 conflict alert & state retention, failure retention, API client normalization) | None available (manual checklist) | None (ready for 05.09) | 8e7ea6f |
 | 05.09 | Secure preview | DONE | PASS: PHPUnit PageSecurePreviewTest (6 passed, 20 assertions: admin access, anonymous 403, valid signed URL access, expired signature 403, tampered 403, signed URL generation, X-Robots-Tag noindex) + Vitest page-builder-secure-preview (4 passed) | None available (manual checklist) | None (ready for 05.10) | f24fba3 |
-| 05.10 | Atomic publish | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.10 | Atomic publish | DONE | PASS: PHPUnit PageAtomicPublishTest (5 passed, 20 assertions: atomic publish transaction, localized completeness policy 422, rollback resilience, public endpoint isolation, auth guard) + Vitest page-builder-atomic-publish (4 passed) | None available (manual checklist) | None (ready for 05.11) | 87d6ac1 |
 | 05.11 | Project layout builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.12 | Builder E2E | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 06.01 | Search indexing | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -2965,4 +2965,67 @@ Blockers/owner inputs:
   None. Task 05.09 complete and verified.
 Next task:
   Phase 05 — Task 05.10: Atomic publish (Transaction creates immutable published snapshot and updates pointer; invalidate relevant caches/sitemap. Tests: rollback on failure, previous version stays public, localized completeness policy).
+```
+
+---
+
+## Task 05.10 Execution Report
+
+```text
+Task ID: 05.10
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.10-atomic-publish
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 87d6ac1
+Files changed:
+  Created:
+    - backend/tests/Feature/PageAtomicPublishTest.php (PHPUnit test suite with 5 tests verifying atomic transaction publish, localized completeness policy enforcement, rollback resilience, public snapshot isolation from subsequent drafts, and auth guards)
+    - frontend/tests/page-builder-atomic-publish.test.jsx (Vitest unit test suite with 4 tests verifying publishPage API, 422 policy normalization, anonymous fetchPublicPage, and 404 handling)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/Admin/PageBuilderController.php (Implemented publish method with DB transaction, localized completeness checks, cache/sitemap invalidation, and showPublic endpoint for immutable published snapshots)
+    - backend/routes/api.php (Registered public route `GET /api/v1/pages/{slug}` and admin route `POST /api/v1/admin/pages/{slug}/publish`)
+    - frontend/src/page-builder/pageBuilderApi.js (Added publishPage and fetchPublicPage methods with error normalization)
+    - docs/PROGRESS.md (marked Task 05.10 DONE, updated Phase 05 count to 10/12 and total to 49/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/PageAtomicPublishTest.php:
+    - admin can atomically publish draft version
+    - localized completeness policy rejects missing required language
+    - rollback on failure retains previous published version
+    - public endpoint serves only published snapshot and ignores drafts
+    - unauthenticated request cannot publish
+  frontend/tests/page-builder-atomic-publish.test.jsx:
+    - atomically publishes page and returns published_version snapshot
+    - normalizes 422 localized completeness policy rejection correctly
+    - fetches public page for anonymous visitors
+    - handles 404 for unpublished page gracefully
+  Observed GREEN state:
+    PHPUnit PageAtomicPublishTest: 5 passed (20 assertions) in 2.42s.
+    Vitest page-builder-atomic-publish: 4 passed (4) in 1.72s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for atomic publishing transactions.
+Unavailable skills and fallback checklist:
+  - atomic-publishing, cache-invalidation: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.10 and ADR-002 verified: publishing wraps version status transition and `pages.published_version_id` pointer update in an atomic database transaction (`DB::transaction`); missing bilingual fields trigger a structured 422 validation response under the localized completeness policy; any failure triggers transaction rollback preserving the previous public snapshot; cache keys (`page_public_{slug}`, `sitemap`) are invalidated immediately; public endpoints strictly query against `published_version_id` guaranteeing that in-progress drafts never leak.
+Design artifacts/screenshots reviewed:
+  Verified published response payload and localized completeness error messaging in both Arabic and English.
+Commands executed and exact results:
+  1. git checkout -b feat/05.10-atomic-publish
+  2. Created backend/tests/Feature/PageAtomicPublishTest.php (RED state: 4 failed tests).
+  3. Implemented publish and showPublic methods in PageBuilderController.php.
+  4. Registered routes in backend/routes/api.php.
+  5. Added publishPage and fetchPublicPage methods to frontend/src/page-builder/pageBuilderApi.js.
+  6. Created frontend/tests/page-builder-atomic-publish.test.jsx.
+  7. cd backend; php artisan test tests/Feature/PageAtomicPublishTest.php -> GREEN: 5 passed (20 assertions) in 2.42s.
+  8. npm.cmd --prefix frontend test tests/page-builder-atomic-publish.test.jsx -- --run -> GREEN: 4 passed in 1.72s.
+  9. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Immutable published snapshots completely decouple the public presentation layer from work-in-progress drafts, preventing staging leaks, layout regressions, or partial bilingual translations from reaching search engines and public visitors.
+Blockers/owner inputs:
+  None. Task 05.10 complete and verified.
+Next task:
+  Phase 05 — Task 05.11: Project layout builder (Reuse renderer with restricted blocks; tests: project-specific media permissions, dynamic layout on detail page, published snapshot isolation).
 ```

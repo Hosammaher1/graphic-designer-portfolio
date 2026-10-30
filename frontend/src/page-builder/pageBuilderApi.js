@@ -166,3 +166,83 @@ export async function fetchSecurePreview(slug, queryParams = '') {
     };
   }
 }
+
+/**
+ * Atomically publish the current draft version.
+ */
+export async function publishPage(slug) {
+  try {
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(slug)}/publish`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'same-origin',
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.status === 422) {
+      return {
+        success: false,
+        policy_violation: true,
+        status: 422,
+        errors: data.errors || {},
+        message: data.message || 'Localized completeness policy violation',
+      };
+    }
+
+    if (!res.ok) {
+      return {
+        success: false,
+        status: res.status,
+        message: data.message || `Failed to publish page (${res.status})`,
+      };
+    }
+
+    return {
+      success: true,
+      page: data.page,
+      published_version: data.published_version,
+      message: data.message,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message || 'Network error publishing page',
+    };
+  }
+}
+
+/**
+ * Fetch public published page for anonymous visitors.
+ */
+export async function fetchPublicPage(slug) {
+  try {
+    const res = await fetch(`/api/v1/pages/${encodeURIComponent(slug)}`, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        status: res.status,
+        error: `Page not found or not published (${res.status})`,
+      };
+    }
+
+    const data = await res.json();
+    return {
+      success: true,
+      page: data.page,
+      blocks: data.blocks || [],
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message || 'Network error fetching public page',
+    };
+  }
+}
