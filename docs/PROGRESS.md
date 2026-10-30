@@ -41,7 +41,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.06 | Profile/password | DONE | PASS: ProfileTest (4 passed, 20 assertions: profile view with no password echo, current_password required, min 8 char confirmed, successful password update with new hash) | None available (manual checklist) | None (ready for 02.07) | — |
 | 02.07 | Admin audit log | DONE | PASS: AuditLogTest (4 passed, 29 assertions: actor & timestamp recorded, automatic secret/token redaction, paginated admin index, 401/403 access control) | None available (manual checklist) | None (ready for 02.08) | — |
 | 02.08 | E2E auth | DONE | PASS: Playwright admin-auth (10 passed) + Full E2E suite (36 passed across Desktop Chromium & Mobile Chrome) | None available (manual checklist) | None (ready for Phase 03) | — |
-| 03.01 | Schema and factories | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.01 | Schema and factories | DONE | PASS: ProjectSchemaTest (8 passed, 26 assertions: factory generation, unique slug, locale uniqueness, cascade delete, soft delete, category ordering, published snapshot, tool pivot uniqueness) | None available (manual checklist) | None (ready for 03.02) | — |
 | 03.02 | Project CRUD API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.03 | Category CRUD/reorder | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.04 | Tools and project metadata | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -995,4 +995,73 @@ Criteria:
   4. All tests green across PHPUnit, Vitest, and Playwright: PASS (85/85 tests passed)
 Phase 02 is COMPLETE. Ready for Phase 03 — Projects, Categories, Media.
 ================================================================================
+```
+
+---
+
+## Task 03.01 Execution Report
+
+```text
+Task ID: 03.01
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.01-schema-and-factories
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: (see git log after push)
+Files changed:
+  Created (Migrations):
+    - backend/database/migrations/2026_10_30_070000_create_categories_table.php (categories + category_translations)
+    - backend/database/migrations/2026_10_30_070100_create_tools_table.php (tools)
+    - backend/database/migrations/2026_10_30_070200_create_media_assets_table.php (media_assets)
+    - backend/database/migrations/2026_10_30_070300_create_projects_table.php (projects + project_translations)
+    - backend/database/migrations/2026_10_30_070400_create_project_pivots_and_media_tables.php (category_project, project_tool, project_media)
+  Created (Models):
+    - backend/app/Models/Project.php (SoftDeletes, published_snapshot JSON cast, categories/tools/media/coverMedia relations, scopes)
+    - backend/app/Models/ProjectTranslation.php
+    - backend/app/Models/Category.php (translation() locale-fallback helper)
+    - backend/app/Models/CategoryTranslation.php
+    - backend/app/Models/Tool.php
+    - backend/app/Models/MediaAsset.php (variants JSON cast)
+    - backend/app/Models/ProjectMedia.php (is_cover, sort_order)
+  Created (Factories):
+    - backend/database/factories/ProjectFactory.php (draft/published/featured states)
+    - backend/database/factories/ProjectTranslationFactory.php
+    - backend/database/factories/CategoryFactory.php
+    - backend/database/factories/CategoryTranslationFactory.php
+    - backend/database/factories/ToolFactory.php
+    - backend/database/factories/MediaAssetFactory.php (cloudinary state)
+    - backend/database/factories/ProjectMediaFactory.php (cover state)
+  Created (Tests):
+    - backend/tests/Feature/Projects/ProjectSchemaTest.php (8 tests, 26 assertions)
+  Modified:
+    - docs/PROGRESS.md (marked 03.01 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/ProjectSchemaTest.php:
+    - test_can_create_project_with_translations_categories_tools_and_media_using_factories
+    - test_project_slug_must_be_unique
+    - test_project_translation_enforces_unique_locale_per_project
+    - test_cascade_delete_removes_translations_and_pivots_on_hard_delete
+    - test_soft_delete_preserves_project_and_filters_out_trashed_records_by_default
+    - test_category_ordering_and_translations
+    - test_published_snapshot_can_store_and_retrieve_frozen_published_representation
+    - test_tool_unique_pivot_prevents_duplicate_relations
+  Observed RED state: Class "App\Models\Project" not found (8 tests failed, 0 assertions)
+  Observed GREEN state: Tests: 8 passed (26 assertions) in 3.01s
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for schema/model tasks.
+Unavailable skills and fallback checklist:
+  Fallback applied: manual migration/model/factory checklist per master plan Section 2A.
+Design artifacts/screenshots reviewed:
+  N/A (backend schema task, no UI).
+Security/privacy/SEO considerations:
+  - published_snapshot JSON column stores immutable frozen public data; draft edits never mutate live output.
+  - SoftDeletes enforce 30-day purge pattern (purge job in 03.10).
+  - cover_media_id uses nullOnDelete to prevent orphan FKs on media cleanup.
+  - Locale uniqueness enforced at DB level via composite index (project_id, locale).
+Blockers/owner inputs:
+  None. Task 03.01 complete and verified.
+Next task:
+  Phase 03 — Task 03.02: Project CRUD API (Controller, FormRequests, Resources, Policies).
 ```
