@@ -54,7 +54,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.11 | Admin project/category pages | DONE | PASS: Vitest admin-projects-categories (8 passed: loading/empty/error states, trash tab restore, validation errors, keyboard media reordering, unsaved changes warning, category creation/reordering) | None available | None | 97548a3 |
 | 03.12 | E2E content workflow | DONE | PASS: Playwright projects.spec (2 passed) + Full Phase 03 Gate Suite (100 PHPUnit, 29 Vitest, 38 Playwright = 167 passed) | None available | None (ready for Phase 04) | 12e9b37 |
 | 04.01 | Design tokens and reset | DONE | PASS: Vitest design-system (21 passed: Button variants/sizes/states, Card compound elements, Input/Textarea/Select with label/hint/error/aria-invalid associations, Badge variants, responsive Container/Grid/Flex/Stack primitives, SkipToContent skip link) | None available (manual checklist) | None (ready for 04.02) | — |
-| 04.02 | Public shell and navigation | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.02 | Public shell and navigation | DONE | PASS: Vitest public-shell (6 passed: Header desktop links in AR/EN, ThemeToggle light/dark state and persistence, mobile drawer keyboard/backdrop/close toggle, Footer social rel=noopener, PublicLayout SkipToContent) | None available (manual checklist) | None (ready for 04.03) | — |
 | 04.03 | Home page | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.04 | Work grid and filter | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.05 | Project detail | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1794,4 +1794,71 @@ Blockers/owner inputs:
   None. Task 04.01 complete and verified.
 Next task:
   Phase 04 — Task 04.02: Global header/footer (Public shell, navigation, language/theme switchers, mobile drawer, keyboard accessibility).
+```
+
+
+---
+
+## Task 04.02 Execution Report
+
+```text
+Task ID: 04.02
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.02-global-header-footer
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/components/ThemeToggle.jsx (accessible light/dark mode switcher with local storage persistence and document attribute binding)
+    - frontend/src/components/Header.jsx (accessible public header with brand logo, desktop nav, LanguageSwitcher, ThemeToggle, and mobile drawer)
+    - frontend/src/components/Footer.jsx (accessible public footer with localized copyright, social links, quick links, and back-to-top action)
+    - frontend/src/layouts/PublicLayout.jsx (semantic public shell wrapping header, skip-link, main content landmark, and footer)
+    - frontend/tests/public-shell.test.jsx (Vitest suite covering header nav in AR/EN, theme toggle persistence, mobile drawer controls/Escape dismiss, footer social security, and skip-to-content)
+  Modified:
+    - frontend/src/app/App.jsx (updated public routing structure to use PublicLayout shell)
+    - frontend/src/i18n/ar.json (added Arabic translations for mobile menu, theme toggling, footer tagline, quick links, and social labels)
+    - frontend/src/i18n/en.json (added English translations for mobile menu, theme toggling, footer tagline, quick links, and social labels)
+    - frontend/src/styles/global.css (added styles for public shell, sticky header, mobile drawer dialog/backdrop, and 3-column responsive footer)
+    - frontend/tests/setup.js (added robust jsdom Web Storage mock for consistent localStorage testing)
+    - docs/PROGRESS.md (marked 04.02 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/public-shell.test.jsx:
+    - ThemeToggle: initializes theme and toggles between light and dark mode, persists in localStorage and updates data-theme attribute
+    - Header: renders brand title and desktop navigation links in English (Home, Work, About, Contact)
+    - Header: renders brand title and desktop navigation links in Arabic (الرئيسية، الأعمال، نبذة، تواصل معي)
+    - Header: opens and closes mobile navigation drawer with keyboard (Escape) and close buttons, updating aria-expanded
+    - Footer: renders localized copyright and social links with secure attributes (target="_blank" rel="noopener noreferrer")
+    - PublicLayout: renders SkipToContent link pointing to #main-content and wraps children in landmark main region
+  Observed RED state:
+    Failed to resolve import "../src/layouts/PublicLayout.jsx" (suite failed).
+  Observed GREEN state:
+    Tests: 6 passed (6) in 2.52s.
+    Smoke tests: 5 passed (5) in 2.17s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React public navigation/shell components.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, react: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.02 verified: semantic header and footer landmarks used; desktop and mobile navigation support bilingual Arabic RTL and English LTR layouts; SkipToContent skip link bypasses navigation for keyboard accessibility; mobile navigation drawer provides modal dialog role, backdrop dismiss, Escape key dismiss, and route-change auto-dismiss; theme toggle supports system preference detection, manual override, localStorage persistence, and immediate CSS variable updates; social links enforce target="_blank" and rel="noopener noreferrer".
+Design artifacts/screenshots reviewed:
+  Inspected sticky header layout, mobile drawer sliding behavior, RTL/LTR mirrored navigation alignment, focus ring visibility, and footer responsive column stacking.
+Commands executed and exact results:
+  1. git checkout -b feat/04.02-global-header-footer
+  2. Created frontend/tests/public-shell.test.jsx
+  3. vitest tests/public-shell.test.jsx -> RED: module missing.
+  4. Implemented ThemeToggle.jsx, Header.jsx, Footer.jsx, PublicLayout.jsx, updated App.jsx, global.css, ar.json, en.json, setup.js.
+  5. vitest tests/public-shell.test.jsx -> GREEN: 6 passed in 2.52s.
+  6. vitest tests/smoke.test.jsx -> GREEN: 5 passed in 2.17s.
+  7. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - External links (social media) use strict rel="noopener noreferrer" preventing tab-nabbing vulnerabilities.
+  - Local theme storage only retains 'light' | 'dark' string value (no PII or sensitive state).
+  - Main content landmark provided for screen readers and search crawlers.
+Blockers/owner inputs:
+  None. Task 04.02 complete and verified.
+Next task:
+  Phase 04 — Task 04.03: Home page (Hero section, featured projects grid, services overview, about section, contact CTA).
 ```

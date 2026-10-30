@@ -11,7 +11,15 @@
     "about": "About",
     "services": "Services",
     "contact": "Contact",
-    "admin": "Admin"
+    "admin": "Admin",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "menuDialog": "Navigation menu",
+    "skipToContent": "Skip to content"
+  },
+  "theme": {
+    "toggleDark": "Switch to dark mode",
+    "toggleLight": "Switch to light mode"
   },
   "home": {
     "badge": "Graphic & Brand Identity Designer",
@@ -26,6 +34,16 @@
     "current": "English"
   },
   "footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "tagline": "Intentional visual design blending craft with creative clarity.",
+    "backToTop": "Back to top",
+    "quickLinks": "Quick links",
+    "social": "Connect"
+  },
+  "social": {
+    "behance": "Behance",
+    "dribbble": "Dribbble",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram"
   }
 }

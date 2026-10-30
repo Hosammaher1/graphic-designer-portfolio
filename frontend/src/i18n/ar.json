@@ -11,7 +11,15 @@
     "about": "نبذة",
     "services": "الخدمات",
     "contact": "تواصل معي",
-    "admin": "لوحة التحكم"
+    "admin": "لوحة التحكم",
+    "menuOpen": "فتح القائمة",
+    "menuClose": "إغلاق القائمة",
+    "menuDialog": "قائمة التنقل",
+    "skipToContent": "تخطي إلى المحتوى الرئيسي"
+  },
+  "theme": {
+    "toggleDark": "تبديل إلى الوضع الداكن",
+    "toggleLight": "تبديل إلى الوضع الفاتح"
   },
   "home": {
     "badge": "مصمم جرافيك ومصمم هوية بصرية",
@@ -26,6 +34,16 @@
     "current": "العربية"
   },
   "footer": {
-    "rights": "جميع الحقوق محفوظة."
+    "rights": "جميع الحقوق محفوظة.",
+    "tagline": "تصميم بصري هادف يجمع بين الدقة الفنية والأثر الإبداعي.",
+    "backToTop": "الرجوع للأعلى",
+    "quickLinks": "روابط سريعة",
+    "social": "التواصل والشبكات"
+  },
+  "social": {
+    "behance": "Behance",
+    "dribbble": "Dribbble",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram"
   }
 }
