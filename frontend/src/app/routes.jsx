@@ -4,6 +4,7 @@ import HomePage from '../pages/HomePage.jsx';
 import WorkPage from '../pages/WorkPage.jsx';
 import ProjectDetailPage from '../pages/ProjectDetailPage.jsx';
 import AboutPage from '../pages/AboutPage.jsx';
+import ContactPage from '../pages/ContactPage.jsx';
 import LoginPage from '../pages/admin/LoginPage.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import DashboardPage from '../pages/admin/DashboardPage.jsx';
@@ -56,6 +57,14 @@ export const routes = [
   {
     path: '/en/about',
     element: <AboutPage locale="en" />,
+  },
+  {
+    path: '/ar/contact',
+    element: <ContactPage locale="ar" />,
+  },
+  {
+    path: '/en/contact',
+    element: <ContactPage locale="en" />,
   },
   {
     path: '/admin/login',

@@ -1925,3 +1925,236 @@ button {
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
 }
+
+
+/* ==========================================================================
+   Contact Page Styles (Task 04.07)
+   ========================================================================== */
+.contact-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-16);
+}
+
+.contact-header-section {
+  padding: var(--space-16) 0 var(--space-10);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: radial-gradient(circle at 50% 0%, var(--color-surface) 0%, transparent 80%);
+}
+
+.contact-header-content {
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.contact-badge {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.contact-title {
+  font-size: clamp(2.25rem, 5vw, var(--font-size-5xl));
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: var(--line-height-tight);
+}
+
+.contact-lead {
+  font-size: clamp(1.125rem, 2vw, var(--font-size-xl));
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-top: var(--space-2);
+}
+
+.contact-body-section {
+  padding: var(--space-8) 0 var(--space-12);
+}
+
+.contact-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: var(--space-12);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .contact-layout-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+/* Direct Channels */
+.contact-direct-aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.direct-section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.direct-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.direct-card {
+  background-color: var(--color-surface);
+}
+
+.direct-card-body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+}
+
+.direct-icon-wrap {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.direct-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.direct-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.direct-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.direct-value-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  transition: color var(--motion-fast);
+}
+
+.direct-value-link:hover {
+  color: var(--color-focus);
+}
+
+/* Social links in contact */
+.direct-social-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.direct-social-pills {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.direct-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: all var(--motion-fast);
+}
+
+.direct-social-link:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-hover);
+}
+
+/* Contact Form */
+.contact-form-card {
+  background-color: var(--color-surface-elevated);
+}
+
+.local-notice-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-info-border);
+  border-radius: var(--radius-md);
+  color: var(--color-info-text);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+  margin-top: var(--space-2);
+}
+
+.inquiry-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-submit-row {
+  margin-top: var(--space-2);
+}
+
+.contact-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-4);
+}
+
+.success-icon {
+  color: var(--color-success);
+}
+
+.success-msg {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  max-width: 500px;
+  line-height: var(--line-height-relaxed);
+}
