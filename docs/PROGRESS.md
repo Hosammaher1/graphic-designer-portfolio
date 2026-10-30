@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 43 of 97 tasks started, 43 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 44 of 97 tasks started, 44 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 4 | 4 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 5 | 5 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **43** | **43** | |
+| **Total** | | **97** | **44** | **44** | |
 
 ## Task register
 
@@ -68,7 +68,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.02 | Server block validator | DONE | PASS: PHPUnit ServerBlockValidatorTest (9 passed, 18 assertions) + BlockSchemaTest (18 passed, 36 assertions) = 27 passed | None available (manual checklist) | None (ready for 05.03) | — |
 | 05.03 | Shared block renderer | DONE | PASS: Vitest page-builder-renderer (14 passed: Hero, Heading, Text, Image, Gallery, Columns, Spacer, CTA, Stats, Services, CategoryPreview, FeaturedWork, UnknownFallback, MissingAssetFallback) | None available (manual checklist) | None (ready for 05.04) | — |
 | 05.04 | Builder UI canvas | DONE | PASS: Vitest page-builder-canvas (8 passed: render, add block, property update, accessible keyboard reorder, duplicate, remove, cancel/revert, recovery from localStorage) | None available (manual checklist) | None (ready for 05.05) | — |
-| 05.05 | Hero block | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.05 | Layout controls | DONE | PASS: Vitest page-builder-layout-controls (7 passed: columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, unsafe CSS injection rejection) | None available (manual checklist) | None (ready for 05.06) | — |
 | 05.06 | Work grid block | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.07 | Services and text blocks | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.08 | Contact and media blocks | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2675,4 +2675,57 @@ Blockers/owner inputs:
   None. Task 05.04 complete and verified.
 Next task:
   Phase 05 — Task 05.05: Layout controls (Columns, gaps, alignment, backgrounds, type scales, image aspect ratios, motion presets, mobile stacking, no unsafe CSS injection).
+```
+
+
+---
+
+## Task 05.05 Execution Report
+
+```text
+Task ID: 05.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.05-layout-controls
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/page-builder/LayoutControls.jsx (Comprehensive layout and design settings inspector component providing constrained selection controls for columns (1–4), gap tokens (none–xl), horizontal alignment (left/center/right/justify), mobile stacking toggle, background color semantic tokens (base, surface, elevated, muted, primary), typography scales (sm–display), image aspect ratios (16:9, 4:3, 1:1, 3:2, auto), and motion presets (fade-in, slide-up, scale-in, none) with strict prevention of arbitrary CSS string injection)
+    - frontend/tests/page-builder-layout-controls.test.jsx (Vitest test suite with 7 tests verifying allowlisted options, columns/gaps updating, background theme updating, typography scales and aspect ratios updating, motion presets, mobile stacking toggle, and unsafe CSS injection prevention)
+  Modified:
+    - docs/PROGRESS.md (marked Task 05.05 DONE, updated Phase 05 started/done counts, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/page-builder-layout-controls.test.jsx:
+    - renders layout controls with allowlisted options
+    - updates column count and gap constrained tokens
+    - updates background theme with semantic color tokens
+    - updates typography scale and image aspect ratio
+    - updates motion presets and duration
+    - toggles mobile stacking control
+    - sanitizes input and blocks arbitrary unsafe CSS injection
+  Observed GREEN state:
+    Vitest page-builder-layout-controls: 7 passed (7) in 4.12s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for layout controls UI.
+Unavailable skills and fallback checklist:
+  - layout-controls, css-tokens: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.05 verified: constrained values enforced across columns (1, 2, 3, 4), spacing gaps (none, xs, sm, md, lg, xl), alignment (left, center, right, justify), background tokens (base, surface, elevated, muted, primary), typography scale tokens (sm, base, lg, xl, 2xl, 3xl, 4xl, display), aspect ratio presets (16:9, 4:3, 1:1, 3:2, auto), and motion presets (none, fade-in, slide-up, scale-in); mobile stacking toggle collapses multi-column grids gracefully; arbitrary CSS strings or script injections are completely excluded by design.
+Design artifacts/screenshots reviewed:
+  Inspected layout controls interface for exact visual conformity with design tokens and form elements.
+Commands executed and exact results:
+  1. git checkout -b feat/05.05-layout-controls
+  2. Created frontend/tests/page-builder-layout-controls.test.jsx (RED state: 1 failed suite).
+  3. Created frontend/src/page-builder/LayoutControls.jsx.
+  4. npm.cmd --prefix frontend test tests/page-builder-layout-controls.test.jsx -- --run -> GREEN: 7 passed in 4.12s.
+  5. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Constrained dropdown selections strictly prevent CSS injection, XSS vectors, and layout breaking CSS overrides like fixed positioning or extreme z-indices.
+Blockers/owner inputs:
+  None. Task 05.05 complete and verified.
+Next task:
+  Phase 05 — Task 05.06: Image/text blocks (Media picker and bilingual text, asset selection, alt text, translation fallback, no leaked unpublished media).
 ```
