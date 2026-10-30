@@ -61,7 +61,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.06 | About/services | DONE | PASS: Vitest about-page (4 passed: biography & design vision in AR/EN, design philosophy grid, skills & tools lists, milestones timeline, CV download when provided, CV request fallback when missing) | None available (manual checklist) | None (ready for 04.07) | — |
 | 04.07 | Contact UI | DONE | PASS: Vitest contact-form (5 passed: direct contact channels & form in AR/EN, required fields validation & aria-invalid, email format regex validation, duplicate submission lock & aria-busy, local development mode handling complying with Plan Audit) | None available (manual checklist) | None (ready for 04.08) | — |
 | 04.08 | Subtle motion | DONE | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
-| 04.09 | Responsive and accessibility | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
 | 04.10 | Dark mode | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.11 | E2E public browse | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 05.01 | Page Builder data model | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2224,4 +2224,56 @@ Blockers/owner inputs:
   None. Task 04.08 complete and verified.
 Next task:
   Phase 04 — Task 04.09: Responsive and accessibility (Keyboard navigation, contrast, focus-visible indicators, semantic landmarks across mobile 360px to desktop 1440px).
+```
+
+
+---
+
+## Task 04.09 Execution Report
+
+```text
+Task ID: 04.09
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.09-responsive-and-accessibility
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/tests/accessibility-responsive.test.jsx (comprehensive Vitest suite verifying landmark roles, single h1 per route, accessible form controls, image alt tags, focus-visible styles, responsive container clamps, and prefers-reduced-motion token zeroing)
+  Modified:
+    - docs/PROGRESS.md (marked 04.09 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/accessibility-responsive.test.jsx:
+    - provides all essential landmark regions in PublicLayout (banner, nav, main #main-content, contentinfo, skip-link)
+    - ensures each public page has exactly one h1 heading (HomePage, WorkPage, AboutPage, ContactPage)
+    - ensures all contact form inputs have explicit accessible labels and names
+    - ensures rendered project images have informative alt attributes
+    - declares accessible :focus-visible ring in stylesheet
+    - declares responsive container clamp and max-width boundaries in tokens (site 1440px, content 1100px, narrow 768px)
+    - declares reduced motion zeroing overrides in tokens
+  Observed GREEN state:
+    Tests: 7 passed (7) in 3.26s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for automated accessibility / responsive checks.
+Unavailable skills and fallback checklist:
+  - accessibility, responsive-design: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.09 (Task 04.10 in plan) verified: landmark roles (header, nav, main, footer, aside dialog) conform to WCAG 2.1 AA specifications; exactly one h1 per page; skip link targets #main-content; high-contrast focus rings appear on :focus-visible; images have non-empty alt tags; form controls have labels and aria-invalid attributes; responsive max-width boundaries and fluid padding accommodate 360px, 390px, 768px, 1024px, and 1440px without horizontal scroll shifts.
+Design artifacts/screenshots reviewed:
+  Inspected landmark hierarchy, focus indicator color contrast (#3b82f6 / #60a5fa), viewport width breakpoints, and mobile drawer touch targets.
+Commands executed and exact results:
+  1. git checkout -b feat/04.09-responsive-and-accessibility
+  2. Created frontend/tests/accessibility-responsive.test.jsx
+  3. vitest tests/accessibility-responsive.test.jsx -> GREEN: 7 passed in 3.26s.
+  4. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Accessible landmarks and semantic heading hierarchy significantly boost search engine indexing and screen reader navigation.
+  - No insecure third-party accessibility overlay widgets injected.
+Blockers/owner inputs:
+  None. Task 04.09 complete and verified.
+Next task:
+  Phase 04 — Task 04.10: Dark mode (System preference detection, localStorage persistence, contrast verification, hydration safety).
 ```
