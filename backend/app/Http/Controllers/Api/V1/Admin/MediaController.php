@@ -88,4 +88,26 @@ class MediaController extends Controller
             'message' => 'Media asset deleted successfully.',
         ]);
     }
+
+    public function toggleWatermark(Request $request, int $id): JsonResponse
+    {
+        $asset = MediaAsset::find($id);
+
+        if (! $asset) {
+            return response()->json(['status' => 'error', 'message' => 'Media asset not found.'], 404);
+        }
+
+        $request->validate([
+            'has_watermark' => ['required', 'boolean'],
+        ]);
+
+        $asset->update([
+            'has_watermark' => $request->boolean('has_watermark'),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['asset' => $asset],
+        ]);
+    }
 }

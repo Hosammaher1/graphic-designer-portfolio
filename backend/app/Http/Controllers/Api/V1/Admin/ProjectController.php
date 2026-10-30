@@ -144,4 +144,29 @@ class ProjectController extends Controller
             'data'   => ['project' => new ProjectResource($project)],
         ]);
     }
+
+    public function toggleWatermark(Request $request, int $id): JsonResponse
+    {
+        $project = Project::find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        $request->validate([
+            'enable_watermark' => ['required', 'boolean'],
+        ]);
+
+        $project->update([
+            'enable_watermark' => $request->boolean('enable_watermark'),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['project' => [
+                'id' => $project->id,
+                'enable_watermark' => (bool) $project->enable_watermark,
+            ]],
+        ]);
+    }
 }

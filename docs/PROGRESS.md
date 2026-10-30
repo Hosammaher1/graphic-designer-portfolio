@@ -48,7 +48,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.05 | Cloudinary adapter | DONE | PASS: MediaStorageTest (8 passed, 25 assertions: metadata normalization, MIME check, size cap, safe naming, delete, delivery/watermark URLs, secret redaction, DI container binding) | None available | None | — |
 | 03.06 | Multi-image upload UI/API | DONE | PASS: MediaUploadApiTest (5 passed, 13 assertions) + Vitest media-uploader (4 passed) | None available | None | — |
 | 03.07 | Media ordering/cover | DONE | PASS: ProjectMediaOrderingTest (7 passed, 23 assertions: attach with order, deterministic reorder, single cover invariant, cross-project denial, detach cascade safety) | None available | None | — |
-| 03.08 | Watermark transformation | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.08 | Watermark transformation | DONE | PASS: WatermarkTransformationTest (5 passed, 14 assertions: watermark generation, clean URL on disabled project, original preserved untouched, project & media toggle API) | None available | None | — |
 | 03.09 | Public projects API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.10 | Trash and 30-day soft delete | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.11 | Media cleanup job | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1433,4 +1433,64 @@ Blockers/owner inputs:
   None. Task 03.07 complete and verified.
 Next task:
   Phase 03 — Task 03.08: Watermark transformation (provider transforms or server-generated baked-in variants; originals protected).
+```
+
+---
+
+## Task 03.08 Execution Report
+
+```text
+Task ID: 03.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.08-watermark-transformation
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: ce50b3b
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_30_080000_add_enable_watermark_to_projects_table.php (boolean enable_watermark column)
+    - backend/app/Services/Media/WatermarkService.php (resolveDisplayUrl with dynamic watermark overlay / clean fallback)
+    - backend/tests/Feature/Media/WatermarkTransformationTest.php (5 tests, 14 assertions)
+  Modified:
+    - backend/app/Models/Project.php (added enable_watermark to fillable and casts)
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (added toggleWatermark endpoint)
+    - backend/app/Http/Controllers/Api/V1/Admin/MediaController.php (added toggleWatermark endpoint)
+    - backend/routes/api.php (registered admin.projects.watermark and admin.media.watermark routes)
+    - docs/PROGRESS.md (marked 03.08 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Media/WatermarkTransformationTest.php:
+    - test_watermark_service_generates_watermarked_url_when_enabled
+    - test_watermark_service_returns_clean_url_when_watermark_disabled_for_project
+    - test_admin_can_toggle_project_watermark_via_api
+    - test_admin_can_toggle_individual_media_asset_watermark_via_api
+    - test_unauthenticated_cannot_toggle_watermark
+  Observed RED state:
+    5 failed (WatermarkService class not found, enable_watermark column missing from DB, endpoints 404).
+  Observed GREEN state:
+    Tests: 5 passed (14 assertions) in 2.01s.
+    ProjectMediaOrderingTest regression check: 7 passed (23 assertions) in 2.14s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for watermark transformations.
+Unavailable skills and fallback checklist:
+  - backend-architecture, media-processing: NOT AVAILABLE.
+  - Fallback checklist applied: Plan Audit Section 3.05/03.08 verified: original media asset binary and original_url remain completely unchanged and protected; display transformations apply watermarks on-the-fly without destructive file overwriting; projects with watermarks disabled cleanly deliver unwatermarked variants.
+Design artifacts/screenshots reviewed:
+  N/A (backend media transformation service and toggle API).
+Commands executed and exact results:
+  1. git checkout -b feat/03.08-watermark-transformation
+  2. Created WatermarkTransformationTest.php.
+  3. php artisan test tests/Feature/Media/WatermarkTransformationTest.php -> RED: 5 failed.
+  4. Created migration 2026_10_30_080000_add_enable_watermark_to_projects_table.php, WatermarkService.php, updated Project.php, ProjectController.php, MediaController.php, routes/api.php.
+  5. php artisan test tests/Feature/Media/WatermarkTransformationTest.php -> GREEN: 5 passed (14 assertions) in 2.01s.
+  6. php artisan test tests/Feature/Projects/ProjectMediaOrderingTest.php -> GREEN: 7 passed (23 assertions) in 2.14s.
+Security/privacy/SEO considerations:
+  - Original media assets are never overwritten or destroyed when watermarking is toggled.
+  - Watermark toggle endpoints guarded behind Sanctum authentication and admin role.
+  - Parameter validation prevents arbitrary strings from being injected into watermark flags.
+Blockers/owner inputs:
+  None. Task 03.08 complete and verified.
+Next task:
+  Phase 03 — Task 03.09: Project drafts/publish (public projects API, immutable published snapshot, draft isolation).
 ```

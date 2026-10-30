@@ -22,11 +22,13 @@ class Project extends Model
         'client',
         'cover_media_id',
         'view_count',
+        'enable_watermark',
         'published_snapshot',
     ];
 
     protected $casts = [
         'is_featured' => 'boolean',
+        'enable_watermark' => 'boolean',
         'published_at' => 'datetime',
         'year' => 'integer',
         'view_count' => 'integer',

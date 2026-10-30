@@ -48,6 +48,8 @@ Route::prefix('v1')->group(function () {
             ->name('api.v1.admin.projects.media.setCover');
         Route::delete('projects/{project}/media/{media}', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'detach'])
             ->name('api.v1.admin.projects.media.detach');
+        Route::patch('projects/{project}/watermark', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'toggleWatermark'])
+            ->name('api.v1.admin.projects.watermark');
 
         // Category CRUD + reorder (reorder must precede apiResource to avoid {category}='reorder' collision)
         Route::patch('categories/reorder', [\App\Http\Controllers\Api\V1\Admin\CategoryController::class, 'reorder'])
@@ -61,6 +63,7 @@ Route::prefix('v1')->group(function () {
         Route::get('media', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'index'])->name('api.v1.admin.media.index');
         Route::post('media/upload', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'upload'])->name('api.v1.admin.media.upload');
         Route::post('media/upload-batch', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'uploadBatch'])->name('api.v1.admin.media.uploadBatch');
+        Route::patch('media/{media}/watermark', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'toggleWatermark'])->name('api.v1.admin.media.watermark');
         Route::delete('media/{id}', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'destroy'])->name('api.v1.admin.media.destroy');
     });
 });
