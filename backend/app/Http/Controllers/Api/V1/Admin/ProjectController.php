@@ -8,15 +8,23 @@ use App\Http\Requests\Admin\SyncProjectRelationshipsRequest;
 use App\Http\Requests\Admin\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Models\ProjectMedia;
+use App\Services\AuditLogger;
+use App\Services\Media\MediaStorageInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Project::withTrashed()
+        $query = Project::query()
             ->with(['translations', 'categories', 'tools']);
+
+        if ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
 
         if ($request->filled('year')) {
             $query->where('year', (int) $request->year);
@@ -114,6 +122,11 @@ class ProjectController extends Controller
         }
 
         $project->delete();
+
+        AuditLogger::log('project.soft_deleted', [
+            'project_id' => $project->id,
+            'slug'       => $project->slug,
+        ]);
 
         return response()->json([
             'status'  => 'success',
@@ -232,5 +245,95 @@ class ProjectController extends Controller
         ])
         ->header('X-Robots-Tag', 'noindex, nofollow')
         ->header('Cache-Control', 'no-store, private');
+    }
+
+    public function trash(Request $request): JsonResponse
+    {
+        $projects = Project::onlyTrashed()
+            ->with(['translations', 'categories.translations', 'tools', 'coverMedia.mediaAsset'])
+            ->latest('deleted_at')
+            ->paginate($request->integer('per_page', 20));
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['projects' => $projects],
+        ]);
+    }
+
+    public function restore(int $id): JsonResponse
+    {
+        $project = Project::onlyTrashed()->find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Trashed project not found.'], 404);
+        }
+
+        $project->restore();
+
+        AuditLogger::log('project.restored', [
+            'project_id' => $project->id,
+            'slug'       => $project->slug,
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Project restored from trash.',
+            'data'    => ['project' => new ProjectResource($project->fresh(['translations', 'categories', 'tools', 'coverMedia.mediaAsset']))],
+        ]);
+    }
+
+    public function forceDelete(int $id, MediaStorageInterface $storage): JsonResponse
+    {
+        $project = Project::withTrashed()->find($id);
+
+        if (! $project) {
+            return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
+        }
+
+        // Clean up unshared media
+        $projectMediaItems = ProjectMedia::where('project_id', $project->id)
+            ->with('mediaAsset')
+            ->get();
+
+        foreach ($projectMediaItems as $pm) {
+            $asset = $pm->mediaAsset;
+            if (! $asset) {
+                continue;
+            }
+
+            $isShared = ProjectMedia::where('media_asset_id', $asset->id)
+                ->where('project_id', '!=', $project->id)
+                ->exists();
+
+            if (! $isShared) {
+                try {
+                    if ($asset->provider_id) {
+                        $storage->delete($asset->provider_id);
+                    }
+                    $asset->delete();
+                } catch (\Throwable $e) {
+                    Log::warning("Could not delete media asset {$asset->id} during project force delete: " . $e->getMessage());
+                }
+            }
+        }
+
+        $projectId = $project->id;
+        $projectSlug = $project->slug;
+
+        $project->categories()->detach();
+        $project->tools()->detach();
+        $project->media()->delete();
+        $project->translations()->forceDelete();
+        $project->forceDelete();
+
+        AuditLogger::log('project.force_deleted', [
+            'project_id' => $projectId,
+            'slug'       => $projectSlug,
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Project permanently deleted.',
+        ]);
     }
 }

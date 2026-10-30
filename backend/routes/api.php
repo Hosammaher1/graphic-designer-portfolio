@@ -38,8 +38,14 @@ Route::prefix('v1')->group(function () {
 
         Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
 
-        // Project CRUD
+        // Project CRUD & Trash (trash list must precede apiResource to avoid {project}='trash' collision)
+        Route::get('projects/trash', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'trash'])
+            ->name('api.v1.admin.projects.trash');
         Route::apiResource('projects', \App\Http\Controllers\Api\V1\Admin\ProjectController::class);
+        Route::post('projects/{project}/restore', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'restore'])
+            ->name('api.v1.admin.projects.restore');
+        Route::delete('projects/{project}/force', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'forceDelete'])
+            ->name('api.v1.admin.projects.forceDelete');
         Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
             ->name('api.v1.admin.projects.relationships');
         Route::post('projects/{project}/publish', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'publish'])

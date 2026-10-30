@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 25 of 97 tasks started, 25 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 26 of 97 tasks started, 26 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -12,14 +12,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
-| 03 | Projects, Categories, Media | 12 | 9 | 9 | Not evaluated |
+| 03 | Projects, Categories, Media | 12 | 10 | 10 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **25** | **25** | |
+| **Total** | | **97** | **26** | **26** | |
 
 ## Task register
 
@@ -50,7 +50,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.07 | Media ordering/cover | DONE | PASS: ProjectMediaOrderingTest (7 passed, 23 assertions: attach with order, deterministic reorder, single cover invariant, cross-project denial, detach cascade safety) | None available | None | — |
 | 03.08 | Watermark transformation | DONE | PASS: WatermarkTransformationTest (5 passed, 14 assertions: watermark generation, clean URL on disabled project, original preserved untouched, project & media toggle API) | None available | None | — |
 | 03.09 | Project drafts/publish | DONE | PASS: PublicProjectsApiTest (6 passed, 29 assertions: publish/unpublish, draft exclusion, draft leak isolation, preview noindex, view count increment) | None available | None | eda4be1 |
-| 03.10 | Trash and 30-day soft delete | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.10 | Trash and 30-day soft delete | DONE | PASS: ProjectTrashTest (6 passed, 36 assertions: soft-deleted hidden, restore, force delete, 30-day purge, shared media protection, retry resilience, audit logs) | None available | None | 5d6c960 |
 | 03.11 | Media cleanup job | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.12 | E2E project management | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 04.01 | Design tokens and reset | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1554,4 +1554,65 @@ Blockers/owner inputs:
   None. Task 03.09 complete and verified.
 Next task:
   Phase 03 — Task 03.10: Trash and 30-day soft delete (admin trash endpoint, restore, permanent delete, scheduled prune job).
+```
+
+
+---
+
+## Task 03.10 Execution Report
+
+```text
+Task ID: 03.10
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.10-trash-and-30-day-soft-delete
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 5d6c960
+Files changed:
+  Created:
+    - backend/app/Console/Commands/PurgeTrashedProjects.php (scheduled purge command with 30-day cutoff, dry-run simulation, unshared media pruning, provider retry resilience, audit logging)
+    - backend/tests/Feature/Projects/ProjectTrashTest.php (6 tests, 36 assertions)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (updated index to strictly exclude trashed projects by default, added audit logging on destroy, added trash list, restore, and forceDelete endpoints)
+    - backend/routes/api.php (registered admin projects trash, restore, and forceDelete routes)
+    - backend/routes/console.php (scheduled daily execution of projects:purge-trash command)
+    - docs/PROGRESS.md (marked 03.10 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/ProjectTrashTest.php:
+    - test_soft_deleted_projects_are_hidden_from_public_and_admin_index_but_visible_in_trash
+    - test_admin_can_restore_soft_deleted_project
+    - test_admin_can_force_delete_project_and_unshared_media_is_pruned_while_shared_is_preserved
+    - test_scheduled_purge_command_only_purges_projects_older_than_cutoff
+    - test_scheduled_purge_retries_provider_failure_gracefully_without_fatal_error
+    - test_unauthenticated_cannot_access_trash_restore_or_force_delete
+  Observed RED state:
+    6 failed (routes not yet registered, projects:purge-trash command missing, index returning trashed records).
+  Observed GREEN state:
+    Tests: 6 passed (36 assertions) in 2.63s.
+    ProjectCrudTest & PublicProjectsApiTest regression check: 17 passed (67 assertions) in 4.38s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for soft delete and scheduled purge.
+Unavailable skills and fallback checklist:
+  - backend-architecture, relational-data, queue-and-scheduling: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 03.10 verified: soft-deleted projects are completely hidden from public endpoints and standard admin project listings; soft-deleted records are accessible via /api/v1/admin/projects/trash; restoring un-deletes project and emits audit log; force delete and scheduled purge verify media relationships so shared media assets are NEVER deleted from storage or database; provider exceptions during media cleanup are retried up to 3 times and logged without crashing the scheduled job; audit events recorded for soft_deleted, restored, force_deleted, and purged_by_schedule.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API endpoints and CLI maintenance command).
+Commands executed and exact results:
+  1. git checkout -b feat/03.10-trash-and-30-day-soft-delete
+  2. Created ProjectTrashTest.php.
+  3. php artisan test tests/Feature/Projects/ProjectTrashTest.php -> RED: 6 failed.
+  4. Created PurgeTrashedProjects.php, updated ProjectController.php, registered routes in api.php and schedule in console.php.
+  5. php artisan test tests/Feature/Projects/ProjectTrashTest.php -> GREEN: 6 passed (36 assertions) in 2.63s.
+  6. php artisan test tests/Feature/Projects/ProjectCrudTest.php tests/Feature/Projects/PublicProjectsApiTest.php -> GREEN: 17 passed (67 assertions) in 4.38s.
+Security/privacy/SEO considerations:
+  - All trash, restore, and permanent deletion endpoints require authenticated admin access (auth:sanctum + admin middleware).
+  - Trashed projects strictly excluded from public browse, search, and SSR.
+  - Permanent deletion and purge clean associated pivot data and enforce shared media asset protection to avoid accidental asset deletion across projects.
+  - Append-only audit log records actor, action, timestamp, and details for all deletion and restore events.
+Blockers/owner inputs:
+  None. Task 03.10 complete and verified.
+Next task:
+  Phase 03 — Task 03.11: Admin project/category pages (React listing, create/edit, forms, image management, status badges, trash UI).
 ```
