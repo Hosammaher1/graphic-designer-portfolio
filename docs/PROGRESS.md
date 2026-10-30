@@ -53,7 +53,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.10 | Trash and 30-day soft delete | DONE | PASS: ProjectTrashTest (6 passed, 36 assertions: soft-deleted hidden, restore, force delete, 30-day purge, shared media protection, retry resilience, audit logs) | None available | None | 5d6c960 |
 | 03.11 | Admin project/category pages | DONE | PASS: Vitest admin-projects-categories (8 passed: loading/empty/error states, trash tab restore, validation errors, keyboard media reordering, unsaved changes warning, category creation/reordering) | None available | None | 97548a3 |
 | 03.12 | E2E content workflow | DONE | PASS: Playwright projects.spec (2 passed) + Full Phase 03 Gate Suite (100 PHPUnit, 29 Vitest, 38 Playwright = 167 passed) | None available | None (ready for Phase 04) | 12e9b37 |
-| 04.01 | Design tokens and reset | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.01 | Design tokens and reset | DONE | PASS: Vitest design-system (21 passed: Button variants/sizes/states, Card compound elements, Input/Textarea/Select with label/hint/error/aria-invalid associations, Badge variants, responsive Container/Grid/Flex/Stack primitives, SkipToContent skip link) | None available (manual checklist) | None (ready for 04.02) | — |
 | 04.02 | Public shell and navigation | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.03 | Home page | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.04 | Work grid and filter | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1719,4 +1719,79 @@ Criteria:
      PASS: Public API and SSR read exclusively from frozen `published_snapshot` records (PublicProjectsApiTest); draft and soft-deleted projects return 404 and are excluded from public index queries; unpublished changes never leak.
 Phase 03 is COMPLETE. Ready for Phase 04 — Public Website and Motion.
 ================================================================================
+```
+
+
+---
+
+## Task 04.01 Execution Report
+
+```text
+Task ID: 04.01
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.01-design-tokens-and-reset
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/src/components/ui/Button.jsx (accessible polymorphic button with variants, sizes, loading/busy states)
+    - frontend/src/components/ui/Card.jsx (compound card primitives: Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
+    - frontend/src/components/ui/Input.jsx (accessible input with label, error, hint, required indicator, aria-describedby and aria-invalid)
+    - frontend/src/components/ui/Textarea.jsx (accessible textarea with label, error, hint, required indicator, aria-describedby and aria-invalid)
+    - frontend/src/components/ui/Select.jsx (accessible select with label, error, hint, options array, children support, aria-describedby and aria-invalid)
+    - frontend/src/components/ui/Badge.jsx (status and category badge with semantic variants and sizes)
+    - frontend/src/components/ui/Container.jsx (responsive layout container with site, content, narrow, full boundaries and fluid padding)
+    - frontend/src/components/ui/Grid.jsx (responsive grid primitive with columns and gap tokens)
+    - frontend/src/components/ui/Flex.jsx (Flex and Stack primitives with direction, alignment, justify, wrap, and gap tokens)
+    - frontend/src/components/ui/SkipToContent.jsx (accessible keyboard skip link targeting main-content with visible focus transition)
+    - frontend/src/components/ui/index.js (barrel export for all UI primitives)
+    - frontend/tests/design-system.test.jsx (comprehensive Vitest suite covering all UI primitives and accessibility roles)
+  Modified:
+    - frontend/src/styles/tokens.css (comprehensive design tokens: light/dark palettes, typography scale, spacing 4px baseline, motion 200-500ms bounds, z-index scale, reduced-motion zeroing)
+    - frontend/src/styles/global.css (reset, directional RTL/LTR typography, keyboard focus rings, layout/grid/flex utilities, button/card/form/badge classes, skip-link styles)
+    - frontend/index.html (Google Fonts preconnect and links for Cairo and Inter open-source typography, zero proprietary fonts)
+    - docs/PROGRESS.md (marked 04.01 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/design-system.test.jsx:
+    - Button: renders default primary button, renders variants (secondary, outline, ghost, danger) and sizes (sm, md, lg), handles clicks, disables interaction and click when disabled, sets aria-busy and disables when loading, renders as anchor when href/as="a" supplied
+    - Card: renders Card compound components (Header, Title, Description, Content, Footer), applies interactive hover class
+    - Input: associates label with input using htmlFor/id, renders required indicator, renders helper text linked with aria-describedby, renders error message and sets aria-invalid
+    - Textarea: renders labeled textarea with rows, handles accessible error state and aria-invalid
+    - Select: renders labeled select with options, handles change events, sets aria-invalid on error
+    - Badge: renders variants (success, warning, danger, default, outline) and sizes
+    - Container: applies container classes for site, content, narrow sizes
+    - Grid: applies column and gap classes
+    - Flex and Stack: Flex applies direction/align/justify/gap classes, Stack renders vertical column flex
+    - SkipToContent: renders accessible skip link targeting #main-content
+  Observed RED state:
+    Failed to resolve import "../src/components/ui" (suite failed).
+  Observed GREEN state:
+    Tests: 21 passed (21) in 1.83s.
+    Production build: Client & SSR server bundles built cleanly in 1.1s with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for design tokens / frontend UI primitives.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, design-system: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.01 verified: design tokens specify editorial canvas with light/dark palettes, 200-500ms motion bounds, prefers-reduced-motion media query resetting transitions; font stack uses open-source Cairo/Tajawal (Arabic) and Inter/system-ui (English); zero proprietary font files embedded in repository; accessible keyboard focus rings visible on :focus-visible; form inputs associate labels, helper text, and errors via htmlFor and aria-describedby; aria-busy and aria-invalid used semantically; responsive layout primitives accommodate mobile (360px), tablet (768px), desktop (1024px), and wide (1440px) breakpoints.
+Design artifacts/screenshots reviewed:
+  Inspected CSS tokens, responsive breakpoints, layout containers, typography scales, contrast ratios in light/dark themes, and button/badge/input interaction states.
+Commands executed and exact results:
+  1. git checkout -b feat/04.01-design-tokens-and-reset
+  2. Get-ChildItem -Recurse -Include *.woff,*.woff2,*.ttf,*.otf,*.eot -> Confirmed zero proprietary font files in app workspace.
+  3. Created frontend/tests/design-system.test.jsx
+  4. vitest tests/design-system.test.jsx -> RED: module missing.
+  5. Implemented tokens.css, global.css, UI primitives in components/ui/, index.html fonts.
+  6. vitest tests/design-system.test.jsx -> GREEN: 21 passed in 1.83s.
+  7. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Zero proprietary font files embedded or redistributed (respecting font licensing requirements).
+  - High-contrast color tokens prevent visual accessibility issues across both light and dark themes.
+  - Input fields and labels use strict semantic markup; no insecure DOM manipulation.
+Blockers/owner inputs:
+  None. Task 04.01 complete and verified.
+Next task:
+  Phase 04 — Task 04.02: Global header/footer (Public shell, navigation, language/theme switchers, mobile drawer, keyboard accessibility).
 ```

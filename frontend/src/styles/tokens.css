@@ -1,91 +1,207 @@
 :root {
-  /* Editorial Canvas Color Palette (Light Default) */
+  /* ==========================================================================
+     Editorial Canvas Color Palette (Light Default)
+     ========================================================================== */
   --color-bg: #ffffff;
   --color-surface: #f8f9fa;
   --color-surface-elevated: #ffffff;
   --color-surface-hover: #f1f3f5;
+  --color-surface-active: #e9ecef;
+  
   --color-text-primary: #111827;
   --color-text-secondary: #4b5563;
   --color-text-muted: #9ca3af;
+  --color-text-inverse: #ffffff;
+
   --color-border: #e5e7eb;
   --color-border-subtle: #f3f4f6;
+  --color-border-hover: #d1d5db;
+
   --color-accent: #0f172a;
   --color-accent-hover: #334155;
   --color-accent-contrast: #ffffff;
-  --color-focus: #3b82f6;
 
-  /* Typography */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif;
+  --color-focus: #3b82f6;
+  --color-focus-ring: rgba(59, 130, 246, 0.4);
+
+  /* Semantic Feedback Colors */
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-success-text: #065f46;
+  --color-success-border: #a7f3d0;
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fde68a;
+
+  --color-danger: #ef4444;
+  --color-danger-bg: #fef2f2;
+  --color-danger-text: #991b1b;
+  --color-danger-border: #fecaca;
+
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+  --color-info-text: #075985;
+  --color-info-border: #bae6fd;
+
+  /* ==========================================================================
+     Typography
+     Bilingual: Cairo/Tajawal for Arabic; Inter/system-ui for English
+     ========================================================================== */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.75rem;
-  --font-size-5xl: 3.5rem;
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 2rem;      /* 32px */
+  --font-size-4xl: 2.75rem;   /* 44px */
+  --font-size-5xl: 3.5rem;    /* 56px */
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  --line-height-none: 1;
   --line-height-tight: 1.15;
   --line-height-snug: 1.3;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.65;
 
-  /* Spacing Scale (4px baseline) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-24: 6rem;
+  /* ==========================================================================
+     Spacing Scale (4px baseline)
+     ========================================================================== */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  --space-24: 6rem;    /* 96px */
+  --space-32: 8rem;    /* 128px */
 
-  /* Motion & Transitions (200-500ms bounds per Section 1.5) */
+  /* ==========================================================================
+     Radii
+     ========================================================================== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     Elevation & Shadows
+     ========================================================================== */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+
+  /* ==========================================================================
+     Motion & Transitions (Restrained 200-500ms bounds per Section 1.5)
+     ========================================================================== */
   --motion-fast: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --motion-normal: 300ms cubic-bezier(0.16, 1, 0.3, 1);
   --motion-slow: 500ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Layout Boundaries */
+  /* ==========================================================================
+     Layout Boundaries & Responsive Containers
+     ========================================================================== */
   --max-width-site: 1440px;
   --max-width-content: 1100px;
+  --max-width-narrow: 768px;
   --header-height: 4.5rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-full: 9999px;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --container-padding-x: clamp(1rem, 3.5vw, 2.5rem);
+
+  /* ==========================================================================
+     Z-Index Scale
+     ========================================================================== */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-drawer-backdrop: 40;
+  --z-drawer: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-toast: 80;
 }
 
-/* Dark Theme Overrides */
+/* ==========================================================================
+   Dark Theme Overrides
+   High contrast, editorial aesthetic, accessible text contrast
+   ========================================================================== */
 [data-theme="dark"] {
   --color-bg: #090a0f;
   --color-surface: #12141c;
   --color-surface-elevated: #1a1d29;
   --color-surface-hover: #222636;
+  --color-surface-active: #2a2f42;
+
   --color-text-primary: #f9fafb;
   --color-text-secondary: #d1d5db;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-text-inverse: #090a0f;
+
   --color-border: #1f2937;
   --color-border-subtle: #111827;
+  --color-border-hover: #374151;
+
   --color-accent: #f9fafb;
   --color-accent-hover: #e5e7eb;
   --color-accent-contrast: #090a0f;
+
+  --color-focus: #60a5fa;
+  --color-focus-ring: rgba(96, 165, 250, 0.4);
+
+  --color-success: #34d399;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-success-text: #6ee7b7;
+  --color-success-border: rgba(16, 185, 129, 0.3);
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-warning-text: #fcd34d;
+  --color-warning-border: rgba(245, 158, 11, 0.3);
+
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(239, 68, 68, 0.15);
+  --color-danger-text: #fca5a5;
+  --color-danger-border: rgba(239, 68, 68, 0.3);
+
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(2, 132, 199, 0.15);
+  --color-info-text: #7dd3fc;
+  --color-info-border: rgba(2, 132, 199, 0.3);
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
 }
 
-/* Accessibility: Reduced Motion Support */
+/* ==========================================================================
+   Accessibility: Reduced Motion Support (Mandatory Section 1.5)
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   :root {
     --motion-fast: 0ms !important;
     --motion-normal: 0ms !important;
