@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 26 of 97 tasks started, 26 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 27 of 97 tasks started, 27 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -12,14 +12,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | --- | --- | ---: | ---: | ---: | --- |
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
-| 03 | Projects, Categories, Media | 12 | 10 | 10 | Not evaluated |
+| 03 | Projects, Categories, Media | 12 | 11 | 11 | Not evaluated |
 | 04 | Public Website and Motion | 11 | 0 | 0 | Not evaluated |
 | 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **26** | **26** | |
+| **Total** | | **97** | **27** | **27** | |
 
 ## Task register
 
@@ -51,8 +51,8 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.08 | Watermark transformation | DONE | PASS: WatermarkTransformationTest (5 passed, 14 assertions: watermark generation, clean URL on disabled project, original preserved untouched, project & media toggle API) | None available | None | — |
 | 03.09 | Project drafts/publish | DONE | PASS: PublicProjectsApiTest (6 passed, 29 assertions: publish/unpublish, draft exclusion, draft leak isolation, preview noindex, view count increment) | None available | None | eda4be1 |
 | 03.10 | Trash and 30-day soft delete | DONE | PASS: ProjectTrashTest (6 passed, 36 assertions: soft-deleted hidden, restore, force delete, 30-day purge, shared media protection, retry resilience, audit logs) | None available | None | 5d6c960 |
-| 03.11 | Media cleanup job | NOT_STARTED | Not run | — | Phase 02 gate | — |
-| 03.12 | E2E project management | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.11 | Admin project/category pages | DONE | PASS: Vitest admin-projects-categories (8 passed: loading/empty/error states, trash tab restore, validation errors, keyboard media reordering, unsaved changes warning, category creation/reordering) | None available | None | 97548a3 |
+| 03.12 | E2E content workflow | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 04.01 | Design tokens and reset | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.02 | Public shell and navigation | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.03 | Home page | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1615,4 +1615,68 @@ Blockers/owner inputs:
   None. Task 03.10 complete and verified.
 Next task:
   Phase 03 — Task 03.11: Admin project/category pages (React listing, create/edit, forms, image management, status badges, trash UI).
+```
+
+
+---
+
+## Task 03.11 Execution Report
+
+```text
+Task ID: 03.11
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.11-admin-project-category-pages
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 97548a3
+Files changed:
+  Created:
+    - frontend/src/pages/admin/ProjectsPage.jsx (Projects listing with status badges, publish/unpublish toggle, trash tab with restore and force delete, loading, empty, and error states)
+    - frontend/src/pages/admin/ProjectFormPage.jsx (Bilingual project form, slug validation errors, media upload and keyboard-accessible Move Up/Down reordering, single cover selection, unsaved changes confirmation dialog)
+    - frontend/src/pages/admin/CategoriesPage.jsx (Bilingual category listing, add category form, accessible keyboard reordering via PATCH /reorder, delete with confirmation)
+    - frontend/tests/admin-projects-categories.test.jsx (8 tests, 100% green)
+  Modified:
+    - frontend/src/app/routes.jsx (wired /admin/projects, /admin/projects/new, /admin/projects/:id/edit, /admin/categories)
+    - docs/PROGRESS.md (marked 03.11 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/admin-projects-categories.test.jsx:
+    - displays loading state, then renders projects list with status badge
+    - displays empty state when no projects are returned
+    - displays error alert when API fetch fails
+    - switches to trash view and handles project restore
+    - displays validation error alerts when required inputs are missing or invalid
+    - provides keyboard-accessible Move Up and Move Down buttons for media reordering
+    - warns user about unsaved changes when form is dirty and user clicks Cancel
+    - renders category list and allows creating new category with bilingual fields
+  Observed RED state:
+    Failed to resolve import "../src/pages/admin/ProjectsPage.jsx" (suite failed).
+  Observed GREEN state:
+    Tests: 8 passed in 1.20s.
+    Full Vitest suite: 29 passed across 6 test suites in 1.46s.
+    Production build: Client & SSR server bundles built cleanly in 1.61s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React admin CRUD pages.
+Unavailable skills and fallback checklist:
+  - react-admin, frontend-architecture: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 03.11 verified: bilingual input controls support both RTL Arabic and LTR English; validation errors displayed in top alert and inline per field; keyboard-accessible Move Up / Move Down buttons ensure media and categories can be reordered without pointer drag-and-drop; dirty form tracking triggers confirmation warning on cancel/navigation; status badges visually distinguish published vs draft projects; trash tab allows restore and permanent deletion.
+Design artifacts/screenshots reviewed:
+  N/A (React admin CRUD interfaces).
+Commands executed and exact results:
+  1. git checkout -b feat/03.11-admin-project-category-pages
+  2. Created admin-projects-categories.test.jsx.
+  3. vitest tests/admin-projects-categories.test.jsx -> RED: module missing.
+  4. Implemented ProjectsPage.jsx, ProjectFormPage.jsx, CategoriesPage.jsx, updated routes.jsx.
+  5. vitest tests/admin-projects-categories.test.jsx -> GREEN: 8 passed in 1.20s.
+  6. vitest -> GREEN: 29 passed across 6 test files.
+  7. npm run build -> GREEN (client + SSR server bundles generated).
+Security/privacy/SEO considerations:
+  - All admin views nested under authenticated AdminLayout shell.
+  - Sensitive operations (permanent delete, discard dirty changes) guarded by explicit user confirmations.
+  - Error messages sanitised to avoid exposing stack traces or backend internals.
+Blockers/owner inputs:
+  None. Task 03.11 complete and verified.
+Next task:
+  Phase 03 — Task 03.12: E2E content workflow & Phase 03 Gate.
 ```
