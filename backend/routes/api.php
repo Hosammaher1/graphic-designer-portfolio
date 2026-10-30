@@ -33,5 +33,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/audit-logs', [\App\Http\Controllers\Api\V1\Admin\AuditLogController::class, 'index'])->name('api.v1.admin.audit.index');
 
         Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
+
+        // Project CRUD
+        Route::apiResource('projects', \App\Http\Controllers\Api\V1\Admin\ProjectController::class);
+        Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
+            ->name('api.v1.admin.projects.relationships');
     });
 });
