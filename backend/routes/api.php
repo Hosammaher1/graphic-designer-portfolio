@@ -38,5 +38,10 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('projects', \App\Http\Controllers\Api\V1\Admin\ProjectController::class);
         Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
             ->name('api.v1.admin.projects.relationships');
+
+        // Category CRUD + reorder (reorder must precede apiResource to avoid {category}='reorder' collision)
+        Route::patch('categories/reorder', [\App\Http\Controllers\Api\V1\Admin\CategoryController::class, 'reorder'])
+            ->name('api.v1.admin.categories.reorder');
+        Route::apiResource('categories', \App\Http\Controllers\Api\V1\Admin\CategoryController::class);
     });
 });

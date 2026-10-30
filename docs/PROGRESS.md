@@ -43,7 +43,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02.08 | E2E auth | DONE | PASS: Playwright admin-auth (10 passed) + Full E2E suite (36 passed across Desktop Chromium & Mobile Chrome) | None available (manual checklist) | None (ready for Phase 03) | — |
 | 03.01 | Schema and factories | DONE | PASS: ProjectSchemaTest (8 passed, 26 assertions: factory generation, unique slug, locale uniqueness, cascade delete, soft delete, category ordering, published snapshot, tool pivot uniqueness) | None available (manual checklist) | None (ready for 03.02) | — |
 | 03.02 | Project CRUD API | DONE | PASS: ProjectCrudTest (11 passed, 38 assertions: create/read/list/update/delete/relationships, 422 validation, 401 auth guards) | None available | None | — |
-| 03.03 | Category CRUD/reorder | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.03 | Category CRUD/reorder | DONE | PASS: CategoryTest (5 passed, 14 assertions: create/translations, unique slug, bulk reorder, cascade safety, auth guard) | None available | None | — |
 | 03.04 | Tools and project metadata | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.05 | Cloudinary adapter | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.06 | Multi-image upload UI/API | NOT_STARTED | Not run | — | Phase 02 gate | — |
