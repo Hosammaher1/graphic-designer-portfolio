@@ -10,6 +10,7 @@ use App\Services\PageBuilder\ServerBlockValidator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class PageBuilderController extends Controller
 {
@@ -139,5 +140,64 @@ class PageBuilderController extends Controller
                 'draft_version' => $draftVersion,
             ], 200);
         });
+    }
+
+    /**
+     * Generate a cryptographic short-lived signed preview URL.
+     */
+    public function createPreviewUrl(Request $request, string $slug): JsonResponse
+    {
+        $page = Page::where('slug', $slug)->firstOrFail();
+
+        $expiresAt = now()->addMinutes(30);
+        $previewUrl = URL::temporarySignedRoute(
+            'api.v1.pages.preview.signed',
+            $expiresAt,
+            ['slug' => $slug]
+        );
+
+        return response()->json([
+            'preview_url' => $previewUrl,
+            'expires_at' => $expiresAt->toIso8601String(),
+        ], 200);
+    }
+
+    /**
+     * Render secure preview of draft page.
+     * Authorized via admin session OR valid unexpired signature.
+     */
+    public function preview(Request $request, string $slug): JsonResponse
+    {
+        // 1. Authorization check
+        $user = auth('sanctum')->user() ?? $request->user();
+        $isAdmin = $user && $user->is_admin;
+        $hasValidSignature = $request->hasValidSignature();
+
+        if (!$isAdmin && !$hasValidSignature) {
+            return response()->json([
+                'message' => 'Unauthorized preview access. Admin authentication or valid signed signature required.',
+            ], 403);
+        }
+
+        // 2. Fetch page and active draft or published version
+        $page = Page::with(['currentDraftVersion', 'publishedVersion'])->where('slug', $slug)->first();
+        if (!$page) {
+            return response()->json(['message' => 'Page not found.'], 404);
+        }
+
+        $activeVersion = $page->currentDraftVersion ?? $page->publishedVersion;
+        $blocks = $activeVersion ? ($activeVersion->blocks ?? []) : [];
+
+        // 3. Return response with strict no-index and no-cache security headers
+        return response()->json([
+            'page' => $page,
+            'draft_version' => $activeVersion,
+            'blocks' => $blocks,
+            'is_preview' => true,
+        ], 200)
+            ->header('X-Robots-Tag', 'noindex, nofollow, noarchive')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

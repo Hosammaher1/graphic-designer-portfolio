@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 47 of 97 tasks started, 47 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 48 of 97 tasks started, 48 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 8 | 8 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 9 | 9 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **47** | **47** | |
+| **Total** | | **97** | **48** | **48** | |
 
 ## Task register
 
@@ -72,7 +72,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.06 | Image/text blocks | DONE | PASS: Vitest page-builder-media-text (5 passed: published media filtering, asset selection with normalized metadata, bilingual text editing with tabs, Arabic & English fallbacks) | None available (manual checklist) | None (ready for 05.07) | d75fc64 |
 | 05.07 | Device previews | DONE | PASS: Vitest page-builder-device-previews (5 passed: default desktop viewport, tablet 768px transition, mobile 390px transition, content/state preservation, live canvas integration) | None available (manual checklist) | None (ready for 05.08) | 4d67604 |
 | 05.08 | Draft save | DONE | PASS: PHPUnit PageDraftSaveTest (5 passed, 19 assertions) + Vitest page-builder-draft-save (4 passed: explicit save with lockVersion, 409 conflict alert & state retention, failure retention, API client normalization) | None available (manual checklist) | None (ready for 05.09) | 8e7ea6f |
-| 05.09 | Secure preview | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.09 | Secure preview | DONE | PASS: PHPUnit PageSecurePreviewTest (6 passed, 20 assertions: admin access, anonymous 403, valid signed URL access, expired signature 403, tampered 403, signed URL generation, X-Robots-Tag noindex) + Vitest page-builder-secure-preview (4 passed) | None available (manual checklist) | None (ready for 05.10) | f24fba3 |
 | 05.10 | Atomic publish | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.11 | Project layout builder | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.12 | Builder E2E | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2900,4 +2900,69 @@ Blockers/owner inputs:
   None. Task 05.08 complete and verified.
 Next task:
   Phase 05 — Task 05.09: Secure preview (Admin-only or short-lived signed preview URL, noindex, no cache. Tests: anonymous denied, expired signature denied, draft visible only authorized).
+```
+
+---
+
+## Task 05.09 Execution Report
+
+```text
+Task ID: 05.09
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.09-secure-preview
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: f24fba3
+Files changed:
+  Created:
+    - backend/tests/Feature/PageSecurePreviewTest.php (PHPUnit test suite with 6 tests verifying authenticated admin preview, anonymous 403 denial, valid temporary signed URL access, expired signature 403 denial, tampered signature 403 denial, signed URL generator, and X-Robots-Tag: noindex/no-store headers)
+    - frontend/src/page-builder/SecurePreviewModal.jsx (Secure draft preview dialog with 30-minute expiration countdown, cryptographic signature generation, one-click clipboard copy, and search engine noindex notice)
+    - frontend/tests/page-builder-secure-preview.test.jsx (Vitest unit test suite with 4 tests verifying preview modal rendering, clipboard copy, signed preview generation, and 403 denial normalization)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/Admin/PageBuilderController.php (Implemented createPreviewUrl with URL::temporarySignedRoute and preview method with dual admin session and signed verification plus anti-indexing headers)
+    - backend/routes/api.php (Registered signed preview route `/api/v1/pages/{slug}/preview` and admin endpoints)
+    - frontend/src/page-builder/pageBuilderApi.js (Added generatePreviewUrl and fetchSecurePreview methods)
+    - docs/PROGRESS.md (marked Task 05.09 DONE, updated Phase 05 count to 9/12 and total to 48/97, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/PageSecurePreviewTest.php:
+    - authenticated admin can access preview with security headers
+    - anonymous request without signature is denied
+    - anonymous request with valid signed url is authorized
+    - expired signed url is denied
+    - tampered signature is denied
+    - admin can generate signed preview url
+  frontend/tests/page-builder-secure-preview.test.jsx:
+    - renders SecurePreviewModal and fetches signed preview URL
+    - copies signed preview link to clipboard on copy button click
+    - pageBuilderApi generatePreviewUrl calls endpoint correctly
+    - pageBuilderApi fetchSecurePreview handles 403 denied response gracefully
+  Observed GREEN state:
+    PHPUnit PageSecurePreviewTest: 6 passed (20 assertions) in 2.55s.
+    Vitest page-builder-secure-preview: 4 passed (4) in 3.04s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for signed preview URLs.
+Unavailable skills and fallback checklist:
+  - signed-urls, secure-preview: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.09 verified: preview endpoint requires either authenticated admin session or cryptographic URL signature (`URL::temporarySignedRoute`); expired (30m+) or tampered signatures return 403; response strictly injects `X-Robots-Tag: noindex, nofollow, noarchive` and `Cache-Control: no-store, no-cache, must-revalidate` preventing search crawler indexing or caching of unpublished drafts.
+Design artifacts/screenshots reviewed:
+  Inspected secure preview modal dialog, signed URL input field, clipboard copy feedback, and security warnings.
+Commands executed and exact results:
+  1. git checkout -b feat/05.09-secure-preview
+  2. Created backend/tests/Feature/PageSecurePreviewTest.php (RED state: 6 failed tests).
+  3. Added createPreviewUrl and preview methods to PageBuilderController.php with X-Robots-Tag headers.
+  4. Registered routes in backend/routes/api.php.
+  5. Created frontend/src/page-builder/SecurePreviewModal.jsx and added API methods in pageBuilderApi.js.
+  6. Created frontend/tests/page-builder-secure-preview.test.jsx.
+  7. cd backend; php artisan test tests/Feature/PageSecurePreviewTest.php -> GREEN: 6 passed (20 assertions) in 2.55s.
+  8. npm.cmd --prefix frontend test tests/page-builder-secure-preview.test.jsx -- --run -> GREEN: 4 passed in 3.04s.
+  9. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Preview endpoints strictly enforce `X-Robots-Tag: noindex, nofollow, noarchive` and `Cache-Control: no-store` headers, completely eliminating the risk of search engine scrapers discovering or indexing private staging drafts.
+Blockers/owner inputs:
+  None. Task 05.09 complete and verified.
+Next task:
+  Phase 05 — Task 05.10: Atomic publish (Transaction creates immutable published snapshot and updates pointer; invalidate relevant caches/sitemap. Tests: rollback on failure, previous version stays public, localized completeness policy).
 ```

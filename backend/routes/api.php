@@ -22,6 +22,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
 
+    // Secure Preview Route (Authorized via Cryptographic Signature or Admin Session)
+    Route::get('/pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview.signed');
+
     // Authentication routes
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->name('api.v1.auth.login');
@@ -83,8 +86,10 @@ Route::prefix('v1')->group(function () {
         Route::patch('media/{media}/watermark', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'toggleWatermark'])->name('api.v1.admin.media.watermark');
         Route::delete('media/{id}', [\App\Http\Controllers\Api\V1\Admin\MediaController::class, 'destroy'])->name('api.v1.admin.media.destroy');
 
-        // Page Builder Draft & Publishing
+        // Page Builder Draft, Preview & Publishing
         Route::get('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'getDraft'])->name('api.v1.admin.pages.draft.get');
         Route::post('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'saveDraft'])->name('api.v1.admin.pages.draft.save');
+        Route::get('pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.admin.pages.preview');
+        Route::post('pages/{slug}/preview-url', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'createPreviewUrl'])->name('api.v1.admin.pages.preview.url');
     });
 });

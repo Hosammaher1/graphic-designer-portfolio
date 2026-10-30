@@ -1,7 +1,51 @@
-# Portfolio agent handoff
+# Portfolio Agent Instructions
 
-Read [Graphic_Designer_Portfolio_Plan_v1_1.md](Graphic_Designer_Portfolio_Plan_v1_1.md) in full before changing the application. It is the approved product scope. Read [docs/PLAN_AUDIT.md](docs/PLAN_AUDIT.md) for execution clarifications and [docs/AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) for current state and the next task.
+## Project Scope
+Read `Graphic_Designer_Portfolio_Plan_v1_1.md`, `docs/PLAN_AUDIT.md`, `docs/AGENT_HANDOFF.md`, and `docs/PROGRESS.md` before continuing development.
 
-The immediate coding task is **01.01 only**. Do not infer that this audit authorizes later tasks, production deployment, paid services, or a change to the approved stack. Resolve a material product choice with the owner; record routine implementation decisions in `docs/DECISIONS.md` when Task 01.01 creates it.
+The approved plan contains 97 tasks across 9 phases. Execute all remaining tasks sequentially, starting from the first genuinely incomplete task. Never repeat completed work.
 
-Before each coding task, inspect Git state and existing files, read relevant available skills, use a feature branch, write and run appropriate checks, inspect the diff, and report real results. Keep secrets and `.env` files out of Git. Never force-push, merge into `main`, or deploy without the required approval. When GitHub access is available, create a **private** repository only after checking that the proposed name is unused; never overwrite a repository. Commit and push completed, passing tasks according to the owner's Git workflow instructions.
+## Autonomous Execution
+- Continue implementing tasks without stopping between them.
+- Use a dedicated feature branch for each task.
+- Inspect Git state and existing code before making changes.
+- Use relevant available skills when helpful.
+- Resolve routine technical decisions independently.
+- Ask the owner only for material product decisions or required credentials.
+
+## Git Workflow
+- Commit and push completed tasks to their feature branches.
+- Merge passing feature branches into `dev` and push `dev`.
+- Never force-push.
+- Never merge or push to `main` without explicit approval.
+- Never deploy without explicit approval.
+- Follow configured CLI permissions. Do not bypass security approval prompts.
+
+## Testing Strategy
+- After each task: run only essential lightweight and targeted checks.
+- After each phase: run comprehensive phase regression tests.
+- After all 9 phases: run the full backend, frontend, and E2E regression suites.
+- Fix test failures before marking affected work as verified.
+- Never report tests as passed unless actually executed successfully.
+
+## Progress Documentation
+After EVERY completed task, update `docs/PROGRESS.md` using the same detailed format as Task 02.08.
+
+Include:
+- Task ID, title, and status
+- Branch, actual commit hash, and remote
+- Files created and modified
+- Features and API endpoints implemented
+- Tests executed and actual results
+- Issues encountered and fixes applied
+
+Keep `docs/AGENT_HANDOFF.md` updated with the latest checkpoint.
+
+## Security
+- Never commit secrets, tokens, or `.env` files.
+- Never enable unrestricted command execution.
+- Preserve the approved technology stack and product scope.
+- Do not introduce paid services without approval.
+
+## Completion
+Continue through all 97 tasks, respecting dependencies and phase gates. Report final implementation status, test results, and remaining deployment requirements.

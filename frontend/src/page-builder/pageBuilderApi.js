@@ -1,6 +1,6 @@
 /**
  * Page Builder Admin API Client
- * Versioned REST API endpoints for draft management, optimistic locking, and publishing.
+ * Versioned REST API endpoints for draft management, optimistic locking, secure previews, and publishing.
  */
 
 const API_BASE = '/api/v1/admin/pages';
@@ -88,6 +88,81 @@ export async function savePageDraft(slug, payload) {
       success: false,
       conflict: false,
       error: err.message || 'Network error saving draft',
+    };
+  }
+}
+
+/**
+ * Generate a short-lived cryptographically signed preview URL.
+ */
+export async function generatePreviewUrl(slug) {
+  try {
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(slug)}/preview-url`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        status: res.status,
+        error: `Failed to generate preview URL (${res.status})`,
+      };
+    }
+
+    const data = await res.json();
+    return {
+      success: true,
+      preview_url: data.preview_url,
+      expires_at: data.expires_at,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message || 'Network error generating preview URL',
+    };
+  }
+}
+
+/**
+ * Fetch preview data (can use signed URL query string or admin session).
+ */
+export async function fetchSecurePreview(slug, queryParams = '') {
+  try {
+    const url = queryParams
+      ? `/api/v1/pages/${encodeURIComponent(slug)}/preview?${queryParams}`
+      : `${API_BASE}/${encodeURIComponent(slug)}/preview`;
+
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        status: res.status,
+        error: `Preview access denied (${res.status})`,
+      };
+    }
+
+    const data = await res.json();
+    return {
+      success: true,
+      page: data.page,
+      draft_version: data.draft_version,
+      blocks: data.blocks || [],
+      is_preview: true,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message || 'Network error fetching secure preview',
     };
   }
 }
