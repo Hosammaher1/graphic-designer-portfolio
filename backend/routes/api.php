@@ -43,5 +43,8 @@ Route::prefix('v1')->group(function () {
         Route::patch('categories/reorder', [\App\Http\Controllers\Api\V1\Admin\CategoryController::class, 'reorder'])
             ->name('api.v1.admin.categories.reorder');
         Route::apiResource('categories', \App\Http\Controllers\Api\V1\Admin\CategoryController::class);
+
+        // Tool CRUD
+        Route::apiResource('tools', \App\Http\Controllers\Api\V1\Admin\ToolController::class);
     });
 });

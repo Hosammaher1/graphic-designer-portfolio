@@ -44,7 +44,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.01 | Schema and factories | DONE | PASS: ProjectSchemaTest (8 passed, 26 assertions: factory generation, unique slug, locale uniqueness, cascade delete, soft delete, category ordering, published snapshot, tool pivot uniqueness) | None available (manual checklist) | None (ready for 03.02) | — |
 | 03.02 | Project CRUD API | DONE | PASS: ProjectCrudTest (11 passed, 38 assertions: create/read/list/update/delete/relationships, 422 validation, 401 auth guards) | None available | None | — |
 | 03.03 | Category CRUD/reorder | DONE | PASS: CategoryTest (5 passed, 14 assertions: create/translations, unique slug, bulk reorder, cascade safety, auth guard) | None available | None | — |
-| 03.04 | Tools and project metadata | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.04 | Tools and project metadata | DONE | PASS: ToolAndMetadataTest (7 passed, 24 assertions: create/list, unique slug, update/delete, filter by year/tool, pivot uniqueness, auth guard) | None available | None | — |
 | 03.05 | Cloudinary adapter | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.06 | Multi-image upload UI/API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.07 | Media ordering/cover | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1189,4 +1189,63 @@ Blockers/owner inputs:
   None. Task 03.03 complete and verified.
 Next task:
   Phase 03 — Task 03.04: Tools and project metadata (tools pivot management and localized metadata).
+```
+
+---
+
+## Task 03.04 Execution Report
+
+```text
+Task ID: 03.04
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.04-tools-metadata
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 5416887
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/ToolController.php (Tool CRUD: index, store, update, destroy)
+    - backend/tests/Feature/Projects/ToolAndMetadataTest.php (7 tests, 24 assertions)
+  Modified:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php (added year, tool_id, category_id filter query handling)
+    - backend/routes/api.php (registered admin.tools apiResource)
+    - docs/PROGRESS.md (marked 03.04 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/ToolAndMetadataTest.php:
+    - test_admin_can_create_and_list_tools
+    - test_duplicate_tool_slug_returns_422
+    - test_admin_can_update_and_delete_tool
+    - test_project_list_can_be_filtered_by_year
+    - test_project_list_can_be_filtered_by_tool
+    - test_duplicate_tool_relation_is_prevented
+    - test_unauthenticated_cannot_manage_tools
+  Observed RED state:
+    6 failed, 1 passed (routes not registered 404, filtering by year/tool not implemented yet).
+  Observed GREEN state:
+    Tests: 7 passed (24 assertions) in 2.46s.
+    ProjectCrudTest regression check: 11 passed (38 assertions) in 2.60s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for tools and metadata management.
+Unavailable skills and fallback checklist:
+  - backend-architecture, rest-api: NOT AVAILABLE.
+  - Fallback checklist applied: Standard FormRequest / controller validation with URL-safe slug regex, Eloquent relation query scopes (whereHas with indexed foreign keys), primary composite key preventing duplicate pivot entries, admin guard.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API controller and metadata filtering, no UI).
+Commands executed and exact results:
+  1. git checkout -b feat/03.04-tools-metadata
+  2. Created ToolController and ToolAndMetadataTest.
+  3. php artisan test tests/Feature/Projects/ToolAndMetadataTest.php -> RED: 6 failed, 1 passed.
+  4. Registered tools apiResource in routes/api.php; added year, tool_id, category_id filtering in ProjectController::index.
+  5. php artisan test tests/Feature/Projects/ToolAndMetadataTest.php -> GREEN: 7 passed (24 assertions) in 2.46s.
+  6. php artisan test tests/Feature/Projects/ProjectCrudTest.php -> GREEN: 11 passed (38 assertions) in 2.60s.
+Security/privacy/SEO considerations:
+  - Tool creation and mutations restricted to authenticated administrators.
+  - Slug uniqueness enforced at DB and application levels.
+  - Project filtering casts inputs to integers to guard against malformed parameters.
+Blockers/owner inputs:
+  None. Task 03.04 complete and verified.
+Next task:
+  Phase 03 — Task 03.05: Cloudinary adapter (app/Services/Media/MediaStorageInterface.php, CloudinaryMediaStorage.php, fake implementation).
 ```

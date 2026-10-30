@@ -9,15 +9,28 @@ use App\Http\Requests\Admin\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $projects = Project::withTrashed()
-            ->with(['translations', 'categories', 'tools'])
-            ->latest()
-            ->paginate(20);
+        $query = Project::withTrashed()
+            ->with(['translations', 'categories', 'tools']);
+
+        if ($request->filled('year')) {
+            $query->where('year', (int) $request->year);
+        }
+
+        if ($request->filled('tool_id')) {
+            $query->whereHas('tools', fn($q) => $q->where('tools.id', (int) $request->tool_id));
+        }
+
+        if ($request->filled('category_id')) {
+            $query->whereHas('categories', fn($q) => $q->where('categories.id', (int) $request->category_id));
+        }
+
+        $projects = $query->latest()->paginate(20);
 
         return response()->json([
             'status' => 'success',
