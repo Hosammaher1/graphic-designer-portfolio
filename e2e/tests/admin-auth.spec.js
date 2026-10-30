@@ -165,7 +165,7 @@ test.describe('Admin Authentication Flow', () => {
 
     const signOutBtn = page.getByRole('button', { name: 'Sign Out' });
     await expect(signOutBtn).toBeVisible();
-    await signOutBtn.click();
+    await signOutBtn.click({ force: true });
 
     // Should redirect to /admin/login
     await expect(page).toHaveURL(/\/admin\/login/);

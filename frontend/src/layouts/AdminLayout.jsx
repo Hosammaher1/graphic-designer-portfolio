@@ -74,6 +74,7 @@ export default function AdminLayout() {
         aria-label="Admin Navigation"
         style={{
           position: 'relative',
+          minHeight: '100vh',
           width: '260px',
           borderRight: '1px solid var(--color-border)',
           background: 'var(--color-surface)',
@@ -93,7 +94,7 @@ export default function AdminLayout() {
           </span>
         </div>
 
-        <nav style={{ flex: 1 }}>
+        <nav style={{ marginBottom: 'var(--space-4)' }}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             {navLinks.map((link) => (
               <li key={link.to}>
@@ -120,7 +121,7 @@ export default function AdminLayout() {
           </ul>
         </nav>
 
-        <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)' }}>
+        <div style={{ marginTop: 'auto', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)', position: 'relative', zIndex: 10 }}>
           <button
             type="button"
             onClick={logout}
@@ -134,6 +135,8 @@ export default function AdminLayout() {
               fontSize: 'var(--font-size-sm)',
               cursor: 'pointer',
               textAlign: 'center',
+              position: 'relative',
+              zIndex: 10,
             }}
           >
             Sign Out
