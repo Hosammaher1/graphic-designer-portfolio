@@ -11,7 +11,7 @@ export function ThemeToggle({ locale = 'ar', className = '' }) {
       if (saved === 'dark' || saved === 'light') {
         setTheme(saved);
         document.documentElement.setAttribute('data-theme', saved);
-      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      } else if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)')?.matches) {
         setTheme('dark');
         document.documentElement.setAttribute('data-theme', 'dark');
       } else {

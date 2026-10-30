@@ -62,7 +62,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.07 | Contact UI | DONE | PASS: Vitest contact-form (5 passed: direct contact channels & form in AR/EN, required fields validation & aria-invalid, email format regex validation, duplicate submission lock & aria-busy, local development mode handling complying with Plan Audit) | None available (manual checklist) | None (ready for 04.08) | — |
 | 04.08 | Subtle motion | DONE | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
 | 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
-| 04.10 | Dark mode | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.10 | Dark mode | DONE | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
 | 04.11 | E2E public browse | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 05.01 | Page Builder data model | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.02 | Block registry | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2276,4 +2276,58 @@ Blockers/owner inputs:
   None. Task 04.09 complete and verified.
 Next task:
   Phase 04 — Task 04.10: Dark mode (System preference detection, localStorage persistence, contrast verification, hydration safety).
+```
+
+
+---
+
+## Task 04.10 Execution Report
+
+```text
+Task ID: 04.10
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.10-dark-mode
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - frontend/tests/dark-mode.test.jsx (Vitest test suite covering system color-scheme detection, localStorage preference restoration, interactive theme toggling, dark theme contrast token assertions, and head anti-flash script validation)
+  Modified:
+    - frontend/index.html (injected synchronous inline theme detection script in <head> to eliminate Flash of Wrong Theme on initial render and SSR hydration)
+    - frontend/src/components/ThemeToggle.jsx (guarded matchMedia check with optional chaining for universal client and test compatibility)
+    - docs/PROGRESS.md (marked 04.10 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/dark-mode.test.jsx:
+    - detects system dark mode preference when no saved theme exists
+    - restores persisted theme from localStorage over system default
+    - toggles theme, updates DOM data-theme attribute, and persists to localStorage
+    - verifies dark mode CSS color tokens exist and provide high contrast
+    - verifies anti-flash inline script exists in index.html head
+  Observed GREEN state:
+    Tests: 5 passed (5) in 2.76s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for dark mode / theme persistence components.
+Unavailable skills and fallback checklist:
+  - theme-design, frontend-design: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.10 (Task 04.08 in plan) verified: system preference (prefers-color-scheme: dark) detected automatically; user toggle immediately overrides and persists to localStorage under 'portfolio-theme'; synchronous blocking script in index.html head prevents flash of wrong theme (FOWT) on initial HTML paint; contrast tokens meet WCAG AA standards (#090a0f background vs #f9fafb primary text); data-theme attribute on document root enables zero-flash CSS variable resolution.
+Design artifacts/screenshots reviewed:
+  Inspected dark palette surface elevations (#090a0f base, #12141c surface, #1a1d29 elevated), border subtle contrast (#1f2937), and sun/moon icon transition.
+Commands executed and exact results:
+  1. git checkout -b feat/04.10-dark-mode
+  2. Injected anti-flash script into frontend/index.html head.
+  3. Created frontend/tests/dark-mode.test.jsx.
+  4. Updated ThemeToggle.jsx with safe optional chaining.
+  5. vitest tests/dark-mode.test.jsx -> GREEN: 5 passed in 2.76s.
+  6. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Theme preference stored purely locally (no cross-site tracking or cookies required).
+  - High-contrast dark mode ensures readability and reduced eye strain.
+Blockers/owner inputs:
+  None. Task 04.10 complete and verified.
+Next task:
+  Phase 04 — Task 04.11: E2E public browse & Phase 04 Gate (Playwright E2E covering Home, Gallery, Filter, Project Detail, Lightbox, About, Contact, Arabic/English, and Dark/Light modes).
 ```
