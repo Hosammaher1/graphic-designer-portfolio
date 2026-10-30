@@ -39,6 +39,16 @@ Route::prefix('v1')->group(function () {
         Route::patch('projects/{project}/relationships', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'syncRelationships'])
             ->name('api.v1.admin.projects.relationships');
 
+        // Project Media Management (Attach, Reorder, Cover, Detach)
+        Route::post('projects/{project}/media', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'attach'])
+            ->name('api.v1.admin.projects.media.attach');
+        Route::patch('projects/{project}/media/reorder', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'reorder'])
+            ->name('api.v1.admin.projects.media.reorder');
+        Route::put('projects/{project}/media/{media}/cover', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'setCover'])
+            ->name('api.v1.admin.projects.media.setCover');
+        Route::delete('projects/{project}/media/{media}', [\App\Http\Controllers\Api\V1\Admin\ProjectMediaController::class, 'detach'])
+            ->name('api.v1.admin.projects.media.detach');
+
         // Category CRUD + reorder (reorder must precede apiResource to avoid {category}='reorder' collision)
         Route::patch('categories/reorder', [\App\Http\Controllers\Api\V1\Admin\CategoryController::class, 'reorder'])
             ->name('api.v1.admin.categories.reorder');

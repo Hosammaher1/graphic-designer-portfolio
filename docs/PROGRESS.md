@@ -47,7 +47,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.04 | Tools and project metadata | DONE | PASS: ToolAndMetadataTest (7 passed, 24 assertions: create/list, unique slug, update/delete, filter by year/tool, pivot uniqueness, auth guard) | None available | None | — |
 | 03.05 | Cloudinary adapter | DONE | PASS: MediaStorageTest (8 passed, 25 assertions: metadata normalization, MIME check, size cap, safe naming, delete, delivery/watermark URLs, secret redaction, DI container binding) | None available | None | — |
 | 03.06 | Multi-image upload UI/API | DONE | PASS: MediaUploadApiTest (5 passed, 13 assertions) + Vitest media-uploader (4 passed) | None available | None | — |
-| 03.07 | Media ordering/cover | NOT_STARTED | Not run | — | Phase 02 gate | — |
+| 03.07 | Media ordering/cover | DONE | PASS: ProjectMediaOrderingTest (7 passed, 23 assertions: attach with order, deterministic reorder, single cover invariant, cross-project denial, detach cascade safety) | None available | None | — |
 | 03.08 | Watermark transformation | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.09 | Public projects API | NOT_STARTED | Not run | — | Phase 02 gate | — |
 | 03.10 | Trash and 30-day soft delete | NOT_STARTED | Not run | — | Phase 02 gate | — |
@@ -1375,4 +1375,62 @@ Blockers/owner inputs:
   None. Task 03.06 complete and verified.
 Next task:
   Phase 03 — Task 03.07: Media ordering/cover (deterministic sort, exactly one valid cover, cross-project media assignment denied).
+```
+
+---
+
+## Task 03.07 Execution Report
+
+```text
+Task ID: 03.07
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/03.07-media-ordering-cover
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 92a821e
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/Admin/ProjectMediaController.php (attach, deterministic reorder, single-cover setter, detach)
+    - backend/tests/Feature/Projects/ProjectMediaOrderingTest.php (7 tests, 23 assertions)
+  Modified:
+    - backend/routes/api.php (registered admin.projects.media.{attach,reorder,setCover,detach} endpoints)
+    - docs/PROGRESS.md (marked 03.07 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Feature/Projects/ProjectMediaOrderingTest.php:
+    - test_admin_can_attach_media_to_project
+    - test_deterministic_sort_order_reorders_media_items
+    - test_setting_cover_image_ensures_exactly_one_cover
+    - test_cross_project_media_reorder_is_denied
+    - test_cannot_set_cover_for_media_belonging_to_another_project
+    - test_detaching_media_from_project_removes_pivot_record
+    - test_unauthenticated_cannot_modify_project_media
+  Observed RED state:
+    6 failed with 404 (routes and controller not yet registered).
+  Observed GREEN state:
+    Tests: 7 passed (23 assertions) in 2.28s.
+    ProjectCrudTest regression check: 11 passed (38 assertions) in 2.32s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for project media ordering.
+Unavailable skills and fallback checklist:
+  - backend-architecture, relational-data: NOT AVAILABLE.
+  - Fallback checklist applied: Implemented database transaction around cover assignments to guarantee exactly one valid cover per project; strict project ownership checks on reorder to prevent cross-project media hijacking; cascade isolation ensuring detaching media does NOT delete the underlying MediaAsset.
+Design artifacts/screenshots reviewed:
+  N/A (backend REST API endpoints for media ordering/cover management).
+Commands executed and exact results:
+  1. git checkout -b feat/03.07-media-ordering-cover
+  2. Created ProjectMediaOrderingTest.php.
+  3. php artisan test tests/Feature/Projects/ProjectMediaOrderingTest.php -> RED: 6 failed (404s).
+  4. Implemented ProjectMediaController.php and registered routes in api.php.
+  5. php artisan test tests/Feature/Projects/ProjectMediaOrderingTest.php -> GREEN: 7 passed (23 assertions) in 2.28s.
+  6. php artisan test tests/Feature/Projects/ProjectCrudTest.php -> GREEN: 11 passed (38 assertions) in 2.32s.
+Security/privacy/SEO considerations:
+  - All media attachment, reordering, cover selection, and detachment endpoints guarded behind auth:sanctum and admin middleware.
+  - Reorder endpoint cross-checks all IDs against the project to prevent IDOR / cross-project data tampering.
+  - Exactly one cover invariant enforced via atomic DB transaction.
+Blockers/owner inputs:
+  None. Task 03.07 complete and verified.
+Next task:
+  Phase 03 — Task 03.08: Watermark transformation (provider transforms or server-generated baked-in variants; originals protected).
 ```
