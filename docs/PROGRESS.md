@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-30. **Implementation:** 39 of 97 tasks started, 39 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-30. **Implementation:** 40 of 97 tasks started, 40 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -14,12 +14,12 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
-| 05 | Flexible Page Builder and Publishing | 12 | 0 | 0 | Not evaluated |
+| 05 | Flexible Page Builder and Publishing | 12 | 1 | 1 | Not evaluated |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **39** | **39** | |
+| **Total** | | **97** | **40** | **40** | |
 
 ## Task register
 
@@ -64,7 +64,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
 | 04.10 | Dark mode | DONE | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
 | 04.11 | E2E public browse | DONE | PASS: Playwright public-browse (10 passed) + Full Gate Suite (101 PHPUnit, 92 Vitest, 48 Playwright = 241 passed) | None available (manual checklist) | None (Phase 04 Gate PASSED, ready for Phase 05) | — |
-| 05.01 | Page Builder data model | NOT_STARTED | Not run | — | Phase 04 gate | — |
+| 05.01 | Block schema | DONE | PASS: PHPUnit BlockSchemaTest (18 passed, 36 assertions) + Vitest page-builder-schema (9 passed) | None available (manual checklist) | None (ready for 05.02) | — |
 | 05.02 | Block registry | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.03 | Editor canvas and reorder | NOT_STARTED | Not run | — | Phase 04 gate | — |
 | 05.04 | Block property inspector | NOT_STARTED | Not run | — | Phase 04 gate | — |
@@ -2420,3 +2420,85 @@ Criteria:
      PASS: Synchronous anti-flash script in index.html head eliminates FOWT; localStorage overrides system color scheme; contrast tokens verified for WCAG AA compliance.
 Phase 04 is COMPLETE. Ready for Phase 05 - Flexible Page Builder and Publishing.
 ================================================================================
+
+
+---
+
+## Task 05.01 Execution Report
+
+```text
+Task ID: 05.01
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/05.01-block-schema
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - backend/app/Services/PageBuilder/BlockSchema.php (Core block schema specification and validator supporting all 12 approved block types: hero, text, heading, image, gallery, columns, spacer, CTA, stats, services, category_preview, and featured_work with recursive XSS security scanning, URL pseudo-protocol rejection, and versioned JSON structure)
+    - backend/tests/Unit/PageBuilder/BlockSchemaTest.php (Comprehensive PHPUnit unit test suite with 18 tests and 36 assertions covering all block types, missing required attributes, unknown block types, unsupported schema versions, malformed data, script tag injection, and disallowed attributes)
+    - frontend/src/page-builder/schema.js (Frontend isomorphic block schema specification, blueprint instance generator, and client-side validator matching backend rules identically)
+    - frontend/tests/page-builder-schema.test.js (Vitest test suite with 9 tests verifying all 12 block blueprints, schema validation, and security sanitization)
+  Modified:
+    - docs/DECISIONS.md (recorded ADR-010: Versioned Page Builder Block Schema and Cross-Platform Validator)
+    - docs/PROGRESS.md (marked Task 05.01 DONE, updated Phase 05 started/done counts, recorded execution evidence)
+Tests written first (RED → GREEN):
+  backend/tests/Unit/PageBuilder/BlockSchemaTest.php:
+    - it recognizes all 12 approved block types
+    - it accepts valid hero block
+    - it accepts valid heading block
+    - it accepts valid text block
+    - it accepts valid image block
+    - it accepts valid gallery block
+    - it accepts valid columns block
+    - it accepts valid spacer block
+    - it accepts valid cta block
+    - it accepts valid stats block
+    - it accepts valid services block
+    - it accepts valid category preview and featured work blocks
+    - it rejects missing required top level fields
+    - it rejects unknown block types
+    - it rejects unsupported version
+    - it rejects malformed block data
+    - it rejects unsafe attributes and xss payloads
+    - it rejects unexpected unsafe top level keys
+  frontend/tests/page-builder-schema.test.js:
+    - supports all 12 required block types
+    - generates valid default blueprint blocks for each type
+    - rejects missing top-level properties
+    - rejects unknown block types
+    - rejects unsupported schema version
+    - rejects malformed block-specific data
+    - rejects unsafe script tags and XSS payloads
+    - rejects javascript: pseudo-protocol in URLs
+    - rejects unexpected top-level disallowed keys
+  Observed GREEN state:
+    PHPUnit BlockSchemaTest: 18 passed (36 assertions) in 0.52s.
+    Vitest page-builder-schema: 9 passed (9) in 1.56s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for page builder JSON schemas.
+Unavailable skills and fallback checklist:
+  - json-schema, page-builder: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 05.01 verified: 12 approved block types specified with versioned JSON format (`version: 1`); strict allowlist of top-level keys (`id`, `type`, `version`, `data`, `settings`); recursive scanner blocks script injection and dangerous URL protocols (`javascript:`); nested column blocks validated recursively; blueprint defaults generate valid blocks.
+Design artifacts/screenshots reviewed:
+  Inspected block data structures to guarantee compatibility with responsive UI tokens and bilingual typography.
+Commands executed and exact results:
+  1. git checkout -b feat/05.01-block-schema
+  2. Created backend/tests/Unit/PageBuilder/BlockSchemaTest.php (RED state: 18 failed).
+  3. Created backend/app/Services/PageBuilder/BlockSchema.php.
+  4. cd backend ; php artisan test tests/Unit/PageBuilder/BlockSchemaTest.php -> GREEN: 18 passed (36 assertions) in 0.52s.
+  5. Created frontend/tests/page-builder-schema.test.js (RED state).
+  6. Created frontend/src/page-builder/schema.js.
+  7. npm.cmd --prefix frontend test tests/page-builder-schema.test.js -- --run -> GREEN: 9 passed in 1.56s.
+  8. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Strict allowlist of block attributes prevents object prototype pollution and injection of arbitrary script/HTML tags into published documents.
+  - Dangerous URL pseudo-protocols (`javascript:`, `vbscript:`, `data:`) are strictly blocked across all button and link attributes.
+Blockers/owner inputs:
+  None. Task 05.01 complete and verified.
+Next task:
+  Phase 05 — Task 05.02: Server block validator (Strict allowlist of styles, sizes, spacing, colors, animation tokens; no arbitrary script/HTML; nested depth/size limits).
+```

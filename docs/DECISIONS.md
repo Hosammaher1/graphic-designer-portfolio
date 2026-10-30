@@ -154,3 +154,20 @@ This document records the architectural and execution decisions made for the **G
 - **Consequences:**
   - Zero extra production dependencies for the SSR script.
   - Complete fidelity to the approved master plan (Node SSR on port 3000 per Task 01.05 and 09.02) without unapproved framework bloat.
+
+
+---
+
+## ADR-010: Versioned Page Builder Block Schema and Cross-Platform Validator
+
+- **Status:** Accepted
+- **Context:**
+  Task 05.01 requires a versioned JSON schema for the 12 approved block types (`hero`, `text`, `heading`, `image`, `gallery`, `columns`, `spacer`, `cta`, `stats`, `services`, `category_preview`, `featured_work`) with strict validation to prevent malformed attributes or unsafe script payloads.
+- **Decision:**
+  1. Schema defines versioned JSON structure (`version: 1`) where every block requires `id`, `type`, `version`, and `data`.
+  2. Disallowed attributes at the block root are strictly rejected to prevent object prototype pollution or unexpected keys.
+  3. Strict recursive security scanner rejects HTML `<script>`, `<iframe>`, `<object>`, event handlers (`onload=`, `onerror=`), and dangerous pseudo-protocols (`javascript:`, `vbscript:`, `data:`).
+  4. Both backend (`App\Services\PageBuilder\BlockSchema`) and frontend (`frontend/src/page-builder/schema.js`) enforce identical validation rules to ensure instant client editor feedback and zero-trust server validation.
+- **Consequences:**
+  - Guarantees data integrity for saved page drafts and published snapshots.
+  - Complete protection against stored XSS vulnerabilities in custom layout documents.
