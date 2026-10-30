@@ -25,9 +25,40 @@
     "badge": "Graphic & Brand Identity Designer",
     "heroTitle": "Intentional visual design blending minimalist craft with creative impact",
     "heroSubtitle": "Curated portfolio of brand identities, print artifacts, and creative digital designs.",
+    "heroCtaWork": "Explore Work",
+    "heroCtaContact": "Get in Touch",
     "featuredWork": "Featured Projects",
     "viewProject": "View Project",
-    "placeholderNotice": "Published projects will load here in Phase 03"
+    "viewAllWork": "View All Work",
+    "noFeaturedTitle": "Curated Projects Coming Soon",
+    "noFeaturedDesc": "The portfolio is currently being updated with newly published projects. Explore all work or reach out for custom samples.",
+    "servicesTitle": "Services & Craft",
+    "servicesSubtitle": "Comprehensive visual solutions crafted with precision to elevate your brand presence",
+    "categoriesTitle": "Disciplines",
+    "aboutTitle": "About Mohammed",
+    "aboutText": "A graphic and brand identity designer dedicated to crafting exceptional visual languages rooted in simplicity, typographic balance, and enduring impact. Partnering with ambitious brands and cultural initiatives to build meaningful, memorable design experiences.",
+    "aboutCta": "Read Full Bio",
+    "contactCtaTitle": "Have a Project in Mind?",
+    "contactCtaSubtitle": "Let's collaborate on creating a distinctive visual presence that captures the essence of your brand.",
+    "contactCtaButton": "Start a Conversation"
+  },
+  "services": {
+    "branding": {
+      "title": "Brand Identity & Strategy",
+      "desc": "Comprehensive visual identities, logomarks, style guides, and cohesive brand systems."
+    },
+    "packaging": {
+      "title": "Packaging & Print Production",
+      "desc": "Product packaging, print collaterals, tactile finishes, and bespoke production guidance."
+    },
+    "editorial": {
+      "title": "Editorial & Publication Design",
+      "desc": "Layout and typography for books, magazines, annual reports, and art publications."
+    },
+    "digital": {
+      "title": "Digital Media & Visual Direction",
+      "desc": "Art direction, design assets, and intentional visual direction for digital spaces."
+    }
   },
   "language": {
     "switchTo": "العربية",

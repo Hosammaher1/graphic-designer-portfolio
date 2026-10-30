@@ -8,15 +8,23 @@ import App from '../src/app/App.jsx';
 
 describe('Frontend Smoke Tests', () => {
   it('renders HomePage in Arabic by default with key headings', () => {
-    render(<HomePage locale="ar" />);
+    render(
+      <MemoryRouter initialEntries={['/ar/']}>
+        <HomePage locale="ar" />
+      </MemoryRouter>
+    );
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('تصميم بصري هادف');
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('أعمال مختارة');
+    expect(screen.getByRole('heading', { level: 2, name: 'أعمال مختارة' })).toBeInTheDocument();
   });
 
   it('renders HomePage in English when locale is en', () => {
-    render(<HomePage locale="en" />);
+    render(
+      <MemoryRouter initialEntries={['/en/']}>
+        <HomePage locale="en" />
+      </MemoryRouter>
+    );
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Intentional visual design');
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Featured Projects');
+    expect(screen.getByRole('heading', { level: 2, name: 'Featured Projects' })).toBeInTheDocument();
   });
 
   it('renders AdminPlaceholder component', () => {

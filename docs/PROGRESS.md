@@ -55,7 +55,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.12 | E2E content workflow | DONE | PASS: Playwright projects.spec (2 passed) + Full Phase 03 Gate Suite (100 PHPUnit, 29 Vitest, 38 Playwright = 167 passed) | None available | None (ready for Phase 04) | 12e9b37 |
 | 04.01 | Design tokens and reset | DONE | PASS: Vitest design-system (21 passed: Button variants/sizes/states, Card compound elements, Input/Textarea/Select with label/hint/error/aria-invalid associations, Badge variants, responsive Container/Grid/Flex/Stack primitives, SkipToContent skip link) | None available (manual checklist) | None (ready for 04.02) | — |
 | 04.02 | Public shell and navigation | DONE | PASS: Vitest public-shell (6 passed: Header desktop links in AR/EN, ThemeToggle light/dark state and persistence, mobile drawer keyboard/backdrop/close toggle, Footer social rel=noopener, PublicLayout SkipToContent) | None available (manual checklist) | None (ready for 04.03) | — |
-| 04.03 | Home page | NOT_STARTED | Not run | — | Phase 03 gate | — |
+| 04.03 | Home page | DONE | PASS: Vitest home-page (3 passed: Hero CTAs & content in AR/EN, featured projects grid with cover/badges/links, missing content fallback state) + PHPUnit PublicCategoryTest (1 passed, 7 assertions) | None available (manual checklist) | None (ready for 04.04) | — |
 | 04.04 | Work grid and filter | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.05 | Project detail | NOT_STARTED | Not run | — | Phase 03 gate | — |
 | 04.06 | About/services | NOT_STARTED | Not run | — | Phase 03 gate | — |
@@ -1861,4 +1861,73 @@ Blockers/owner inputs:
   None. Task 04.02 complete and verified.
 Next task:
   Phase 04 — Task 04.03: Home page (Hero section, featured projects grid, services overview, about section, contact CTA).
+```
+
+
+---
+
+## Task 04.03 Execution Report
+
+```text
+Task ID: 04.03
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/04.03-home-page
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: Pending commit
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/Api/V1/PublicCategoryController.php (public API endpoint returning active categories with locale translations)
+    - backend/tests/Feature/Api/PublicCategoryTest.php (feature test verifying active categories listing and locale translations)
+    - frontend/tests/home-page.test.jsx (Vitest test suite verifying hero section, featured projects grid, missing content fallback, services, about, and contact CTA)
+  Modified:
+    - backend/routes/api.php (registered GET /api/v1/categories public endpoint)
+    - frontend/src/pages/HomePage.jsx (comprehensive homepage implementation with Hero, Featured Work grid, Services & Craft, About narrative, and Contact CTA banner)
+    - frontend/src/i18n/ar.json (added translations for homepage hero CTAs, services, craft details, fallback states, and contact CTA banner)
+    - frontend/src/i18n/en.json (added translations for homepage hero CTAs, services, craft details, fallback states, and contact CTA banner)
+    - frontend/src/styles/global.css (added editorial styles for hero radial gradient, project card hover zoom, service cards, about snippet, and CTA banner)
+    - frontend/tests/smoke.test.jsx (wrapped HomePage with MemoryRouter for router context)
+    - docs/PROGRESS.md (marked 04.03 DONE, recorded execution evidence)
+Tests written first (RED → GREEN):
+  frontend/tests/home-page.test.jsx:
+    - renders hero section, services, about, and contact CTA in English
+    - renders featured projects grid with title, badges, and cover when data is returned
+    - renders graceful fallback when no featured projects exist
+  backend/tests/Feature/Api/PublicCategoryTest.php:
+    - can list active categories with translations in AR and EN
+  Observed RED state:
+    HomePage tests failed looking for accessible links and content in old stub.
+  Observed GREEN state:
+    frontend/tests/home-page.test.jsx: 3 passed (3) in 1.02s.
+    backend/tests/Feature/Api/PublicCategoryTest.php: 1 passed (7 assertions) in 2.26s.
+    frontend/tests/smoke.test.jsx: 5 passed (5) in 1.06s.
+    frontend/tests/ssr.test.jsx: 3 passed (3) in 0.25s.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for React portfolio homepage components.
+Unavailable skills and fallback checklist:
+  - frontend-design, ui-ux, react: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 04.03 verified: Hero section renders clear value proposition, role badge, and primary/secondary CTAs; featured projects grid preserves aspect ratios, shows categories and year metadata, and handles empty state gracefully without layout shift; services section articulates 4 core craft disciplines; about snippet provides personal introduction with bio link; contact CTA banner prompts visitor conversion; bilingual RTL and LTR support fully preserved.
+Design artifacts/screenshots reviewed:
+  Inspected hero typographic scale, card aspect-ratio containers, hover transform boundaries, RTL arrow mirroring (ArrowLeft for Arabic, ArrowRight for English), and responsive grid breakpoints.
+Commands executed and exact results:
+  1. git checkout -b feat/04.03-home-page
+  2. Created PublicCategoryController.php, PublicCategoryTest.php, and registered route.
+  3. php artisan test --filter=PublicCategoryTest -> PASS: 1 passed (7 assertions).
+  4. Created frontend/tests/home-page.test.jsx -> RED state observed.
+  5. Implemented HomePage.jsx, global.css, ar.json, en.json, updated smoke.test.jsx.
+  6. vitest tests/home-page.test.jsx -> GREEN: 3 passed in 1.02s.
+  7. vitest tests/smoke.test.jsx -> GREEN: 5 passed in 1.06s.
+  8. vitest tests/ssr.test.jsx -> GREEN: 3 passed in 0.25s.
+  9. npm run build -> GREEN (client + SSR server bundles built with 0 errors).
+Security/privacy/SEO considerations:
+  - Public project queries read strictly from published snapshots; draft projects are excluded.
+  - Images use semantic alt text matching project titles.
+  - Headings follow strict h1 -> h2 -> h3 semantic hierarchy for accessibility and SEO.
+Blockers/owner inputs:
+  None. Task 04.03 complete and verified.
+Next task:
+  Phase 04 — Task 04.04: Work grid and filter (Gallery page, responsive cards, category tabs, aspect ratio preservation, accessible alt).
 ```

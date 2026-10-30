@@ -17,9 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/health', [HealthController::class, 'health'])->name('api.v1.health');
 
-    // Public Projects API
+    // Public Projects & Categories API
     Route::get('/projects', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'index'])->name('api.v1.projects.index');
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
+    Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
 
     // Authentication routes
     Route::prefix('auth')->group(function () {
