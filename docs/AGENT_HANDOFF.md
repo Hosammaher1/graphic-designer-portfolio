@@ -1,17 +1,17 @@
-# Agent Handoff — Checkpoint at Task 06.05
+# Agent Handoff — Checkpoint at Task 06.06
 
 **Prepared:** 2026-10-31
 **Canonical scope:** `Graphic_Designer_Portfolio_Plan_v1_1.md`
 **Audit:** `docs/PLAN_AUDIT.md`
 **Progress Tracker:** `docs/PROGRESS.md`
-**Current Status:** 55 of 97 tasks completed (Phases 01–05 complete; Phase 06 Tasks 06.01, 06.02, 06.03, and 06.04 complete).
+**Current Status:** 56 of 97 tasks completed (Phases 01–05 complete; Phase 06 Tasks 06.01–06.05 complete).
 
 ---
 
 ## 1. Executive Summary
 
 - **Total Tasks Approved:** 97 tasks across 9 phases.
-- **Tasks Complete & Verified:** 55 tasks (Tasks 01.01 through 06.04).
+- **Tasks Complete & Verified:** 56 tasks (Tasks 01.01 through 06.05).
 - **Phase Gates Passed:**
   - **Phase 01 Gate:** Foundation & Architecture (8/8) — PASSED
   - **Phase 02 Gate:** Authentication & Admin Shell (8/8) — PASSED
@@ -19,45 +19,46 @@
   - **Phase 04 Gate:** Public Website, Responsive SSR & Motion (11/11) — PASSED
   - **Phase 05 Gate:** Flexible Page Builder, Atomic Publishing, Snapshot Isolation (12/12) — PASSED
 - **Current Phase:** **Phase 06 — Search, Recommendations, Consent, Analytics (Tasks 06.01–06.12)**
-- **Next Immediate Task:** **Task 06.05: Consent UI**
+- **Next Immediate Task:** **Task 06.06: Consent backend/privacy**
 
 ---
 
-## 2. Latest Task Verification: Task 06.04 (Recommendation scoring)
+## 2. Latest Task Verification: Task 06.05 (Consent UI)
 
 - **Implementation Details:**
-  - Created `backend/app/Services/Recommendations/RecommendationService.php`:
-    - Documented multi-factor rule-based recommendation algorithm:
-      - **Category Overlap:** 40.0% (`CATEGORY_WEIGHT = 40.0`), calculated via shared category set intersection.
-      - **Tool Overlap:** 25.0% (`TOOL_WEIGHT = 25.0`), calculated via shared tool set intersection.
-      - **Recency Decay:** 20.0% (`RECENCY_MAX_WEIGHT = 20.0`), decaying linearly over 365 days (`max(0, 1 - days/365)`).
-      - **Popularity Scale:** 15.0% (`POPULARITY_MAX_WEIGHT = 15.0`), scaled logarithmically (`min(1, log10(views + 1) / 4)`).
-    - Invariants strictly enforced:
-      - Excludes the current project (`id != target.id`).
-      - Excludes drafts (`status = 'published'`).
-      - Excludes soft-deleted records (`deleted_at IS NULL`).
-      - Excludes projects without published snapshots.
-    - Deterministic tiebreaking: ties are broken by `published_at DESC`, followed by `id DESC`.
-    - Absolute uniqueness guarantee: prevents duplicate project entries.
-  - Created `backend/app/Http/Controllers/Api/V1/RecommendationController.php`:
-    - Exposes `GET /api/v1/projects/{slug}/recommendations` and alias `GET /api/v1/projects/{slug}/related`.
-    - Clamps recommendation limits safely (default 4, max 12).
-    - Responds with rich payload including scoring breakdown metadata and normalized project media.
+  - Created `frontend/src/context/ConsentContext.jsx`:
+    - Context provider managing consent state, `localStorage` persistence under `portfolio_consent_state`, and versioning (`v1.0`).
+    - Granular categories: `essential` (locked to true), `analytics` (false by default), `personalization` (false by default).
+    - Actions: `acceptAll()`, `rejectAll()`, `savePreferences()`, `withdrawConsent()`, `openSettings()`, `closeSettings()`, `hasConsent(category)`.
+    - Dispatches custom DOM event `portfolio:consent-changed` with consent detail and action type for real-time decoupling.
+  - Created `frontend/src/components/ConsentBanner.jsx`:
+    - Accessible floating banner (`role="region"`) displayed only when consent is `undecided`.
+    - Features Accept All, Reject All, and Customize Settings actions.
+  - Created `frontend/src/components/ConsentModal.jsx`:
+    - Accessible modal dialog (`role="dialog"`, `aria-modal="true"`, Escape key dismissal).
+    - Strict privacy-by-default: optional checkboxes (`analytics`, `personalization`) are **never pre-ticked**.
+    - Displays "Withdraw Consent" ("سحب الموافقة بالكامل") whenever prior consent is active.
+  - Integrated into `frontend/src/components/Footer.jsx` and `frontend/src/app/App.jsx`:
+    - Privacy Preferences trigger in the footer allows users to inspect, modify, or revoke consent at any time.
+    - Added full bilingual Arabic and English dictionary entries in `ar.json` and `en.json`.
 - **Verification Evidence:**
-  - PHPUnit `tests/Feature/RecommendationScoringTest.php`: 7 passed (40 assertions) in 4.18s.
+  - Vitest `tests/consent-ui.test.jsx`: 7 passed (7) in 234ms.
+  - Vitest `tests/public-shell.test.jsx`: 6 passed (6) in 204ms.
+  - Production build: Client and SSR server bundles compiled cleanly with 0 errors.
 
 ---
 
-## 3. Next Task: Task 06.05 Specification
+## 3. Next Task: Task 06.06 Specification
 
-- **Task ID:** 06.05
-- **Title:** Consent UI
+- **Task ID:** 06.06
+- **Title:** Consent backend/privacy
 - **Master Plan Requirements:**
-  - Accept / reject / settings / withdraw in Arabic and English.
-  - Strict no pre-ticked consent policy (privacy by default).
-  - Tests: refusal blocks personalized tracking, acceptance enables, withdrawal stops future collection.
-- **Target Files:**
-  - `frontend/src/components/ConsentBanner.jsx` (Floating banner with accept all, reject all, and customize actions)
-  - `frontend/src/components/ConsentModal.jsx` (Detailed granular consent preferences modal with unselected defaults for non-essential categories)
-  - `frontend/src/context/ConsentContext.jsx` or store (Manages consent state, localStorage persistence, withdrawal hook, and fires state change events)
-  - `frontend/tests/consent-ui.test.jsx` (Vitest test suite verifying banner display, accept, reject, customize, withdrawal, and blocking behavior)
+  - Minimal pseudonymous preference records and expiration; test unauthorized data linkage, withdrawal deletion or deactivation, retention schedule.
+- **Target Files & Capabilities:**
+  - Database schema & migration: `consent_records` or `visitor_preferences` table with pseudonymous identifier (`uuid` / `hash`), consent state flags (`analytics`, `personalization`), `expires_at`, and `withdrawn_at`.
+  - API endpoint: `POST /api/v1/consent` (to record or update consent) and `POST /api/v1/consent/withdraw` (or `DELETE /api/v1/consent`).
+  - Strict privacy protections:
+    - Never store raw IP addresses or linkable personal identifiers alongside consent tokens.
+    - Expiration / retention policy (e.g., 6–12 months TTL or scheduled purge command).
+    - Withdrawal deactivates/purges associated pseudonymous preference records.
+  - Tests: `backend/tests/Feature/ConsentBackendPrivacyTest.php` verifying record creation, withdrawal deactivation, unauthorized data linkage denial, and TTL expiration cleanup.

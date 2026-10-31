@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 55 of 97 tasks started, 55 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 56 of 97 tasks started, 56 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 4 | 4 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 5 | 5 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **55** | **55** | |
+| **Total** | | **97** | **56** | **56** | |
 
 ## Task register
 
@@ -80,7 +80,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.02 | Filters/sorting | DONE | PASS: PHPUnit SearchFilterSortTest (11 passed, 35 assertions: category/tool/year filters, intersection combinations, empty results, newest/oldest/most_viewed sorts, stable tiebreaker, invalid sort 422) | None available (manual checklist) | None (ready for 06.03) | 505165f |
 | 06.03 | Search UI | DONE | PASS: Vitest search-ui (6 passed: search box render, 300ms debounce, Enter/Escape keyboard shortcuts, category chip aria-pressed, clear filters, empty state handling) | None available (manual checklist) | None (ready for 06.04) | f35ec58 |
 | 06.04 | Recommendation scoring | DONE | PASS: PHPUnit RecommendationScoringTest (7 passed, 40 assertions: category/tool/recency/popularity weights, current/draft/trash exclusion, deterministic tiebreaker, no duplicate results) | None available (manual checklist) | None (ready for 06.05) | ad20126 |
-| 06.05 | Consent UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.05 | Consent UI | DONE | PASS: Vitest consent-ui (7 passed: banner render, reject all blocks tracking, accept all enables, modal no pre-ticked checkboxes, granular preferences, withdrawal stops tracking & dispatches event, English LTR) | None available (manual checklist) | None (ready for 06.06) | 3241fd0 |
 | 06.06 | Consent backend/privacy | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.07 | Personalized ranking | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.08 | Analytics events | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3425,4 +3425,73 @@ Blockers/owner inputs:
   None. Task 06.04 complete and verified.
 Next task:
   Phase 06 — Task 06.05: Consent UI (Accept/reject/settings/withdraw in Arabic and English; no pre-ticked consent. Tests: refusal blocks personalized tracking, acceptance enables, withdrawal stops future collection).
+```
+
+
+---
+
+## Task 06.05 Execution Report
+
+```text
+Task ID: 06.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.05-consent-ui
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 3241fd0
+Files changed:
+  Created:
+    - frontend/src/context/ConsentContext.jsx (Global consent provider and `useConsent` hook managing consent state, localStorage persistence, category access control, withdrawal handling, and `portfolio:consent-changed` custom event dispatching)
+    - frontend/src/components/ConsentBanner.jsx (Accessible floating privacy banner with Accept All, Reject All, and Customize Settings actions)
+    - frontend/src/components/ConsentModal.jsx (Granular privacy preferences modal enforcing strict privacy-by-default with no pre-ticked checkboxes for optional categories, keyboard accessibility, and consent withdrawal action)
+    - frontend/tests/consent-ui.test.jsx (Vitest unit and integration test suite with 7 tests verifying rendering, rejection tracking blockage, acceptance, unticked checkboxes, granular selections, consent withdrawal, and English LTR support)
+  Modified:
+    - frontend/src/app/App.jsx (Wrapped public application shell with `ConsentProvider` and rendered `ConsentBanner` and `ConsentModal`)
+    - frontend/src/components/Footer.jsx (Added accessible Privacy Preferences trigger button in the bottom bar with safe `useConsent` fallback)
+    - frontend/src/i18n/ar.json (Added complete bilingual Arabic translations for consent banner, modal, categories, and footer privacy trigger)
+    - frontend/src/i18n/en.json (Added complete bilingual English translations for consent banner, modal, categories, and footer privacy trigger)
+    - docs/PROGRESS.md (marked Task 06.05 DONE, updated Phase 06 count to 5/12 and total to 56/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  frontend/tests/consent-ui.test.jsx:
+    - renders consent banner when undecided with 3 distinct actions
+    - reject all blocks analytics and personalization tracking
+    - accept all enables both analytics and personalization tracking
+    - settings modal opens with NO pre-ticked consent for optional categories
+    - allows granular preferences selection (e.g. analytics enabled without personalization)
+    - withdrawal resets consent, stops future tracking, and dispatches event
+    - renders correctly in English (LTR)
+  Observed GREEN state:
+    Vitest consent-ui: 7 passed (7) in 234ms.
+    Vitest public-shell: 6 passed (6) in 204ms.
+    Production build: Client & SSR server bundles built cleanly with 0 errors.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for privacy consent UI customization.
+Unavailable skills and fallback checklist:
+  - consent-ui, privacy-compliance: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.05 and Plan Audit item 06.05 verified:
+    1. Action coverage: Full implementation of Accept All, Reject All, Customize Settings, and Withdraw Consent.
+    2. Strict privacy-by-default: In settings modal, non-essential categories (analytics, personalization) are NEVER pre-ticked. They default to unchecked (`false`). Essential cookies are locked and disabled.
+    3. State segregation: Clean separation between essential site operations, optional aggregate analytics, and personalized recommendation ranking.
+    4. Immediate enforcement: Rejecting or withdrawing consent immediately halts optional tracking and dispatches a DOM event (`portfolio:consent-changed`) for immediate subsystem reaction.
+    5. Bilingual completeness: Authentic Arabic (RTL) and English (LTR) translations across all banner texts, category descriptions, action buttons, and modal dialogs.
+    6. Persistent accessibility: Persistent Privacy Preferences trigger in the footer allows visitors to review, change, or withdraw consent at any time.
+Design artifacts/screenshots reviewed:
+  ConsentBanner floating surface, focus rings, contrast tokens, ConsentModal dialog, and footer privacy links.
+Commands executed and exact results:
+  1. git checkout -b feat/06.05-consent-ui
+  2. Created frontend/tests/consent-ui.test.jsx (RED state: components and context not found).
+  3. Created frontend/src/context/ConsentContext.jsx, ConsentBanner.jsx, ConsentModal.jsx, updated App.jsx, Footer.jsx, ar.json, and en.json.
+  4. npm.cmd --prefix frontend test tests/consent-ui.test.jsx -- --run -> GREEN: 7 passed in 234ms.
+  5. npm.cmd --prefix frontend test tests/public-shell.test.jsx -- --run -> GREEN: 6 passed in 204ms.
+  6. npm.cmd --prefix frontend run build -> GREEN (client + SSR server bundles built cleanly with 0 errors).
+Security/privacy/SEO considerations:
+  - Strict compliance with ePrivacy/GDPR privacy-by-default requirements: no pre-ticked boxes for optional tracking.
+  - Rejection and withdrawal prevent transmission of behavioral identifiers and personal browsing telemetry.
+  - No personal data or unhashed IPs are stored in localStorage consent tokens.
+Blockers/owner inputs:
+  None. Task 06.05 complete and verified.
+Next task:
+  Phase 06 — Task 06.06: Consent backend/privacy (Minimal pseudonymous preference records and expiration; test unauthorized data linkage, withdrawal deletion or deactivation, retention schedule).
 ```
