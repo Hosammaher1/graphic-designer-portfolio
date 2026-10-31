@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 62 of 97 tasks started, 62 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 63 of 97 tasks started, 63 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 11 | 11 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **62** | **62** | |
+| **Total** | | **97** | **63** | **63** | |
 
 ## Task register
 
@@ -87,7 +87,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.09 | Aggregation/retention | DONE | PASS: PHPUnit AnalyticsAggregationRetentionTest (6 passed, 22 assertions: overview/project/referrer/device daily rollups, day boundary/timezone consistency, idempotent deduplication, bot exclusion, TTL raw event purge, aggregate query performance) | None available (manual checklist) | None (ready for 06.10) | 0d2e52b |
 | 06.10 | Analytics API | DONE | PASS: PHPUnit AdminAnalyticsApiTest (6 passed, 35 assertions: 401 unauthenticated, 403 non-admin, overview with filled zero-count days, non-overlapping prior window comparison, custom range validation, top projects ranking, traffic sources & devices) | None available (manual checklist) | None (ready for 06.11) | df5ddd1 |
 | 06.11 | Dashboard charts | DONE | PASS: Vitest admin-dashboard-charts (6 passed: loading/empty/error states, date range filtering, SVG accessible text, top projects, traffic sources) + SSR/client build | None available (manual checklist) | None (ready for 06.12) | a7d4798 |
-| 06.12 | E2E search, recommendations, privacy | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.12 | E2E search, recommendations, privacy | DONE | PASS: Playwright discovery-privacy (12/12 passed) + Phase 06 Gate Suites (56 PHPUnit, 28 Vitest, 62 Playwright = 146 passed) | None available (manual checklist) | None (Phase 06 Gate PASSED, ready for Phase 07) | 2920652 |
 | 07.01 | SSR metadata and Open Graph | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.02 | Sitemap generator | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.03 | Robots, canonicals, hreflang | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -3860,4 +3860,116 @@ Blockers/owner inputs:
   None. Task 06.11 complete and verified.
 Next task:
   Phase 06 — Task 06.12: E2E discovery/privacy (Search/filter -> related recommendations; reject consent -> no personal events; accept -> personalized; withdraw -> generic; admin analytics display. Phase 06 gate: discovery useful, recommendation deterministic, optional behavioral tracking never runs without consent, analytics privacy controls verified).
+```
+
+
+---
+
+## Task 06.12 Execution Report
+
+```text
+Task ID: 06.12
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.12-e2e-discovery-privacy
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 2920652
+Files changed:
+  Created:
+    - e2e/tests/discovery-privacy.spec.js (Comprehensive Playwright E2E suite covering discovery search/filter, related recommendations, consent rejection/blocking, consent acceptance/tracking, privacy modal withdrawal, and admin analytics dashboard)
+  Modified:
+    - frontend/src/pages/ProjectDetailPage.jsx (Integrated rule-based and personalized related project recommendations with interest tracking)
+    - frontend/src/layouts/PublicLayout.jsx (Added privacy-first pageview analytics tracker gated by active user consent)
+    - frontend/src/context/ConsentContext.jsx (Added asynchronous background sync with backend /api/v1/consent and /api/v1/consent/withdraw endpoints)
+    - frontend/src/components/SearchFilterBar.jsx (Added 'All Projects' translation fallback for category chips)
+    - frontend/src/pages/admin/DashboardPage.jsx (Hardened traffic sources and devices breakdown rendering)
+    - frontend/src/i18n/ar.json & en.json (Added related project dictionary entries)
+    - frontend/tests/work-gallery.test.jsx (Updated category chip locators to support filter buttons)
+    - e2e/tests/admin-auth.spec.js (Updated dashboard title expectation to support bilingual titles)
+    - e2e/tests/public-browse.spec.js (Updated category chip interaction from tab to button role)
+    - docs/PROGRESS.md (marked Task 06.12 DONE, updated Phase 06 to Gate Passed 12/12, and recorded Phase 06 Gate evaluation)
+Tests written first (RED -> GREEN):
+  e2e/tests/discovery-privacy.spec.js:
+    - search query and category filters synchronize with URL and update results
+    - project detail renders related recommendations
+    - rejecting consent blocks tracking and keeps recommendations generic
+    - accepting consent enables analytics and personalization affinity
+    - withdrawing consent in privacy modal immediately halts tracking and reverts to generic ranking
+    - admin dashboard renders analytics trend chart, accessible data table, top projects, and traffic breakdown
+  Observed GREEN state:
+    Playwright discovery-privacy.spec.js: 12 passed (12/12) across Desktop Chromium & Mobile Chrome in 29.9s.
+    Playwright Full E2E Suite: 62 passed (62/62) across all 6 test specs in 36.1s.
+    Vitest Phase 06 Suite: 28 passed (28/28) across 5 test specs in 9.35s.
+    PHPUnit Phase 06 Suite: 56 passed (279 assertions) in 20.80s.
+    Production Build (Client + SSR): Clean build in 4.38s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for end-to-end privacy verification.
+Unavailable skills and fallback checklist:
+  - e2e-privacy, discovery-e2e: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.12 & Phase 06 Gate verified:
+    1. Search & discovery utility: Query parsing with 300ms debounce, Arabic normalization, multi-criteria category/tool/year filters, deterministic pagination.
+    2. Deterministic recommendation scoring: Weighted category/tool/recency/popularity algorithm with stable tiebreakers; trash/draft exclusion verified.
+    3. Strict consent gating: Zero optional behavioral tracking or preference tracking without explicit, unexpired consent.
+    4. Immediate withdrawal: Purging visitor preferences on consent revocation; immediate reversion to generic fallback.
+    5. Privacy-preserving analytics: Rotating daily salted hashes, zero raw IP storage, TTL aggregation and purge verified.
+    6. Admin dashboard presentation: Interactive SVG charts, accessible screen-reader tables, top project cards, traffic source breakdowns.
+Design artifacts/screenshots reviewed:
+  Playwright visual screenshots across Desktop Chromium and Mobile Chrome for search filtering, project recommendations, consent modals, and analytics dashboard.
+Commands executed and exact results:
+  1. git checkout -b feat/06.12-e2e-discovery-privacy
+  2. Created e2e/tests/discovery-privacy.spec.js (RED state: missing related recommendations and tracker).
+  3. Implemented recommendations in ProjectDetailPage.jsx, analytics tracker in PublicLayout.jsx, and consent API sync in ConsentContext.jsx.
+  4. npm --prefix e2e test -- discovery-privacy.spec.js -> GREEN: 12 passed (12/12) in 29.9s.
+  5. PHPUnit regression suite (56 passed, 279 assertions) in 20.80s.
+  6. Vitest regression suite (28 passed) in 9.35s.
+  7. Full Playwright regression suite (62 passed) in 36.1s.
+Security/privacy/SEO considerations:
+  - GDPR/ePrivacy compliant consent architecture with explicit opt-in for analytics and personalization.
+  - Instant data purging on consent withdrawal.
+  - Anonymized visitor hashing preventing cross-day tracking.
+Blockers/owner inputs:
+  None. Task 06.12 complete and verified. Phase 06 Gate PASSED.
+Next task:
+  Phase 07 — Task 07.01: SSR metadata and Open Graph (Dynamic <title>, meta description, og:image, og:locale, twitter cards for SSR/hydration).
+```
+
+---
+
+## Phase 06 Gate Evaluation: PASSED (12/12 Tasks Complete)
+
+```text
+Gate: Phase 06 — Search, Recommendations, Consent, Analytics
+Status: PASSED (12 of 12 tasks completed and verified)
+Evaluation Date: 2026-10-31
+
+Gate Criteria Verification:
+1. Discovery Useful:
+   - Full-text search supports both Arabic and English queries with alef normalization and case insensitivity.
+   - Multi-criteria filtering by category, tool, and year with compound intersection.
+   - Instant search with 300ms debounce and responsive filter chips.
+   - Verified via SearchQueryTest (8 passed), SearchFilterSortTest (11 passed), search-ui.test.jsx (6 passed), and Playwright E2E.
+2. Recommendation Deterministic:
+   - Weighted scoring prioritizing category (40%), tool overlap (30%), recency (15%), and popularity (15%).
+   - Deterministic secondary tiebreaker (published_at DESC, id DESC).
+   - Current project, draft, and trashed projects strictly excluded.
+   - Verified via RecommendationScoringTest (7 passed) and ProjectDetailPage integration.
+3. Optional Behavioral Tracking Never Runs Without Consent:
+   - Unconsented, rejected, or withdrawn sessions strictly receive generic recommendation fallbacks.
+   - Personalization preference endpoints return HTTP 403 when consent is inactive.
+   - PublicLayout dispatches analytics events only when hasConsent('analytics') is true.
+   - Verified via ConsentBackendPrivacyTest (6 passed), PersonalizedRankingTest (6 passed), consent-ui.test.jsx (7 passed), and Playwright E2E.
+4. Analytics Privacy Controls Verified:
+   - Zero raw IP addresses stored; pseudonymous salted hashes rotate daily.
+   - Raw analytics events auto-purged via TTL retention command while preserving daily aggregates.
+   - Admin analytics API protected by Sanctum auth and admin authorization.
+   - Dashboard visualizes trends with accessible screen reader data tables.
+   - Verified via AnalyticsEventsTest (6 passed), AnalyticsAggregationRetentionTest (6 passed), AdminAnalyticsApiTest (6 passed), admin-dashboard-charts.test.jsx (6 passed), and Playwright E2E.
+
+Comprehensive Phase Regression Summary:
+- PHPUnit: 56 passed (279 assertions) in 20.80s.
+- Vitest: 28 passed across 5 test suites in 9.35s.
+- Playwright E2E: 62 passed across 6 test specs in 36.1s.
+- Production Bundles: Clean client and SSR builds with 0 errors.
 ```
