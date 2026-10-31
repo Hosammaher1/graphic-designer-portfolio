@@ -25,6 +25,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
+    // Consent & Privacy API (Task 06.06)
+    Route::post('/consent', [\App\Http\Controllers\Api\V1\ConsentController::class, 'store'])->name('api.v1.consent.store');
+    Route::post('/consent/withdraw', [\App\Http\Controllers\Api\V1\ConsentController::class, 'withdraw'])->name('api.v1.consent.withdraw');
+    Route::get('/consent/{token}', [\App\Http\Controllers\Api\V1\ConsentController::class, 'show'])->name('api.v1.consent.show');
+
     // Secure Preview Route (Authorized via Cryptographic Signature or Admin Session)
     Route::get('/pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview.signed');
     // Public Published Page Route
