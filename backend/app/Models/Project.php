@@ -37,6 +37,17 @@ class Project extends Model
         'layout_blocks' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget(\App\Services\Seo\SitemapService::CACHE_KEY);
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget(\App\Services\Seo\SitemapService::CACHE_KEY);
+        });
+    }
+
     // --- Relationships ---
 
     public function translations(): HasMany

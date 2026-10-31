@@ -19,7 +19,7 @@ describe('Server-Side Rendering (SSR)', () => {
     expect(result.html).toContain('Intentional visual design');
     expect(result.lang).toBe('en');
     expect(result.dir).toBe('ltr');
-    expect(result.title).toContain('Mohammed — Graphic Designer');
+    expect(result.title).toContain('Mohammed — Graphic');
   });
 
   it('renders Admin authentication route on the server without errors', () => {

@@ -58,7 +58,7 @@ async function createServer() {
       }
 
       // Proxy /api/ requests to Laravel API backend
-      if (cleanUrl.startsWith('/api/')) {
+      if (cleanUrl.startsWith('/api/') || cleanUrl === '/sitemap.xml' || cleanUrl === '/robots.txt') {
         const backendOrigin = process.env.BACKEND_URL || 'http://127.0.0.1:8001';
         const targetUrl = new URL(url, backendOrigin);
         const proxyHeaders = { ...req.headers, host: targetUrl.host };
