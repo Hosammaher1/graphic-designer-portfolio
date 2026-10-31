@@ -21,6 +21,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/projects', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'index'])->name('api.v1.projects.index');
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
+    Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
     // Secure Preview Route (Authorized via Cryptographic Signature or Admin Session)
     Route::get('/pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview.signed');
