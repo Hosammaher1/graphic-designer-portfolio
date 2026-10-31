@@ -28,7 +28,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
     // Public Contact API (Task 07.05)
-    Route::post('/contact', [\App\Http\Controllers\Api\V1\ContactController::class, 'store'])->name('api.v1.contact.store');
+    Route::post('/contact', [\App\Http\Controllers\Api\V1\ContactController::class, 'store'])
+        ->middleware('throttle:contact')
+        ->name('api.v1.contact.store');
 
     // Consent & Privacy API (Task 06.06)
     Route::post('/consent', [\App\Http\Controllers\Api\V1\ConsentController::class, 'store'])->name('api.v1.consent.store');

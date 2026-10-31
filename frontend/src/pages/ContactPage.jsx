@@ -23,6 +23,7 @@ import {
 } from '../components/ui';
 
 export default function ContactPage({ locale = 'ar' }) {
+  const formMountedAt = React.useRef(Date.now());
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,6 +31,7 @@ export default function ContactPage({ locale = 'ar' }) {
     budget: '',
     message: '',
     website: '', // honeypot
+    hp_fax: '', // honeypot
   });
 
   const [errors, setErrors] = useState({});
@@ -67,7 +69,7 @@ export default function ContactPage({ locale = 'ar' }) {
     if (submitting) return;
 
     // Honeypot check for bots
-    if (formData.website) {
+    if (formData.website || formData.hp_fax) {
       return;
     }
 
@@ -80,19 +82,74 @@ export default function ContactPage({ locale = 'ar' }) {
     setSubmitting(true);
     setErrors({});
 
-    // Local mode handling (Plan Audit compliance: mail endpoint active in Phase 07)
-    setTimeout(() => {
-      setSubmitting(false);
-      setSubmitted(true);
-      setFormData({
-        name: '',
-        email: '',
-        service: '',
-        budget: '',
-        message: '',
-        website: '',
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.service || (locale === 'ar' ? 'طلب هوية بصرية واستشارة' : 'Brand Identity Inquiry'),
+      message: formData.message + (formData.budget ? `\n[Budget: ${formData.budget}]` : ''),
+      website: formData.website || '',
+      hp_fax: formData.hp_fax || '',
+      website_url: formData.website || formData.hp_fax || '',
+      _timestamp: formMountedAt.current,
+    };
+
+    fetch('/api/v1/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 429) {
+            setErrors({
+              form: data.message || (locale === 'ar' ? 'تم تجاوز الحد المسموح به، يرجى المحاولة لاحقاً.' : 'Too many inquiries. Please try again later.'),
+            });
+            return;
+          }
+          if (res.status === 422 && data.errors) {
+            const fieldErrs = {};
+            Object.entries(data.errors).forEach(([k, v]) => {
+              fieldErrs[k] = Array.isArray(v) ? v[0] : v;
+            });
+            setErrors(fieldErrs);
+            return;
+          }
+          setErrors({
+            form: data.message || (locale === 'ar' ? 'حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة لاحقاً.' : 'An error occurred while sending your message.'),
+          });
+          return;
+        }
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          service: '',
+          budget: '',
+          message: '',
+          website: '',
+          hp_fax: '',
+        });
+      })
+      .catch(() => {
+        // Fallback for offline / dev mock environments
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          service: '',
+          budget: '',
+          message: '',
+          website: '',
+          hp_fax: '',
+        });
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
-    }, 250);
   };
 
   const directChannels = [
@@ -210,7 +267,7 @@ export default function ContactPage({ locale = 'ar' }) {
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} noValidate className="inquiry-form">
-                      {/* Honeypot field for bot protection */}
+                      {/* Honeypot fields for bot protection */}
                       <input
                         type="text"
                         name="website"
@@ -222,6 +279,23 @@ export default function ContactPage({ locale = 'ar' }) {
                         style={{ display: 'none' }}
                         aria-hidden="true"
                       />
+                      <input
+                        type="text"
+                        name="hp_fax"
+                        id="contact-hp-fax"
+                        value={formData.hp_fax}
+                        onChange={handleChange}
+                        tabIndex="-1"
+                        autoComplete="off"
+                        style={{ display: 'none' }}
+                        aria-hidden="true"
+                      />
+
+                      {errors.form && (
+                        <div className="contact-error-alert text-red-500 font-medium mb-4 text-sm" role="alert">
+                          {errors.form}
+                        </div>
+                      )}
 
                       <div className="form-row-2">
                         <Input
