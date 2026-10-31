@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 66 of 97 tasks started, 66 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 67 of 97 tasks started, 67 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -16,10 +16,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
-| 07 | SEO, Contact, Performance | 10 | 3 | 3 | Not evaluated |
+| 07 | SEO, Contact, Performance | 10 | 4 | 4 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **66** | **66** | |
+| **Total** | | **97** | **67** | **67** | |
 
 ## Task register
 
@@ -91,7 +91,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.01 | SSR metadata and Open Graph | DONE | PASS: Vitest ssr-metadata (6 passed) + Client/SSR production build + template injection | None available (manual checklist) | None (ready for 07.02) | 6a1c517 |
 | 07.02 | Sitemap generator | DONE | PASS: SitemapTest (6 passed, 29 assertions: XML validity, static routes, hreflang symmetry, draft/trash exclusion, caching headers, artisan sitemap:generate, cache invalidation) | None available (manual checklist) | None (ready for 07.03) | c4b5659 |
 | 07.03 | Robots, canonicals, hreflang | DONE | PASS: RobotsTest (3 passed, 13 assertions: text/plain, valid directives, disallow /admin & /api, dynamic sitemap URL, cache headers) + Vitest robots-canonicals-hreflang (5 passed: canonical link tags, reciprocal hreflang pairs, admin noindex, DOM sync) | None available (manual checklist) | None (ready for 07.04) | 8aa9cb9 |
-| 07.04 | Structured data JSON-LD | NOT_STARTED | Not run | — | Phase 06 gate | — |
+| 07.04 | Structured data JSON-LD | DONE | PASS: Vitest structured-data-jsonld (5 passed: WebSite & Person on Home, detailed Person on About, VisualArtwork on Projects, SSR <script type="application/ld+json"> embedding, DOM sync & admin cleanup) | None available (manual checklist) | None (ready for 07.05) | 1b079d2 |
 | 07.05 | Contact form API and mail | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.06 | Contact rate limit and honeypot | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.07 | Image responsive loader | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -4170,5 +4170,63 @@ Blockers/owner inputs:
   None. Task 07.03 complete and verified.
 Next task:
   Phase 07 — Task 07.04: Structured data JSON-LD (Schema.org JSON-LD for CreativeWork/VisualArtwork on projects, Person on About, and WebSite/Organization on Home).
+```
+
+## Task 07.04 Execution Report
+
+```text
+Task ID: 07.04
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/07.04-structured-data-json-ld
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 1b079d2
+Files changed:
+  Created:
+    - frontend/src/utils/schemaOrg.js (Schema.org structured data generator supporting WebSite and Person on Home routes, detailed Person with competencies on About routes, VisualArtwork/CreativeWork with creator, year, client sponsor/provider on Projects, and Collection/Contact schemas)
+    - frontend/tests/structured-data-jsonld.test.jsx (Vitest test suite asserting WebSite and Person schemas on Home, Person on About, VisualArtwork on Projects, valid JSON-LD script SSR injection, DOM sync, and admin route cleanup)
+  Modified:
+    - frontend/src/utils/seo.js (Integrated buildJsonLd generator, added <script type="application/ld+json"> tag to renderHeadTags(), and added dynamic script synchronization to syncDocumentHead())
+    - docs/PROGRESS.md (Marked Task 07.04 DONE, updated Phase 07 to 4/10 and total to 67/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  frontend/tests/structured-data-jsonld.test.jsx:
+    - generates WebSite and Person structured data for Home routes
+    - generates detailed Person structured data for About route
+    - generates VisualArtwork / CreativeWork schema for Project detail route
+    - embeds valid parseable application/ld+json script in SSR head tags
+    - synchronizes JSON-LD script into DOM via syncDocumentHead and cleans up on admin routes
+  Observed GREEN state:
+    Vitest tests/structured-data-jsonld.test.jsx: 5 passed (5/5) in 18ms.
+    Combined SEO Vitest suite: 4 test files, 19 passed (19/19) in 5.87s.
+    Frontend Production Build (Client + SSR): Clean build in 2.94s + 0.32s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for Schema.org JSON-LD generation.
+Unavailable skills and fallback checklist:
+  - schema-org-jsonld: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 07.04 verified:
+    1. Schema.org vocabulary: Valid https://schema.org context with standard typing (WebSite, Person, VisualArtwork, CollectionPage, ContactPage).
+    2. Home page schema: Produces dual graph with WebSite (inLanguage, url, creator) and Person (jobTitle, sameAs portfolio links, knowsAbout design disciplines).
+    3. About page schema: Detailed Person graph specifying design philosophy description, professional title, and portfolio links.
+    4. Project detail schema: VisualArtwork entity with name, creator (Person), image, dateCreated (year), genre, and client sponsor/provider Organization.
+    5. SSR & HTML head: Embedded via <script type="application/ld+json"> directly inside pre-rendered SSR HTML.
+    6. SPA DOM sync: syncDocumentHead() dynamically updates or creates the JSON-LD script during client navigation and removes it on /admin routes.
+Design artifacts/screenshots reviewed:
+  Schema.org documentation for VisualArtwork, WebSite, and Person; Google Search Central structured data specifications for creative work and breadcrumbs.
+Commands executed and exact results:
+  1. git checkout -b feat/07.04-structured-data-json-ld
+  2. Created frontend/tests/structured-data-jsonld.test.jsx (RED state: schemaOrg.js missing).
+  3. Created frontend/src/utils/schemaOrg.js and integrated with frontend/src/utils/seo.js.
+  4. cd frontend; npx vitest run tests/structured-data-jsonld.test.jsx -> GREEN: 5 passed (5/5) in 18ms.
+  5. cd frontend; npx vitest run tests/structured-data-jsonld.test.jsx tests/robots-canonicals-hreflang.test.jsx tests/ssr-metadata.test.jsx tests/ssr.test.jsx -> GREEN: 19 passed in 5.87s.
+  6. cd frontend; npm run build; npm run build:server -> Clean client and server builds.
+Security/privacy/SEO considerations:
+  - All JSON-LD output is strictly serialized via JSON.stringify() to eliminate XSS injection risks.
+  - Administrative routes (/admin/*) completely omit structured data scripts to prevent exposure of internal structure or indexing.
+Blockers/owner inputs:
+  None. Task 07.04 complete and verified.
+Next task:
+  Phase 07 — Task 07.05: Contact form API and mail (Store contact inquiries in DB, send notification email to portfolio owner, queued mail with retry, CSRF and auth protection).
 ```
 ```
