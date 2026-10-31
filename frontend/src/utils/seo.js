@@ -1,4 +1,5 @@
 import { getLocaleFromPath, getDirection, t } from '../i18n/config.js';
+import buildJsonLd from './schemaOrg.js';
 
 export const DEFAULT_SITE_URL = 'https://mohammed-portfolio.com';
 export const DEFAULT_OG_IMAGE = 'https://res.cloudinary.com/demo/image/upload/v1/portfolio/og-cover.jpg';
@@ -129,11 +130,14 @@ export function resolvePageMetadata(url = '/', options = {}) {
     image,
   };
 
+  const jsonLd = buildJsonLd(cleanUrl, options);
+
   return {
     title,
     description,
     canonicalUrl,
     alternates,
+    jsonLd,
     isRobotsDisallowed,
     locale,
     direction,
@@ -174,6 +178,13 @@ export function resolvePageMetadata(url = '/', options = {}) {
         `<meta name="twitter:description" content="${escapeHtml(twitter.description)}" />`,
         `<meta name="twitter:image" content="${escapeHtml(twitter.image)}" />`
       );
+
+      if (jsonLd && !isRobotsDisallowed) {
+        tags.push(
+          `<!-- Schema.org JSON-LD -->`,
+          `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>`
+        );
+      }
 
       return tags.join('\n    ');
     },
@@ -267,6 +278,19 @@ export function syncDocumentHead(metadata) {
   updateOrCreateMeta('name', 'twitter:title', metadata.twitter.title);
   updateOrCreateMeta('name', 'twitter:description', metadata.twitter.description);
   updateOrCreateMeta('name', 'twitter:image', metadata.twitter.image);
+
+  // Schema.org JSON-LD Script
+  let jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+  if (metadata.jsonLd && !metadata.isRobotsDisallowed) {
+    if (!jsonLdScript) {
+      jsonLdScript = document.createElement('script');
+      jsonLdScript.setAttribute('type', 'application/ld+json');
+      document.head.appendChild(jsonLdScript);
+    }
+    jsonLdScript.textContent = JSON.stringify(metadata.jsonLd, null, 2);
+  } else if (jsonLdScript) {
+    jsonLdScript.remove();
+  }
 }
 
 export default resolvePageMetadata;
