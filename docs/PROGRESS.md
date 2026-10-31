@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 58 of 97 tasks started, 58 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 59 of 97 tasks started, 59 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 7 | 7 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 8 | 8 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **58** | **58** | |
+| **Total** | | **97** | **59** | **59** | |
 
 ## Task register
 
@@ -83,7 +83,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.05 | Consent UI | DONE | PASS: Vitest consent-ui (7 passed: banner render, reject all blocks tracking, accept all enables, modal no pre-ticked checkboxes, granular preferences, withdrawal stops tracking & dispatches event, English LTR) | None available (manual checklist) | None (ready for 06.06) | 3241fd0 |
 | 06.06 | Consent backend/privacy | DONE | PASS: PHPUnit ConsentBackendPrivacyTest (6 passed, 29 assertions: pseudonymous token, rejection blocking, withdrawal deactivation & preferences purge, unauthorized linkage defense, token show, purge command) | None available (manual checklist) | None (ready for 06.07) | 51c32eb |
 | 06.07 | Personalized ranking | DONE | PASS: PHPUnit PersonalizedRankingTest (6 passed, 30 assertions: unconsented generic fallback, rejected generic fallback, tracking denial without consent, consented browsing affinity boost, withdrawal reversion, expired fallback) | None available (manual checklist) | None (ready for 06.08) | 9aee0ca |
-| 06.08 | Analytics events | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.08 | Analytics events | DONE | PASS: PHPUnit AnalyticsEventsTest (6 passed, 34 assertions: permitted pageview with categorized referrer, project view with atomic counter increment, consent rejection/withdrawal blocking, crawler bot heuristics, idempotency deduplication, zero raw IP storage) | None available (manual checklist) | None (ready for 06.09) | 0db56e4 |
 | 06.09 | Aggregation/retention | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.10 | Analytics API | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.11 | Dashboard charts | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3618,4 +3618,65 @@ Blockers/owner inputs:
   None. Task 06.07 complete and verified.
 Next task:
   Phase 06 — Task 06.08: Analytics events (Track permitted page/project views, approximate unique counts, referral categories; avoid storing raw IP indefinitely. Tests: consent rules, bot filtering heuristic, idempotent event handling).
+```
+
+
+---
+
+## Task 06.08 Execution Report
+
+```text
+Task ID: 06.08
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.08-analytics-events
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 0db56e4
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_31_020000_create_analytics_events_table.php (Migration creating `analytics_events` table with short TTL, pseudonymous `visitor_hash`, referrer categorization, device parsing, and strict exclusion of raw IP address)
+    - backend/app/Models/AnalyticsEvent.php (Immutable Eloquent model representing analytics events with project relationship and boolean casts)
+    - backend/app/Services/Analytics/AnalyticsEventService.php (Service providing bot filtering heuristics, device classification, referrer taxonomy categorization, daily salted hash calculation, consent verification, and atomic project view count increments)
+    - backend/app/Http/Controllers/Api/V1/AnalyticsController.php (Public API controller handling POST /api/v1/analytics/events)
+    - backend/tests/Feature/AnalyticsEventsTest.php (Feature test suite with 6 tests and 34 assertions verifying permitted pageviews, project views, consent rejection/withdrawal blocks, crawler bot filtering, idempotency deduplication, and zero raw IP storage)
+  Modified:
+    - backend/routes/api.php (Registered POST /api/v1/analytics/events endpoint)
+    - docs/PROGRESS.md (marked Task 06.08 DONE, updated Phase 06 count to 8/12 and total to 59/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/AnalyticsEventsTest.php:
+    - can track permitted page view with categorized referrer
+    - project view records event and increments project view count
+    - rejection or withdrawal blocks analytics event tracking
+    - bot filtering heuristics detect crawlers and ignore
+    - idempotent event handling prevents duplicate pageviews
+    - raw ip address is never stored in database
+  Observed GREEN state:
+    PHPUnit AnalyticsEventsTest: 6 passed (34 assertions) in 3.68s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for privacy-first analytics event processing.
+Unavailable skills and fallback checklist:
+  - analytics-events, privacy-analytics: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.08 and Plan Audit item 06.05/06.08 verified:
+    1. Consent rules: Event recording verifies active `analytics_allowed = true` in `ConsentRecord`. If consent is rejected, withdrawn, expired, or absent, tracking is strictly blocked without creating database records.
+    2. Zero raw IP storage: The database schema explicitly excludes IP columns. Visitors are represented solely by daily rotating cryptographic HMAC-SHA256 hashes (`hash_hmac('sha256', ip|ua, key:date)`), making cross-day re-identification impossible.
+    3. Referrer categorization: Domains are parsed into semantic categories (`direct`, `search`, `social`, `external`) with domain indexing.
+    4. Bot filtering heuristics: Automated user agents (spiders, crawlers, scrapers, headless browsers, automated tools) are detected and excluded from human traffic metrics.
+    5. Idempotent event handling: Duplicate events sharing an `idempotency_key` are acknowledged without creating duplicate records or double-incrementing counters.
+Design artifacts/screenshots reviewed:
+  Database schema columns, referrer categorization taxonomy, and event response envelopes.
+Commands executed and exact results:
+  1. git checkout -b feat/06.08-analytics-events
+  2. Created AnalyticsEventsTest.php (RED state: table and controller missing).
+  3. Created migration 2026_10_31_020000_create_analytics_events_table.php, AnalyticsEvent.php, AnalyticsEventService.php, AnalyticsController.php, and updated routes/api.php.
+  4. php artisan migrate -> DONE (191.05ms).
+  5. php artisan test tests/Feature/AnalyticsEventsTest.php -> GREEN: 6 passed (34 assertions) in 3.68s.
+Security/privacy/SEO considerations:
+  - Absolute privacy guarantee: Never stores raw IP addresses, cookies, or user identifiers.
+  - Daily salt rotation prevents cross-day visitor profiling.
+Blockers/owner inputs:
+  None. Task 06.08 complete and verified.
+Next task:
+  Phase 06 — Task 06.09: Aggregation/retention (Scheduled daily rollups and raw-event expiry. Tests: day boundary, timezone consistency, deduplication, TTL purge, large dataset query performance).
 ```

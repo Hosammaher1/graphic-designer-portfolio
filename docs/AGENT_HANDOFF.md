@@ -1,17 +1,17 @@
-# Agent Handoff — Checkpoint at Task 06.08
+# Agent Handoff — Checkpoint at Task 06.09
 
 **Prepared:** 2026-10-31
 **Canonical scope:** `Graphic_Designer_Portfolio_Plan_v1_1.md`
 **Audit:** `docs/PLAN_AUDIT.md`
 **Progress Tracker:** `docs/PROGRESS.md`
-**Current Status:** 58 of 97 tasks completed (Phases 01–05 complete; Phase 06 Tasks 06.01–06.07 complete).
+**Current Status:** 59 of 97 tasks completed (Phases 01–05 complete; Phase 06 Tasks 06.01–06.08 complete).
 
 ---
 
 ## 1. Executive Summary
 
 - **Total Tasks Approved:** 97 tasks across 9 phases.
-- **Tasks Complete & Verified:** 58 tasks (Tasks 01.01 through 06.07).
+- **Tasks Complete & Verified:** 59 tasks (Tasks 01.01 through 06.08).
 - **Phase Gates Passed:**
   - **Phase 01 Gate:** Foundation & Architecture (8/8) — PASSED
   - **Phase 02 Gate:** Authentication & Admin Shell (8/8) — PASSED
@@ -19,45 +19,49 @@
   - **Phase 04 Gate:** Public Website, Responsive SSR & Motion (11/11) — PASSED
   - **Phase 05 Gate:** Flexible Page Builder, Atomic Publishing, Snapshot Isolation (12/12) — PASSED
 - **Current Phase:** **Phase 06 — Search, Recommendations, Consent, Analytics (Tasks 06.01–06.12)**
-- **Next Immediate Task:** **Task 06.08: Analytics events**
+- **Next Immediate Task:** **Task 06.09: Aggregation/retention**
 
 ---
 
-## 2. Latest Task Verification: Task 06.07 (Personalized ranking)
+## 2. Latest Task Verification: Task 06.08 (Analytics events)
 
 - **Implementation Details:**
-  - Extended `RecommendationService`:
-    - Introduced `getRecommendationsWithContext(Project $target, int $limit, string $locale, ?string $consentToken)` returning structured data with `personalized: bool`.
-    - Documented `PERSONALIZATION_MAX_WEIGHT = 20.0` points applied strictly when valid consent is active.
-    - Added dynamic affinity ratio based on visited categories in `VisitorPreference`.
-    - Transparent score breakdown detailing category, tool, recency, popularity, and personalization contributions.
-  - Extended `RecommendationController`:
-    - `GET /api/v1/projects/{slug}/recommendations`: Extracts `consent_token` from query parameters or `X-Consent-Token` header.
-    - Fallback guarantee: Unconsented, missing, rejected, or expired tokens receive 100% deterministic generic ranking with `personalized: false`.
-    - `POST /api/v1/recommendations/interest`: Secure endpoint to record category interests; strictly returns HTTP 403 unless valid personalization consent is granted.
-  - Immediate Reversion:
-    - Consent withdrawal immediately purges all `visitor_preferences` and causes subsequent recommendation requests to return the exact generic fallback.
+  - Migration & Schema:
+    - Created `analytics_events` table with short-retention schema: `event_type`, `path`, `project_id`, `visitor_hash`, `referrer_url`, `referrer_domain`, `referrer_category` (`direct`, `search`, `social`, `external`), `device_type`, `locale`, `idempotency_key`, `is_bot`, and `created_at`.
+    - Strict privacy guarantee: absolutely zero raw IP address storage.
+  - Analytics Service (`AnalyticsEventService`):
+    - Pseudonymous visitor tracking: calculates daily salted HMAC-SHA256 hash using application key and current date, preventing cross-day correlation.
+    - Bot filtering heuristics: filters out crawlers, scrapers, search spiders, and automated headless tools.
+    - Idempotency key handling: prevents duplicate counting from rapid double clicks or replay requests.
+    - Consent enforcement: strictly blocks event recording if analytics consent is rejected, withdrawn, expired, or absent.
+    - Atomic view counters: increments project `view_count` on valid `project_view` events.
+  - API Controller & Route:
+    - `POST /api/v1/analytics/events` endpoint accepting validated telemetry payloads.
 - **Verification Evidence:**
-  - PHPUnit `tests/Feature/PersonalizedRankingTest.php`: 6 passed (30 assertions) in 3.74s.
-  - PHPUnit `tests/Feature/RecommendationScoringTest.php`: 7 passed (40 assertions) in 4.22s.
-  - PHPUnit `tests/Feature/ConsentBackendPrivacyTest.php`: 6 passed (29 assertions) in 2.88s.
+  - PHPUnit `tests/Feature/AnalyticsEventsTest.php`: 6 passed (34 assertions) in 3.68s.
 
 ---
 
-## 3. Next Task: Task 06.08 Specification
+## 3. Next Task: Task 06.09 Specification
 
-- **Task ID:** 06.08
-- **Title:** Analytics events
+- **Task ID:** 06.09
+- **Title:** Aggregation/retention
 - **Master Plan Requirements:**
-  - Track permitted page/project views, approximate unique counts, referral categories; avoid storing raw IP indefinitely.
-  - Tests: consent rules, bot filtering heuristic, idempotent event handling.
+  - Scheduled daily rollups and raw-event expiry.
+  - Tests: day boundary, timezone consistency, deduplication, TTL purge, large dataset query performance.
 - **Target Files & Capabilities:**
-  - Database schema & migration: `analytics_events` table (short TTL, pseudonymous daily session hash / salted IP hash, event_type, path/project_id, referrer_domain, referrer_category, device_type, timestamp; strictly no permanent raw IP storage).
-  - Service: `AnalyticsEventService` with:
-    - Consent verification (checks if analytics consent is granted or operates in privacy-first anonymous aggregate mode).
-    - Bot filtering heuristics (User-Agent patterns: Googlebot, Bingbot, curl, spider, crawler; missing headers; fast duplicate requests).
-    - Idempotency key / deduplication (prevents double-counting identical pageviews in a short time window).
-    - Referrer categorization (`direct`, `search`, `social`, `external`).
-    - Cryptographic daily salted hash for unique visitor estimation (hash(IP + UserAgent + daily_salt), rotated daily so cross-day tracking is mathematically impossible).
-  - API endpoint: `POST /api/v1/analytics/events`.
-  - Feature test: `backend/tests/Feature/AnalyticsEventsTest.php`.
+  - Database schema & migration: `analytics_daily_aggregates` table:
+    - `date`: date, unique index with dimensions
+    - `metric`: string (e.g. `visits`, `pageviews`, `unique_visitors`)
+    - `dimension_type`: string (`total`, `project`, `page`, `referrer_category`, `device`)
+    - `dimension_value`: string (e.g. project_id, path, `social`, `desktop`)
+    - `value`: unsignedBigInteger
+  - Artisan Console Commands:
+    - `analytics:aggregate-daily`: Aggregates raw `analytics_events` for past days into `analytics_daily_aggregates` rollups with day boundary handling and timezone consistency.
+    - `analytics:purge-raw-events`: Purges raw `analytics_events` older than TTL (e.g., 30 or 60 days).
+  - Feature test: `backend/tests/Feature/AnalyticsAggregationRetentionTest.php` verifying:
+    - Daily rollups correctly sum total views and count approximate unique visitors per day.
+    - Day boundary calculation adheres to UTC/configured timezone without bleeding across midnight.
+    - Re-running aggregation is idempotent (uses upsert / deduplication).
+    - TTL purge removes old raw events while preserving daily aggregates intact.
+    - Query performance on rolled-up aggregates is fast and scalable.
