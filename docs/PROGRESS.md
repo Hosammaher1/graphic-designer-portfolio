@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 57 of 97 tasks started, 57 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 58 of 97 tasks started, 58 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 6 | 6 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 7 | 7 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **57** | **57** | |
+| **Total** | | **97** | **58** | **58** | |
 
 ## Task register
 
@@ -82,7 +82,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.04 | Recommendation scoring | DONE | PASS: PHPUnit RecommendationScoringTest (7 passed, 40 assertions: category/tool/recency/popularity weights, current/draft/trash exclusion, deterministic tiebreaker, no duplicate results) | None available (manual checklist) | None (ready for 06.05) | ad20126 |
 | 06.05 | Consent UI | DONE | PASS: Vitest consent-ui (7 passed: banner render, reject all blocks tracking, accept all enables, modal no pre-ticked checkboxes, granular preferences, withdrawal stops tracking & dispatches event, English LTR) | None available (manual checklist) | None (ready for 06.06) | 3241fd0 |
 | 06.06 | Consent backend/privacy | DONE | PASS: PHPUnit ConsentBackendPrivacyTest (6 passed, 29 assertions: pseudonymous token, rejection blocking, withdrawal deactivation & preferences purge, unauthorized linkage defense, token show, purge command) | None available (manual checklist) | None (ready for 06.07) | 51c32eb |
-| 06.07 | Personalized ranking | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.07 | Personalized ranking | DONE | PASS: PHPUnit PersonalizedRankingTest (6 passed, 30 assertions: unconsented generic fallback, rejected generic fallback, tracking denial without consent, consented browsing affinity boost, withdrawal reversion, expired fallback) | None available (manual checklist) | None (ready for 06.08) | 9aee0ca |
 | 06.08 | Analytics events | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.09 | Aggregation/retention | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.10 | Analytics API | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3556,4 +3556,66 @@ Blockers/owner inputs:
   None. Task 06.06 complete and verified.
 Next task:
   Phase 06 — Task 06.07: Personalized ranking (Use consented browsing interests only; generic fallback. Tests: same anonymous session without consent receives generic ranking; withdrawal resets personalization).
+```
+
+
+---
+
+## Task 06.07 Execution Report
+
+```text
+Task ID: 06.07
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.07-personalized-ranking
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 9aee0ca
+Files changed:
+  Created:
+    - backend/tests/Feature/PersonalizedRankingTest.php (Feature test suite with 6 tests and 30 assertions verifying unconsented generic fallback, rejected generic fallback, tracking denial without consent, consented browsing affinity boost, immediate withdrawal reversion, and expired consent fallback)
+  Modified:
+    - backend/app/Services/Recommendations/RecommendationService.php (Enhanced recommendation scoring engine with `getRecommendationsWithContext`, `PERSONALIZATION_MAX_WEIGHT = 20.0`, dynamic category interaction matching, and transparent score breakdown)
+    - backend/app/Http/Controllers/Api/V1/RecommendationController.php (Updated `getRelated` to inspect token/headers and return `personalized: bool`; added `POST /api/v1/recommendations/interest` endpoint strictly guarded by active consent)
+    - backend/routes/api.php (Registered `POST /recommendations/interest` route)
+    - docs/PROGRESS.md (marked Task 06.07 DONE, updated Phase 06 count to 7/12 and total to 58/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/PersonalizedRankingTest.php:
+    - unconsented session receives generic ranking
+    - rejected consent receives generic ranking
+    - tracking interest rejected without consent
+    - consented visitor with interests receives personalized ranking
+    - withdrawal immediately reverts ranking to generic fallback
+    - expired consent falls back to generic
+  Observed GREEN state:
+    PHPUnit PersonalizedRankingTest: 6 passed (30 assertions) in 3.74s.
+    PHPUnit RecommendationScoringTest: 7 passed (40 assertions) in 4.22s.
+    PHPUnit ConsentBackendPrivacyTest: 6 passed (29 assertions) in 2.88s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for personalized ranking algorithms.
+Unavailable skills and fallback checklist:
+  - personalized-ranking, privacy-personalization: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.07 and Plan Audit item 06.05/06.07 verified:
+    1. Consented browsing interests only: Personalization is strictly guarded by valid pseudonymous `ConsentRecord` with `personalization_allowed = true`, `withdrawn_at IS NULL`, and unexpired `expires_at`.
+    2. Strict generic fallback: Any unconsented session, missing token, rejected token, expired token, or session with no recorded preferences receives 100% deterministic generic ranking with `personalized: false`.
+    3. Transparent scoring breakdown: Candidate projects report individual scores for category, tool, recency, popularity, and (when consented) personalization points.
+    4. Guarded interest tracking: `POST /api/v1/recommendations/interest` rejects tracking with HTTP 403 unless explicit personalization consent is active, preventing stealth profile building.
+    5. Immediate withdrawal reversion: Withdrawing consent immediately purges preference rows and reverts subsequent recommendation queries to the exact generic fallback.
+Design artifacts/screenshots reviewed:
+  Recommendation payload structure, score breakdown components, and category affinity boosts.
+Commands executed and exact results:
+  1. git checkout -b feat/06.07-personalized-ranking
+  2. Created PersonalizedRankingTest.php (RED state: personalized flag and interest route missing).
+  3. Updated RecommendationService.php, RecommendationController.php, and routes/api.php.
+  4. php artisan test tests/Feature/PersonalizedRankingTest.php -> GREEN: 6 passed (30 assertions) in 3.74s.
+  5. php artisan test tests/Feature/RecommendationScoringTest.php -> GREEN: 7 passed (40 assertions) in 4.22s.
+  6. php artisan test tests/Feature/ConsentBackendPrivacyTest.php -> GREEN: 6 passed (29 assertions) in 2.88s.
+Security/privacy/SEO considerations:
+  - Absolute privacy adherence: Behavioral browsing data is never collected or used for ranking without explicit visitor consent.
+  - Withdrawal permanently destroys behavioral weights and reverts all queries to generic ranking.
+Blockers/owner inputs:
+  None. Task 06.07 complete and verified.
+Next task:
+  Phase 06 — Task 06.08: Analytics events (Track permitted page/project views, approximate unique counts, referral categories; avoid storing raw IP indefinitely. Tests: consent rules, bot filtering heuristic, idempotent event handling).
 ```
