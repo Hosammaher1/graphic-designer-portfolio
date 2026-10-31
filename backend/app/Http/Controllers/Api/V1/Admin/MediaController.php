@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MediaAsset;
 use App\Services\Media\MediaStorageInterface;
+use App\Services\Security\FileUploadSecurityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MediaController extends Controller
 {
-    private const ALLOWED_MIMES = 'jpeg,png,jpg,webp';
+    private const ALLOWED_MIMES = 'jpeg,png,jpg,webp,avif,svg,pdf';
     private const MAX_KILOBYTES = 15360; // 15MB
 
     public function index(): JsonResponse
@@ -23,18 +24,20 @@ class MediaController extends Controller
         ]);
     }
 
-    public function upload(Request $request, MediaStorageInterface $storage): JsonResponse
+    public function upload(Request $request, MediaStorageInterface $storage, FileUploadSecurityService $securityService): JsonResponse
     {
         $request->validate([
             'file' => [
                 'required',
                 'file',
-                'mimes:' . self::ALLOWED_MIMES,
                 'max:' . self::MAX_KILOBYTES,
             ],
         ]);
 
-        $uploaded = $storage->upload($request->file('file'));
+        $file = $request->file('file');
+        $securityService->validateFile($file);
+
+        $uploaded = $storage->upload($file);
 
         $asset = MediaAsset::create($uploaded);
 
@@ -44,14 +47,13 @@ class MediaController extends Controller
         ], 201);
     }
 
-    public function uploadBatch(Request $request, MediaStorageInterface $storage): JsonResponse
+    public function uploadBatch(Request $request, MediaStorageInterface $storage, FileUploadSecurityService $securityService): JsonResponse
     {
         $request->validate([
             'files'   => ['required', 'array', 'min:1', 'max:20'],
             'files.*' => [
                 'required',
                 'file',
-                'mimes:' . self::ALLOWED_MIMES,
                 'max:' . self::MAX_KILOBYTES,
             ],
         ]);
@@ -59,6 +61,7 @@ class MediaController extends Controller
         $createdAssets = [];
 
         foreach ($request->file('files') as $file) {
+            $securityService->validateFile($file);
             $uploaded = $storage->upload($file);
             $createdAssets[] = MediaAsset::create($uploaded);
         }
@@ -66,6 +69,22 @@ class MediaController extends Controller
         return response()->json([
             'status' => 'success',
             'data'   => ['assets' => $createdAssets],
+        ]);
+    }
+
+    public function signUpload(Request $request, FileUploadSecurityService $securityService): JsonResponse
+    {
+        $params = $request->validate([
+            'folder'    => ['nullable', 'string', 'max:100'],
+            'public_id' => ['nullable', 'string', 'max:100'],
+            'tags'      => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $signedData = $securityService->signUpload(array_filter($params));
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $signedData,
         ]);
     }
 

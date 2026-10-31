@@ -24,7 +24,15 @@ class FakeMediaStorage implements MediaStorageInterface
         }
 
         // 2. Validate MIME type
-        $mime = $file->getMimeType();
+        $mime = null;
+        try {
+            $mime = @$file->getMimeType();
+        } catch (\Throwable $e) {
+            $mime = $file->getClientMimeType();
+        }
+        if (! $mime) {
+            $mime = $file->getClientMimeType();
+        }
         if (! in_array($mime, self::ALLOWED_MIMES, true)) {
             throw new \InvalidArgumentException("Disallowed file format [{$mime}]. Allowed formats: JPG, PNG, WebP.");
         }
