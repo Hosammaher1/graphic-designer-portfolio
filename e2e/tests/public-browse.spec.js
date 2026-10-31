@@ -261,7 +261,7 @@ test.describe('Task 04.11 — Complete Public Browse Journey', () => {
 
     // 3. Test Category Filtering
     // Click category tab "الهويات البصرية"
-    const brandingTab = page.getByRole('tab', { name: /الهويات البصرية/ });
+    const brandingTab = page.getByRole('button', { name: /الهويات البصرية/ });
     await brandingTab.click();
     await expect(page).toHaveURL(/category=branding/);
     await expect(page.getByRole('heading', { name: 'الهوية البصرية لمشروع كرافت' })).toBeVisible();

@@ -66,7 +66,9 @@
     "backToWork": "Back to All Work",
     "notFoundTitle": "Project Not Found",
     "notFoundDesc": "The requested project is not available or has not been published yet.",
-    "viewCount": "views"
+    "viewCount": "views",
+    "relatedProjects": "Related Projects",
+    "relatedProjectsSubtitle": "Explore more projects in similar disciplines"
   },
   "about": {
     "pageTitle": "About Mohammed",

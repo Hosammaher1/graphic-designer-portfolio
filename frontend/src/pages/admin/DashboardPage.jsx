@@ -362,11 +362,11 @@ export default function DashboardPage() {
               </div>
               <div className="mt-3">
                 <div className="text-base font-bold text-[var(--color-text,#fafafa)] capitalize">
-                  {trafficSources.categories[0]?.name || 'Direct'}
+                  {trafficSources?.categories?.[0]?.name || 'Direct'}
                 </div>
               </div>
               <span className="text-[11px] text-[var(--color-text-muted,#71717a)] mt-1">
-                {trafficSources.categories[0]
+                {trafficSources?.categories?.[0]
                   ? `${trafficSources.categories[0].percentage}% من الزيارات`
                   : 'زيارات مباشرة'}
               </span>

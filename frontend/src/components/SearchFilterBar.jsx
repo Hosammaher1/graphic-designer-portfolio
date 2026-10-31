@@ -170,7 +170,7 @@ export default function SearchFilterBar({
               : 'bg-muted text-muted hover:text-foreground hover:bg-muted/80'
           }`}
         >
-          {isAr ? 'الكل' : 'All'}
+          {isAr ? 'الكل' : 'All Projects'}
         </button>
 
         {/* Dynamic Category Chips */}

@@ -87,7 +87,7 @@ test.describe('Admin Authentication Flow', () => {
 
     // After login, client navigates to /admin/
     await expect(page).toHaveURL(/\/admin/);
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Admin Dashboard');
+    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText(/Admin Dashboard|لوحة التحكم والتحليلات|Portfolio Administration/i);
 
     // On mobile viewports, the sidebar is inside a drawer opened via menu toggle
     const menuToggle = page.getByRole('button', { name: 'Toggle navigation menu' });

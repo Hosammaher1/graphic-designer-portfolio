@@ -66,7 +66,9 @@
     "backToWork": "العودة لجميع الأعمال",
     "notFoundTitle": "المشروع غير موجود",
     "notFoundDesc": "المشروع المطلوب غير متوفر أو لم يتم نشره بعد.",
-    "viewCount": "مشاهدة"
+    "viewCount": "مشاهدة",
+    "relatedProjects": "أعمال مشابهة",
+    "relatedProjectsSubtitle": "استكشف المزيد من الأعمال في تخصصات مشابهة"
   },
   "about": {
     "pageTitle": "عن المصمم",

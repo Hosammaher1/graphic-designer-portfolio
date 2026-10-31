@@ -73,6 +73,31 @@ export function ConsentProvider({ children, locale = 'ar' }) {
         },
       });
       window.dispatchEvent(event);
+
+      // Async sync to privacy backend
+      if (action === 'withdraw') {
+        if (nextState.consentId) {
+          fetch('/api/v1/consent/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ consent_token: nextState.consentId }),
+          }).catch(() => {});
+        }
+      } else if (action === 'accept_all' || action === 'reject_all' || action === 'customized') {
+        fetch('/api/v1/consent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            consent_token: nextState.consentId,
+            status: nextState.status,
+            categories: {
+              analytics: Boolean(nextState.categories?.analytics),
+              personalization: Boolean(nextState.categories?.personalization),
+            },
+            policy_version: nextState.version || '1.0',
+          }),
+        }).catch(() => {});
+      }
     }
   }, []);
 

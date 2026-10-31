@@ -81,9 +81,9 @@ describe('Work Gallery (Task 04.04)', () => {
 
     // Category tabs
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /all projects/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /branding & identity/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /packaging/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /all projects/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /branding & identity/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /packaging/i })).toBeInTheDocument();
     });
 
     // Project card
@@ -151,7 +151,7 @@ describe('Work Gallery (Task 04.04)', () => {
     });
 
     // Click Packaging category tab
-    const packagingTab = screen.getByRole('tab', { name: /packaging/i });
+    const packagingTab = screen.getByRole('button', { name: /packaging/i });
     fireEvent.click(packagingTab);
 
     await waitFor(() => {

@@ -20,6 +20,7 @@ import {
   Badge,
 } from '../components/ui';
 import { DocumentRenderer } from '../page-builder/BlockRenderer.jsx';
+import { useConsent } from '../context/ConsentContext.jsx';
 
 export default function ProjectDetailPage({ locale = 'ar' }) {
   const { slug } = useParams();
@@ -31,6 +32,10 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(null);
+  const { consent, hasConsent } = useConsent();
+  const [recommendations, setRecommendations] = useState([]);
+  const [isPersonalized, setIsPersonalized] = useState(false);
+  const [loadingRecs, setLoadingRecs] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -75,6 +80,47 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
       isMounted = false;
     };
   }, [slug, locale]);
+
+  // Fetch related recommendations and record interest if personalization consent is active
+  useEffect(() => {
+    if (!project?.slug) return;
+    let isMounted = true;
+    setLoadingRecs(true);
+
+    const consentToken = hasConsent('personalization') && consent?.consentId ? consent.consentId : null;
+    const url = `/api/v1/projects/${project.slug}/recommendations?locale=${locale}${consentToken ? `&consent_token=${consentToken}` : ''}`;
+
+    fetch(url)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((resData) => {
+        if (!isMounted) return;
+        const recs = resData?.data?.recommendations || [];
+        setRecommendations(recs);
+        setIsPersonalized(Boolean(resData?.data?.personalized));
+      })
+      .catch(() => {
+        if (isMounted) setRecommendations([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingRecs(false);
+      });
+
+    // Consented browsing affinity tracking
+    if (hasConsent('personalization') && consent?.consentId && project.id) {
+      fetch('/api/v1/recommendations/interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          consent_token: consent.consentId,
+          project_id: project.id,
+        }),
+      }).catch(() => {});
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [project?.slug, project?.id, locale, consent?.status, consent?.consentId, hasConsent]);
 
   // Gallery items including cover image
   const galleryItems = React.useMemo(() => {
@@ -293,6 +339,68 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
                   </div>
                   {media.title && <p className="gallery-thumb-caption">{media.title}</p>}
                 </div>
+              ))}
+            </Grid>
+          </Container>
+        </section>
+      )}
+
+      {/* 4. Related Recommendations Section */}
+      {recommendations && recommendations.length > 0 && (
+        <section
+          className="related-projects-section py-12 border-t border-[var(--color-border,#27272a)]"
+          aria-labelledby="related-projects-title"
+          data-testid="related-projects"
+          data-personalized={String(isPersonalized)}
+        >
+          <Container size="site">
+            <div className="mb-6">
+              <h2 id="related-projects-title" className="text-2xl font-bold tracking-tight">
+                {t('project.relatedProjects', locale)}
+              </h2>
+              <p className="text-sm text-[var(--color-text-muted,#a1a1aa)] mt-1">
+                {t('project.relatedProjectsSubtitle', locale)}
+              </p>
+            </div>
+            <Grid cols={3} gap="md" className="related-projects-grid">
+              {recommendations.map((rec) => (
+                <Card
+                  key={rec.id}
+                  className="related-project-card group overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow"
+                  data-testid="related-project-card"
+                >
+                  <Link
+                    to={`/${locale}/projects/${rec.slug}`}
+                    className="flex flex-col h-full block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#3b82f6)] rounded-lg"
+                  >
+                    <div className="aspect-[16/10] bg-[var(--color-surface,#18181b)] overflow-hidden relative">
+                      {rec.cover_image?.url || rec.cover_url ? (
+                        <img
+                          src={rec.cover_image?.url || rec.cover_url}
+                          alt={rec.cover_image?.alt_text || rec.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[var(--color-text-muted,#a1a1aa)]">
+                          <Layers size={32} aria-hidden="true" />
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        {rec.category && (
+                          <Badge variant="outline" size="sm" className="mb-2">
+                            {rec.category.name}
+                          </Badge>
+                        )}
+                        <h3 className="font-semibold text-base line-clamp-1 group-hover:text-[var(--color-primary,#3b82f6)] transition-colors">
+                          {rec.title}
+                        </h3>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
               ))}
             </Grid>
           </Container>
