@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 61 of 97 tasks started, 61 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 62 of 97 tasks started, 62 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 10 | 10 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 11 | 11 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **61** | **61** | |
+| **Total** | | **97** | **62** | **62** | |
 
 ## Task register
 
@@ -86,7 +86,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.08 | Analytics events | DONE | PASS: PHPUnit AnalyticsEventsTest (6 passed, 34 assertions: permitted pageview with categorized referrer, project view with atomic counter increment, consent rejection/withdrawal blocking, crawler bot heuristics, idempotency deduplication, zero raw IP storage) | None available (manual checklist) | None (ready for 06.09) | 0db56e4 |
 | 06.09 | Aggregation/retention | DONE | PASS: PHPUnit AnalyticsAggregationRetentionTest (6 passed, 22 assertions: overview/project/referrer/device daily rollups, day boundary/timezone consistency, idempotent deduplication, bot exclusion, TTL raw event purge, aggregate query performance) | None available (manual checklist) | None (ready for 06.10) | 0d2e52b |
 | 06.10 | Analytics API | DONE | PASS: PHPUnit AdminAnalyticsApiTest (6 passed, 35 assertions: 401 unauthenticated, 403 non-admin, overview with filled zero-count days, non-overlapping prior window comparison, custom range validation, top projects ranking, traffic sources & devices) | None available (manual checklist) | None (ready for 06.11) | df5ddd1 |
-| 06.11 | Dashboard charts | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.11 | Dashboard charts | DONE | PASS: Vitest admin-dashboard-charts (6 passed: loading/empty/error states, date range filtering, SVG accessible text, top projects, traffic sources) + SSR/client build | None available (manual checklist) | None (ready for 06.12) | a7d4798 |
 | 06.12 | E2E search, recommendations, privacy | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 07.01 | SSR metadata and Open Graph | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.02 | Sitemap generator | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -3802,4 +3802,62 @@ Blockers/owner inputs:
   None. Task 06.10 complete and verified.
 Next task:
   Phase 06 — Task 06.11: Dashboard charts (Visits trend, top projects, referrals, consent-safe metrics. Tests: loading/empty/errors, date filtering, chart accessibility text).
+```
+
+
+---
+
+## Task 06.11 Execution Report
+
+```text
+Task ID: 06.11
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.11-dashboard-charts
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: a7d4798
+Files changed:
+  Created:
+    - frontend/tests/admin-dashboard-charts.test.jsx (Vitest test suite with 6 tests verifying loading skeleton, overview trend chart with accessible screen reader alternative, date filter switching 7d/30d/90d, empty state handling, error recovery with retry, and top projects & traffic sources breakdown)
+  Modified:
+    - frontend/src/pages/admin/DashboardPage.jsx (Complete analytics dashboard overhaul integrating real-time API metrics, key stat cards with comparative percentage deltas, SVG trend chart with interactive tooltips and accessible screen-reader data table, top projects table with thumbnail previews, traffic sources percentage bars, and device distribution breakdown)
+    - docs/PROGRESS.md (marked Task 06.11 DONE, updated Phase 06 count to 11/12 and total to 62/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  frontend/tests/admin-dashboard-charts.test.jsx:
+    - renders loading skeletons during initial data fetch
+    - renders overview metrics, chart SVG, and screen reader accessible alternative table
+    - allows switching date range filter (7d, 30d, 90d)
+    - handles empty analytics state gracefully
+    - displays error state with retry action on API failure
+    - renders top projects, traffic sources, and device breakdowns
+  Observed GREEN state:
+    Vitest admin-dashboard-charts.test.jsx: 6 passed (6) in 464ms.
+    Frontend Production Build (Client + SSR): Clean build in 6.04s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for dashboard charts UI.
+Unavailable skills and fallback checklist:
+  - dashboard-charts, analytics-ui: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.11 verified:
+    1. Trend Visualization: Custom SVG area/line chart rendering total views and unique visitors across time with responsive coordinate normalization and high-contrast color palette.
+    2. Accessibility compliance: SVG has explicit role="img" and aria-label, plus a dedicated toggleable screen reader data table <table aria-label="Visits and unique visitors trend data"> for WCAG 2.1 AA compliance.
+    3. Date filtering: Segmented control supporting 7-day, 30-day, and 90-day windows triggering reactive fetches across all dashboard endpoints.
+    4. Top projects & breakdown metrics: Ranked display of top-performing projects with view counters, traffic sources percentage indicators, and mobile/desktop device breakdown.
+    5. Robust states: Granular loading skeletons, resilient API error boundaries with retry buttons, and helpful empty state messages when zero traffic is recorded.
+Design artifacts/screenshots reviewed:
+  Admin dashboard layout, SVG area/polyline coordinate mapping, accessible table DOM structure, and RTL/LTR mirrored layouts.
+Commands executed and exact results:
+  1. git checkout -b feat/06.11-dashboard-charts
+  2. Created admin-dashboard-charts.test.jsx (RED state: missing chart visualizer and accessible table).
+  3. Overhauled frontend/src/pages/admin/DashboardPage.jsx with SVG charts, stat cards, date filters, and accessible tables.
+  4. npm --prefix frontend test -- tests/admin-dashboard-charts.test.jsx -> GREEN: 6 passed (6) in 464ms.
+  5. npm --prefix frontend run build -> Clean client + SSR bundle builds.
+Security/privacy/SEO considerations:
+  - Dashboard runs strictly behind Sanctum authentication in the protected admin layout (AdminLayout).
+  - All metrics displayed are aggregated counts; no individual user tracking details or personal data are rendered.
+Blockers/owner inputs:
+  None. Task 06.11 complete and verified.
+Next task:
+  Phase 06 — Task 06.12: E2E discovery/privacy (Search/filter -> related recommendations; reject consent -> no personal events; accept -> personalized; withdraw -> generic; admin analytics display. Phase 06 gate: discovery useful, recommendation deterministic, optional behavioral tracking never runs without consent, analytics privacy controls verified).
 ```
