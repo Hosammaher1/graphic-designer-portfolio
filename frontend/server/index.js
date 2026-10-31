@@ -25,6 +25,18 @@ const mimeTypes = {
   '.woff2': 'font/woff2',
 };
 
+// Strict HTTP Security Headers (Task 08.01)
+const securityHeaders = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://*.iconify.design ws://localhost:* ws://127.0.0.1:*; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'",
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+};
+
 async function createServer() {
   let template = '';
   let render = null;
@@ -52,6 +64,7 @@ async function createServer() {
         res.writeHead(200, {
           'Content-Type': contentType,
           'Cache-Control': cleanUrl.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
+          ...securityHeaders,
         });
         fs.createReadStream(staticFilePath).pipe(res);
         return;
@@ -69,7 +82,10 @@ async function createServer() {
             headers: proxyHeaders,
           },
           (proxyRes) => {
-            res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+            res.writeHead(proxyRes.statusCode || 500, {
+              ...proxyRes.headers,
+              ...securityHeaders,
+            });
             proxyRes.pipe(res);
           }
         );
@@ -77,17 +93,26 @@ async function createServer() {
         proxyReq.on('error', () => {
           if (cleanUrl === '/robots.txt') {
             const fallbackRobots = "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin/\nDisallow: /api\nDisallow: /api/\n\nSitemap: http://localhost:3000/sitemap.xml\n";
-            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.writeHead(200, {
+              'Content-Type': 'text/plain; charset=utf-8',
+              ...securityHeaders,
+            });
             res.end(fallbackRobots);
             return;
           }
           if (cleanUrl === '/sitemap.xml') {
             const fallbackSitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n  <url><loc>http://localhost:3000/ar/</loc><xhtml:link rel="alternate" hreflang="ar" href="http://localhost:3000/ar/"/><xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/"/></url>\n  <url><loc>http://localhost:3000/en/</loc><xhtml:link rel="alternate" hreflang="ar" href="http://localhost:3000/ar/"/><xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/"/></url>\n</urlset>';
-            res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8' });
+            res.writeHead(200, {
+              'Content-Type': 'application/xml; charset=utf-8',
+              ...securityHeaders,
+            });
             res.end(fallbackSitemap);
             return;
           }
-          res.writeHead(502, { 'Content-Type': 'application/json' });
+          res.writeHead(502, {
+            'Content-Type': 'application/json',
+            ...securityHeaders,
+          });
           res.end(JSON.stringify({ status: 'error', message: 'API Gateway connection failure.' }));
         });
 
@@ -97,7 +122,10 @@ async function createServer() {
 
       // Root redirect to default locale /ar/
       if (cleanUrl === '/' || cleanUrl === '') {
-        res.writeHead(302, { Location: '/ar/' });
+        res.writeHead(302, {
+          Location: '/ar/',
+          ...securityHeaders,
+        });
         res.end();
         return;
       }
@@ -109,7 +137,10 @@ async function createServer() {
       }
 
       if (!render) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.writeHead(500, {
+          'Content-Type': 'text/plain',
+          ...securityHeaders,
+        });
         res.end('SSR render bundle not found. Please build the application first.');
         return;
       }
@@ -135,11 +166,15 @@ async function createServer() {
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
+        ...securityHeaders,
       });
       res.end(responseHtml);
     } catch (err) {
       console.error('SSR render error:', err);
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+        ...securityHeaders,
+      });
       res.end(`Internal Server Error: ${err.message}`);
     }
   });
