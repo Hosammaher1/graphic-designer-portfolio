@@ -31,6 +31,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/consent/withdraw', [\App\Http\Controllers\Api\V1\ConsentController::class, 'withdraw'])->name('api.v1.consent.withdraw');
     Route::get('/consent/{token}', [\App\Http\Controllers\Api\V1\ConsentController::class, 'show'])->name('api.v1.consent.show');
 
+    // Analytics Events API (Task 06.08)
+    Route::post('/analytics/events', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'recordEvent'])->name('api.v1.analytics.events');
+
     // Secure Preview Route (Authorized via Cryptographic Signature or Admin Session)
     Route::get('/pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview.signed');
     // Public Published Page Route
