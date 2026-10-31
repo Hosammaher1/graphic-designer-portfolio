@@ -11,11 +11,14 @@ class PublicProjectController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'sort' => 'nullable|string|in:newest,oldest,most_viewed,year_desc,year_asc,title_asc,title_desc',
+        ]);
+
         $locale = $request->input('locale', 'ar');
 
         $query = Project::published()
-            ->whereNotNull('published_snapshot')
-            ->latest('published_at');
+            ->whereNotNull('published_snapshot');
 
         if ($request->filled('year')) {
             $query->where('year', (int) $request->year);
@@ -33,6 +36,26 @@ class PublicProjectController extends Controller
         if ($request->filled('tool')) {
             $toolSlug = $request->input('tool');
             $query->whereHas('tools', fn($q) => $q->where('slug', $toolSlug));
+        }
+
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                break;
+            case 'most_viewed':
+                $query->orderByDesc('view_count')->orderByDesc('id');
+                break;
+            case 'year_desc':
+                $query->orderByDesc('year')->orderByDesc('published_at')->orderByDesc('id');
+                break;
+            case 'year_asc':
+                $query->orderBy('year', 'asc')->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderByDesc('published_at')->orderByDesc('id');
+                break;
         }
 
         $paginated = $query->paginate(15);

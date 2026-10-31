@@ -76,51 +76,61 @@ class SearchService
         $page = max(1, (int) ($filters['page'] ?? 1));
 
         $trimmedQuery = trim($queryStr);
+        $isExplicitQuery = (bool) ($filters['is_explicit_query'] ?? false);
 
         // Strict published invariants
         $baseQuery = Project::published()
-            ->whereNotNull('published_snapshot')
-            ->latest('published_at');
+            ->whereNotNull('published_snapshot');
 
-        // If query is empty, return empty paginated collection
-        if ($trimmedQuery === '') {
+        $hasTaxonomyFilters = !empty($filters['category']) || !empty($filters['tool']) || !empty($filters['year']);
+
+        // Empty search conditions:
+        // 1. If an explicit empty query string was sent (e.g. `q=   `) and no taxonomy filters are present
+        // 2. Or if neither query nor any filters/sorts were supplied
+        if ($isExplicitQuery && $trimmedQuery === '' && !$hasTaxonomyFilters) {
             return $baseQuery->whereRaw('1 = 0')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        $variants = $this->getSearchVariants($trimmedQuery);
+        if (!$isExplicitQuery && $trimmedQuery === '' && !$hasTaxonomyFilters && empty($filters['sort'])) {
+            return $baseQuery->whereRaw('1 = 0')->paginate($perPage, ['*'], 'page', $page);
+        }
 
-        // Search across project fields and translations
-        $baseQuery->where(function (Builder $builder) use ($variants) {
-            foreach ($variants as $variant) {
-                $escaped = $this->escapeLike($variant);
-                $likePattern = "%{$escaped}%";
+        // Apply text search conditions if non-empty query is present
+        if ($trimmedQuery !== '') {
+            $variants = $this->getSearchVariants($trimmedQuery);
 
-                // 1. Project attributes (slug, client)
-                $builder->orWhere('slug', 'LIKE', $likePattern)
-                    ->orWhere('client', 'LIKE', $likePattern);
+            $baseQuery->where(function (Builder $builder) use ($variants) {
+                foreach ($variants as $variant) {
+                    $escaped = $this->escapeLike($variant);
+                    $likePattern = "%{$escaped}%";
 
-                // 2. Project translations (title, summary, description)
-                $builder->orWhereHas('translations', function (Builder $q) use ($likePattern) {
-                    $q->where('title', 'LIKE', $likePattern)
-                        ->orWhere('summary', 'LIKE', $likePattern)
-                        ->orWhere('description', 'LIKE', $likePattern);
-                });
+                    // 1. Project attributes (slug, client)
+                    $builder->orWhere('slug', 'LIKE', $likePattern)
+                        ->orWhere('client', 'LIKE', $likePattern);
 
-                // 3. Category relations
-                $builder->orWhereHas('categories', function (Builder $q) use ($likePattern) {
-                    $q->where('slug', 'LIKE', $likePattern)
-                        ->orWhereHas('translations', function (Builder $tq) use ($likePattern) {
-                            $tq->where('name', 'LIKE', $likePattern);
-                        });
-                });
+                    // 2. Project translations (title, summary, description)
+                    $builder->orWhereHas('translations', function (Builder $q) use ($likePattern) {
+                        $q->where('title', 'LIKE', $likePattern)
+                            ->orWhere('summary', 'LIKE', $likePattern)
+                            ->orWhere('description', 'LIKE', $likePattern);
+                    });
 
-                // 4. Tool relations
-                $builder->orWhereHas('tools', function (Builder $q) use ($likePattern) {
-                    $q->where('name', 'LIKE', $likePattern)
-                        ->orWhere('slug', 'LIKE', $likePattern);
-                });
-            }
-        });
+                    // 3. Category relations
+                    $builder->orWhereHas('categories', function (Builder $q) use ($likePattern) {
+                        $q->where('slug', 'LIKE', $likePattern)
+                            ->orWhereHas('translations', function (Builder $tq) use ($likePattern) {
+                                $tq->where('name', 'LIKE', $likePattern);
+                            });
+                    });
+
+                    // 4. Tool relations
+                    $builder->orWhereHas('tools', function (Builder $q) use ($likePattern) {
+                        $q->where('name', 'LIKE', $likePattern)
+                            ->orWhere('slug', 'LIKE', $likePattern);
+                    });
+                }
+            });
+        }
 
         // Optional category filter
         if (!empty($filters['category'])) {
@@ -137,6 +147,27 @@ class SearchService
         // Optional year filter
         if (!empty($filters['year'])) {
             $baseQuery->where('year', (int) $filters['year']);
+        }
+
+        // Sorting with deterministic stable tiebreaker
+        $sort = $filters['sort'] ?? 'newest';
+        switch ($sort) {
+            case 'oldest':
+                $baseQuery->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                break;
+            case 'most_viewed':
+                $baseQuery->orderByDesc('view_count')->orderByDesc('id');
+                break;
+            case 'year_desc':
+                $baseQuery->orderByDesc('year')->orderByDesc('published_at')->orderByDesc('id');
+                break;
+            case 'year_asc':
+                $baseQuery->orderBy('year', 'asc')->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                break;
+            case 'newest':
+            default:
+                $baseQuery->orderByDesc('published_at')->orderByDesc('id');
+                break;
         }
 
         return $baseQuery->paginate($perPage, ['*'], 'page', $page);

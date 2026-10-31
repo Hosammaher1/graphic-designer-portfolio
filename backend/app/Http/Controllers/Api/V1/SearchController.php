@@ -21,6 +21,13 @@ class SearchController extends Controller
      */
     public function search(Request $request): JsonResponse
     {
+        $request->validate([
+            'sort' => 'nullable|string|in:newest,oldest,most_viewed,year_desc,year_asc,title_asc,title_desc',
+            'per_page' => 'nullable|integer|min:1|max:50',
+            'page' => 'nullable|integer|min:1',
+            'year' => 'nullable|integer',
+        ]);
+
         $queryStr = (string) $request->input('q', $request->input('query', ''));
         $locale = $request->input('locale', 'ar');
         if (!in_array($locale, ['ar', 'en'], true)) {
@@ -32,8 +39,10 @@ class SearchController extends Controller
             'category' => $request->input('category'),
             'tool' => $request->input('tool'),
             'year' => $request->input('year'),
+            'sort' => $request->input('sort'),
             'per_page' => $request->input('per_page', 12),
             'page' => $request->input('page', 1),
+            'is_explicit_query' => $request->has('q') || $request->has('query'),
         ];
 
         $paginated = $this->searchService->searchProjects($queryStr, $filters);
@@ -62,6 +71,7 @@ class SearchController extends Controller
             'data' => [
                 'query' => trim($queryStr),
                 'locale' => $locale,
+                'sort' => $filters['sort'] ?? 'newest',
                 'projects' => $transformed,
                 'meta' => [
                     'current_page' => $paginated->currentPage(),
