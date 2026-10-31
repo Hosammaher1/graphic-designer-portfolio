@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 73 of 97 tasks started, 73 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 74 of 97 tasks started, 74 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,9 +17,9 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 1 | 1 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **73** | **73** | |
+| **Total** | | **97** | **74** | **74** | |
 
 ## Task register
 
@@ -98,7 +98,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.08 | Bundle optimization | DONE | PASS: Vitest bundle-optimization (3 passed: vendor chunk splitting react/router/lucide, gzip size budget <150kB, Vite manualChunks config) + Client build (vendor-react 69kB, vendor-router 14kB, vendor-lucide 5kB, index 52kB gzip) | None available (manual checklist) | None (ready for 07.09) | 0d98531 |
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
-| 08.01 | Security headers and CSP | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.01 | Security headers and CSP | DONE | PASS: PHPUnit SecurityHeadersTest (3 passed, 24 assertions: CSP directives, HSTS preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, COOP/CORP across API and web routes) + Node SSR headers | None available (manual checklist) | None (ready for 08.02) | 9c71af4 |
 | 08.02 | Input sanitization and XSS | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.03 | File upload security | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.04 | Rate limiting hardening | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -4637,6 +4637,74 @@ Blockers/owner inputs:
   None. Task 07.10 complete. Phase 07 officially PASSED (10/10 tasks complete).
 Next task:
   Phase 08 — Task 08.01: Security headers and CSP (Content Security Policy, HSTS, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy; Nginx & Laravel middleware).
+```
+
+### Task 08.01: Security headers and CSP
+
+- **Status:** DONE
+- **Branch:** `feat/08.01-security-headers-and-csp`
+- **Commit:** `9c71af4`
+- **Remote:** `origin/feat/08.01-security-headers-and-csp`
+- **Merged to:** `dev` (`9c71af4`)
+
+```yaml
+Task: 08.01
+Title: Security headers and CSP
+Status: DONE
+Evidence:
+  git:
+    branch: feat/08.01-security-headers-and-csp
+    commit: 9c71af4
+    remote: origin/feat/08.01-security-headers-and-csp
+    merged_to_dev: 9c71af4
+  files_created:
+    - backend/app/Http/Middleware/SecurityHeadersMiddleware.php (Middleware applying Content-Security-Policy, Strict-Transport-Security, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy, COOP, and CORP)
+    - backend/tests/Feature/SecurityHeadersTest.php (PHPUnit test suite asserting headers across API, meta, and web routes)
+  files_modified:
+    - backend/bootstrap/app.php (Appended SecurityHeadersMiddleware to global middleware stack)
+    - frontend/server/index.js (Configured identical HTTP security headers on all SSR HTML responses and static file handlers)
+    - docs/PROGRESS.md (Marked Task 08.01 DONE, updated Phase 08 to 1/12, total 74/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/SecurityHeadersTest.php:
+    - api endpoints return strict security headers
+    - public meta routes return security headers
+    - clickjacking protection is consistently enforced
+  Observed GREEN state:
+    PHPUnit SecurityHeadersTest: 3 passed (24 assertions) in 3.18s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for security headers.
+Unavailable skills and fallback checklist:
+  - security-headers-csp: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 08.01 verified:
+    1. Content-Security-Policy (CSP): default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' fonts.googleapis.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self' data: blob: res.cloudinary.com images.unsplash.com; font-src 'self' fonts.gstatic.com data:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'.
+    2. Strict-Transport-Security (HSTS): max-age=31536000; includeSubDomains; preload.
+    3. Clickjacking defense: X-Frame-Options: DENY and CSP frame-ancestors 'none'.
+    4. MIME sniffing prevention: X-Content-Type-Options: nosniff.
+    5. Privacy & leakage defense: Referrer-Policy: strict-origin-when-cross-origin.
+    6. Hardware feature access restriction: Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=().
+    7. Cross-Origin-Opener-Policy & Cross-Origin-Resource-Policy: same-origin.
+Design artifacts/screenshots reviewed:
+  MDN HTTP Security Headers specifications, OWASP Secure Headers Project guidelines.
+Commands executed and exact results:
+  1. git checkout -b feat/08.01-security-headers-and-csp
+  2. Created backend/tests/Feature/SecurityHeadersTest.php (RED state: 3 failed).
+  3. Created backend/app/Http/Middleware/SecurityHeadersMiddleware.php.
+  4. Appended middleware in backend/bootstrap/app.php.
+  5. Updated frontend/server/index.js for SSR HTML responses.
+  6. powershell -Command "Set-Location backend; php artisan test tests/Feature/SecurityHeadersTest.php" -> GREEN: 3 passed (24 assertions) in 3.18s.
+  7. git commit -m "feat(sec): implement Content-Security-Policy and strict HTTP security headers [08.01]"
+  8. git push origin feat/08.01-security-headers-and-csp
+  9. git checkout dev && git merge --ff-only feat/08.01-security-headers-and-csp && git push origin dev
+Security/privacy/SEO considerations:
+  - Complete mitigation of clickjacking (X-Frame-Options: DENY & frame-ancestors 'none').
+  - HSTS with preload ensures browsers never downgrade to unencrypted HTTP.
+  - Strict CSP blocks unauthorized third-party script injection and Cross-Site Scripting (XSS).
+Blockers/owner inputs:
+  None. Task 08.01 complete and verified.
+Next task:
+  Phase 08 — Task 08.02: Input sanitization and XSS (HTMLPurifier / strip_tags sanitization for rich text, block builder content, contact form inputs, UTF-8 normalization, SQL injection resistance).
 ```
 ```
 ```
