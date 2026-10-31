@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 74 of 97 tasks started, 74 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 75 of 97 tasks started, 75 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,9 +17,9 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 1 | 1 | Not evaluated |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 2 | 2 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **74** | **74** | |
+| **Total** | | **97** | **75** | **75** | |
 
 ## Task register
 
@@ -99,7 +99,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
 | 08.01 | Security headers and CSP | DONE | PASS: PHPUnit SecurityHeadersTest (3 passed, 24 assertions: CSP directives, HSTS preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, COOP/CORP across API and web routes) + Node SSR headers | None available (manual checklist) | None (ready for 08.02) | 9c71af4 |
-| 08.02 | Input sanitization and XSS | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.02 | Input sanitization and XSS | DONE | PASS: PHPUnit InputSanitizationTest (5 passed, 25 assertions: plain text XSS stripping, null bytes removal, UTF-8 normalization, rich text HTML safe whitelist & event handler stripping, recursive block sanitization, contact endpoint XSS neutralization) + 16 contact tests passed | None available (manual checklist) | None (ready for 08.03) | 2523f51 |
 | 08.03 | File upload security | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.04 | Rate limiting hardening | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.05 | Error handling and redacting | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -4705,6 +4705,74 @@ Blockers/owner inputs:
   None. Task 08.01 complete and verified.
 Next task:
   Phase 08 — Task 08.02: Input sanitization and XSS (HTMLPurifier / strip_tags sanitization for rich text, block builder content, contact form inputs, UTF-8 normalization, SQL injection resistance).
+```
+
+### Task 08.02: Input sanitization and XSS
+
+- **Status:** DONE
+- **Branch:** `feat/08.02-input-sanitization-and-xss`
+- **Commit:** `2523f51`
+- **Remote:** `origin/feat/08.02-input-sanitization-and-xss`
+- **Merged to:** `dev` (`2523f51`)
+
+```yaml
+Task: 08.02
+Title: Input sanitization and XSS
+Status: DONE
+Evidence:
+  git:
+    branch: feat/08.02-input-sanitization-and-xss
+    commit: 2523f51
+    remote: origin/feat/08.02-input-sanitization-and-xss
+    merged_to_dev: 2523f51
+  files_created:
+    - backend/app/Services/Security/InputSanitizer.php (Sanitization service providing UTF-8 normalization, null byte removal, plain text tag/URI stripping, rich text HTML safe tag whitelisting, inline on* event handler neutralization, and recursive array sanitization)
+    - backend/tests/Feature/InputSanitizationTest.php (PHPUnit test suite for plain text, rich text, recursive nested layout blocks, and API contact inquiry sanitization)
+  files_modified:
+    - backend/app/Http/Controllers/Api/V1/ContactController.php (Integrated InputSanitizer into store method for contact name, subject, and message)
+    - docs/PROGRESS.md (Marked Task 08.02 DONE, updated Phase 08 to 2/12, total 75/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/InputSanitizationTest.php:
+    - plain text strips all html and executable scripts
+    - plain text normalizes utf8 and removes null bytes
+    - rich text html sanitizer permits safe formatting and neutralizes xss
+    - recursive array sanitizer sanitizes nested layout blocks
+    - contact inquiry endpoint sanitizes xss inputs
+  Observed GREEN state:
+    PHPUnit InputSanitizationTest: 5 passed (25 assertions) in 6.12s.
+    Combined Contact & Sanitization suite: 3 test files, 16 passed (85 assertions) in 3.68s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for input sanitization.
+Unavailable skills and fallback checklist:
+  - input-sanitization-xss: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 08.02 verified:
+    1. Plain text sanitization: Strips `<script>`, `<iframe>`, `<style>`, remaining HTML tags, null bytes `\0`, and pseudo-protocols `javascript:`, `vbscript:`, `data:`.
+    2. Rich text HTML sanitization: Whitelists safe semantic tags (`<p>`, `<a>`, `<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<h1>`-`<h6>`, `<ul>`, `<ol>`, `<li>`, `<blockquote>`, `<img>`), removes dangerous tags and strips inline event handlers (`onload`, `onerror`, `onclick`).
+    3. Recursive structure traversal: Recursively sanitizes page builder custom layout blocks and nested JSON structures.
+    4. UTF-8 normalization: Preserves Arabic diacritics and glyphs while stripping invalid byte sequences and non-printable control characters.
+    5. API integration: ContactController sanitizes all user inputs before database storage.
+Design artifacts/screenshots reviewed:
+  OWASP Cross-Site Scripting (XSS) Prevention Cheat Sheet, PHP mbstring and filter specifications.
+Commands executed and exact results:
+  1. git checkout -b feat/08.02-input-sanitization-and-xss
+  2. Created backend/tests/Feature/InputSanitizationTest.php (RED state: InputSanitizer missing).
+  3. Created backend/app/Services/Security/InputSanitizer.php.
+  4. Integrated InputSanitizer into backend/app/Http/Controllers/Api/V1/ContactController.php.
+  5. powershell -Command "Set-Location backend; php artisan test tests/Feature/InputSanitizationTest.php" -> GREEN: 5 passed (25 assertions).
+  6. powershell -Command "Set-Location backend; php artisan test tests/Feature/InputSanitizationTest.php tests/Feature/ContactInquiryTest.php tests/Feature/ContactAntiSpamTest.php" -> GREEN: 16 passed (85 assertions).
+  7. git commit -m "feat(sec): implement input sanitization and XSS protection service [08.02]"
+  8. git push origin feat/08.02-input-sanitization-and-xss
+  9. git checkout dev && git merge --ff-only feat/08.02-input-sanitization-and-xss && git push origin dev
+Security/privacy/SEO considerations:
+  - Prevents stored XSS in database fields viewed by administrator in dashboard.
+  - Preserves legitimate multilingual typographic glyphs without corruption.
+  - Neutralizes executable payloads in block builder JSON structures.
+Blockers/owner inputs:
+  None. Task 08.02 complete and verified.
+Next task:
+  Phase 08 — Task 08.03: File upload security (MIME validation via fileinfo, SVG sanitization, disallow PHP/executable extensions, Cloudinary signed upload presets).
 ```
 ```
 ```
