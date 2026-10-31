@@ -24,6 +24,7 @@ export function resolvePageMetadata(url = '/', options = {}) {
   let image = options.project?.cover_url || options.project?.cover_image?.url || options.image || DEFAULT_OG_IMAGE;
   let canonicalPath = cleanUrl;
   let routeSuffix = '/';
+  const preloadImage = options.preloadImage || options.heroImage || null;
 
   // Route-specific metadata mapping
   if (cleanUrl === `/${locale}/` || cleanUrl === `/${locale}` || cleanUrl === '/' || cleanUrl === '') {
@@ -145,6 +146,7 @@ export function resolvePageMetadata(url = '/', options = {}) {
     type,
     og,
     twitter,
+    preloadImage,
     renderHeadTags() {
       const tags = [
         `<meta name="description" content="${escapeHtml(description)}" />`,
@@ -160,6 +162,10 @@ export function resolvePageMetadata(url = '/', options = {}) {
           tags.push(`<link rel="alternate" hreflang="en" href="${escapeHtml(alternates.en)}" />`);
           tags.push(`<link rel="alternate" hreflang="x-default" href="${escapeHtml(alternates['x-default'])}" />`);
         }
+      }
+
+      if (preloadImage && !isRobotsDisallowed) {
+        tags.push(`<link rel="preload" as="image" href="${escapeHtml(preloadImage)}" fetchpriority="high">`);
       }
 
       tags.push(
@@ -245,6 +251,21 @@ export function syncDocumentHead(metadata) {
     canonicalEl.setAttribute('href', metadata.canonicalUrl);
   } else if (canonicalEl) {
     canonicalEl.remove();
+  }
+
+  // Hero image preload link
+  let preloadEl = document.querySelector('link[rel="preload"][as="image"]');
+  if (metadata.preloadImage && !metadata.isRobotsDisallowed) {
+    if (!preloadEl) {
+      preloadEl = document.createElement('link');
+      preloadEl.setAttribute('rel', 'preload');
+      preloadEl.setAttribute('as', 'image');
+      preloadEl.setAttribute('fetchpriority', 'high');
+      document.head.appendChild(preloadEl);
+    }
+    preloadEl.setAttribute('href', metadata.preloadImage);
+  } else if (preloadEl) {
+    preloadEl.remove();
   }
 
   // Hreflang alternate link tags

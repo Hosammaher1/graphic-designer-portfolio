@@ -18,6 +18,7 @@ import {
   CardContent,
   Button,
   Badge,
+  ResponsiveImage,
 } from '../components/ui';
 import { DocumentRenderer } from '../page-builder/BlockRenderer.jsx';
 import { useConsent } from '../context/ConsentContext.jsx';
@@ -279,10 +280,13 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
               aria-label={`View full cover for ${project.title}`}
               onKeyDown={(e) => e.key === 'Enter' && setActiveImageIndex(0)}
             >
-              <img
+              <ResponsiveImage
                 src={project.cover_url}
                 alt={project.title}
+                aspectRatio="16/9"
+                priority={true}
                 className="project-cover-image"
+                sizes="(max-width: 1024px) 100vw, 1200px"
               />
             </div>
           </Container>
