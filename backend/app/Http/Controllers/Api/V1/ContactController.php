@@ -7,6 +7,7 @@ use App\Http\Requests\ContactInquiryRequest;
 use App\Mail\InquiryConfirmationMail;
 use App\Mail\InquiryNotificationMail;
 use App\Models\Inquiry;
+use App\Services\Security\InputSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -15,16 +16,17 @@ class ContactController extends Controller
 {
     /**
      * Store a newly submitted contact inquiry and queue notification emails.
+     * Sanitizes all plain text inputs against XSS (Task 08.02).
      */
-    public function store(ContactInquiryRequest $request): JsonResponse
+    public function store(ContactInquiryRequest $request, InputSanitizer $sanitizer): JsonResponse
     {
         $validated = $request->validated();
 
         $inquiry = Inquiry::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'subject' => $validated['subject'],
-            'message' => $validated['message'],
+            'name' => $sanitizer->cleanPlainText($validated['name']),
+            'email' => strtolower(trim($validated['email'])),
+            'subject' => $sanitizer->cleanPlainText($validated['subject']),
+            'message' => $sanitizer->cleanPlainText($validated['message']),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status' => 'new',
