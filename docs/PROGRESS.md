@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 52 of 97 tasks started, 52 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 53 of 97 tasks started, 53 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 1 | 1 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 2 | 2 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **52** | **52** | |
+| **Total** | | **97** | **53** | **53** | |
 
 ## Task register
 
@@ -77,7 +77,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.11 | Project layout builder | DONE | PASS: PHPUnit ProjectLayoutBuilderTest (4 passed, 15 assertions: restricted blocks, global block 422 rejection, media asset permissions 422 rejection, published snapshot isolation) + Vitest project-layout-builder (3 passed) | None available (manual checklist) | None (ready for 05.12) | 5e6d9c7 |
 | 05.12 | Builder E2E | DONE | PASS: Playwright page-builder (2 passed) + Phase 05 Gate Suites (148 PHPUnit, 155 Vitest, 50 Playwright = 353 passed) | None available (manual checklist) | None (Phase 05 Gate PASSED, ready for Phase 06) | eeeca63 |
 | 06.01 | Search indexing | DONE | PASS: PHPUnit SearchQueryTest (8 passed, 54 assertions: English/Arabic query, alef normalization, case insensitivity, draft/trash exclusion, pagination, SQL injection resistance, whitespace handling) | None available (manual checklist) | None (ready for 06.02) | 4745f54 |
-| 06.02 | Search API and UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.02 | Filters/sorting | DONE | PASS: PHPUnit SearchFilterSortTest (11 passed, 35 assertions: category/tool/year filters, intersection combinations, empty results, newest/oldest/most_viewed sorts, stable tiebreaker, invalid sort 422) | None available (manual checklist) | None (ready for 06.03) | 505165f |
 | 06.03 | Rule-based recommendations | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.04 | Recommendation UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.05 | Consent banner and model | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3238,4 +3238,70 @@ Blockers/owner inputs:
   None. Task 06.01 complete and verified.
 Next task:
   Phase 06 — Task 06.02: Filters/sorting (Category, tools, year, newest, most viewed. Tests: combined filters, empty results, stable ordering, invalid sort rejected).
+```
+
+
+---
+
+## Task 06.02 Execution Report
+
+```text
+Task ID: 06.02
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.02-filters-sorting
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 505165f
+Files changed:
+  Created:
+    - backend/tests/Feature/SearchFilterSortTest.php (PHPUnit test suite with 11 tests verifying category, tool, and year filtering, combined intersection filters, empty result handling, newest, oldest, and most viewed sorting, deterministic tiebreaking, and 422 validation on invalid sort keys)
+  Modified:
+    - backend/app/Services/Search/SearchService.php (Implemented multi-criteria taxonomy filtering, combined filter intersection, and stable sorting using deterministic `id desc` tiebreakers)
+    - backend/app/Http/Controllers/Api/V1/SearchController.php (Added strict 422 validation on `sort`, `page`, `per_page`, and `year`, and wired sorting parameters)
+    - backend/app/Http/Controllers/Api/V1/PublicProjectController.php (Unified public projects listing endpoint with matching sorting allowlist, deterministic tiebreaker, and 422 validation)
+    - docs/PROGRESS.md (marked Task 06.02 DONE, updated Phase 06 count to 2/12 and total to 53/97, recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/SearchFilterSortTest.php:
+    - filter by single category
+    - filter by single tool
+    - filter by year
+    - combined filters returns intersection
+    - combined filters with no matches returns clean empty result
+    - sort by newest orders by published at desc
+    - sort by oldest orders by published at asc
+    - sort by most viewed orders by view count desc
+    - sort maintains stable deterministic ordering with tiebreaker
+    - invalid sort parameter is rejected with 422
+    - public projects index also validates and supports sorting
+  Observed GREEN state:
+    PHPUnit SearchFilterSortTest: 11 passed (35 assertions) in 3.77s.
+    PHPUnit SearchQueryTest: 8 passed (54 assertions) in 2.92s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for filter and sorting customization.
+Unavailable skills and fallback checklist:
+  - filters-sorting, search-filtering: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.02 verified:
+    1. Multi-criteria filtering: Supports category slug, tool slug, and year filters individually and in arbitrary combinations.
+    2. Intersection semantics: Multiple filters return strict logical intersection (AND condition).
+    3. Empty results: Combinations yielding no matches return HTTP 200 with `status: "success"` and an empty `projects: []` array without errors.
+    4. Sorting allowlist: Strictly supports `newest` (`published_at desc`), `oldest` (`published_at asc`), `most_viewed` (`view_count desc`), `year_desc` (`year desc`), `year_asc` (`year asc`), `title_asc`, and `title_desc`.
+    5. Stable pagination ordering: Every sort query includes a secondary tiebreaker (`id desc` / `id asc`) to guarantee deterministic pagination without item jitter across pages.
+    6. Invalid sort rejection: Unapproved sort keys return HTTP 422 with structured field error messages (`The selected sort is invalid.`).
+Design artifacts/screenshots reviewed:
+  Inspected JSON responses of `/api/v1/search` and `/api/v1/projects` with sort and filter permutations.
+Commands executed and exact results:
+  1. git checkout -b feat/06.02-filters-sorting
+  2. Created backend/tests/Feature/SearchFilterSortTest.php (RED state: 9 failed tests).
+  3. Updated SearchService.php, SearchController.php, and PublicProjectController.php.
+  4. cd backend; php artisan test tests/Feature/SearchFilterSortTest.php -> GREEN: 11 passed (35 assertions) in 3.77s.
+  5. cd backend; php artisan test tests/Feature/SearchQueryTest.php tests/Feature/SearchFilterSortTest.php -> GREEN: 19 passed (89 assertions) in 4.54s.
+Security/privacy/SEO considerations:
+  - Strict input validation prevents SQL injection and column probe attacks via invalid sort parameters.
+  - Snapshot isolation and publication filters ensure unapproved drafts and trashed content remain hidden regardless of sort or filter combination.
+Blockers/owner inputs:
+  None. Task 06.02 complete and verified.
+Next task:
+  Phase 06 — Task 06.03: Search UI (Search box, filter chips, clear filters, URL query sync. Tests: keyboard, debounce, back/forward state, loading/error/empty).
 ```
