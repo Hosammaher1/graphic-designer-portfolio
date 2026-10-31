@@ -105,8 +105,16 @@ Route::prefix('v1')->group(function () {
         // Page Builder Draft, Preview & Publishing
         Route::get('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'getDraft'])->name('api.v1.admin.pages.draft.get');
         Route::post('pages/{slug}/draft', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'saveDraft'])->name('api.v1.admin.pages.draft.save');
-        Route::get('pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.admin.pages.preview');
+        Route::get('pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview');
         Route::post('pages/{slug}/preview-url', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'createPreviewUrl'])->name('api.v1.admin.pages.preview.url');
         Route::post('pages/{slug}/publish', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'publish'])->name('api.v1.admin.pages.publish');
+
+        // Analytics API (Task 06.10)
+        Route::prefix('analytics')->group(function () {
+            Route::get('overview', [\App\Http\Controllers\Api\V1\Admin\AnalyticsApiController::class, 'overview'])->name('api.v1.admin.analytics.overview');
+            Route::get('top-projects', [\App\Http\Controllers\Api\V1\Admin\AnalyticsApiController::class, 'topProjects'])->name('api.v1.admin.analytics.topProjects');
+            Route::get('traffic-sources', [\App\Http\Controllers\Api\V1\Admin\AnalyticsApiController::class, 'trafficSources'])->name('api.v1.admin.analytics.trafficSources');
+            Route::get('devices', [\App\Http\Controllers\Api\V1\Admin\AnalyticsApiController::class, 'devices'])->name('api.v1.admin.analytics.devices');
+        });
     });
 });
