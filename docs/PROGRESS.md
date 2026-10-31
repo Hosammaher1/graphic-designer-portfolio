@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 51 of 97 tasks started, 51 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 52 of 97 tasks started, 52 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 0 | 0 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 1 | 1 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **51** | **51** | |
+| **Total** | | **97** | **52** | **52** | |
 
 ## Task register
 
@@ -76,7 +76,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05.10 | Atomic publish | DONE | PASS: PHPUnit PageAtomicPublishTest (5 passed, 20 assertions: atomic publish transaction, localized completeness policy 422, rollback resilience, public endpoint isolation, auth guard) + Vitest page-builder-atomic-publish (4 passed) | None available (manual checklist) | None (ready for 05.11) | 87d6ac1 |
 | 05.11 | Project layout builder | DONE | PASS: PHPUnit ProjectLayoutBuilderTest (4 passed, 15 assertions: restricted blocks, global block 422 rejection, media asset permissions 422 rejection, published snapshot isolation) + Vitest project-layout-builder (3 passed) | None available (manual checklist) | None (ready for 05.12) | 5e6d9c7 |
 | 05.12 | Builder E2E | DONE | PASS: Playwright page-builder (2 passed) + Phase 05 Gate Suites (148 PHPUnit, 155 Vitest, 50 Playwright = 353 passed) | None available (manual checklist) | None (Phase 05 Gate PASSED, ready for Phase 06) | eeeca63 |
-| 06.01 | Search indexing | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.01 | Search indexing | DONE | PASS: PHPUnit SearchQueryTest (8 passed, 54 assertions: English/Arabic query, alef normalization, case insensitivity, draft/trash exclusion, pagination, SQL injection resistance, whitespace handling) | None available (manual checklist) | None (ready for 06.02) | 4745f54 |
 | 06.02 | Search API and UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.03 | Rule-based recommendations | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.04 | Recommendation UI | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3177,3 +3177,65 @@ Criteria:
      PASS: Project layout builder allows custom presentation blocks while disallowing global page sections; cross-project media validation restricts referenced assets to approved project media or published items.
 Phase 05 is COMPLETE. Ready for Phase 06 - Search, Recommendations, Consent, Analytics.
 ================================================================================
+
+
+---
+
+## Task 06.01 Execution Report
+
+```text
+Task ID: 06.01
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.01-search-query
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 4745f54
+Files changed:
+  Created:
+    - backend/app/Services/Search/SearchService.php (Bilingual search service implementing Arabic alef/tashkeel normalization, SQL wildcard escaping, multi-attribute Eloquent query builder, and pagination)
+    - backend/app/Http/Controllers/Api/V1/SearchController.php (Public search endpoint handler with locale negotiation, pagination metadata, and snapshot transformation)
+    - backend/tests/Feature/SearchQueryTest.php (Feature test suite with 8 tests verifying English and Arabic query execution, alef normalization, case insensitivity, draft/trash exclusion, pagination, SQL injection resistance, and whitespace handling)
+  Modified:
+    - backend/routes/api.php (Registered public endpoint `GET /api/v1/search`)
+    - docs/PROGRESS.md (marked Task 06.01 DONE, updated Phase 06 count to 1/12 and total to 52/97, recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/SearchQueryTest.php:
+    - can search with english query
+    - can search with arabic query
+    - arabic normalization matches alef variations
+    - case insensitive matching for english queries
+    - draft and trashed projects are strictly excluded
+    - search pagination works deterministically
+    - sql injection resistance
+    - empty or whitespace query returns empty results cleanly
+  Observed GREEN state:
+    PHPUnit SearchQueryTest: 8 passed (54 assertions) in 2.77s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for search indexing.
+Unavailable skills and fallback checklist:
+  - search-indexing, bilingual-search: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.01 verified:
+    1. Bilingual search indexes and queries: Project search searches across `project_translations` (`title`, `summary`, `description`), `projects` (`slug`, `client`), categories, and tools.
+    2. Arabic normalization: Tashkeel stripped, alef variants (`أ`, `إ`, `آ`, `ٱ`) normalized to bare `ا`, and yaa/alef maksura standardized to ensure flexible cross-variant matches.
+    3. Case insensitivity: Latin queries match regardless of uppercase or lowercase combinations.
+    4. Strict filtering: Only projects with `status = 'published'`, `deleted_at IS NULL`, and non-null `published_snapshot` are returned; drafts and trashed records are strictly excluded.
+    5. SQL injection resistance: Parameter binding via Eloquent and SQL wildcard escaping (`%` and `_`) prevents injection payloads and wildcard DoS attacks.
+    6. Pagination & metadata: Deterministic pagination with `current_page`, `per_page`, `total`, and `last_page`.
+Design artifacts/screenshots reviewed:
+  Inspected search response JSON payload structures ensuring parity with public project listing endpoints.
+Commands executed and exact results:
+  1. git checkout -b feat/06.01-search-query
+  2. Created backend/tests/Feature/SearchQueryTest.php (RED state: 8 failed tests).
+  3. Created backend/app/Services/Search/SearchService.php and backend/app/Http/Controllers/Api/V1/SearchController.php.
+  4. Registered route in backend/routes/api.php.
+  5. cd backend; php artisan test tests/Feature/SearchQueryTest.php -> GREEN: 8 passed (54 assertions) in 2.77s.
+Security/privacy/SEO considerations:
+  - Strict publication filters prevent leaking confidential drafts, unpublished concepts, or deleted projects to public search results.
+  - Wildcard escaping and PDO parameter binding eliminate SQL injection vulnerabilities.
+Blockers/owner inputs:
+  None. Task 06.01 complete and verified.
+Next task:
+  Phase 06 — Task 06.02: Filters/sorting (Category, tools, year, newest, most viewed. Tests: combined filters, empty results, stable ordering, invalid sort rejected).
+```
