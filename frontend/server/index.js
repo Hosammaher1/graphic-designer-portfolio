@@ -75,6 +75,18 @@ async function createServer() {
         );
 
         proxyReq.on('error', () => {
+          if (cleanUrl === '/robots.txt') {
+            const fallbackRobots = "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin/\nDisallow: /api\nDisallow: /api/\n\nSitemap: http://localhost:3000/sitemap.xml\n";
+            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end(fallbackRobots);
+            return;
+          }
+          if (cleanUrl === '/sitemap.xml') {
+            const fallbackSitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n  <url><loc>http://localhost:3000/ar/</loc><xhtml:link rel="alternate" hreflang="ar" href="http://localhost:3000/ar/"/><xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/"/></url>\n  <url><loc>http://localhost:3000/en/</loc><xhtml:link rel="alternate" hreflang="ar" href="http://localhost:3000/ar/"/><xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/"/></url>\n</urlset>';
+            res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8' });
+            res.end(fallbackSitemap);
+            return;
+          }
           res.writeHead(502, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ status: 'error', message: 'API Gateway connection failure.' }));
         });
