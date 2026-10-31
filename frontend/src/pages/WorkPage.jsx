@@ -13,6 +13,7 @@ import {
   CardContent,
   Button,
   Badge,
+  ResponsiveImage,
 } from '../components/ui';
 import SearchFilterBar from '../components/SearchFilterBar.jsx';
 
@@ -201,12 +202,13 @@ export default function WorkPage({ locale = 'ar' }) {
                   <Card key={project.id} interactive className="project-card">
                     {project.cover_url && (
                       <div className="project-card-image-wrap">
-                        <img
-                          src={project.cover_url}
-                          alt={project.title}
-                          className="project-card-image"
-                          loading="lazy"
-                        />
+                        <ResponsiveImage
+                        src={project.cover_url}
+                        alt={project.title}
+                        aspectRatio="16/10"
+                        className="project-card-image"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                       </div>
                     )}
                     <CardHeader>

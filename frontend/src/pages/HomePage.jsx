@@ -13,6 +13,7 @@ import {
   CardFooter,
   Button,
   Badge,
+  ResponsiveImage,
 } from '../components/ui';
 
 export default function HomePage({ locale = 'ar' }) {
@@ -140,11 +141,12 @@ export default function HomePage({ locale = 'ar' }) {
                 <Card key={project.id} interactive className="project-card">
                   {project.cover_url && (
                     <div className="project-card-image-wrap">
-                      <img
+                      <ResponsiveImage
                         src={project.cover_url}
                         alt={project.title}
+                        aspectRatio="16/10"
                         className="project-card-image"
-                        loading="lazy"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
                   )}
