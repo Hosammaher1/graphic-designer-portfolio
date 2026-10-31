@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 59 of 97 tasks started, 59 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 60 of 97 tasks started, 60 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -15,11 +15,11 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
-| 06 | Search, Recommendations, Consent, Analytics | 12 | 8 | 8 | Not evaluated |
+| 06 | Search, Recommendations, Consent, Analytics | 12 | 9 | 9 | Not evaluated |
 | 07 | SEO, Contact, Performance | 10 | 0 | 0 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **59** | **59** | |
+| **Total** | | **97** | **60** | **60** | |
 
 ## Task register
 
@@ -84,7 +84,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.06 | Consent backend/privacy | DONE | PASS: PHPUnit ConsentBackendPrivacyTest (6 passed, 29 assertions: pseudonymous token, rejection blocking, withdrawal deactivation & preferences purge, unauthorized linkage defense, token show, purge command) | None available (manual checklist) | None (ready for 06.07) | 51c32eb |
 | 06.07 | Personalized ranking | DONE | PASS: PHPUnit PersonalizedRankingTest (6 passed, 30 assertions: unconsented generic fallback, rejected generic fallback, tracking denial without consent, consented browsing affinity boost, withdrawal reversion, expired fallback) | None available (manual checklist) | None (ready for 06.08) | 9aee0ca |
 | 06.08 | Analytics events | DONE | PASS: PHPUnit AnalyticsEventsTest (6 passed, 34 assertions: permitted pageview with categorized referrer, project view with atomic counter increment, consent rejection/withdrawal blocking, crawler bot heuristics, idempotency deduplication, zero raw IP storage) | None available (manual checklist) | None (ready for 06.09) | 0db56e4 |
-| 06.09 | Aggregation/retention | NOT_STARTED | Not run | — | Phase 05 gate | — |
+| 06.09 | Aggregation/retention | DONE | PASS: PHPUnit AnalyticsAggregationRetentionTest (6 passed, 22 assertions: overview/project/referrer/device daily rollups, day boundary/timezone consistency, idempotent deduplication, bot exclusion, TTL raw event purge, aggregate query performance) | None available (manual checklist) | None (ready for 06.10) | 0d2e52b |
 | 06.10 | Analytics API | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.11 | Dashboard charts | NOT_STARTED | Not run | — | Phase 05 gate | — |
 | 06.12 | E2E search, recommendations, privacy | NOT_STARTED | Not run | — | Phase 05 gate | — |
@@ -3679,4 +3679,68 @@ Blockers/owner inputs:
   None. Task 06.08 complete and verified.
 Next task:
   Phase 06 — Task 06.09: Aggregation/retention (Scheduled daily rollups and raw-event expiry. Tests: day boundary, timezone consistency, deduplication, TTL purge, large dataset query performance).
+```
+
+
+---
+
+## Task 06.09 Execution Report
+
+```text
+Task ID: 06.09
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/06.09-aggregation-retention
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 0d2e52b
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_31_030000_create_analytics_daily_aggregates_table.php (Migration defining `analytics_daily_aggregates` table with compound unique index on date, dimension_type, and dimension_value for idempotent rollups)
+    - backend/app/Models/AnalyticsDailyAggregate.php (Eloquent model representing daily analytics rollups across overview, project, referrer category, and device dimensions)
+    - backend/app/Services/Analytics/AnalyticsAggregationService.php (Service aggregating raw events into summary rollups with strict day-boundary clamping, bot exclusion, and database upserts)
+    - backend/app/Console/Commands/AggregateDailyAnalyticsCommand.php (Artisan command `analytics:aggregate-daily` supporting explicit date or past N days aggregation)
+    - backend/app/Console/Commands/PurgeRawAnalyticsEventsCommand.php (Artisan command `analytics:purge-raw-events` automating TTL purge of old raw events past retention threshold)
+    - backend/tests/Feature/AnalyticsAggregationRetentionTest.php (Feature test suite with 6 tests and 22 assertions covering daily views and unique visitors, day boundary consistency, deduplication idempotency, bot exclusion, TTL raw event purge, and sub-100ms query performance)
+  Modified:
+    - docs/PROGRESS.md (marked Task 06.09 DONE, updated Phase 06 count to 9/12 and total to 60/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/AnalyticsAggregationRetentionTest.php:
+    - daily rollup aggregates views and approximate unique visitors
+    - day boundary and timezone consistency
+    - deduplication and idempotent aggregation
+    - bot events are excluded from rollups
+    - ttl purge removes old raw events while preserving aggregates
+    - query performance on aggregates
+  Observed GREEN state:
+    PHPUnit AnalyticsAggregationRetentionTest: 6 passed (22 assertions) in 4.17s.
+    PHPUnit AnalyticsEventsTest: 6 passed (34 assertions) in 3.81s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for analytics aggregation and TTL retention.
+Unavailable skills and fallback checklist:
+  - analytics-aggregation, data-retention: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 06.09 verified:
+    1. Scheduled daily rollups: System aggregates raw events into summary metrics across multiple dimensions (`overview`, `project`, `referrer_category`, `device`).
+    2. Approximate unique visitor counts: Rolled-up unique visitor counts are computed via `COUNT(DISTINCT visitor_hash)`, utilizing daily rotating salted hashes.
+    3. Day boundary & timezone consistency: Clamped precisely from `00:00:00` to `23:59:59` of the target calendar date in configured timezone, preventing multi-day drift.
+    4. Idempotency & deduplication: Upsert matching compound unique index `[date, dimension_type, dimension_value]` ensures repeated runs produce identical, stable counts.
+    5. Bot exclusion: Filtered using `where('is_bot', false)` to keep analytics aggregates purely reflective of real human visitors.
+    6. TTL purge: `analytics:purge-raw-events` deletes raw events past the retention threshold (30 days default) while preserving long-term daily aggregated trends intact.
+    7. Query scalability: Indexed queries over 30+ days execute in under 100ms without scanning raw event rows.
+Design artifacts/screenshots reviewed:
+  Daily aggregate database table structure, compound index definition, and rollup summary outputs.
+Commands executed and exact results:
+  1. git checkout -b feat/06.09-aggregation-retention
+  2. Created AnalyticsAggregationRetentionTest.php (RED state: commands and tables missing).
+  3. Created migration 2026_10_31_030000_create_analytics_daily_aggregates_table.php, AnalyticsDailyAggregate.php, AnalyticsAggregationService.php, AggregateDailyAnalyticsCommand.php, and PurgeRawAnalyticsEventsCommand.php.
+  4. php artisan migrate -> DONE (115.47ms).
+  5. php artisan test tests/Feature/AnalyticsAggregationRetentionTest.php -> GREEN: 6 passed (22 assertions) in 4.17s.
+Security/privacy/SEO considerations:
+  - Aggregation irreversibly condenses raw event data into summary metrics, further reducing privacy footprint.
+  - TTL purge guarantees raw event data is completely purged after retention expiry.
+Blockers/owner inputs:
+  None. Task 06.09 complete and verified.
+Next task:
+  Phase 06 — Task 06.10: Analytics API (Protected admin endpoints for counts, top projects, traffic sources, date ranges).
 ```
