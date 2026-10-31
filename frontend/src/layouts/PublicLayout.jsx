@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { useConsent } from '../context/ConsentContext.jsx';
+import { resolvePageMetadata, syncDocumentHead } from '../utils/seo.js';
 
 export function PublicLayout({ locale = 'ar', children }) {
   const location = useLocation();
@@ -29,6 +30,13 @@ export function PublicLayout({ locale = 'ar', children }) {
       }).catch(() => {});
     }
   }, [location.pathname, locale, consent?.status, consent?.consentId, hasConsent]);
+
+  // Sync document <title> and Open Graph / Twitter metadata on client navigation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const metadata = resolvePageMetadata(location.pathname);
+    syncDocumentHead(metadata);
+  }, [location.pathname, locale]);
 
   return (
     <div className="public-shell">

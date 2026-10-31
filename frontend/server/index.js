@@ -102,12 +102,19 @@ async function createServer() {
         return;
       }
 
-      const { html: appHtml, title, lang, dir } = render(cleanUrl);
+      const { html: appHtml, title, lang, dir, head, metadata } = render(cleanUrl);
+      const headTags = metadata ? metadata.renderHeadTags() : '';
 
       let responseHtml = template
         .replace(/<html[^>]*>/, `<html lang="${lang}" dir="${dir}">`)
         .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
         .replace('<!--ssr-outlet-->', appHtml);
+
+      if (responseHtml.includes('<!--ssr-head-tags-->')) {
+        responseHtml = responseHtml.replace('<!--ssr-head-tags-->', headTags);
+      } else {
+        responseHtml = responseHtml.replace('</head>', `    ${headTags}\n  </head>`);
+      }
 
       // Inject initial bootstrap state for client hydration
       const initialDataScript = `<script id="__INITIAL_DATA__" type="application/json">${JSON.stringify({ locale: lang, dir })}</script>`;
