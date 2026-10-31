@@ -14,12 +14,20 @@ import {
   Button,
   Badge,
 } from '../components/ui';
+import SearchFilterBar from '../components/SearchFilterBar.jsx';
 
 export default function WorkPage({ locale = 'ar' }) {
+  const isAr = locale === 'ar';
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const searchQuery = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('category') || '';
+  const selectedTool = searchParams.get('tool') || '';
+  const selectedYear = searchParams.get('year') || '';
+  const selectedSort = searchParams.get('sort') || 'newest';
 
   const [categories, setCategories] = useState([]);
+  const [tools, setTools] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -27,7 +35,7 @@ export default function WorkPage({ locale = 'ar' }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
 
-  // Fetch categories once on locale change
+  // Fetch categories & tools metadata once on locale change
   useEffect(() => {
     let isMounted = true;
     fetch(`/api/v1/categories?locale=${locale}`)
@@ -46,7 +54,24 @@ export default function WorkPage({ locale = 'ar' }) {
     };
   }, [locale]);
 
-  // Fetch projects when category or page changes
+  // Update URL Search Parameters
+  const updateParams = (newParams) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(newParams).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        next.set(key, String(val));
+      } else {
+        next.delete(key);
+      }
+    });
+    setSearchParams(next);
+  };
+
+  const handleClearFilters = () => {
+    setSearchParams({});
+  };
+
+  // Fetch projects when filters, query, sort, or locale change
   const fetchProjects = (page = 1, append = false) => {
     if (page === 1) {
       setLoading(true);
@@ -55,26 +80,38 @@ export default function WorkPage({ locale = 'ar' }) {
       setLoadingMore(true);
     }
 
-    let url = `/api/v1/projects?locale=${locale}&page=${page}`;
-    if (selectedCategory) {
-      url += `&category=${encodeURIComponent(selectedCategory)}`;
-    }
+    const endpoint = searchQuery ? '/api/v1/search' : '/api/v1/projects';
+    const params = new URLSearchParams({
+      locale,
+      page: String(page),
+    });
 
-    fetch(url)
+    if (searchQuery) params.set('q', searchQuery);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedTool) params.set('tool', selectedTool);
+    if (selectedYear) params.set('year', selectedYear);
+    if (selectedSort && selectedSort !== 'newest') params.set('sort', selectedSort);
+
+    fetch(`${endpoint}?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error('API request failed');
         return res.json();
       })
       .then((resData) => {
         const paginated = resData?.data?.projects;
-        const items = paginated?.data || [];
+        const items = Array.isArray(paginated)
+          ? paginated
+          : paginated?.data || [];
+        const pageNum = resData?.data?.meta?.current_page || paginated?.current_page || 1;
+        const lastPageNum = resData?.data?.meta?.last_page || paginated?.last_page || 1;
+
         if (append) {
           setProjects((prev) => [...prev, ...items]);
         } else {
           setProjects(items);
         }
-        setCurrentPage(paginated?.current_page || 1);
-        setLastPage(paginated?.last_page || 1);
+        setCurrentPage(pageNum);
+        setLastPage(lastPageNum);
         setError(null);
       })
       .catch((err) => {
@@ -88,15 +125,7 @@ export default function WorkPage({ locale = 'ar' }) {
 
   useEffect(() => {
     fetchProjects(1, false);
-  }, [locale, selectedCategory]);
-
-  const handleCategorySelect = (slug) => {
-    if (slug) {
-      setSearchParams({ category: slug });
-    } else {
-      setSearchParams({});
-    }
-  };
+  }, [locale, searchQuery, selectedCategory, selectedTool, selectedYear, selectedSort]);
 
   const handleLoadMore = () => {
     if (currentPage < lastPage && !loadingMore) {
@@ -109,39 +138,31 @@ export default function WorkPage({ locale = 'ar' }) {
       {/* Header */}
       <section className="work-header-section" aria-labelledby="work-title">
         <Container size="site">
-          <div className="work-header-content">
+          <div className="work-header-content text-center mb-6">
             <h1 id="work-title" className="work-title">
               {t('work.title', locale)}
             </h1>
             <p className="work-subtitle">{t('work.subtitle', locale)}</p>
           </div>
 
-          {/* Category Tabs */}
-          <nav className="category-tabs-nav" aria-label="Project Categories">
-            <div className="category-tabs-list" role="tablist">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!selectedCategory}
-                className={`category-tab-btn ${!selectedCategory ? 'active' : ''}`}
-                onClick={() => handleCategorySelect('')}
-              >
-                {t('work.allCategories', locale)}
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id || cat.slug}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedCategory === cat.slug}
-                  className={`category-tab-btn ${selectedCategory === cat.slug ? 'active' : ''}`}
-                  onClick={() => handleCategorySelect(cat.slug)}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </nav>
+          {/* Unified Search and Multi-Criteria Filter Bar */}
+          <SearchFilterBar
+            locale={locale}
+            searchQuery={searchQuery}
+            selectedCategory={selectedCategory}
+            selectedTool={selectedTool}
+            selectedYear={selectedYear}
+            selectedSort={selectedSort}
+            categories={categories}
+            tools={tools}
+            onSearchChange={(q) => updateParams({ q })}
+            onCategoryChange={(cat) => updateParams({ category: cat })}
+            onToolChange={(tool) => updateParams({ tool })}
+            onYearChange={(year) => updateParams({ year })}
+            onSortChange={(sort) => updateParams({ sort })}
+            onClearFilters={handleClearFilters}
+            isLoading={loading}
+          />
         </Container>
       </section>
 
@@ -226,7 +247,7 @@ export default function WorkPage({ locale = 'ar' }) {
 
               {/* Load More Button */}
               {currentPage < lastPage && (
-                <div className="load-more-wrap">
+                <div className="load-more-wrap mt-8 flex justify-center">
                   <Button
                     variant="outline"
                     size="lg"
@@ -240,12 +261,20 @@ export default function WorkPage({ locale = 'ar' }) {
             </>
           ) : (
             <Card className="fallback-card">
-              <CardContent className="fallback-content">
-                <Layers size={36} className="fallback-icon" aria-hidden="true" />
-                <h2 className="fallback-title">{t('work.emptyTitle', locale)}</h2>
-                <p className="fallback-desc">{t('work.emptyDesc', locale)}</p>
-                <Button variant="outline" size="md" onClick={() => handleCategorySelect('')}>
-                  {t('work.allCategories', locale)}
+              <CardContent className="fallback-content text-center py-12">
+                <Layers size={36} className="fallback-icon mx-auto text-muted mb-3" aria-hidden="true" />
+                <h2 className="fallback-title text-lg font-bold mb-1">
+                  {searchQuery
+                    ? (isAr ? 'لم يتم العثور على أي أعمال تطابق بحثك' : 'No projects found matching your search')
+                    : t('work.emptyTitle', locale)}
+                </h2>
+                <p className="fallback-desc text-sm text-muted mb-4">
+                  {searchQuery
+                    ? (isAr ? 'جرب البحث بكلمات أخرى أو مسح الفلاتر المحددة.' : 'Try different keywords or clear active filters.')
+                    : t('work.emptyDesc', locale)}
+                </p>
+                <Button variant="outline" size="md" onClick={handleClearFilters}>
+                  {isAr ? 'مسح الفلاتر' : 'Clear Filters'}
                 </Button>
               </CardContent>
             </Card>
