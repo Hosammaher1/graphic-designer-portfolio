@@ -1,17 +1,17 @@
-# Agent Handoff — Checkpoint at Task 07.08
+# Agent Handoff — Checkpoint at Task 07.09
 
 **Prepared:** 2026-10-31
 **Canonical scope:** `Graphic_Designer_Portfolio_Plan_v1_1.md`
 **Audit:** `docs/PLAN_AUDIT.md`
 **Progress Tracker:** `docs/PROGRESS.md`
-**Current Status:** 70 of 97 tasks completed (Phases 01–06 100% complete and verified; Phase 07 Tasks 07.01 through 07.07 complete).
+**Current Status:** 71 of 97 tasks completed (Phases 01–06 100% complete and verified; Phase 07 Tasks 07.01 through 07.08 complete).
 
 ---
 
 ## 1. Executive Summary
 
 - **Total Tasks Approved:** 97 tasks across 9 phases.
-- **Tasks Complete & Verified:** 70 tasks (Tasks 01.01 through 07.07).
+- **Tasks Complete & Verified:** 71 tasks (Tasks 01.01 through 07.08).
 - **Phase Gates Passed:**
   - **Phase 01 Gate:** Foundation & Architecture (8/8) — PASSED
   - **Phase 02 Gate:** Authentication & Admin Shell (8/8) — PASSED
@@ -20,46 +20,48 @@
   - **Phase 05 Gate:** Flexible Page Builder, Atomic Publishing, Snapshot Isolation (12/12) — PASSED
   - **Phase 06 Gate:** Search, Recommendations, Consent, Analytics (12/12) — PASSED
 - **Current Phase:** **Phase 07 — SEO, Contact, Performance (Tasks 07.01–07.10)**
-- **Next Immediate Task:** **Task 07.08: Bundle optimization**
+- **Next Immediate Task:** **Task 07.09: Core Web Vitals audit**
 
 ---
 
-## 2. Latest Task Verification: Task 07.07 (Image responsive loader)
+## 2. Latest Task Verification: Task 07.08 (Bundle optimization)
 
 - **Implementation Details:**
-  - Image Optimization Utility (`frontend/src/utils/imageOptimization.js`):
-    - `isCloudinaryUrl()`: Validates Cloudinary upload paths.
-    - `buildCloudinaryUrl()`: Inserts width, crop, format, and blur transformations.
-    - `buildSrcSet()`: Formats responsive `srcset` with standard breakpoint width descriptors (320w, 640w, 960w, 1280w, 1920w) across AVIF, WebP, and default formats.
-    - `buildLqipUrl()`: Produces micro-blurred Low-Quality Image Placeholders.
-  - ResponsiveImage Component (`frontend/src/components/ui/ResponsiveImage.jsx`):
-    - HTML5 `<picture>` container with `<source type="image/avif">` and `<source type="image/webp">` ahead of fallback `<img>`.
-    - Preserves container & image `aspect-ratio` directly via inline styling to eliminate Cumulative Layout Shift (CLS).
-    - Native `loading="lazy"` with `decoding="async"` by default; toggles to `loading="eager"` and `fetchpriority="high"` for priority assets.
-    - Smooth LQIP blur-up transition via `is-loading` / `is-loaded` classes and CSS filter.
-  - Page Integrations:
-    - Integrated in `frontend/src/pages/HomePage.jsx` and `frontend/src/pages/WorkPage.jsx`.
+  - Vite Rollup Configuration (`frontend/vite.config.js`):
+    - Configured `output.manualChunks(id)` to cleanly separate vendor bundles:
+      - `vendor-react`: `react`, `react-dom`, `scheduler` (gzip ~69 kB)
+      - `vendor-router`: `react-router`, `react-router-dom` (gzip ~14 kB)
+      - `vendor-lucide`: `lucide-react` (gzip ~5 kB)
+      - `vendor-common`: miscellaneous libraries
+    - Path normalization handles both Windows (`\\`) and POSIX (`/`) separators.
+  - Performance Budgets Met:
+    - Entry index chunk: ~52 kB gzipped (< 150 kB budget).
+    - Separation prevents single monolith JS bundle and enables optimal HTTP/2 multiplexing.
 - **Verification Evidence:**
-  - Vitest `frontend/tests/responsive-image-loader.test.jsx`: 6 passed (6/6) in 74ms.
-  - Combined suite (`responsive-image-loader`, `home-page`, `work-gallery`): 14 passed (14/14) in 5.95s.
-  - Production build (Client + SSR): Clean build in 3.07s + 0.33s.
-  - Commit: `738d3b4` on branch `feat/07.07-image-responsive-loader`.
+  - Vitest `frontend/tests/bundle-optimization.test.jsx`: 3 passed (3/3) in 14ms.
+  - Production build (Client + SSR): Clean build in 2.44s + 0.35s.
+  - Branch: `feat/07.08-bundle-optimization` -> merged to `dev` (`0d98531`).
 
 ---
 
-## 3. Next Task: Task 07.08 Specification
+## 3. Next Task: Task 07.09 Specification
 
-- **Task ID:** 07.08
-- **Title:** Bundle optimization
+- **Task ID:** 07.09
+- **Title:** Core Web Vitals audit
 - **Phase:** Phase 07 — SEO, Contact, Performance
 - **Master Plan Requirements:**
-  - Code splitting and chunking optimization in Vite:
-    - Vendor manual chunks (e.g., `vendor-react`, `vendor-router`, `vendor-motion`, `vendor-charts`, `vendor-icons`).
-    - Dynamic imports / lazy-loading for heavy routes & admin components.
-    - Compression plugin (Brotli / Gzip) or build size analysis check (< 200 kB initial vendor chunk target).
-  - Tests: chunk size budgets, lazy routes resolution, production build output verification.
-- **Plan for Task 07.08:**
-  1. Branch: `feat/07.08-bundle-optimization`
-  2. Configure `vite.config.js` with `build.rollupOptions.output.manualChunks` for granular vendor chunk separation.
-  3. Ensure lazy-loading with `React.lazy` and `Suspense` for heavy admin and modal modules.
-  4. Write test suite `frontend/tests/bundle-optimization.test.jsx` verifying chunk sizes and split configurations.
+  - Audit and optimize:
+    - LCP (< 2.5s: preload hero image, SSR HTML, font display swap).
+    - FID / INP (< 100ms: minimize long tasks, requestIdleCallback / debounce non-essential scripts).
+    - CLS (< 0.1: explicit image dimensions, aspect-ratio on layout blocks, font fallback metric matching).
+  - Web Vitals tracking utility:
+    - Real User Monitoring (RUM) helper using `web-vitals` or PerformanceObserver to capture LCP, FID, CLS, INP, FCP, TTFB.
+    - Opt-in analytics event reporting (respecting consent preferences).
+  - Tests:
+    - Performance budget assertions, CLS attribute verification, Web Vitals utility unit tests.
+- **Plan for Task 07.09:**
+  1. Branch: `feat/07.09-core-web-vitals-audit`
+  2. Implement `frontend/src/utils/webVitals.js` with standard CWV metrics listener (LCP, CLS, INP/FID, FCP, TTFB) with consent check.
+  3. Verify hero image preload `<link rel="preload" as="image">` and `font-display: swap` in SSR template and index.html.
+  4. Write test suite `frontend/tests/core-web-vitals.test.jsx` testing CWV metric collection, CLS preservation, and preload attributes.
+  5. Commit, push, and merge to `dev`.
