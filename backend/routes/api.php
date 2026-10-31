@@ -27,6 +27,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
+    // Public Contact API (Task 07.05)
+    Route::post('/contact', [\App\Http\Controllers\Api\V1\ContactController::class, 'store'])->name('api.v1.contact.store');
+
     // Consent & Privacy API (Task 06.06)
     Route::post('/consent', [\App\Http\Controllers\Api\V1\ConsentController::class, 'store'])->name('api.v1.consent.store');
     Route::post('/consent/withdraw', [\App\Http\Controllers\Api\V1\ConsentController::class, 'withdraw'])->name('api.v1.consent.withdraw');
@@ -109,6 +112,11 @@ Route::prefix('v1')->group(function () {
         Route::get('pages/{slug}/preview', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'preview'])->name('api.v1.pages.preview');
         Route::post('pages/{slug}/preview-url', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'createPreviewUrl'])->name('api.v1.admin.pages.preview.url');
         Route::post('pages/{slug}/publish', [\App\Http\Controllers\Api\V1\Admin\PageBuilderController::class, 'publish'])->name('api.v1.admin.pages.publish');
+
+        // Contact Inquiries (Task 07.05)
+        Route::get('inquiries', [\App\Http\Controllers\Api\V1\ContactController::class, 'index'])->name('api.v1.admin.inquiries.index');
+        Route::get('inquiries/{id}', [\App\Http\Controllers\Api\V1\ContactController::class, 'show'])->name('api.v1.admin.inquiries.show');
+        Route::delete('inquiries/{id}', [\App\Http\Controllers\Api\V1\ContactController::class, 'destroy'])->name('api.v1.admin.inquiries.destroy');
 
         // Analytics API (Task 06.10)
         Route::prefix('analytics')->group(function () {
