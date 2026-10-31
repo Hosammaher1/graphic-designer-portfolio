@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 64 of 97 tasks started, 64 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 65 of 97 tasks started, 65 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -16,10 +16,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
-| 07 | SEO, Contact, Performance | 10 | 1 | 1 | Not evaluated |
+| 07 | SEO, Contact, Performance | 10 | 2 | 2 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **64** | **64** | |
+| **Total** | | **97** | **65** | **65** | |
 
 ## Task register
 
@@ -89,7 +89,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.11 | Dashboard charts | DONE | PASS: Vitest admin-dashboard-charts (6 passed: loading/empty/error states, date range filtering, SVG accessible text, top projects, traffic sources) + SSR/client build | None available (manual checklist) | None (ready for 06.12) | a7d4798 |
 | 06.12 | E2E search, recommendations, privacy | DONE | PASS: Playwright discovery-privacy (12/12 passed) + Phase 06 Gate Suites (56 PHPUnit, 28 Vitest, 62 Playwright = 146 passed) | None available (manual checklist) | None (Phase 06 Gate PASSED, ready for Phase 07) | 2920652 |
 | 07.01 | SSR metadata and Open Graph | DONE | PASS: Vitest ssr-metadata (6 passed) + Client/SSR production build + template injection | None available (manual checklist) | None (ready for 07.02) | 6a1c517 |
-| 07.02 | Sitemap generator | NOT_STARTED | Not run | — | Phase 06 gate | — |
+| 07.02 | Sitemap generator | DONE | PASS: SitemapTest (6 passed, 29 assertions: XML validity, static routes, hreflang symmetry, draft/trash exclusion, caching headers, artisan sitemap:generate, cache invalidation) | None available (manual checklist) | None (ready for 07.03) | c4b5659 |
 | 07.03 | Robots, canonicals, hreflang | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.04 | Structured data JSON-LD | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.05 | Contact form API and mail | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -4034,4 +4034,72 @@ Blockers/owner inputs:
   None. Task 07.01 complete and verified.
 Next task:
   Phase 07 — Task 07.02: Sitemap generator (Automated sitemap.xml generation for static and dynamic published project URLs with hreflang).
+```
+
+## Task 07.02 Execution Report
+
+```text
+Task ID: 07.02
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/07.02-sitemap-generator
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: c4b5659
+Files changed:
+  Created:
+    - backend/app/Services/Seo/SitemapService.php (Sitemap service generating sitemap.xml with reciprocal hreflang alternate links for Arabic, English, and x-default, 1-hour cache layer, and base URL resolution)
+    - backend/app/Http/Controllers/SitemapController.php (HTTP Controller serving dynamic /sitemap.xml with Cache-Control headers and application/xml mime type)
+    - backend/app/Console/Commands/GenerateSitemapCommand.php (Artisan command sitemap:generate warming and refreshing cache, and writing static public/sitemap.xml fallback)
+    - backend/tests/Feature/SitemapTest.php (Feature test suite asserting parseable XML schema, hreflang symmetry across all routes, draft/soft-deleted project exclusion, HTTP cache headers, and cache invalidation on model lifecycle events)
+  Modified:
+    - backend/app/Models/Project.php (Added booted() model lifecycle listeners clearing sitemap cache on project save or delete)
+    - backend/routes/web.php (Registered public GET /sitemap.xml endpoint)
+    - backend/routes/api.php (Registered public GET /api/v1/sitemap.xml endpoint)
+    - frontend/server/index.js (Configured reverse-proxy in SSR HTTP server to stream /sitemap.xml and /robots.txt directly from backend origin)
+    - frontend/tests/ssr.test.jsx (Refined title containment assertion to match upgraded metadata format)
+    - backend/.gitignore (Ignored generated public/sitemap.xml file)
+    - docs/PROGRESS.md (Marked Task 07.02 DONE, updated Phase 07 to 2/10 and total to 65/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/SitemapTest.php:
+    - sitemap returns valid xml with correct content type
+    - sitemap includes static routes with hreflang symmetry
+    - sitemap includes published projects and excludes draft and trashed
+    - sitemap headers and caching
+    - artisan sitemap generate command
+    - project mutation invalidates sitemap cache
+  Observed GREEN state:
+    PHPUnit Tests\Feature\SitemapTest: 6 passed (29 assertions) in 4.13s.
+    Vitest tests/ssr.test.jsx & tests/ssr-metadata.test.jsx: 2 test files, 9 passed (9/9) in 6.04s.
+    Frontend Production Build (Client + SSR): Clean build in 3.10s + 0.33s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for sitemap XML generation.
+Unavailable skills and fallback checklist:
+  - sitemap-generator: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 07.02 verified:
+    1. Schema compliance: Valid <urlset> with standard xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" and xmlns:xhtml="http://www.w3.org/1999/xhtml".
+    2. Reciprocal hreflang symmetry: Each route entry lists alternate links for 'ar', 'en', and 'x-default' (pointing to the canonical Arabic version).
+    3. Static & dynamic coverage: Includes all public core pages (/ar/, /en/, /ar/work, /en/work, /ar/about, /en/about, /ar/contact, /en/contact) plus published projects.
+    4. Draft and trash exclusion: Only published projects with published_at and without soft deletion are rendered into the index.
+    5. Cache & invalidation: Cached in Redis/file cache with 1-hour TTL and automatically invalidated upon Project saved or deleted events.
+    6. SSR Proxy: Native Node.js SSR server transparently reverse-proxies search engine crawler requests for /sitemap.xml directly to Laravel backend.
+Design artifacts/screenshots reviewed:
+  Sitemaps.org schema guidelines, Google Search Central hreflang XML specification, and W3C ISO-8601 datetime representations.
+Commands executed and exact results:
+  1. git checkout -b feat/07.02-sitemap-generator
+  2. Created backend/tests/Feature/SitemapTest.php (RED state: 404 route not found, artisan command missing).
+  3. Created SitemapService.php, SitemapController.php, GenerateSitemapCommand.php, and mapped routes.
+  4. Updated Project.php model lifecycle listeners and frontend/server/index.js crawler reverse-proxy.
+  5. cd backend; php artisan test tests/Feature/SitemapTest.php -> GREEN: 6 passed (29 assertions) in 4.13s.
+  6. cd frontend; npx vitest run tests/ssr.test.jsx tests/ssr-metadata.test.jsx -> GREEN: 9 passed in 6.04s.
+  7. cd frontend; npm run build; npm run build:server -> Clean client and server builds.
+Security/privacy/SEO considerations:
+  - Draft and deleted projects are strictly barred from the XML sitemap to prevent search engine indexing of confidential or staging work.
+  - All URLs and query parameters are escaped using htmlspecialchars with ENT_XML1 to prevent XML injection attacks.
+  - Reverse proxy headers explicitly forward Host and retain backend cache headers.
+Blockers/owner inputs:
+  None. Task 07.02 complete and verified.
+Next task:
+  Phase 07 — Task 07.03: Robots, canonicals, hreflang (Dynamic robots.txt disallowing /admin and pointing to sitemap; canonical and hreflang meta tags across all pages).
 ```
