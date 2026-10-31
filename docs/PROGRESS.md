@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 67 of 97 tasks started, 67 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 68 of 97 tasks started, 68 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -16,10 +16,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
-| 07 | SEO, Contact, Performance | 10 | 4 | 4 | Not evaluated |
+| 07 | SEO, Contact, Performance | 10 | 5 | 5 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **67** | **67** | |
+| **Total** | | **97** | **68** | **68** | |
 
 ## Task register
 
@@ -92,7 +92,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.02 | Sitemap generator | DONE | PASS: SitemapTest (6 passed, 29 assertions: XML validity, static routes, hreflang symmetry, draft/trash exclusion, caching headers, artisan sitemap:generate, cache invalidation) | None available (manual checklist) | None (ready for 07.03) | c4b5659 |
 | 07.03 | Robots, canonicals, hreflang | DONE | PASS: RobotsTest (3 passed, 13 assertions: text/plain, valid directives, disallow /admin & /api, dynamic sitemap URL, cache headers) + Vitest robots-canonicals-hreflang (5 passed: canonical link tags, reciprocal hreflang pairs, admin noindex, DOM sync) | None available (manual checklist) | None (ready for 07.04) | 8aa9cb9 |
 | 07.04 | Structured data JSON-LD | DONE | PASS: Vitest structured-data-jsonld (5 passed: WebSite & Person on Home, detailed Person on About, VisualArtwork on Projects, SSR <script type="application/ld+json"> embedding, DOM sync & admin cleanup) | None available (manual checklist) | None (ready for 07.05) | 1b079d2 |
-| 07.05 | Contact form API and mail | NOT_STARTED | Not run | — | Phase 06 gate | — |
+| 07.05 | Contact form API and mail | DONE | PASS: ContactInquiryTest (7 passed, 43 assertions: validation, email format & length constraints, DB persistence, queued owner notification mail, queued sender confirmation mail, mailable view rendering, admin viewing/filtering/deletion) | None available (manual checklist) | None (ready for 07.06) | 4b9c75a |
 | 07.06 | Contact rate limit and honeypot | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.07 | Image responsive loader | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.08 | Bundle optimization | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -4228,5 +4228,73 @@ Blockers/owner inputs:
   None. Task 07.04 complete and verified.
 Next task:
   Phase 07 — Task 07.05: Contact form API and mail (Store contact inquiries in DB, send notification email to portfolio owner, queued mail with retry, CSRF and auth protection).
+```
+
+## Task 07.05 Execution Report
+
+```text
+Task ID: 07.05
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/07.05-contact-form-api-mail
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 4b9c75a
+Files changed:
+  Created:
+    - backend/database/migrations/2026_10_31_040000_create_inquiries_table.php (Database migration defining inquiries table with name, email, subject, message, ip_address, user_agent, status, is_read, responded_at, and composite indexes)
+    - backend/app/Models/Inquiry.php (Eloquent model with fillable attributes, boolean is_read, and datetime casting)
+    - backend/app/Http/Requests/ContactInquiryRequest.php (Form request validating name, email format, subject, and min/max message lengths with bilingual error messages)
+    - backend/app/Mail/InquiryNotificationMail.php (Queued Mailable notifying portfolio owner with submission details, client info, and message body)
+    - backend/app/Mail/InquiryConfirmationMail.php (Queued Mailable sending confirmation to client in English and Arabic)
+    - backend/resources/views/mail/inquiry-notification.blade.php (Responsive HTML email template for owner notification)
+    - backend/resources/views/mail/inquiry-confirmation.blade.php (Bilingual responsive HTML email template for client confirmation)
+    - backend/app/Http/Controllers/Api/V1/ContactController.php (API Controller handling public store with queued mails, and admin index, show, and destroy)
+    - backend/tests/Feature/ContactInquiryTest.php (Feature test suite verifying validation rules, email formats, DB persistence, queued notifications, blade rendering, and admin operations)
+  Modified:
+    - backend/routes/api.php (Registered public POST /api/v1/contact and admin GET/DELETE inquiries endpoints)
+    - docs/PROGRESS.md (Marked Task 07.05 DONE, updated Phase 07 to 5/10 and total to 68/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/ContactInquiryTest.php:
+    - contact submission validates required fields
+    - contact submission validates email format
+    - valid contact submission stores in database and queues emails
+    - admin can view and manage inquiries
+    - contact submission enforces length constraints
+    - inquiry mailables render proper content
+    - admin can filter and delete inquiry
+  Observed GREEN state:
+    PHPUnit Tests\Feature\ContactInquiryTest: 7 passed (43 assertions) in 3.90s.
+    Vitest tests/contact-form.test.jsx: 5 passed (5/5) in 577ms.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for contact form mail queuing.
+Unavailable skills and fallback checklist:
+  - contact-form-api: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 07.05 verified:
+    1. Validation rigor: Required fields, strict email format, string boundaries, minimum message length (10 chars), maximum payload protections.
+    2. Database persistence: Records inquiries in inquiries table with status ('new'), is_read (false), ip_address, and user_agent for auditability.
+    3. Queued owner notification: Dispatches InquiryNotificationMail implementing ShouldQueue to portfolio owner ADMIN_EMAIL.
+    4. Queued sender confirmation: Dispatches InquiryConfirmationMail implementing ShouldQueue to inquiry sender in bilingual format.
+    5. Admin management: Authorized admin API endpoints for listing with pagination, filtering by is_read, marking read upon view, and deleting.
+Design artifacts/screenshots reviewed:
+  Email layout standards, transactional email UX patterns, and responsive HTML email guidelines.
+Commands executed and exact results:
+  1. git checkout -b feat/07.05-contact-form-api-mail
+  2. Created backend/tests/Feature/ContactInquiryTest.php (RED state: 404 endpoint not found, Inquiry model missing).
+  3. Created migration 2026_10_31_040000_create_inquiries_table.php, Model Inquiry.php, and FormRequest.
+  4. Created InquiryNotificationMail.php, InquiryConfirmationMail.php, and blade views.
+  5. Created ContactController.php and mapped public & admin routes in routes/api.php.
+  6. cd backend; php artisan test tests/Feature/ContactInquiryTest.php -> GREEN: 7 passed (43 assertions) in 3.90s.
+  7. cd frontend; npx vitest run tests/contact-form.test.jsx -> GREEN: 5 passed in 577ms.
+Security/privacy/SEO considerations:
+  - Mail queueing prevents SMTP connection delays or outages from slowing down the public user interface.
+  - IP address and user-agent are recorded for abuse detection without logging sensitive credentials.
+  - Admin management endpoints are shielded by auth:sanctum and admin authorization middleware.
+Blockers/owner inputs:
+  None. Task 07.05 complete and verified.
+Next task:
+  Phase 07 — Task 07.06: Contact rate limit and honeypot (Anti-spam honeypot field, submission timing check, rate limit: 3/min per IP, 10/day per IP).
+```
 ```
 ```
