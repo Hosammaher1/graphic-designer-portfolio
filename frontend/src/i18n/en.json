@@ -157,12 +157,44 @@
     "tagline": "Intentional visual design blending craft with creative clarity.",
     "backToTop": "Back to top",
     "quickLinks": "Quick links",
-    "social": "Connect"
+    "social": "Connect",
+    "privacyPreferences": "Privacy Preferences"
   },
   "social": {
     "behance": "Behance",
     "dribbble": "Dribbble",
     "linkedin": "LinkedIn",
     "instagram": "Instagram"
+  },
+  "consent": {
+    "banner": {
+      "region": "Privacy Preferences & Cookies",
+      "title": "Your Privacy & Cookie Preferences",
+      "description": "We use essential cookies to ensure site functionality and security. With your optional consent, we use anonymous analytics and personalized project recommendations to enhance your experience. We never enable optional tracking without your explicit consent, and you can withdraw at any time.",
+      "acceptAll": "Accept All",
+      "rejectAll": "Reject All",
+      "customize": "Customize Settings"
+    },
+    "modal": {
+      "title": "Privacy & Tracking Settings",
+      "description": "Choose which categories of cookies and data processing you agree to. Optional categories are never pre-selected and require your explicit consent.",
+      "save": "Save Preferences",
+      "withdraw": "Withdraw Consent",
+      "close": "Close"
+    },
+    "category": {
+      "essential": {
+        "title": "Essential Cookies (Required)",
+        "desc": "Necessary for basic site security, preserving theme and language preferences, and remembering your privacy choices."
+      },
+      "analytics": {
+        "title": "Performance Analytics (Optional)",
+        "desc": "Helps us understand page view counts and aggregate traffic anonymously without any cross-site profiling."
+      },
+      "personalization": {
+        "title": "Personalized Recommendations (Optional)",
+        "desc": "Suggests related projects and design disciplines tailored to your interests during your browsing session."
+      }
+    }
   }
 }

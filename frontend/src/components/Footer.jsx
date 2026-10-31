@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Shield } from 'lucide-react';
+import { useConsent } from '../context/ConsentContext.jsx';
 import { t } from '../i18n/config.js';
 
 export function Footer({ locale = 'ar' }) {
   const currentYear = new Date().getFullYear();
+  const { openSettings } = useConsent();
 
   const scrollToTop = () => {
     if (typeof window !== 'undefined') {
@@ -77,7 +79,17 @@ export function Footer({ locale = 'ar' }) {
           <p className="footer-copyright">
             © {currentYear} {t('site.designerName', locale)}. {t('footer.rights', locale)}
           </p>
-          <button
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={openSettings}
+              className="text-xs text-[var(--color-text-muted,#a1a1aa)] hover:text-[var(--color-text,#fafafa)] transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:underline"
+              aria-label={t('footer.privacyPreferences', locale)}
+            >
+              <Shield size={14} aria-hidden="true" />
+              <span>{t('footer.privacyPreferences', locale)}</span>
+            </button>
+            <button
             type="button"
             onClick={scrollToTop}
             className="footer-back-to-top"
@@ -86,6 +98,7 @@ export function Footer({ locale = 'ar' }) {
             <span>{t('footer.backToTop', locale)}</span>
             <ArrowUp size={16} aria-hidden="true" />
           </button>
+          </div>
         </div>
       </div>
     </footer>
