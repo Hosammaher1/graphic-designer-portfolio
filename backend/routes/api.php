@@ -21,6 +21,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/projects', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'index'])->name('api.v1.projects.index');
     Route::get('/projects/{slug}/recommendations', [\App\Http\Controllers\Api\V1\RecommendationController::class, 'getRelated'])->name('api.v1.projects.recommendations');
     Route::get('/projects/{slug}/related', [\App\Http\Controllers\Api\V1\RecommendationController::class, 'getRelated'])->name('api.v1.projects.related');
+    Route::post('/recommendations/interest', [\App\Http\Controllers\Api\V1\RecommendationController::class, 'trackInterest'])->name('api.v1.recommendations.interest');
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
