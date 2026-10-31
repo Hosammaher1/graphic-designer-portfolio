@@ -12,6 +12,7 @@ import ProfilePage from '../pages/admin/ProfilePage.jsx';
 import ProjectsPage from '../pages/admin/ProjectsPage.jsx';
 import ProjectFormPage from '../pages/admin/ProjectFormPage.jsx';
 import CategoriesPage from '../pages/admin/CategoriesPage.jsx';
+import PageBuilderPage from '../pages/admin/PageBuilderPage.jsx';
 
 export const routes = [
   {
@@ -93,6 +94,18 @@ export const routes = [
       {
         path: 'categories',
         element: <CategoriesPage />,
+      },
+      {
+        path: 'pages',
+        element: <PageBuilderPage />,
+      },
+      {
+        path: 'pages/builder',
+        element: <PageBuilderPage />,
+      },
+      {
+        path: 'pages/:slug/builder',
+        element: <PageBuilderPage />,
       },
       {
         path: 'profile',

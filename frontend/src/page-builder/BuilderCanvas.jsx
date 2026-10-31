@@ -291,6 +291,22 @@ export function BuilderCanvas({
         </Container>
       </header>
 
+      {/* Save Success Banner */}
+      {savedNotice && (
+        <div className="save-feedback-banner" role="status">
+          <Container size="site">
+            <div className="flex items-center justify-between p-3 rounded-md bg-success/10 text-success border border-success/20 my-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={18} aria-hidden="true" />
+                <span className="text-sm font-medium">
+                  {isAr ? 'تم حفظ المسودة بنجاح' : 'Draft saved successfully'}
+                </span>
+              </div>
+            </div>
+          </Container>
+        </div>
+      )}
+
       {/* Conflict Error Banner */}
       {conflictError && (
         <div className="builder-conflict-banner" role="alert">
@@ -638,6 +654,7 @@ export function BuilderCanvas({
                 <button
                   key={type}
                   type="button"
+                  data-testid={`add-block-${type}`}
                   className="p-3 border rounded text-start hover:border-primary transition-all bg-base"
                   onClick={() => handleAddBlock(type)}
                 >

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Monitor, Tablet, Smartphone, Maximize2 } from 'lucide-react';
+import { Monitor, Tablet, Smartphone } from 'lucide-react';
 import { Button, Badge } from '../components/ui';
 
 export const DEVICE_VIEWPORTS = {
@@ -87,6 +87,7 @@ export function DevicePreviewFrame({
                 <button
                   key={device.id}
                   type="button"
+                  data-testid={`viewport-btn-${device.id}`}
                   role="button"
                   aria-pressed={isSelected}
                   onClick={() => handleSelectViewport(device.id)}
