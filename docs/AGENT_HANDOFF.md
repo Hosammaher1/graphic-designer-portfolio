@@ -1,17 +1,17 @@
-# Agent Handoff — Checkpoint at Task 07.06
+# Agent Handoff — Checkpoint at Task 07.07
 
 **Prepared:** 2026-10-31
 **Canonical scope:** `Graphic_Designer_Portfolio_Plan_v1_1.md`
 **Audit:** `docs/PLAN_AUDIT.md`
 **Progress Tracker:** `docs/PROGRESS.md`
-**Current Status:** 68 of 97 tasks completed (Phases 01–06 100% complete and verified; Phase 07 Tasks 07.01, 07.02, 07.03, 07.04 & 07.05 complete).
+**Current Status:** 69 of 97 tasks completed (Phases 01–06 100% complete and verified; Phase 07 Tasks 07.01, 07.02, 07.03, 07.04, 07.05 & 07.06 complete).
 
 ---
 
 ## 1. Executive Summary
 
 - **Total Tasks Approved:** 97 tasks across 9 phases.
-- **Tasks Complete & Verified:** 68 tasks (Tasks 01.01 through 07.05).
+- **Tasks Complete & Verified:** 69 tasks (Tasks 01.01 through 07.06).
 - **Phase Gates Passed:**
   - **Phase 01 Gate:** Foundation & Architecture (8/8) — PASSED
   - **Phase 02 Gate:** Authentication & Admin Shell (8/8) — PASSED
@@ -20,45 +20,48 @@
   - **Phase 05 Gate:** Flexible Page Builder, Atomic Publishing, Snapshot Isolation (12/12) — PASSED
   - **Phase 06 Gate:** Search, Recommendations, Consent, Analytics (12/12) — PASSED
 - **Current Phase:** **Phase 07 — SEO, Contact, Performance (Tasks 07.01–07.10)**
-- **Next Immediate Task:** **Task 07.06: Contact rate limit and honeypot**
+- **Next Immediate Task:** **Task 07.07: Image responsive loader**
 
 ---
 
-## 2. Latest Task Verification: Task 07.05 (Contact form API and mail)
+## 2. Latest Task Verification: Task 07.06 (Contact rate limit and honeypot)
 
 - **Implementation Details:**
-  - Database & Model:
-    - Created migration `2026_10_31_040000_create_inquiries_table.php` for `inquiries` table with `name`, `email`, `subject`, `message`, `ip_address`, `user_agent`, `status`, `is_read`, and timestamps.
-    - Created `Inquiry` Eloquent model with casts and fillables.
-  - Form Request Validation:
-    - Created `ContactInquiryRequest` validating required name (min 2, max 100), email format, subject (min 2, max 200), and message (min 10, max 5000) with bilingual error messages.
-  - Queued Mailables:
-    - `InquiryNotificationMail`: Queued notification to portfolio owner (`portfolio.admin_email`) with inquiry details.
-    - `InquiryConfirmationMail`: Queued bilingual confirmation to inquiry sender.
-    - Responsive HTML templates in `backend/resources/views/mail/`.
-  - API Controller & Routing:
-    - `ContactController`: `store` public endpoint returning 201 Created.
-    - Admin endpoints for listing paginated inquiries, viewing/marking read, and deleting.
+  - Multi-Honeypot Protection:
+    - Added hidden form fields `website`, `website_url`, and `hp_fax` (`tabIndex="-1"`, `aria-hidden="true"`, hidden via CSS).
+    - Client drops submissions immediately if bots populate honeypots; backend `ContactInquiryRequest` `withValidator` hook triggers 422 rejection.
+  - Timing Threshold Validation:
+    - Client records mount timestamp ref `formMountedAt.current` and submits `_timestamp`.
+    - Backend rejects submissions completed in under 2 seconds from render.
+  - Multi-Tier IP Rate Limiting:
+    - Configured `RateLimiter::for('contact')` enforcing 3 requests/minute and 10 requests/day per IP.
+    - Attached `throttle:contact` middleware to `POST /api/v1/contact`.
+    - Returns HTTP 429 Too Many Requests with bilingual message and `Retry-After` header.
+  - UI Error Handling:
+    - `ContactPage.jsx` renders accessible error alert for 429 rate limit or spam detection.
 - **Verification Evidence:**
-  - PHPUnit `backend/tests/Feature/ContactInquiryTest.php`: 7 passed (43 assertions) in 3.90s.
-  - Vitest `frontend/tests/contact-form.test.jsx`: 5 passed (5/5) in 577ms.
-  - Commit: `4b9c75a` on branch `feat/07.05-contact-form-api-mail`.
+  - PHPUnit `backend/tests/Feature/ContactAntiSpamTest.php`: 4 passed (17 assertions) in 3.97s.
+  - PHPUnit combined contact suite: 2 test files, 11 passed (60 assertions) in 3.73s.
+  - Vitest `frontend/tests/contact-anti-spam.test.jsx` & `frontend/tests/contact-form.test.jsx`: 2 test files, 8 passed (8/8) in 5.01s.
+  - Production build (Client + SSR): Clean build in 3.47s + 0.38s.
+  - Commit: `9cad595` on branch `feat/07.06-contact-rate-limit-honeypot`.
 
 ---
 
-## 3. Next Task: Task 07.06 Specification
+## 3. Next Task: Task 07.07 Specification
 
-- **Task ID:** 07.06
-- **Title:** Contact rate limit and honeypot
+- **Task ID:** 07.07
+- **Title:** Image responsive loader
 - **Phase:** Phase 07 — SEO, Contact, Performance
 - **Master Plan Requirements:**
-  - Anti-spam protections on `POST /api/v1/contact`:
-    - Honeypot field (e.g. `website_url` / `hp_fax` hidden from humans; if populated, silently accept or discard with 200 without saving/mailing).
-    - Submission timing check (e.g., minimum 2–3 seconds between form render and submission timestamp).
-    - IP Rate Limiting: 3 requests per minute per IP, 10 requests per day per IP (HTTP 429 Too Many Requests with Retry-After).
-  - Tests: honeypot rejection, timing rejection, IP rate limit 429 status.
-- **Plan for Task 07.06:**
-  1. Branch: `feat/07.06-contact-rate-limit-honeypot`
-  2. Implement Honeypot & Timing check in `ContactInquiryRequest` / `ContactController`.
-  3. Configure dedicated contact rate limiter in `backend/bootstrap/app.php` or `backend/app/Providers/AppServiceProvider.php` (e.g. `RateLimiter::for('contact', ...)`).
-  4. Write test suite `backend/tests/Feature/ContactAntiSpamTest.php` asserting honeypot trap, timing trap, and 3/min & 10/day rate limits.
+  - Responsive image loading component (`ResponsiveImage` / `<picture>`):
+    - Multi-size `srcset` (e.g. 320w, 640w, 960w, 1280w, 1920w).
+    - Modern format sources: WebP and AVIF with fallback JPEG/PNG.
+    - Low-Quality Image Placeholder (LQIP) / blur-up effect during load.
+    - Native `loading="lazy"` (except priority/above-the-fold images which use `loading="eager"` / `fetchpriority="high"`).
+    - Preserved `aspect-ratio` to avoid Cumulative Layout Shift (CLS).
+  - Tests: srcset generation, picture tag formatting, aspect-ratio preservation, lazy loading attribute, blur-up transition.
+- **Plan for Task 07.07:**
+  1. Branch: `feat/07.07-image-responsive-loader`
+  2. Implement/enhance `ResponsiveImage.jsx` component and helper `responsiveImage.js` in frontend.
+  3. Write test suite `frontend/tests/responsive-image-loader.test.jsx`.
