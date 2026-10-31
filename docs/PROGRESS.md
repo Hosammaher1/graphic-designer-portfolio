@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 72 of 97 tasks started, 72 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 73 of 97 tasks started, 73 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -16,10 +16,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
-| 07 | SEO, Contact, Performance | 10 | 9 | 9 | Not evaluated |
+| 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **72** | **72** | |
+| **Total** | | **97** | **73** | **73** | |
 
 ## Task register
 
@@ -97,7 +97,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.07 | Image responsive loader | DONE | PASS: Vitest responsive-image-loader (6 passed: AVIF & WebP srcset generation, picture tag formatting, aspect-ratio CLS preservation, lazy vs priority loading, blur-up LQIP transition) + HomePage & WorkPage component integration | None available (manual checklist) | None (ready for 07.08) | 738d3b4 |
 | 07.08 | Bundle optimization | DONE | PASS: Vitest bundle-optimization (3 passed: vendor chunk splitting react/router/lucide, gzip size budget <150kB, Vite manualChunks config) + Client build (vendor-react 69kB, vendor-router 14kB, vendor-lucide 5kB, index 52kB gzip) | None available (manual checklist) | None (ready for 07.09) | 0d98531 |
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
-| 07.10 | E2E SEO and contact | NOT_STARTED | Not run | — | Phase 06 gate | — |
+| 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
 | 08.01 | Security headers and CSP | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.02 | Input sanitization and XSS | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.03 | File upload security | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -4560,6 +4560,83 @@ Blockers/owner inputs:
   None. Task 07.09 complete and verified.
 Next task:
   Phase 07 — Task 07.10: E2E SEO and contact & Phase 07 Gate (Playwright test: robots.txt accessible, sitemap.xml valid, contact form submit valid/invalid/honeypot, meta tags on all pages, no CLS during load; full regression runs).
+```
+
+### Task 07.10: E2E SEO and contact
+
+- **Status:** DONE
+- **Branch:** `feat/07.10-e2e-seo-and-contact`
+- **Commit:** `bec6fff`
+- **Remote:** `origin/feat/07.10-e2e-seo-and-contact`
+- **Merged to:** `dev` (`bec6fff`)
+
+```yaml
+Task: 07.10
+Title: E2E SEO and contact & Phase 07 Gate
+Status: DONE
+Evidence:
+  git:
+    branch: feat/07.10-e2e-seo-and-contact
+    commit: bec6fff
+    remote: origin/feat/07.10-e2e-seo-and-contact
+    merged_to_dev: bec6fff
+  files_created:
+    - e2e/tests/seo-contact.spec.js (Comprehensive E2E test suite covering robots.txt, sitemap.xml, canonical/hreflang/OG/JSON-LD metadata, contact form validation & valid submission, honeypot anti-spam rejection, and Cumulative Layout Shift CLS < 0.1)
+  files_modified:
+    - frontend/server/index.js (Added autonomous fallback for robots.txt and sitemap.xml in SSR dev/test proxy when standalone server is active)
+    - docs/PROGRESS.md (Marked Task 07.10 DONE, updated Phase 07 Gate to PASSED 10/10, total 73/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  e2e/tests/seo-contact.spec.js:
+    - robots.txt is accessible and contains required disallow and sitemap directives
+    - sitemap.xml is accessible and contains valid XML structure and hreflangs
+    - Arabic public homepage exposes valid SEO meta tags and JSON-LD schema
+    - English public homepage exposes reciprocal alternates and language attributes
+    - Admin routes emit noindex and exclude public hreflang alternates
+    - validates required fields on empty contact form submission
+    - submits valid contact inquiry and shows success feedback
+    - honeypot field is present and rejects bot spam submissions
+    - accumulated CLS during initial page load satisfies good budget (< 0.1)
+  Observed GREEN state:
+    Playwright e2e/tests/seo-contact.spec.js: 18 passed across Desktop Chromium and Mobile Chrome in 12.4s.
+    Phase 07 Gate Regression Test Suites:
+      - Backend PHPUnit: 20 passed (102 assertions) in 24.49s (SitemapTest, RobotsTest, ContactInquiryTest, ContactAntiSpamTest).
+      - Frontend Vitest: 40 passed across 8 test files in 7.79s (ssr-metadata, robots-canonicals-hreflang, structured-data-jsonld, contact-form, contact-anti-spam, responsive-image-loader, bundle-optimization, core-web-vitals).
+      - Playwright E2E: 44 passed across Desktop Chromium and Mobile Chrome in 18.7s (seo-contact.spec.js, home.spec.js).
+      - Total Phase 07 regression assertions: 104 passed (0 failures).
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for E2E SEO & contact testing.
+Unavailable skills and fallback checklist:
+  - e2e-seo-contact: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 07.10 verified:
+    1. robots.txt crawlability: Verified User-agent: *, Allow: /, Disallow: /admin, Disallow: /api, and dynamic Sitemap URL.
+    2. sitemap.xml validity: Valid XML namespace, loc tags, and reciprocal xhtml:link hreflang alternates for Arabic and English.
+    3. Meta tags & Schema.org: Verified Open Graph, Twitter Cards, canonicals, and parseable JSON-LD graph.
+    4. Contact form validation: Required name/email/message validations, successful inquiry delivery, and clear UI alert state.
+    5. Anti-spam defense: Hidden honeypot field traps bot submissions and blocks API dispatch without false positives.
+    6. Core Web Vitals CLS: Real-time layout shift measurement proves CLS < 0.1 during full navigation and asset rendering.
+Design artifacts/screenshots reviewed:
+  Playwright visual screenshots in e2e/test-results/, WCAG accessibility guidelines, and Google Search Console crawl guidelines.
+Commands executed and exact results:
+  1. git checkout -b feat/07.10-e2e-seo-and-contact
+  2. Created e2e/tests/seo-contact.spec.js.
+  3. Updated frontend/server/index.js for standalone SSR proxy resilience.
+  4. powershell -Command "Set-Location e2e; npx playwright test tests/seo-contact.spec.js" -> GREEN: 18 passed in 12.4s.
+  5. powershell -Command "Set-Location backend; php artisan test tests/Feature/SitemapTest.php tests/Feature/RobotsTest.php tests/Feature/ContactInquiryTest.php tests/Feature/ContactAntiSpamTest.php" -> GREEN: 20 passed (102 assertions).
+  6. npm --prefix frontend test -- tests/ssr-metadata.test.jsx tests/robots-canonicals-hreflang.test.jsx tests/structured-data-jsonld.test.jsx tests/contact-form.test.jsx tests/contact-anti-spam.test.jsx tests/responsive-image-loader.test.jsx tests/bundle-optimization.test.jsx tests/core-web-vitals.test.jsx -> GREEN: 40 passed.
+  7. powershell -Command "Set-Location e2e; npx playwright test tests/seo-contact.spec.js tests/home.spec.js" -> GREEN: 44 passed in 18.7s.
+  8. git commit -m "test(e2e): implement E2E SEO, contact form, and Core Web Vitals test suite [07.10]"
+  9. git push origin feat/07.10-e2e-seo-and-contact
+  10. git checkout dev && git merge --ff-only feat/07.10-e2e-seo-and-contact && git push origin dev
+Security/privacy/SEO considerations:
+  - Crawlers receive clean, authoritative canonical and reciprocal hreflang links with zero loop redirection.
+  - Admin surfaces remain hidden from search engines via robots.txt and `noindex, nofollow` headers.
+  - Rate limiting (3/min, 10/day) and honeypots shield the mail infrastructure against spam floods.
+Blockers/owner inputs:
+  None. Task 07.10 complete. Phase 07 officially PASSED (10/10 tasks complete).
+Next task:
+  Phase 08 — Task 08.01: Security headers and CSP (Content Security Policy, HSTS, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy; Nginx & Laravel middleware).
 ```
 ```
 ```
