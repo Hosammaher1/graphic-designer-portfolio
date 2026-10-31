@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 65 of 97 tasks started, 65 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 66 of 97 tasks started, 66 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -16,10 +16,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
-| 07 | SEO, Contact, Performance | 10 | 2 | 2 | Not evaluated |
+| 07 | SEO, Contact, Performance | 10 | 3 | 3 | Not evaluated |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 0 | 0 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **65** | **65** | |
+| **Total** | | **97** | **66** | **66** | |
 
 ## Task register
 
@@ -90,7 +90,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06.12 | E2E search, recommendations, privacy | DONE | PASS: Playwright discovery-privacy (12/12 passed) + Phase 06 Gate Suites (56 PHPUnit, 28 Vitest, 62 Playwright = 146 passed) | None available (manual checklist) | None (Phase 06 Gate PASSED, ready for Phase 07) | 2920652 |
 | 07.01 | SSR metadata and Open Graph | DONE | PASS: Vitest ssr-metadata (6 passed) + Client/SSR production build + template injection | None available (manual checklist) | None (ready for 07.02) | 6a1c517 |
 | 07.02 | Sitemap generator | DONE | PASS: SitemapTest (6 passed, 29 assertions: XML validity, static routes, hreflang symmetry, draft/trash exclusion, caching headers, artisan sitemap:generate, cache invalidation) | None available (manual checklist) | None (ready for 07.03) | c4b5659 |
-| 07.03 | Robots, canonicals, hreflang | NOT_STARTED | Not run | — | Phase 06 gate | — |
+| 07.03 | Robots, canonicals, hreflang | DONE | PASS: RobotsTest (3 passed, 13 assertions: text/plain, valid directives, disallow /admin & /api, dynamic sitemap URL, cache headers) + Vitest robots-canonicals-hreflang (5 passed: canonical link tags, reciprocal hreflang pairs, admin noindex, DOM sync) | None available (manual checklist) | None (ready for 07.04) | 8aa9cb9 |
 | 07.04 | Structured data JSON-LD | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.05 | Contact form API and mail | NOT_STARTED | Not run | — | Phase 06 gate | — |
 | 07.06 | Contact rate limit and honeypot | NOT_STARTED | Not run | — | Phase 06 gate | — |
@@ -4102,4 +4102,73 @@ Blockers/owner inputs:
   None. Task 07.02 complete and verified.
 Next task:
   Phase 07 — Task 07.03: Robots, canonicals, hreflang (Dynamic robots.txt disallowing /admin and pointing to sitemap; canonical and hreflang meta tags across all pages).
+```
+
+## Task 07.03 Execution Report
+
+```text
+Task ID: 07.03
+Status: DONE
+Branch / commit / remote:
+  Branch: feat/07.03-robots-canonicals-hreflang
+  Remote: https://github.com/Hosammaher1/graphic-designer-portfolio.git (private)
+  Commit: 8aa9cb9
+Files changed:
+  Created:
+    - backend/app/Http/Controllers/RobotsController.php (HTTP Controller rendering dynamic robots.txt directives, disallowing /admin and /api, allowing public crawl, and emitting dynamic Sitemap directive with 24-hour cache headers)
+    - backend/tests/Feature/RobotsTest.php (Feature test suite asserting text/plain MIME type, standard crawler directives, dynamic Sitemap URL resolution from app configuration, and HTTP Cache-Control headers)
+    - frontend/tests/robots-canonicals-hreflang.test.jsx (Vitest test suite asserting canonical link tags, reciprocal hreflang alternate links for Arabic/English/x-default, admin noindex robots directive, and dynamic DOM head synchronization)
+  Modified:
+    - backend/routes/web.php (Registered public GET /robots.txt endpoint)
+    - backend/public/robots.txt (Synchronized static fallback file with compliant crawl rules and absolute Sitemap reference)
+    - frontend/src/utils/seo.js (Enhanced metadata resolution to generate canonical links, reciprocal hreflang alternate links, admin noindex/nofollow robots directive, and DOM head sync for link tags)
+    - docs/PROGRESS.md (Marked Task 07.03 DONE, updated Phase 07 to 3/10 and total to 66/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/RobotsTest.php:
+    - robots txt returns text plain with valid directives
+    - robots txt includes configured sitemap url
+    - robots txt caching headers
+  frontend/tests/robots-canonicals-hreflang.test.jsx:
+    - generates canonical link and reciprocal hreflang alternate links for home route
+    - generates canonical and hreflang pairs for inner routes (work, about, contact)
+    - generates canonical and hreflang pairs for project detail routes
+    - emits noindex, nofollow robots directive on admin routes and omits public hreflang tags
+    - synchronizes canonical and hreflang link tags into DOM via syncDocumentHead
+  Observed GREEN state:
+    PHPUnit Tests\Feature\RobotsTest: 3 passed (13 assertions) in 0.38s.
+    Vitest tests/robots-canonicals-hreflang.test.jsx: 5 passed (5/5) in 34ms.
+    Combined SEO Vitest suite: 3 test files, 14 passed (14/14) in 5.34s.
+    Frontend Production Build (Client + SSR): Clean build in 3.83s + 0.35s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for robots.txt and canonical architecture.
+Unavailable skills and fallback checklist:
+  - robots-canonicals-hreflang: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 07.03 verified:
+    1. Dynamic robots.txt: Serves compliant User-agent: *, Allow: /, Disallow: /admin, Disallow: /admin/, Disallow: /api, and absolute Sitemap: {baseUrl}/sitemap.xml directive.
+    2. HTTP headers: Content-Type: text/plain; charset=utf-8 and Cache-Control: public, max-age=86400.
+    3. Canonical link tags: <link rel="canonical" href="..."> on every public page, resolving to canonical URL without duplicate crawl parameters.
+    4. Hreflang alternates: Strict reciprocal hreflang links (hreflang="ar", hreflang="en", and hreflang="x-default" pointing to canonical Arabic route) across all public standard and project pages.
+    5. Admin route shielding: Admin routes output <meta name="robots" content="noindex, nofollow" /> and strip public alternate links.
+    6. Client DOM synchronization: syncDocumentHead() updates <link rel="canonical"> and <link rel="alternate"> dynamically during SPA transitions.
+Design artifacts/screenshots reviewed:
+  Google Search Central guidelines for robots.txt, canonicalization, and multi-regional hreflang annotations.
+Commands executed and exact results:
+  1. git checkout -b feat/07.03-robots-canonicals-hreflang
+  2. Created backend/tests/Feature/RobotsTest.php (RED state: 404 route not found).
+  3. Created frontend/tests/robots-canonicals-hreflang.test.jsx (RED state: alternates undefined).
+  4. Created RobotsController.php, mapped routes/web.php, and enhanced frontend/src/utils/seo.js.
+  5. cd backend; php artisan test tests/Feature/RobotsTest.php -> GREEN: 3 passed (13 assertions) in 0.38s.
+  6. cd frontend; npx vitest run tests/robots-canonicals-hreflang.test.jsx -> GREEN: 5 passed in 34ms.
+  7. cd frontend; npm run build; npm run build:server -> Clean client and server builds.
+Security/privacy/SEO considerations:
+  - Private administrative areas (/admin, /admin/) and internal API endpoints (/api, /api/) are disallowed in robots.txt.
+  - Admin HTML views inject noindex, nofollow robots meta tags to prevent search indexing even if linked externally.
+  - Reciprocal hreflang prevents duplicate content penalties across localized versions.
+Blockers/owner inputs:
+  None. Task 07.03 complete and verified.
+Next task:
+  Phase 07 — Task 07.04: Structured data JSON-LD (Schema.org JSON-LD for CreativeWork/VisualArtwork on projects, Person on About, and WebSite/Organization on Home).
+```
 ```
