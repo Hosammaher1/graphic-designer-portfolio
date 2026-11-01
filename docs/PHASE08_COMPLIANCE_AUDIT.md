@@ -1,0 +1,41 @@
+# Phase 08 canonical compliance audit
+
+**Date:** 2026-11-02. **Authority:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), Section 11. This audit corrects task mapping in [PROGRESS.md](PROGRESS.md). Earlier execution reports and commits remain historical evidence under the labels used when they were written; their labels do not redefine the master plan.
+
+| Canonical task | Satisfied by current local evidence | Partial, blocked, or absent |
+| --- | --- | --- |
+| **08.01 Security audit** | Fifteen penetration tests cover auth, IDOR, SQL injection, XSS/XXE, rate limiting, draft exposure, and signed previews. | **Partial:** no documented SSRF/open-redirect surface review or complete critical-finding sign-off. Current CSP and upload findings below remain open. |
+| **08.02 Upload hardening** | Extension checks, fileinfo MIME checks, size limit, SVG sanitization, signed upload parameters, and authorization tests exist. | **Partial:** image dimensions are not validated; SVG/PDF are accepted despite the images-only MVP; MIME falls back to client claims; provider re-encoding/private original delivery is unverified. Huge-image and boundary tests are missing. |
+| **08.03 Security headers/TLS** | Laravel header tests cover CSP, HSTS, nosniff, framing, and referrer policy; SSR headers have historical local evidence. | **Partial/blocked:** CSP currently permits inline/eval and localhost connections in all environments. Live TLS and production script behavior cannot be verified without an approved host and frontend/browser review. |
+| **08.04 Error contract** | Backend tests cover safe 401/404/405/500 envelopes and secret masking; historical frontend error boundary exists. | **Partial/blocked:** localized backend errors and SSR failure behavior are unverified. Frontend changes are forbidden in this run. |
+| **08.05 Retry/idempotency** | Analytics has an idempotency key; trash purge retries provider deletion locally. | **Not implemented for the canonical scope:** upload, email, cleanup, and publish lack a documented common bounded retry/idempotency contract and repeated-request tests. Provider timeout after accepted email remains unresolved. |
+| **08.06 Audit logs/redaction** | Admin actions and auth events are logged; tests redact password/token keys and production error responses. | **Partial:** audit scrubber does not redact message/body fields, and error paths can log raw provider exception strings. Negative message-body tests are absent. |
+| **08.07 Backup job** | Encrypted SQL archive, integrity manifest, retention, and failure-alert tests pass locally. | **Blocked:** configured default disk is local; no selected off-server provider, key-custody proof, remote retention proof, or live upload-alert drill. |
+| **08.08 Restore drill** | Isolated restore, HMAC/checksum rejection, and record-count tests pass locally; RPO/RTO and Cloudinary binary limitation are documented. | **Blocked:** no encrypted off-server archive has been restored into a disposable environment. |
+| **08.09 Trash cleanup scheduler** | Daily purge is scheduled; 30-day boundary, shared-media, and provider-error tests exist. | **Partial:** after all provider delete attempts fail, project pivots are removed and the orphan asset has no durable cleanup retry path. |
+| **08.10 Health checks** | API/root liveness and readiness routes, DB/cache/storage checks, 503 degradation, and no-secret tests pass locally. | **Blocked:** separate Node SSR readiness is absent; frontend/SSR files are frozen. Live deployment probes are unverified. |
+| **08.11 Monitoring** | Configurable API/SSR HTTP probes, disk/PHP-memory/DB/failed-job checks, alert deduplication, recovery mail/webhook tests, and daily Laravel log rotation exist. | **Partial/blocked:** host CPU sampling is absent; outside-in uptime, live mail delivery, host log rotation, and alarm drill are unverified. |
+| **08.12 Reliability E2E** | Backend unit/feature tests and an operations runbook exist. | **Blocked:** no combined Cloudinary/mail failure, DB rollback, off-server restore, SSR 500, recovery, and security-scan E2E proof. Frontend/browser work is deferred. |
+
+## Historical task-label mapping
+
+| Historical ledger label | Canonical destination |
+| --- | --- |
+| 08.01 Security headers and CSP | 08.03 Security headers/TLS |
+| 08.02 Input sanitization and XSS | Evidence for 08.01 and 08.04; not canonical 08.02 |
+| 08.03 File upload security | 08.02 Upload hardening |
+| 08.04 Rate limiting hardening | Evidence for 08.01; not canonical 08.04 |
+| 08.05 Error handling and redacting | 08.04 Error contract and 08.06 redaction; not canonical 08.05 |
+| 08.06 Security penetration tests | 08.01 Security audit |
+| 08.09 Health check endpoint and 08.11 graceful degradation | 08.10 Health checks |
+| 08.10 Uptime and alert configuration | 08.11 Monitoring |
+| 08.12 Operations runbook | Supporting evidence for 08.12, not Reliability E2E completion |
+
+## Dependency-aware non-frontend queue
+
+1. Close eligible security gaps in 08.01–08.06 with focused tests first: upload validation, production-safe headers, redaction, and retry/idempotency. Preserve public API compatibility.
+2. Make 08.09 cleanup failures retryable and add host CPU monitoring for 08.11, with tests.
+3. Re-run the applicable backend suite and review the diff. Keep 08.07/08.08 off-server proof, 08.10 SSR readiness, and 08.12 browser/SSR E2E blocked until their required inputs or frontend authorization exist.
+4. Only after the Phase 08 gate has real evidence may Phase 09 work resume. The saved 09.01 WIP branch remains untouched during this audit.
+
+**GitHub:** `gh auth status` last reported an invalid token. Re-authenticate only through the owner's interactive `gh auth login -h github.com` workflow. No push or GitHub CI result is claimed for the local Phase 08 branches.

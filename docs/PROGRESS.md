@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 86 of 108 tasks started, 83 completed (76.9%); Tasks 08.10–08.12 have locally verified non-frontend work but remain blocked/deferred. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Non-frontend work through Phase 09 only; the frontend is frozen and Phase 10 is outside this run.
+**Snapshot:** 2026-11-02. **Implementation:** 86 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Complete eligible non-frontend Phase 08 work before resuming Phase 09; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
@@ -13,14 +13,16 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
-| 04 | Public Website and Motion (Historical) | 11 | 11 | 11 | REWORK_REQUIRED (elevated in Phase 10) |
+| 04 | Public Website and Motion (Historical) | 11 | 11 | 0 | REWORK_REQUIRED; 11 historical implementations, not current DONE |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 9 | Partial (9/12 done; 08.10–08.12 blocked/deferred) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 0 | Canonical audit: partial/blocked; gate open |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
 | 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
-| **Total** | | **108** | **86** | **83** | **76.9% Complete** |
+| **Total** | | **108** | **86** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
+
+**Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
 ## Task register
 
@@ -99,18 +101,18 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.08 | Bundle optimization | DONE | PASS: Vitest bundle-optimization (3 passed: vendor chunk splitting react/router/lucide, gzip size budget <150kB, Vite manualChunks config) + Client build (vendor-react 69kB, vendor-router 14kB, vendor-lucide 5kB, index 52kB gzip) | None available (manual checklist) | None (ready for 07.09) | 0d98531 |
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
-| 08.01 | Security headers and CSP | DONE | PASS: PHPUnit SecurityHeadersTest (3 passed, 24 assertions: CSP directives, HSTS preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, COOP/CORP across API and web routes) + Node SSR headers | None available (manual checklist) | None (ready for 08.02) | 9c71af4 |
-| 08.02 | Input sanitization and XSS | DONE | PASS: PHPUnit InputSanitizationTest (5 passed, 25 assertions: plain text XSS stripping, null bytes removal, UTF-8 normalization, rich text HTML safe whitelist & event handler stripping, recursive block sanitization, contact endpoint XSS neutralization) + 16 contact tests passed | None available (manual checklist) | None (ready for 08.03) | 2523f51 |
-| 08.03 | File upload security | DONE | PASS: PHPUnit FileUploadSecurityTest (6 passed, 35 assertions: extension blocking, polyglot rejection, SVG sanitization against XXE/XSS, signed Cloudinary upload params, admin signing endpoint, legitimate image upload) + 13 Media tests | None available (manual checklist) | None (ready for 08.04) | 22768fe |
-| 08.04 | Rate limiting hardening | DONE | PASS: PHPUnit RateLimitingHardeningTest (4 passed, 113 assertions: general API 60/min, contact 3/min & 10/day, auth 5/min per IP/email, admin write 30/min, 429 Retry-After headers) + 25 Security/Contact tests | None available (manual checklist) | None (ready for 08.05) | 07cf2fe |
-| 08.05 | Error handling and redacting | DONE | PASS: PHPUnit ErrorHandlingAndRedactingTest (5 passed, 29 assertions: query masking, zero path/stack trace leakage, standard error JSON format 401/404/405/500) + Vitest error-boundary (2 passed: React rendering crash interception, production stack redaction, bilingual recovery UI) | None available (manual checklist) | None (ready for 08.06) | 857aea6 |
-| 08.06 | Security penetration tests | DONE | PASS: PHPUnit SecurityPenetrationTest (15 passed, 96 assertions across OWASP Top 10) + 26 Security suite tests | None available (manual checklist) | None (ready for 08.07) | d3f1a06 |
-| 08.07 | Automated backup script | DONE | PASS: PHPUnit BackupDatabaseTest (7 passed, 29 assertions: AES-256-CBC, manifest, SHA-256 checksum, 7-day retention purge, artisan command, failure alert) | None available (manual checklist) | None (ready for 08.08) | 36e1b7c |
-| 08.08 | Backup restore verification | DONE | PASS: PHPUnit BackupRestoreVerificationTest (6 passed, 21 assertions: verify-only dry run, SQL restore, table count match, sample record integrity, wrong key/tamper rejection) | None available (manual checklist) | None (ready for 08.09) | 75e921b |
-| 08.09 | Health check endpoint | DONE | PASS: PHPUnit HealthCheckEndpointTest (5 passed) + HealthTest (1 passed, 11 assertions) = 6 passed, 41 assertions: liveness, readiness, DB ping latency, cache/storage checks, 503 degraded | None available (manual checklist) | None (ready for 08.10) | 9ef4b1a |
-| 08.10 | Uptime and alert configuration | BLOCKED | PASS locally: SystemMonitoringAndAlertTest 10 tests/44 assertions; full backend 290 tests/1366 assertions; PHP syntax and schedule list pass | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | GitHub CLI token invalid; push pending. Host CPU monitoring remains for Phase 08 gate. | 154262e |
-| 08.11 | Graceful degradation | BLOCKED | PASS locally: HealthCheckEndpointTest 7 tests/46 assertions; full backend 292 tests/1382 assertions | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | Non-frontend health/readiness path verified; frontend fallback DEFERRED; GitHub push blocked by auth | 146eea9 |
-| 08.12 | Operations runbook | BLOCKED | PASS locally: Artisan monitor/queue help, health routes, dry-run monitor, PHP syntax, runbook link | superpowers:verification-before-completion; writing-good-tests checklist (no prose test) | Live off-server restore, alert delivery, provider/browser drills pending; frontend DEFERRED; GitHub auth blocks push | 448b21e |
+| 08.01 | Security audit | IN_PROGRESS | Historical SecurityPenetrationTest 15 passed/96 assertions; input/rate-limit suites also exist | — | SSRF/open redirect review and security finding closure pending | d3f1a06 |
+| 08.02 | Upload hardening | IN_PROGRESS | Historical FileUploadSecurityTest 6 passed/35 assertions; media tests exist | — | Dimension, content-type, image-only, huge-file, provider boundary gaps | 22768fe |
+| 08.03 | Security headers/TLS | IN_PROGRESS | Historical SecurityHeadersTest 3 passed/24 assertions; SSR header evidence recorded | — | Production-safe CSP and live TLS/script validation pending | 9c71af4 |
+| 08.04 | Error contract | IN_PROGRESS | Historical ErrorHandlingAndRedactingTest 5 passed/29 assertions; frontend boundary exists | — | Localized errors and SSR 500 proof pending; frontend DEFERRED | 857aea6 |
+| 08.05 | Retry/idempotency | IN_PROGRESS | Analytics idempotency and trash provider retry exist; canonical workflow suite not run | — | Upload/email/cleanup/publish idempotency and bounded retry contract missing | — |
+| 08.06 | Audit logs and redaction | IN_PROGRESS | Historical AuditLogTest and error redaction tests exist | — | Message/body redaction and raw provider exception log review pending | 3788639, 857aea6 |
+| 08.07 | Backup job | BLOCKED | Historical BackupDatabaseTest 7 passed/29 assertions | — | Off-server provider/key custody/remote retention and failure-alert proof missing | 36e1b7c |
+| 08.08 | Restore drill | BLOCKED | Historical BackupRestoreVerificationTest 6 passed/21 assertions | — | Real encrypted off-server restore to isolated DB pending | 75e921b |
+| 08.09 | Trash cleanup scheduler | IN_PROGRESS | Historical ProjectTrashTest includes 30-day, shared-media, provider-error cases; daily schedule exists | — | Durable retry after exhausted provider deletion missing | de4c894 |
+| 08.10 | Health checks | BLOCKED | Local HealthCheckEndpointTest 7 passed/46 assertions; API/root 503 degradation | superpowers:test-driven-development | SSR readiness missing; frontend/SSR DEFERRED; live probes unverified | 559eefd, 146eea9 |
+| 08.11 | Monitoring | IN_PROGRESS | Local SystemMonitoringAndAlertTest 10 passed/44 assertions; disk/PHP-memory/uptime/alerts | superpowers:test-driven-development | Host CPU, external uptime, real alert and host log rotation pending | 154262e |
+| 08.12 | Reliability E2E | BLOCKED | Backend suites and operations runbook exist; no canonical E2E proof | — | Provider/DB/restore/SSR recovery matrix pending; frontend DEFERRED | 448b21e |
 | 09.01 | Production build scripts | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.02 | Nginx configuration | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.03 | Process supervision | NOT_STARTED | Not run | — | Phase 08 gate | — |

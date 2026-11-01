@@ -1,6 +1,15 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Codex non-frontend continuation checkpoint — 2026-11-01
+## Current canonical Phase 08 compliance checkpoint — 2026-11-02
+
+- Master plan Section 11 controls Task 08.01–08.12 names and acceptance. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps historical task labels to the canonical requirements. The corrected register has 63 of 108 tasks DONE, 11 historical Phase 04 tasks REWORK_REQUIRED, and 0 of 12 canonical Phase 08 tasks fully DONE; the Phase 08 gate remains open.
+- Work from this branch: `feat/08-canonical-compliance`, based on pre-Phase-09 commit `7d7c4c2`. The already-started Phase 09 files are preserved separately on `feat/09.01-production-readiness-and-backend-build` at local WIP commit `2e446b0`; do not merge or continue them until eligible Phase 08 work is addressed.
+- Current non-frontend queue: close eligible 08.01–08.06 security/reliability gaps, make 08.09 cleanup retry durable, add host CPU monitoring for 08.11, then run backend regression. Keep 08.07/08.08 off-server proof, 08.10 SSR readiness, and 08.12 browser E2E marked blocked/deferred until prerequisites exist.
+- Frontend files and Phase 10 remain outside this run. GitHub CLI authentication remains invalid; use only an authorized interactive login, and never claim a push or CI run without verification.
+
+---
+
+## Historical Codex non-frontend checkpoint — 2026-11-01
 
 The current owner instruction limits this run to non-frontend work through Phase 09. Do not edit frontend files or execute Phase 10. The historical redesign plan below remains context, not authorization for this run.
 
