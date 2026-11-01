@@ -37,7 +37,13 @@ class MediaController extends Controller
         $file = $request->file('file');
         $securityService->validateFile($file);
 
-        $uploaded = $storage->upload($file);
+        try {
+            $uploaded = $storage->upload($file);
+        } catch (\InvalidArgumentException $e) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'file' => [$e->getMessage()],
+            ]);
+        }
 
         $asset = MediaAsset::create($uploaded);
 
@@ -62,7 +68,13 @@ class MediaController extends Controller
 
         foreach ($request->file('files') as $file) {
             $securityService->validateFile($file);
-            $uploaded = $storage->upload($file);
+            try {
+                $uploaded = $storage->upload($file);
+            } catch (\InvalidArgumentException $e) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'files' => [$e->getMessage()],
+                ]);
+            }
             $createdAssets[] = MediaAsset::create($uploaded);
         }
 

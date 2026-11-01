@@ -87,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Too many login attempts. Please try again later. / محاولات دخول كثيرة جداً، يرجى الانتظار دقيقة قبل المحاولة مجدداً.',
+                    'retry_after' => 60,
                 ], 429, [
                     'Retry-After' => 60,
                 ]);

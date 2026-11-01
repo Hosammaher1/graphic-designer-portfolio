@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 79 of 108 tasks started, 79 completed (73.1%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 80 of 108 tasks started, 80 completed (74.1%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,10 +17,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 5 | 5 | In progress (5/12 done) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 6 | 6 | In progress (6/12 done) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
 | 10 | Hybrid Single-Page Redesign | 11 | 0 | 0 | Redesign Phase Gate |
-| **Total** | | **108** | **78** | **78** | **72.2% Complete** |
+| **Total** | | **108** | **80** | **80** | **74.1% Complete** |
 
 ## Task register
 
@@ -104,7 +104,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.03 | File upload security | DONE | PASS: PHPUnit FileUploadSecurityTest (6 passed, 35 assertions: extension blocking, polyglot rejection, SVG sanitization against XXE/XSS, signed Cloudinary upload params, admin signing endpoint, legitimate image upload) + 13 Media tests | None available (manual checklist) | None (ready for 08.04) | 22768fe |
 | 08.04 | Rate limiting hardening | DONE | PASS: PHPUnit RateLimitingHardeningTest (4 passed, 113 assertions: general API 60/min, contact 3/min & 10/day, auth 5/min per IP/email, admin write 30/min, 429 Retry-After headers) + 25 Security/Contact tests | None available (manual checklist) | None (ready for 08.05) | 07cf2fe |
 | 08.05 | Error handling and redacting | DONE | PASS: PHPUnit ErrorHandlingAndRedactingTest (5 passed, 29 assertions: query masking, zero path/stack trace leakage, standard error JSON format 401/404/405/500) + Vitest error-boundary (2 passed: React rendering crash interception, production stack redaction, bilingual recovery UI) | None available (manual checklist) | None (ready for 08.06) | 857aea6 |
-| 08.06 | Security penetration tests | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.06 | Security penetration tests | DONE | PASS: PHPUnit SecurityPenetrationTest (15 passed, 96 assertions across OWASP Top 10) + 26 Security suite tests | None available (manual checklist) | None (ready for 08.07) | d3f1a06 |
 | 08.07 | Automated backup script | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.08 | Backup restore verification | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.09 | Health check endpoint | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -5017,4 +5017,45 @@ Next task:
 - **Vitest 	ests/design-system.test.jsx:** PASS (21 passed, 21 assertions in 147ms).
 
 #### Next Task
-- **Phase 10 — Task 10.02: Hybrid global navigation & smooth anchor routing**
+- **Phase 10 — Task 10.02: Hybrid global navigation & smooth anchor routing** (Deferred under frontend freeze)
+
+---
+
+### Task 08.06: Security penetration tests
+- **Task ID:** 08.06
+- **Title:** Security penetration tests
+- **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
+- **Status:** DONE
+- **Branch:** feat/08.06-security-penetration-tests
+- **Remote:** origin/feat/08.06-security-penetration-tests
+
+#### Implementation Summary
+1. **Automated OWASP Top 10 Security Penetration Test Suite (`backend/tests/Feature/SecurityPenetrationTest.php`):**
+   - **A01: Broken Access Control & IDOR:** Verified unauthenticated access to admin endpoints (`/projects`, `/users`, `/audit-logs`, `/profile`, `/profile/password`) is blocked (401); verified non-admin users receive 403; verified admin cannot delete their own account (preventing self-lockout).
+   - **A02: Cryptographic Failures & Sensitive Data Exposure:** Verified passwords, bcrypt hashes (`$2y$`), and remember tokens are never returned in login, profile, or user index JSON payloads; verified draft and soft-deleted projects are strictly excluded from public index and show endpoints.
+   - **A03: Injection (SQLi & Command Injection):** Fuzzed search query and project slug parameters with classic SQL injection strings (`' OR 1=1 --`, `UNION SELECT`, sleep injections, boolean-based payloads); asserted 200/404 responses with zero SQL syntax errors or database engine crashes; fuzzed contact inputs with shell command payloads (`cat /etc/passwd`, `whoami`, etc.) and confirmed neutral execution.
+   - **A04: Insecure Design & Rate Limiting Hardening:** Verified authentication brute-force rate limiter blocks on the 6th failed attempt with HTTP 429 and `Retry-After` header.
+   - **A05: Security Misconfiguration & Error Masking:** Verified 404/405 error responses omit framework paths (`vendor/laravel`), stack traces, and database exceptions; verified mandatory security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`) on API endpoints.
+   - **A06: Vulnerable Components & XXE:** Enhanced `FileUploadSecurityService` and `MediaController` to detect and reject XML External Entity (`<!ENTITY`, `SYSTEM`, `PUBLIC`) and script payloads in SVG uploads, returning HTTP 422 validation errors instead of unhandled 500 exceptions.
+   - **A07: Identification and Authentication Failures:** Verified invalid login attempts return identical error messages regardless of whether the user email exists, preventing user enumeration.
+   - **A08: Software and Data Integrity Failures:** Verified page draft endpoint sanitizes/rejects `<script>` tags in custom block schemas.
+   - **A09: Security Logging & Secret Redaction:** Verified sensitive credentials are never stored in plain text in `admin_activity_logs`.
+   - **A10: Server-Side Request Forgery (SSRF) / HMAC Tampering:** Verified signed preview routes require valid HMAC signatures and reject tampered tokens with 403 Forbidden.
+2. **Hardening Fixes:**
+   - `backend/app/Services/Security/FileUploadSecurityService.php`: Added explicit detection for XXE declarations (`<!ENTITY`, `SYSTEM`, `PUBLIC`) and script tags during file validation.
+   - `backend/app/Http/Controllers/Api/V1/Admin/MediaController.php`: Wrapped storage upload calls to translate `\InvalidArgumentException` into `ValidationException` (HTTP 422).
+   - `backend/app/Providers/AppServiceProvider.php`: Standardized `retry_after` in login rate-limiting responses.
+
+#### Files Created and Modified
+- `backend/tests/Feature/SecurityPenetrationTest.php`: Created automated OWASP Top 10 penetration test suite (15 tests, 96 assertions).
+- `backend/app/Services/Security/FileUploadSecurityService.php`: Added SVG XXE and XML payload validation.
+- `backend/app/Http/Controllers/Api/V1/Admin/MediaController.php`: Added exception handling translating storage rejections to 422 validation errors.
+- `backend/app/Providers/AppServiceProvider.php`: Added `retry_after` payload to login rate limit response.
+- `docs/PROGRESS.md`: Recorded Task 08.06 completion, updated task register and Phase 08 count to 6/12.
+
+#### Verification Evidence
+- **PHPUnit `SecurityPenetrationTest`:** PASS (15 passed, 96 assertions in 5.42s).
+- **PHPUnit Full Security Suite (`--filter=Security`):** PASS (26 passed, 165 assertions in 9.73s).
+
+#### Next Task
+- **Phase 08 — Task 08.07: Automated backup script**

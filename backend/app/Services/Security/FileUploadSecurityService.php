@@ -89,6 +89,15 @@ class FileUploadSecurityService
             ]);
         }
 
+        // 4. XXE (XML External Entity) & malicious XML payload rejection
+        if ($extension === 'svg' || in_array($extension, ['xml', 'svgz'], true) || stripos($content, '<svg') !== false || stripos($content, '<?xml') !== false) {
+            if (preg_match('/(<!ENTITY\b|<!DOCTYPE\b[^>]*\[|SYSTEM\s+["\']|PUBLIC\s+["\']|<script\b|<foreignObject\b)/i', $content)) {
+                throw ValidationException::withMessages([
+                    'file' => ['Malicious XML External Entity (XXE) or script payload detected.'],
+                ]);
+            }
+        }
+
         // 4. Deep MIME type verification via fileinfo magic bytes
         $mime = null;
         if ($filePath && file_exists($filePath) && function_exists('finfo_open')) {
