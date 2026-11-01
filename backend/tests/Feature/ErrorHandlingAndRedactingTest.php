@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ErrorHandlingAndRedactingTest extends TestCase
@@ -166,5 +167,17 @@ class ErrorHandlingAndRedactingTest extends TestCase
         $response->assertStatus(403);
         $response->assertJsonPath('message', 'غير مسموح بهذا الإجراء.');
         $response->assertJsonPath('code', 403);
+    }
+
+    public function test_production_exception_log_omits_raw_exception_message(): void
+    {
+        Config::set('app.debug', false);
+        Log::spy();
+
+        $this->getJson('/api/v1/test-system-failure')->assertStatus(500);
+
+        Log::shouldHaveReceived('error')->withArgs(function ($message, $context) {
+            return !str_contains(json_encode([$message, $context]), 'API_SECRET_KEY_123456');
+        })->once();
     }
 }

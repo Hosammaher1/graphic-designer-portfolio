@@ -71,6 +71,26 @@ class AuditLogTest extends TestCase
         $this->assertStringNotContainsString('live_secret_key_123', $rawJson);
     }
 
+    public function test_audit_log_redacts_message_bodies_and_nested_exception_details(): void
+    {
+        $log = AuditLogger::log('contact.failed', [
+            'message' => 'Private client message body',
+            'request_body' => 'Private request payload',
+            'nested' => [
+                'exception' => 'Provider returned a secret token',
+                'trace' => 'D:\\private\\stack.php',
+                'status' => 'failed',
+            ],
+        ], $this->adminUser);
+
+        $details = $log->fresh()->details;
+        $this->assertSame('[REDACTED]', $details['message']);
+        $this->assertSame('[REDACTED]', $details['request_body']);
+        $this->assertSame('[REDACTED]', $details['nested']['exception']);
+        $this->assertSame('[REDACTED]', $details['nested']['trace']);
+        $this->assertSame('failed', $details['nested']['status']);
+    }
+
     public function test_admin_can_retrieve_paginated_audit_logs(): void
     {
         AuditLogger::log('auth.login.success', ['email' => $this->adminUser->email], $this->adminUser);
@@ -100,5 +120,30 @@ class AuditLogTest extends TestCase
         $forbiddenResponse = $this->actingAs($regularUser, 'sanctum')
             ->getJson('/api/v1/admin/audit-logs');
         $forbiddenResponse->assertStatus(403);
+    }
+
+    public function test_admin_mutation_audit_records_route_and_status_without_request_body(): void
+    {
+        $this->actingAs($this->adminUser, 'sanctum')->putJson('/api/v1/admin/profile', [
+            'name' => 'Updated Admin',
+            'email' => $this->adminUser->email,
+            'message' => 'Private client message body',
+        ])->assertOk();
+
+        $audit = AuditLog::where('action', 'admin.request')->firstOrFail();
+        $this->assertSame('api.v1.admin.profile.update', $audit->details['route']);
+        $this->assertSame('PUT', $audit->details['method']);
+        $this->assertSame(200, $audit->details['response_status']);
+        $this->assertStringNotContainsString('Private client message body', json_encode($audit->details));
+    }
+
+    public function test_audit_log_does_not_store_raw_user_agent_header(): void
+    {
+        $request = \Illuminate\Http\Request::create('/api/v1/admin/profile', 'PUT');
+        $request->headers->set('User-Agent', 'Browser Bearer private-session-token');
+
+        $log = AuditLogger::log('admin.profile.updated', ['field' => 'name'], $this->adminUser, $request);
+
+        $this->assertStringNotContainsString('private-session-token', json_encode($log->fresh()->toArray()));
     }
 }

@@ -77,7 +77,9 @@ class PurgeTrashedProjects extends Command
                                 $deleted = true;
                             }
                         } catch (\Throwable $e) {
-                            Log::warning("Provider error deleting media asset {$asset->id} (attempt {$attempts}/{$maxAttempts}): " . $e->getMessage());
+                            Log::warning("Provider error deleting media asset {$asset->id} (attempt {$attempts}/{$maxAttempts}).", [
+                                'exception_type' => get_class($e),
+                            ]);
                             if ($attempts >= $maxAttempts) {
                                 $failedAssetDeletions++;
                             }
@@ -88,7 +90,9 @@ class PurgeTrashedProjects extends Command
                         try {
                             $asset->delete();
                         } catch (\Throwable $e) {
-                            Log::warning("Could not delete MediaAsset model {$asset->id}: " . $e->getMessage());
+                            Log::warning("Could not delete MediaAsset model {$asset->id}.", [
+                                'exception_type' => get_class($e),
+                            ]);
                         }
                     }
                 }

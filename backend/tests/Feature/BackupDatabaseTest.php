@@ -166,4 +166,26 @@ class BackupDatabaseTest extends TestCase
             // Expected exception
         }
     }
+
+    public function test_backup_failure_log_and_webhook_do_not_include_exception_secret(): void
+    {
+        Config::set('backup.alert_webhook', 'https://alerts.example.test/hook');
+        \Illuminate\Support\Facades\Http::fake();
+        Log::spy();
+
+        $service = new class extends \App\Services\Backup\DatabaseBackupService {
+            public function simulateFailure(\Throwable $exception): void
+            {
+                $this->handleBackupFailure($exception, 'backups');
+            }
+        };
+        $service->simulateFailure(new \RuntimeException('Provider password=private-backup-secret'));
+
+        Log::shouldHaveReceived('error')->withArgs(function ($message, $context) {
+            return !str_contains(json_encode([$message, $context]), 'private-backup-secret');
+        })->once();
+        \Illuminate\Support\Facades\Http::assertSent(function ($request) {
+            return !str_contains(json_encode($request->data()), 'private-backup-secret');
+        });
+    }
 }

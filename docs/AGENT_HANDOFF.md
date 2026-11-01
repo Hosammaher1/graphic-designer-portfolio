@@ -2,6 +2,8 @@
 
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
+- Canonical 08.06 local checkpoint: admin mutations audited by route/method/status without bodies; nested sensitive keys redacted, User-Agent hashed, production exception and provider failure logs fixed-text. Focused suites 23 passed/111 assertions; full MySQL suite 306 passed/1436 assertions. Live log proof remains open. Branch feat/08.06-canonical-audit-redaction. Next: 08.09 durable cleanup. No GitHub push/CI claimed.
+
 - Canonical 08.05 local checkpoint: optional Idempotency-Key deduplicates contact records/mail queue and project snapshot publish; keyed conflict returns 409. Inquiry mailables use three attempts with backoff. Focused suites 15 passed/84 assertions; full MySQL suite 301 passed/1421 assertions. Upload provider retry/idem and mail accepted-timeout recovery remain open. Branch feat/08.05-canonical-retry-idempotency. Next: 08.06 audit redaction. No GitHub push/CI claimed.
 
 - Canonical 08.04 local checkpoint: safe fixed Arabic/English API exception messages, route-path-safe 404, localized admin policy envelope with old English 403 preserved. Focused suites 13 passed/65 assertions; full MySQL suite 298 passed/1400 assertions. SSR failure and remaining field/controller localization are open. Branch feat/08.04-canonical-error-contract. Next: canonical 08.06 audit redaction. GitHub auth invalid; no push/CI claimed.

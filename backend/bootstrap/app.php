@@ -16,9 +16,22 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'audit.admin' => \App\Http\Middleware\AuditAdminMutation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->report(function (\Throwable $e) {
+            if (config('app.debug')) {
+                return null;
+            }
+
+            \Illuminate\Support\Facades\Log::error('Unhandled application exception.', [
+                'exception_type' => get_class($e),
+            ]);
+
+            return false;
+        });
+
         $exceptions->shouldRenderJsonWhen(function (\Illuminate\Http\Request $request, \Throwable $e) {
             return $request->is('api/*') || $request->expectsJson();
         });

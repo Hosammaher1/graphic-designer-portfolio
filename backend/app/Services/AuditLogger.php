@@ -20,6 +20,12 @@ class AuditLogger
         'api_key',
         'authorization',
         'bearer',
+        'message',
+        'body',
+        'payload',
+        'exception',
+        'trace',
+        'cookie',
     ];
 
     /**
@@ -37,7 +43,7 @@ class AuditLogger
             'actor_email' => $actorUser?->email ?? ($details['email'] ?? null),
             'action' => $action,
             'ip_address' => $req?->ip(),
-            'user_agent' => $req?->userAgent(),
+            'user_agent' => $req?->userAgent() ? 'sha256:'.hash('sha256', $req->userAgent()) : null,
             'details' => $sanitizedDetails,
             'created_at' => now(),
         ]);

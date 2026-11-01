@@ -320,7 +320,9 @@ class ProjectController extends Controller
                     }
                     $asset->delete();
                 } catch (\Throwable $e) {
-                    Log::warning("Could not delete media asset {$asset->id} during project force delete: " . $e->getMessage());
+                    Log::warning("Could not delete media asset {$asset->id} during project force delete.", [
+                        'exception_type' => get_class($e),
+                    ]);
                 }
             }
         }

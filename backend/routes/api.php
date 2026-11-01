@@ -57,7 +57,7 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
     });
 
     // Protected Admin routes
-    Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'throttle:admin_write'])->group(function () {
+    Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'throttle:admin_write', 'audit.admin'])->group(function () {
         Route::get('/profile', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'show'])->name('api.v1.admin.profile.show');
         Route::put('/profile', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'update'])->name('api.v1.admin.profile.update');
         Route::put('/profile/password', [\App\Http\Controllers\Api\V1\Admin\ProfileController::class, 'updatePassword'])->name('api.v1.admin.profile.password');

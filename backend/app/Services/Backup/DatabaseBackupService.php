@@ -319,10 +319,9 @@ class DatabaseBackupService
      */
     protected function handleBackupFailure(\Throwable $e, string $disk): void
     {
-        $errorMessage = "CRITICAL: Automated database backup failed on disk [{$disk}]: " . $e->getMessage();
+        $errorMessage = 'CRITICAL: Automated database backup failed.';
         Log::error($errorMessage, [
-            'exception' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
+            'exception_type' => get_class($e),
             'disk' => $disk,
             'timestamp' => now()->toIso8601String(),
         ]);
@@ -335,7 +334,9 @@ class DatabaseBackupService
                     'timestamp' => now()->toIso8601String(),
                 ]);
             } catch (\Throwable $alertError) {
-                Log::warning("Failed to dispatch backup alert webhook: " . $alertError->getMessage());
+                Log::warning('Failed to dispatch backup alert webhook.', [
+                    'exception_type' => get_class($alertError),
+                ]);
             }
         }
     }
