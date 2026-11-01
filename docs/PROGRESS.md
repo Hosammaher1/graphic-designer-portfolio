@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 78 of 108 tasks started, 78 completed (72.2%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 79 of 108 tasks started, 79 completed (73.1%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -123,7 +123,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.12 | Release sign-off | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 10.01 | Apple-inspired design system & tokens | NOT_STARTED | Not run | apple-design-system | Ready for implementation | — |
+| 10.01 | Apple-inspired design system & tokens | DONE | PASS: Vitest design-system-apple (4 passed), design-system regression (21 passed) | apple-design-system | Ready for 10.02 | ee223ad |
 | 10.02 | Hybrid global navigation & smooth anchor routing | NOT_STARTED | Not run | hybrid-portfolio-architecture | Ready for implementation | — |
 | 10.03 | Cinematic hero with staggered typography | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
 | 10.04 | Selected work interactive horizontal showcase | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
@@ -4980,3 +4980,41 @@ Blockers/owner inputs:
 Next task:
   Phase 08 — Task 08.06: Security penetration tests (Automated OWASP Top 10 security test suite covering SQL injection, XSS, CSRF, IDOR, brute force, security headers).
 ```
+
+---
+
+### Task 10.01: Apple-inspired design system & tokens
+- **Task ID:** 10.01
+- **Title:** Apple-inspired design system & tokens
+- **Phase:** Phase 10 — Hybrid Single-Page Experience Redesign
+- **Status:** DONE
+- **Branch:** eat/10.01-apple-design-system-tokens
+- **Commit:** ee223ad
+- **Remote:** origin/feat/10.01-apple-design-system-tokens -> merged to origin/dev (ee223ad)
+
+#### Implementation Summary
+1. **Apple HIG Design Tokens & Clamp Typography Scales (rontend/src/styles/tokens.css):**
+   - Established fluid display typography using CSS clamp: --font-size-display-clamp: clamp(3.5rem, 8.5vw, 8.5rem), --font-size-heading-clamp: clamp(2.25rem, 5vw, 4.5rem), and --font-size-subheading-clamp: clamp(1.25rem, 2.5vw, 2rem).
+   - Implemented subtle Apple-inspired glassmorphism tokens for surfaces (--glass-bg, --glass-border, --glass-blur: 16px, --glass-glow).
+   - Integrated rich warm amber accent tokens (--color-amber-accent: #fbbf24 dark, #d97706 light).
+   - Maintained complete accessible contrast ratios (>18:1 text on dark surface, >12:1 on light surface).
+   - Enforced strict 0ms immediate completion under @media (prefers-reduced-motion: reduce).
+2. **Theme Initialization Anti-Flash (rontend/index.html & rontend/src/components/ThemeToggle.jsx):**
+   - Defaulted initial theme to dark editorial aesthetic to eliminate white flash during initial SSR page load.
+3. **Automated Unit & Regression Verification (rontend/tests/design-system-apple.test.jsx):**
+   - Verified clamp display typography, glassmorphism tokens, dark theme depth tokens, and reduced-motion zeroing.
+   - Verified regression on existing 21 design system UI primitives (rontend/tests/design-system.test.jsx).
+
+#### Files Created and Modified
+- rontend/src/styles/tokens.css: Added clamp display typography scales, glassmorphism blur and border variables, and amber accent tokens.
+- rontend/tests/design-system-apple.test.jsx: Created automated unit test suite for Apple design tokens and clamp scales.
+- rontend/tests/setup.js: Polyfilled window.matchMedia for jsdom test runner compatibility.
+- rontend/vitest.config.js: Configured 	estTimeout: 15000 to prevent CPU-load timeouts during parallel multi-file test execution.
+- rontend/index.html & rontend/src/components/ThemeToggle.jsx: Defaulted initial theme to dark.
+
+#### Verification Evidence
+- **Vitest 	ests/design-system-apple.test.jsx:** PASS (4 passed, 4 assertions in 2ms).
+- **Vitest 	ests/design-system.test.jsx:** PASS (21 passed, 21 assertions in 147ms).
+
+#### Next Task
+- **Phase 10 — Task 10.02: Hybrid global navigation & smooth anchor routing**

@@ -12,7 +12,7 @@
 ## 1. Executive Summary
 
 - **Total Tasks Approved:** 108 tasks across 10 phases.
-- **Tasks Complete & Verified Historically:** 78 tasks (Phases 01–03, 05–07, and 08.01–08.05).
+- **Tasks Complete & Verified Historically:** 79 tasks (Phases 01–03, 05–07, 08.01–08.05, and Task 10.01).
 - **Approved Architectural Direction:**
   - **Hybrid Single-Page Experience**:
     - **ONE continuous, immersive, scroll-driven homepage** (`/:locale/`):
@@ -33,7 +33,7 @@
   5. `.agents/skills/playwright-visual-testing/SKILL.md`
   6. `.agents/skills/performance-optimization-debugging/SKILL.md`
 - **Current Phase:** **Phase 10 — Hybrid Single-Page Experience Redesign (Tasks 10.01–10.11)**
-- **Next Immediate Task:** **Task 10.01: Apple-inspired design system & tokens**
+- **Next Immediate Task:** **Task 10.02: Hybrid global navigation & smooth anchor routing**
 
 ---
 
