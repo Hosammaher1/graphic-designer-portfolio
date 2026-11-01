@@ -184,15 +184,22 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function publish(int $id, \App\Services\Publishing\ProjectPublishingService $service): JsonResponse
+    public function publish(Request $request, int $id, \App\Services\Publishing\ProjectPublishingService $service): JsonResponse
     {
+        $idempotencyKey = $request->header('Idempotency-Key');
+        if ($idempotencyKey !== null && (strlen($idempotencyKey) > 128 || !preg_match('/^[\x21-\x7E]+$/D', $idempotencyKey))) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'idempotency_key' => ['The Idempotency-Key header must contain 1 to 128 printable ASCII characters.'],
+            ]);
+        }
+
         $project = Project::find($id);
 
         if (! $project) {
             return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);
         }
 
-        $published = $service->publish($project);
+        $published = $service->publish($project, $idempotencyKey);
 
         return response()->json([
             'status' => 'success',

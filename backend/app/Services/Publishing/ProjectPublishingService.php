@@ -17,9 +17,28 @@ class ProjectPublishingService
      * Atomically publishes the project, creating an immutable published_snapshot
      * capturing all localized translations, ordered media, categories, and tools.
      */
-    public function publish(Project $project): Project
+    public function publish(Project $project, ?string $idempotencyKey = null): Project
     {
-        return DB::transaction(function () use ($project) {
+        return DB::transaction(function () use ($project, $idempotencyKey) {
+            $project = Project::query()->whereKey($project->id)->lockForUpdate()->firstOrFail();
+            $keyHash = $idempotencyKey !== null
+                ? hash_hmac('sha256', $idempotencyKey, (string) config('app.key'))
+                : null;
+            if ($keyHash !== null) {
+                $existing = DB::table('project_publish_requests')
+                    ->where('project_id', $project->id)
+                    ->where('key_hash', $keyHash)
+                    ->first();
+                if ($existing) {
+                    if ($project->status !== 'published'
+                        || ($project->published_snapshot['version'] ?? null) !== (int) $existing->snapshot_version) {
+                        abort(409, 'This publish key belongs to a prior project state.');
+                    }
+
+                    return $project;
+                }
+            }
+
             $project->load(['translations', 'categories.translations', 'tools', 'media.mediaAsset', 'coverMedia']);
 
             $currentVersion = $project->published_snapshot['version'] ?? 0;
@@ -93,6 +112,15 @@ class ProjectPublishingService
                 'published_at'       => $now,
                 'published_snapshot' => $snapshot,
             ]);
+
+            if ($keyHash !== null) {
+                DB::table('project_publish_requests')->insert([
+                    'project_id' => $project->id,
+                    'key_hash' => $keyHash,
+                    'snapshot_version' => $snapshot['version'],
+                    'created_at' => $now,
+                ]);
+            }
 
             return $project->fresh();
         });

@@ -86,6 +86,35 @@ class ContactInquiryTest extends TestCase
         });
     }
 
+    public function test_contact_idempotency_key_prevents_duplicate_inquiry_and_mail(): void
+    {
+        Mail::fake();
+        $payload = [
+            'name' => 'Amira Noor',
+            'email' => 'amira@example.com',
+            'subject' => 'Portfolio project',
+            'message' => 'Please contact me about a portfolio design project.',
+        ];
+        $headers = ['Idempotency-Key' => 'contact-request-123'];
+
+        $first = $this->postJson('/api/v1/contact', $payload, $headers);
+        $second = $this->postJson('/api/v1/contact', $payload, $headers);
+
+        $first->assertCreated();
+        $second->assertOk();
+        $this->assertSame($first->json('data.id'), $second->json('data.id'));
+        $this->assertSame(1, Inquiry::count());
+        Mail::assertQueued(InquiryNotificationMail::class, 1);
+        Mail::assertQueued(InquiryConfirmationMail::class, 1);
+
+        $conflict = $this->postJson('/api/v1/contact', array_merge($payload, [
+            'message' => 'A different request using the same key.',
+        ]), $headers);
+        $conflict->assertStatus(409);
+        $this->assertSame(1, Inquiry::count());
+        Mail::assertQueued(InquiryNotificationMail::class, 1);
+    }
+
     public function test_admin_can_view_and_manage_inquiries(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);

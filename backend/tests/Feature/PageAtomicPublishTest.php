@@ -76,6 +76,20 @@ class PageAtomicPublishTest extends TestCase
         $this->assertFalse(Cache::has("page_public_{$this->page->slug}"));
     }
 
+    public function test_repeated_page_publish_does_not_rewrite_same_version(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+        $url = "/api/v1/admin/pages/{$this->page->slug}/publish";
+        $this->actingAs($this->adminUser)->postJson($url)->assertOk();
+        $publishedAt = $this->initialDraft->fresh()->updated_at->toIso8601String();
+
+        $this->travel(10)->seconds();
+        $this->actingAs($this->adminUser)->postJson($url)->assertOk();
+
+        $this->assertSame($publishedAt, $this->initialDraft->fresh()->updated_at->toIso8601String());
+        $this->assertSame($this->initialDraft->id, $this->page->fresh()->published_version_id);
+    }
+
     public function test_localized_completeness_policy_rejects_missing_required_language(): void
     {
         // Unset English title to violate localized completeness policy

@@ -2,6 +2,8 @@
 
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
+- Canonical 08.05 local checkpoint: optional Idempotency-Key deduplicates contact records/mail queue and project snapshot publish; keyed conflict returns 409. Inquiry mailables use three attempts with backoff. Focused suites 15 passed/84 assertions; full MySQL suite 301 passed/1421 assertions. Upload provider retry/idem and mail accepted-timeout recovery remain open. Branch feat/08.05-canonical-retry-idempotency. Next: 08.06 audit redaction. No GitHub push/CI claimed.
+
 - Canonical 08.04 local checkpoint: safe fixed Arabic/English API exception messages, route-path-safe 404, localized admin policy envelope with old English 403 preserved. Focused suites 13 passed/65 assertions; full MySQL suite 298 passed/1400 assertions. SSR failure and remaining field/controller localization are open. Branch feat/08.04-canonical-error-contract. Next: canonical 08.06 audit redaction. GitHub auth invalid; no push/CI claimed.
 
 - Canonical 08.03 local checkpoint: production Laravel CSP excludes inline/eval and localhost connections; HSTS is production-only. Focused test 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions. Node SSR CSP is still permissive and frontend files are frozen; live TLS/browser proof remains blocked. Branch feat/08.03-canonical-security-headers. Next: canonical 08.04 and 08.06. GitHub auth remains invalid; no push/CI claimed.

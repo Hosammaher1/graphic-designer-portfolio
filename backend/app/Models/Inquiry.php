@@ -19,6 +19,8 @@ class Inquiry extends Model
         'status',
         'is_read',
         'responded_at',
+        'idempotency_key_hash',
+        'request_fingerprint',
     ];
 
     protected $casts = [
