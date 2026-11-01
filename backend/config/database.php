@@ -59,6 +59,20 @@ return [
             ]) : [],
         ],
 
+        'restore_isolated' => [
+            'driver' => 'mysql',
+            'url' => env('DB_RESTORE_URL'),
+            'host' => env('DB_RESTORE_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_RESTORE_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB_RESTORE_DATABASE', 'portfolio_testing'),
+            'username' => env('DB_RESTORE_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB_RESTORE_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
