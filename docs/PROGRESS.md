@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 76 of 97 tasks started, 76 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-10-31. **Implementation:** 77 of 97 tasks started, 77 completed. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,9 +17,9 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 3 | 3 | Not evaluated |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 4 | 4 | Not evaluated |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **76** | **76** | |
+| **Total** | | **97** | **77** | **77** | |
 
 ## Task register
 
@@ -101,7 +101,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.01 | Security headers and CSP | DONE | PASS: PHPUnit SecurityHeadersTest (3 passed, 24 assertions: CSP directives, HSTS preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, COOP/CORP across API and web routes) + Node SSR headers | None available (manual checklist) | None (ready for 08.02) | 9c71af4 |
 | 08.02 | Input sanitization and XSS | DONE | PASS: PHPUnit InputSanitizationTest (5 passed, 25 assertions: plain text XSS stripping, null bytes removal, UTF-8 normalization, rich text HTML safe whitelist & event handler stripping, recursive block sanitization, contact endpoint XSS neutralization) + 16 contact tests passed | None available (manual checklist) | None (ready for 08.03) | 2523f51 |
 | 08.03 | File upload security | DONE | PASS: PHPUnit FileUploadSecurityTest (6 passed, 35 assertions: extension blocking, polyglot rejection, SVG sanitization against XXE/XSS, signed Cloudinary upload params, admin signing endpoint, legitimate image upload) + 13 Media tests | None available (manual checklist) | None (ready for 08.04) | 22768fe |
-| 08.04 | Rate limiting hardening | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.04 | Rate limiting hardening | DONE | PASS: PHPUnit RateLimitingHardeningTest (4 passed, 113 assertions: general API 60/min, contact 3/min & 10/day, auth 5/min per IP/email, admin write 30/min, 429 Retry-After headers) + 25 Security/Contact tests | None available (manual checklist) | None (ready for 08.05) | 07cf2fe |
 | 08.05 | Error handling and redacting | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.06 | Security penetration tests | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.07 | Automated backup script | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -4840,4 +4840,65 @@ Blockers/owner inputs:
   None. Task 08.03 complete and verified.
 Next task:
   Phase 08 — Task 08.04: Rate limiting hardening (Custom rate limiter per endpoint: API general 60/min, contact 3/min & 10/day, auth 5/min per IP/email, admin write endpoints 30/min).
+```
+
+```yaml
+Task: 08.04
+Title: Rate limiting hardening
+Status: DONE
+Evidence:
+  git:
+    branch: feat/08.04-rate-limiting-hardening
+    commit: 07cf2fe
+    remote: origin/feat/08.04-rate-limiting-hardening
+    merged_to_dev: 07cf2fe
+  files_created:
+    - backend/tests/Feature/RateLimitingHardeningTest.php (PHPUnit test suite asserting boundary limits, 429 Too Many Requests responses, Retry-After headers, and isolation across general API, contact, auth, and admin write tiers)
+  files_modified:
+    - backend/app/Providers/AppServiceProvider.php (Configured RateLimiter tiers: api_general at 60/min, contact at 3/min & 10/day, auth_login at 5/min per IP/email, and admin_write at 30 mutations/min for POST/PUT/PATCH/DELETE)
+    - backend/app/Http/Controllers/Api/V1/AuthController.php (Added Retry-After header to 429 rate limit exceeded response)
+    - backend/routes/api.php (Attached throttle:api_general to v1 prefix, throttle:auth_login to auth/login, and throttle:admin_write to admin group)
+    - docs/PROGRESS.md (Marked Task 08.04 DONE, updated Phase 08 to 4/12, total 77/97, and recorded execution evidence)
+Tests written first (RED -> GREEN):
+  backend/tests/Feature/RateLimitingHardeningTest.php:
+    - api general rate limit allows 60 and throttles 61st
+    - contact rate limit allows 3 and throttles 4th per minute
+    - auth login rate limit enforces 5 attempts per ip and email
+    - admin write rate limit enforces 30 mutations and allows reads
+  Observed GREEN state:
+    PHPUnit RateLimitingHardeningTest: 4 passed (113 assertions) in 5.40s.
+    Combined Security & Rate Limit suite: 6 test files, 29 passed (257 assertions) in 17.63s.
+Skills discovered:
+  agy-customizations, antigravity-guide
+Skills activated/read:
+  None available for rate limiting hardening.
+Unavailable skills and fallback checklist:
+  - rate-limiting-hardening: NOT AVAILABLE.
+  - Fallback checklist applied: Plan v1.1 Task 08.04 verified:
+    1. Tier 1 (API General): 60 requests/minute per client identity/IP across all `/api/v1/*` routes; health check endpoint `/health*` exempted.
+    2. Tier 2 (Contact Inquiries): 3 requests/minute and 10 requests/day per IP on `/api/v1/contact`.
+    3. Tier 3 (Authentication Login): 5 attempts/minute per IP and normalized email compound key on `/api/v1/auth/login`.
+    4. Tier 4 (Admin Write Endpoints): 30 mutating requests (POST, PUT, PATCH, DELETE) per minute per administrator; GET read requests are exempt from the mutation throttle.
+    5. Standard Headers: All 429 responses return RFC 6585 compliant `Retry-After` header with seconds until expiration and bilingual message.
+Design artifacts/screenshots reviewed:
+  RFC 6585 (Additional HTTP Status Codes), Laravel 11 Rate Limiting documentation.
+Commands executed and exact results:
+  1. git checkout -b feat/08.04-rate-limiting-hardening
+  2. Created backend/tests/Feature/RateLimitingHardeningTest.php (RED state observed: 3 failed, 1 passed).
+  3. Configured rate limiters in backend/app/Providers/AppServiceProvider.php.
+  4. Added Retry-After header in backend/app/Http/Controllers/Api/V1/AuthController.php.
+  5. Applied throttle middleware in backend/routes/api.php.
+  6. powershell -Command "Set-Location backend; php artisan test tests/Feature/RateLimitingHardeningTest.php" -> GREEN: 4 passed (113 assertions).
+  7. powershell -Command "Set-Location backend; php artisan test tests/Feature/RateLimitingHardeningTest.php tests/Feature/SecurityHeadersTest.php tests/Feature/InputSanitizationTest.php tests/Feature/FileUploadSecurityTest.php tests/Feature/ContactAntiSpamTest.php tests/Feature/ContactInquiryTest.php" -> GREEN: 29 passed (257 assertions).
+  8. git commit -m "feat(sec): implement tiered endpoint rate limiting with 429 Retry-After headers [08.04]" (commit 07cf2fe)
+  9. git push origin feat/08.04-rate-limiting-hardening
+  10. git checkout dev && git merge --ff-only feat/08.04-rate-limiting-hardening && git push origin dev
+Security/privacy/SEO considerations:
+  - Protects against brute-force password cracking on administrative login.
+  - Mitigates Denial-of-Service (DoS) and scraping abuse across public and administrative APIs.
+  - Exempts health checks to prevent false down alerts from automated uptime monitoring probes.
+Blockers/owner inputs:
+  None. Task 08.04 complete and verified.
+Next task:
+  Phase 08 — Task 08.05: Error handling and redacting (Production error display, redact stack traces/tokens, generic error responses for 4xx/5xx).
 ```
