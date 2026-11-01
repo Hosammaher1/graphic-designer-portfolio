@@ -18,14 +18,15 @@ class SecurityHeadersMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
+        $production = config('app.env') === 'production';
 
         $cspDirectives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            $production ? "script-src 'self'" : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com",
+            $production ? "style-src 'self' https://fonts.googleapis.com" : "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com",
             "font-src 'self' https://fonts.gstatic.com data:",
-            "connect-src 'self' http://localhost:* http://127.0.0.1:* https://*.iconify.design ws://localhost:* ws://127.0.0.1:*",
+            $production ? "connect-src 'self' https://*.iconify.design" : "connect-src 'self' http://localhost:* http://127.0.0.1:* https://*.iconify.design ws://localhost:* ws://127.0.0.1:*",
             "frame-ancestors 'none'",
             "form-action 'self'",
             "base-uri 'self'",
@@ -33,7 +34,9 @@ class SecurityHeadersMiddleware
         ];
 
         $response->headers->set('Content-Security-Policy', implode('; ', $cspDirectives));
-        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        if ($production) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        }
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');

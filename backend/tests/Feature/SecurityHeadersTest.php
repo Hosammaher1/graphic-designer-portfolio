@@ -14,6 +14,7 @@ class SecurityHeadersTest extends TestCase
      */
     public function test_api_endpoints_return_strict_security_headers(): void
     {
+        config(['app.env' => 'production']);
         $response = $this->getJson('/api/v1/projects');
 
         // 1. Content Security Policy (CSP)
@@ -22,6 +23,10 @@ class SecurityHeadersTest extends TestCase
         $this->assertStringContainsString("default-src 'self'", $csp);
         $this->assertStringContainsString("frame-ancestors 'none'", $csp);
         $this->assertStringContainsString('https://res.cloudinary.com', $csp);
+        $this->assertStringNotContainsString('unsafe-eval', $csp);
+        $this->assertStringNotContainsString('unsafe-inline', $csp);
+        $this->assertStringNotContainsString('localhost', $csp);
+        $this->assertStringNotContainsString('127.0.0.1', $csp);
 
         // 2. Strict Transport Security (HSTS)
         $this->assertTrue($response->headers->has('Strict-Transport-Security'));
@@ -48,6 +53,14 @@ class SecurityHeadersTest extends TestCase
 
         // 7. Cross-Origin-Opener-Policy & Cross-Origin-Resource-Policy
         $this->assertEquals('same-origin', $response->headers->get('Cross-Origin-Opener-Policy'));
+    }
+
+    public function test_local_api_does_not_emit_production_hsts(): void
+    {
+        config(['app.env' => 'local']);
+        $response = $this->getJson('/api/v1/projects');
+
+        $this->assertFalse($response->headers->has('Strict-Transport-Security'));
     }
 
     /**

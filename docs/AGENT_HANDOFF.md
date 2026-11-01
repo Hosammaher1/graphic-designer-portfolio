@@ -2,6 +2,8 @@
 
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
+- Canonical 08.03 local checkpoint: production Laravel CSP excludes inline/eval and localhost connections; HSTS is production-only. Focused test 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions. Node SSR CSP is still permissive and frontend files are frozen; live TLS/browser proof remains blocked. Branch feat/08.03-canonical-security-headers. Next: canonical 08.04 and 08.06. GitHub auth remains invalid; no push/CI claimed.
+
 - Canonical 08.02 local hardening checkpoint: JPEG/PNG/WebP only, fileinfo MIME agreement, 15 MB cap, 8192-pixel side cap, 40-million-pixel cap. Focused test: 9 passed/39 assertions; full Laravel suite: 295 passed/1386 assertions. Provider upload/delete, image transform, and protected original remain open, so task is IN_PROGRESS. Current branch: feat/08.02-canonical-upload-hardening. Next eligible task: canonical 08.03 headers. GitHub auth remains invalid; no push or CI is claimed.
 
 - Master plan Section 11 controls Task 08.01–08.12 names and acceptance. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps historical task labels to the canonical requirements. The corrected register has 63 of 108 tasks DONE, 11 historical Phase 04 tasks REWORK_REQUIRED, and 0 of 12 canonical Phase 08 tasks fully DONE; the Phase 08 gate remains open.

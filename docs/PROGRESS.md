@@ -32,6 +32,13 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 - **Checks:** Three new focused tests failed before implementation as expected; `php artisan test --filter=FileUploadSecurityTest --no-ansi --compact` passed (9 tests/39 assertions); `php artisan test --no-ansi --compact` passed (295 tests/1386 assertions); `git diff --check` passed. Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** The Cloudinary adapter is still a stand-in and exposes a public original URL. Continue with canonical 08.03 security headers, then 08.04/08.06 error redaction. `gh auth status` still reports an invalid token; no push or CI is claimed.
 
+### Current Task 08.03 checkpoint (2026-11-02)
+
+- **Status:** IN_PROGRESS. Backend production headers are tightened; frozen Node SSR headers, live TLS, and browser script behavior remain unverified.
+- **Implementation/files:** `backend/app/Http/Middleware/SecurityHeadersMiddleware.php` now omits inline/eval and localhost CSP allowances in production and emits HSTS only in production; `backend/tests/Feature/SecurityHeadersTest.php` checks both environments. Updated `docs/PHASE08_COMPLIANCE_AUDIT.md`, `docs/PROGRESS.md`, and `docs/AGENT_HANDOFF.md`; no frontend file changed.
+- **Checks:** New focused assertions failed as expected before implementation. Focused suite with isolated SQLite: 4 passed/29 assertions. Full MySQL suite: `php artisan test --no-ansi --compact` passed, 296 tests/1391 assertions. A temporary SQLite full-suite run failed 16 database-specific tests; the configured XAMPP MySQL test server was restarted and the required MySQL suite passed. Skill: `superpowers:test-driven-development`, `superpowers:systematic-debugging`.
+- **Blocker and handoff:** The frozen Node SSR server sends a separate permissive CSP. Next eligible work: canonical 08.04 error contract and 08.06 redaction. GitHub auth is still invalid; no push or CI result is claimed.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -111,7 +118,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
 | 08.01 | Security audit | IN_PROGRESS | Historical SecurityPenetrationTest 15 passed/96 assertions; input/rate-limit suites also exist | — | SSRF/open redirect review and security finding closure pending | d3f1a06 |
 | 08.02 | Upload hardening | IN_PROGRESS | FileUploadSecurityTest 9 passed/39 assertions: fileinfo-only MIME, extension match, JPEG/PNG/WebP only, 15MB and dimension/pixel caps | superpowers:test-driven-development | Provider upload/delete and image re-encoding/transform lack integration proof; original URL remains public; full suite 295 passed/1386 assertions | 22768fe |
-| 08.03 | Security headers/TLS | IN_PROGRESS | Historical SecurityHeadersTest 3 passed/24 assertions; SSR header evidence recorded | — | Production-safe CSP and live TLS/script validation pending | 9c71af4 |
+| 08.03 | Security headers/TLS | IN_PROGRESS | SecurityHeadersTest 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions; production API CSP excludes inline/eval and localhost, HSTS is production-only | superpowers:test-driven-development, superpowers:systematic-debugging | Frozen Node SSR CSP remains permissive; live TLS/browser script check DEFERRED | 9c71af4 |
 | 08.04 | Error contract | IN_PROGRESS | Historical ErrorHandlingAndRedactingTest 5 passed/29 assertions; frontend boundary exists | — | Localized errors and SSR 500 proof pending; frontend DEFERRED | 857aea6 |
 | 08.05 | Retry/idempotency | IN_PROGRESS | Analytics idempotency and trash provider retry exist; canonical workflow suite not run | — | Upload/email/cleanup/publish idempotency and bounded retry contract missing | — |
 | 08.06 | Audit logs and redaction | IN_PROGRESS | Historical AuditLogTest and error redaction tests exist | — | Message/body redaction and raw provider exception log review pending | 3788639, 857aea6 |
