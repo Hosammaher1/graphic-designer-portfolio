@@ -24,6 +24,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
+### Current Task 08.02 checkpoint (2026-11-02)
+
+- **Status:** IN_PROGRESS; provider upload/delete and protected originals are unresolved. Phase 08 gate remains open.
+- **Implementation:** Server-side image validation now rejects empty files, unsupported formats, filename/MIME disagreement, unreadable dimensions, images above 8192 pixels per side or 40 million pixels total, and files above 15 MB. No frontend file changed.
+- **Files:** `backend/app/Services/Security/FileUploadSecurityService.php`, `backend/tests/Feature/FileUploadSecurityTest.php`, `docs/DECISIONS.md`, `docs/PHASE08_COMPLIANCE_AUDIT.md`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`.
+- **Checks:** Three new focused tests failed before implementation as expected; `php artisan test --filter=FileUploadSecurityTest --no-ansi --compact` passed (9 tests/39 assertions); `php artisan test --no-ansi --compact` passed (295 tests/1386 assertions); `git diff --check` passed. Skill: `superpowers:test-driven-development`.
+- **Blocker and handoff:** The Cloudinary adapter is still a stand-in and exposes a public original URL. Continue with canonical 08.03 security headers, then 08.04/08.06 error redaction. `gh auth status` still reports an invalid token; no push or CI is claimed.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -102,7 +110,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
 | 08.01 | Security audit | IN_PROGRESS | Historical SecurityPenetrationTest 15 passed/96 assertions; input/rate-limit suites also exist | — | SSRF/open redirect review and security finding closure pending | d3f1a06 |
-| 08.02 | Upload hardening | IN_PROGRESS | Historical FileUploadSecurityTest 6 passed/35 assertions; media tests exist | — | Dimension, MIME, image-only and huge-file gaps; adapter does not remotely upload/delete or protect original | 22768fe |
+| 08.02 | Upload hardening | IN_PROGRESS | FileUploadSecurityTest 9 passed/39 assertions: fileinfo-only MIME, extension match, JPEG/PNG/WebP only, 15MB and dimension/pixel caps | superpowers:test-driven-development | Provider upload/delete and image re-encoding/transform lack integration proof; original URL remains public; full suite 295 passed/1386 assertions | 22768fe |
 | 08.03 | Security headers/TLS | IN_PROGRESS | Historical SecurityHeadersTest 3 passed/24 assertions; SSR header evidence recorded | — | Production-safe CSP and live TLS/script validation pending | 9c71af4 |
 | 08.04 | Error contract | IN_PROGRESS | Historical ErrorHandlingAndRedactingTest 5 passed/29 assertions; frontend boundary exists | — | Localized errors and SSR 500 proof pending; frontend DEFERRED | 857aea6 |
 | 08.05 | Retry/idempotency | IN_PROGRESS | Analytics idempotency and trash provider retry exist; canonical workflow suite not run | — | Upload/email/cleanup/publish idempotency and bounded retry contract missing | — |

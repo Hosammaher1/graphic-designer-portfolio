@@ -20,7 +20,7 @@ class FileUploadSecurityService
      * Permitted media extensions.
      */
     protected const ALLOWED_EXTENSIONS = [
-        'jpg', 'jpeg', 'png', 'webp', 'avif', 'svg', 'pdf',
+        'jpg', 'jpeg', 'png', 'webp',
     ];
 
     /**
@@ -30,12 +30,11 @@ class FileUploadSecurityService
         'image/jpeg',
         'image/png',
         'image/webp',
-        'image/avif',
-        'image/svg+xml',
-        'application/pdf',
-        'text/xml',      // Fallback for some SVG fileinfo signatures
-        'image/svg',
     ];
+
+    protected const MAX_IMAGE_DIMENSION = 8192;
+
+    protected const MAX_IMAGE_PIXELS = 40000000;
 
     /**
      * Maximum file size in bytes (15 MB).
@@ -51,6 +50,11 @@ class FileUploadSecurityService
     public function validateFile(UploadedFile $file): void
     {
         // 1. File size enforcement
+        if ($file->getSize() <= 0) {
+            throw ValidationException::withMessages([
+                'file' => ['The uploaded file is empty.'],
+            ]);
+        }
         if ($file->getSize() > self::MAX_FILE_BYTES) {
             throw ValidationException::withMessages([
                 'file' => ['The uploaded file exceeds the 15MB size limit.'],
@@ -98,7 +102,7 @@ class FileUploadSecurityService
             }
         }
 
-        // 4. Deep MIME type verification via fileinfo magic bytes
+        // 5. Deep MIME type verification via fileinfo magic bytes
         $mime = null;
         if ($filePath && file_exists($filePath) && function_exists('finfo_open')) {
             try {
@@ -111,25 +115,34 @@ class FileUploadSecurityService
                     @finfo_close($finfo);
                 }
             } catch (\Throwable $e) {
-                // Fallback to client/Symfony guesser
+                // A failed server-side inspection must reject the upload.
             }
-        }
-
-        if (!$mime) {
-            try {
-                $mime = @$file->getMimeType();
-            } catch (\Throwable $e) {
-                $mime = $file->getClientMimeType();
-            }
-        }
-
-        if (!$mime) {
-            $mime = $file->getClientMimeType();
         }
 
         if (!in_array($mime, self::ALLOWED_MIME_TYPES, true)) {
             throw ValidationException::withMessages([
                 'file' => ["Disallowed MIME type [{$mime}]."],
+            ]);
+        }
+
+        $expectedMime = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+        };
+        if ($mime !== $expectedMime) {
+            throw ValidationException::withMessages([
+                'file' => ['The file extension does not match its detected image type.'],
+            ]);
+        }
+
+        $dimensions = $filePath ? @getimagesize($filePath) : false;
+        $width = $dimensions[0] ?? 0;
+        $height = $dimensions[1] ?? 0;
+        if ($width <= 0 || $height <= 0 || $width > self::MAX_IMAGE_DIMENSION
+            || $height > self::MAX_IMAGE_DIMENSION || $width * $height > self::MAX_IMAGE_PIXELS) {
+            throw ValidationException::withMessages([
+                'file' => ['Invalid image dimensions or image exceeds the dimension limit.'],
             ]);
         }
     }

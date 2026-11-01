@@ -205,3 +205,12 @@ This document records the architectural and execution decisions made for the **G
   - Dramatically elevated visual and interactive experience matching award-winning portfolios and Apple design standards.
   - Zero loss of existing features, content, or API capabilities.
   - Full SSR and SEO compatibility preserved.
+
+---
+
+## ADR-012: Server-side image upload validation limits
+
+- **Status:** Accepted locally pending provider integration
+- **Context:** Canonical Task 08.02 requires image-only uploads, MIME sniffing, and bounded dimensions and bytes. The media adapters accept JPEG, PNG, and WebP; the upload validator also accepted SVG, AVIF, and PDF and could trust a client MIME claim.
+- **Decision:** Restrict the API upload validator to JPEG, PNG, and WebP. Require fileinfo-detected MIME to match the extension, reject empty files, cap size at 15 MB, each dimension at 8192 pixels, and total pixels at 40 million. Reject files when server-side MIME or dimensions cannot be read. Retain the historical SVG sanitizer for existing callers and tests, while excluding SVG from this image upload endpoint.
+- **Remaining work:** Provider-side transformation or safe image re-encoding, real Cloudinary upload/delete, and protected originals require separate verified integration work.

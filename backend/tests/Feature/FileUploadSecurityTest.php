@@ -7,6 +7,7 @@ use App\Services\Security\FileUploadSecurityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class FileUploadSecurityTest extends TestCase
@@ -171,5 +172,40 @@ SVG;
                 ],
             ],
         ]);
+    }
+
+    public function test_rejects_image_with_dimensions_above_safe_limit(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        $widePng = substr_replace($png, pack('N', 8193), 16, 4);
+        $path = tempnam(sys_get_temp_dir(), 'wide_png_');
+        file_put_contents($path, $widePng);
+        $this->assertSame(8193, getimagesize($path)[0]);
+
+        $file = new UploadedFile($path, 'wide.png', 'image/png', null, true);
+
+        $this->expectException(ValidationException::class);
+        $this->securityService->validateFile($file);
+    }
+
+    public function test_rejects_image_whose_extension_disagrees_with_detected_type(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        $path = tempnam(sys_get_temp_dir(), 'wrong_ext_');
+        file_put_contents($path, $png);
+        $file = new UploadedFile($path, 'photo.jpg', 'image/jpeg', null, true);
+
+        $this->expectException(ValidationException::class);
+        $this->securityService->validateFile($file);
+    }
+
+    public function test_rejects_pdf_from_image_only_upload(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pdf_upload_');
+        file_put_contents($path, "%PDF-1.4\n1 0 obj <</Type/Catalog>> endobj\n%%EOF\n");
+        $file = new UploadedFile($path, 'portfolio.pdf', 'application/pdf', null, true);
+
+        $this->expectException(ValidationException::class);
+        $this->securityService->validateFile($file);
     }
 }
