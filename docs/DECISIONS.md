@@ -171,3 +171,37 @@ This document records the architectural and execution decisions made for the **G
 - **Consequences:**
   - Guarantees data integrity for saved page drafts and published snapshots.
   - Complete protection against stored XSS vulnerabilities in custom layout documents.
+
+
+---
+
+## ADR-011: Hybrid Single-Page Experience Architecture
+
+- **Status:** Accepted
+- **Context:**
+  The approved master plan originally contemplated a traditional multi-page website model with separate pages for `/work`, `/about`, and `/contact`. The owner directed a comprehensive aesthetic and interactive redesign into a premium, cinematic, Apple/iOS-inspired Hybrid Single-Page Experience. This requires ONE continuous, immersive, scroll-driven homepage, while preserving independent dynamic project detail pages (`/:locale/projects/:slug`), the CSR admin dashboard, and all existing Laravel backend APIs and database models.
+- **Decision:**
+  1. **Architecture Model:**
+     - The public-facing presentation is structured as a **Hybrid Single-Page Experience**:
+       - The canonical homepage (`/:locale/`) provides an unbroken visual narrative comprising:
+         - **01 — Cinematic Hero**: Full-viewport introduction with oversized editorial typography, designer identity, animated creative headline, and scroll affordance.
+         - **02 — Selected Work**: The interactive centerpiece featuring GSAP ScrollTrigger pinned horizontal gallery, scrubbed project cards, subtle parallax, and direct links to dedicated detail pages.
+         - **03 — About**: Editorial bio, design philosophy, and typographic composition.
+         - **04 — Skills & Expertise**: Interactive capabilities matrix without generic progress bars.
+         - **05 — Creative Journey**: Chronological milestone timeline with monumental year typography.
+         - **06 — Contact**: Full-screen cinematic closing section with interactive form, social links, and real-time validation feedback.
+       - **Independent Project Detail Pages (`/:locale/projects/:slug`)**: Standalone, dynamic, SEO-friendly detail views featuring full-bleed hero media, metadata, editorial layouts, media galleries, and next/prev project navigation.
+       - **Independent Admin Dashboard (`/admin/*`)**: CSR application shell for content management, analytics, and settings.
+  2. **Navigation & Deep Linking:**
+     - Header navigation items (`Work`, `About`, `Skills`, `Contact`) operate as smooth-scrolling anchor links when on the homepage, while dynamically navigating to `/:locale/#section` when clicked from standalone project detail routes.
+     - Browser URL updates smoothly without breaking back/forward history or SEO indexing.
+  3. **Motion Technology:**
+     - GSAP + ScrollTrigger handles cinematic scroll-driven interactions (pinned horizontal showcase, scrubbed progress, card parallax, staggered typography).
+     - Component micro-interactions and transitions use CSS hardware-accelerated transitions and Motion for React where appropriate.
+     - All motion is strictly guarded by `prefers-reduced-motion` checks and cleans up ScrollTrigger instances on unmount to prevent memory leaks during SSR or navigation.
+  4. **Preservation of Core Systems:**
+     - 100% preservation of Laravel backend, Sanctum authentication, MySQL schema, Cloudinary integration, Page Builder schemas, bilingual Arabic RTL/English LTR support, and security controls.
+- **Consequences:**
+  - Dramatically elevated visual and interactive experience matching award-winning portfolios and Apple design standards.
+  - Zero loss of existing features, content, or API capabilities.
+  - Full SSR and SEO compatibility preserved.

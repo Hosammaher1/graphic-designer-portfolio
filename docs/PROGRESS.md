@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-10-31. **Implementation:** 78 of 97 tasks started, 78 completed. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 78 of 108 tasks started, 78 completed (72.2%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -13,13 +13,14 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 01 | Foundation | 8 | 8 | 8 | Gate passed (8/8) |
 | 02 | Authentication and Admin Shell | 8 | 8 | 8 | Gate passed (8/8) |
 | 03 | Projects, Categories, Media | 12 | 12 | 12 | Gate passed (12/12) |
-| 04 | Public Website and Motion | 11 | 11 | 11 | Gate passed (11/11) |
+| 04 | Public Website and Motion (Historical) | 11 | 11 | 11 | REWORK_REQUIRED (elevated in Phase 10) |
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 5 | 5 | Not evaluated |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 5 | 5 | In progress (5/12 done) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| **Total** | | **97** | **78** | **78** | |
+| 10 | Hybrid Single-Page Redesign | 11 | 0 | 0 | Redesign Phase Gate |
+| **Total** | | **108** | **78** | **78** | **72.2% Complete** |
 
 ## Task register
 
@@ -53,17 +54,17 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 03.10 | Trash and 30-day soft delete | DONE | PASS: ProjectTrashTest (6 passed, 36 assertions: soft-deleted hidden, restore, force delete, 30-day purge, shared media protection, retry resilience, audit logs) | None available | None | 5d6c960 |
 | 03.11 | Admin project/category pages | DONE | PASS: Vitest admin-projects-categories (8 passed: loading/empty/error states, trash tab restore, validation errors, keyboard media reordering, unsaved changes warning, category creation/reordering) | None available | None | 97548a3 |
 | 03.12 | E2E content workflow | DONE | PASS: Playwright projects.spec (2 passed) + Full Phase 03 Gate Suite (100 PHPUnit, 29 Vitest, 38 Playwright = 167 passed) | None available | None (ready for Phase 04) | 12e9b37 |
-| 04.01 | Design tokens and reset | DONE | PASS: Vitest design-system (21 passed: Button variants/sizes/states, Card compound elements, Input/Textarea/Select with label/hint/error/aria-invalid associations, Badge variants, responsive Container/Grid/Flex/Stack primitives, SkipToContent skip link) | None available (manual checklist) | None (ready for 04.02) | — |
-| 04.02 | Public shell and navigation | DONE | PASS: Vitest public-shell (6 passed: Header desktop links in AR/EN, ThemeToggle light/dark state and persistence, mobile drawer keyboard/backdrop/close toggle, Footer social rel=noopener, PublicLayout SkipToContent) | None available (manual checklist) | None (ready for 04.03) | — |
-| 04.03 | Home page | DONE | PASS: Vitest home-page (3 passed: Hero CTAs & content in AR/EN, featured projects grid with cover/badges/links, missing content fallback state) + PHPUnit PublicCategoryTest (1 passed, 7 assertions) | None available (manual checklist) | None (ready for 04.04) | — |
-| 04.04 | Work grid and filter | DONE | PASS: Vitest work-gallery (5 passed: gallery header & category tabs in AR/EN, category filtering with URL params, empty state, error retry, multi-page load more) | None available (manual checklist) | None (ready for 04.05) | — |
-| 04.05 | Project detail | DONE | PASS: Vitest project-detail (4 passed: metadata & ordered media in AR/EN, full Lightbox viewer with next/prev & Escape, adjacent project navigation, 404 fallback) + PHPUnit PublicProjectsApiTest (6 passed, 29 assertions) | None available (manual checklist) | None (ready for 04.06) | — |
-| 04.06 | About/services | DONE | PASS: Vitest about-page (4 passed: biography & design vision in AR/EN, design philosophy grid, skills & tools lists, milestones timeline, CV download when provided, CV request fallback when missing) | None available (manual checklist) | None (ready for 04.07) | — |
-| 04.07 | Contact UI | DONE | PASS: Vitest contact-form (5 passed: direct contact channels & form in AR/EN, required fields validation & aria-invalid, email format regex validation, duplicate submission lock & aria-busy, local development mode handling complying with Plan Audit) | None available (manual checklist) | None (ready for 04.08) | — |
-| 04.08 | Subtle motion | DONE | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
-| 04.09 | Responsive and accessibility | DONE | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
-| 04.10 | Dark mode | DONE | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
-| 04.11 | E2E public browse | DONE | PASS: Playwright public-browse (10 passed) + Full Gate Suite (101 PHPUnit, 92 Vitest, 48 Playwright = 241 passed) | None available (manual checklist) | None (Phase 04 Gate PASSED, ready for Phase 05) | — |
+| 04.01 | Design tokens and reset | REWORK_REQUIRED | PASS: Vitest design-system (21 passed: Button variants/sizes/states, Card compound elements, Input/Textarea/Select with label/hint/error/aria-invalid associations, Badge variants, responsive Container/Grid/Flex/Stack primitives, SkipToContent skip link) | None available (manual checklist) | None (ready for 04.02) | — |
+| 04.02 | Public shell and navigation | REWORK_REQUIRED | PASS: Vitest public-shell (6 passed: Header desktop links in AR/EN, ThemeToggle light/dark state and persistence, mobile drawer keyboard/backdrop/close toggle, Footer social rel=noopener, PublicLayout SkipToContent) | None available (manual checklist) | None (ready for 04.03) | — |
+| 04.03 | Home page | REWORK_REQUIRED | PASS: Vitest home-page (3 passed: Hero CTAs & content in AR/EN, featured projects grid with cover/badges/links, missing content fallback state) + PHPUnit PublicCategoryTest (1 passed, 7 assertions) | None available (manual checklist) | None (ready for 04.04) | — |
+| 04.04 | Work grid and filter | REWORK_REQUIRED | PASS: Vitest work-gallery (5 passed: gallery header & category tabs in AR/EN, category filtering with URL params, empty state, error retry, multi-page load more) | None available (manual checklist) | None (ready for 04.05) | — |
+| 04.05 | Project detail | REWORK_REQUIRED | PASS: Vitest project-detail (4 passed: metadata & ordered media in AR/EN, full Lightbox viewer with next/prev & Escape, adjacent project navigation, 404 fallback) + PHPUnit PublicProjectsApiTest (6 passed, 29 assertions) | None available (manual checklist) | None (ready for 04.06) | — |
+| 04.06 | About/services | REWORK_REQUIRED | PASS: Vitest about-page (4 passed: biography & design vision in AR/EN, design philosophy grid, skills & tools lists, milestones timeline, CV download when provided, CV request fallback when missing) | None available (manual checklist) | None (ready for 04.07) | — |
+| 04.07 | Contact UI | REWORK_REQUIRED | PASS: Vitest contact-form (5 passed: direct contact channels & form in AR/EN, required fields validation & aria-invalid, email format regex validation, duplicate submission lock & aria-busy, local development mode handling complying with Plan Audit) | None available (manual checklist) | None (ready for 04.08) | — |
+| 04.08 | Subtle motion | REWORK_REQUIRED | PASS: Vitest motion (3 passed: Reveal wrapper class transitions, non-blocking pointer events/clicks, prefers-reduced-motion immediate reveal with 0ms duration) | None available (manual checklist) | None (ready for 04.09) | — |
+| 04.09 | Responsive and accessibility | REWORK_REQUIRED | PASS: Vitest accessibility-responsive (7 passed: landmark regions & skip link, unique h1 per page, accessible form labels, image alt text, focus-visible outline, responsive container clamp & breakpoint boundaries, reduced motion zeroing) | None available (manual checklist) | None (ready for 04.10) | — |
+| 04.10 | Dark mode | REWORK_REQUIRED | PASS: Vitest dark-mode (5 passed: system preference detection, localStorage persistence override, DOM data-theme attribute toggle, dark mode contrast tokens, inline anti-flash script in index.html head) | None available (manual checklist) | None (ready for 04.11) | — |
+| 04.11 | E2E public browse | REWORK_REQUIRED | PASS: Playwright public-browse (10 passed) + Full Gate Suite (101 PHPUnit, 92 Vitest, 48 Playwright = 241 passed) | None available (manual checklist) | None (Phase 04 Gate PASSED, ready for Phase 05) | — |
 | 05.01 | Block schema | DONE | PASS: PHPUnit BlockSchemaTest (18 passed, 36 assertions) + Vitest page-builder-schema (9 passed) | None available (manual checklist) | None (ready for 05.02) | 4dd28a4 |
 | 05.02 | Server block validator | DONE | PASS: PHPUnit ServerBlockValidatorTest (9 passed, 18 assertions) + BlockSchemaTest (18 passed, 36 assertions) = 27 passed | None available (manual checklist) | None (ready for 05.03) | be3fa9c |
 | 05.03 | Shared block renderer | DONE | PASS: Vitest page-builder-renderer (14 passed: Hero, Heading, Text, Image, Gallery, Columns, Spacer, CTA, Stats, Services, CategoryPreview, FeaturedWork, UnknownFallback, MissingAssetFallback) | None available (manual checklist) | None (ready for 05.04) | ae48827 |
@@ -122,6 +123,17 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.12 | Release sign-off | NOT_STARTED | Not run | — | Phase 08 gate | — |
+| 10.01 | Apple-inspired design system & tokens | NOT_STARTED | Not run | apple-design-system | Ready for implementation | — |
+| 10.02 | Hybrid global navigation & smooth anchor routing | NOT_STARTED | Not run | hybrid-portfolio-architecture | Ready for implementation | — |
+| 10.03 | Cinematic hero with staggered typography | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
+| 10.04 | Selected work interactive horizontal showcase | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
+| 10.05 | Editorial about section & philosophy matrix | NOT_STARTED | Not run | apple-design-system | Ready for implementation | — |
+| 10.06 | Skills & creative capabilities matrix | NOT_STARTED | Not run | apple-design-system | Ready for implementation | — |
+| 10.07 | Creative journey & milestones timeline | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
+| 10.08 | Full-screen cinematic contact section | NOT_STARTED | Not run | apple-design-system | Ready for implementation | — |
+| 10.09 | Dynamic project detail pages | NOT_STARTED | Not run | hybrid-portfolio-architecture | Ready for implementation | — |
+| 10.10 | Responsive & reduced-motion accessibility hardening | NOT_STARTED | Not run | responsive-accessibility | Ready for implementation | — |
+| 10.11 | Playwright visual & motion verification | NOT_STARTED | Not run | playwright-visual-testing | Ready for implementation | — |
 
 ## Setup check log
 

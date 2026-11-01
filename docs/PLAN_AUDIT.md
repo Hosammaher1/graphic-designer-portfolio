@@ -37,3 +37,36 @@
 - For Task 01.01, create only repository/documentation foundations and verify secret exclusion. No Laravel, React, provider integration, or deployment work is part of this handoff.
 - Where a provider or owner decision is still open, use a local fake and mark only that integration blocked. Do not imply production verification.
 - The next agent must record each resolved choice in `docs/DECISIONS.md` and progress in `docs/PROGRESS.md` once those files are created.
+
+
+## 4. Hybrid Single-Page Redesign Audit & Architectural Evolution
+
+**Audited:** 2026-11-01
+**Source:** Owner Master Directive — Complete Hybrid Portfolio Redesign & Project Replanning
+**Decision Record:** `docs/DECISIONS.md` (ADR-011)
+
+### 4.1 Architectural Evolution
+1. **From Multi-Page to Hybrid Single-Page Experience**:
+   - *Previous Assumption*: The public website was split across separate traditional routes (`/work`, `/about`, `/contact`).
+   - *Approved Architecture*: The public frontend is elevated into ONE continuous, immersive, scroll-driven homepage (`/:locale/`) incorporating 6 cinematic sections:
+     - 01 — Cinematic Hero
+     - 02 — Selected Work (interactive centerpiece with pinned GSAP horizontal showcase)
+     - 03 — About (editorial bio & vision)
+     - 04 — Skills & Expertise (interactive capabilities matrix)
+     - 05 — Creative Journey (chronological milestones)
+     - 06 — Contact (full-screen closing section with live form)
+   - *Standalone Routes*: Independent, dynamic, SEO-optimized project detail pages (`/:locale/projects/:slug`) and the CSR admin dashboard (`/admin/*`) remain independent.
+
+### 4.2 Outdated Assumptions & Adjustments
+- *Outdated*: Traditional static grid as the primary work showcase -> *Replaced by*: ScrollTrigger pinned horizontal project gallery with scrubbed progress, card parallax, and interactive hover states.
+- *Outdated*: Isolated contact page -> *Replaced by*: Full-screen cinematic closing section on the continuous homepage with CSRF-protected submission and real-time validation.
+- *Outdated*: Multi-page navigation -> *Replaced by*: Hybrid smooth anchor navigation on the homepage that gracefully adapts to route navigation when accessed from standalone project detail pages.
+
+### 4.3 Technical Risks & Mitigations
+| Risk | Severity | Mitigation Strategy |
+| --- | --- | --- |
+| GSAP ScrollTrigger hydration mismatch during SSR | High | Restrict ScrollTrigger creation strictly to client-side `useEffect`. Ensure SSR markup is semantic and identical before client-side style mutations attach. |
+| Memory leaks from active ScrollTrigger instances | Medium | Implement strict cleanup (`trigger.kill()`, `ScrollTrigger.getAll().forEach(t => t.kill())`) on component unmount and page transitions. |
+| Touch device scroll hijacking on mobile | High | Automatically switch from pinned GSAP horizontal scroll to native touch-friendly horizontal swipe (`overflow-x-auto snap-x`) on screens `< 1024px`. |
+| Motion sickness / Accessibility violations | High | Strictly enforce `prefers-reduced-motion: reduce`. When detected, completely bypass ScrollTrigger scrubbing, set transforms to zero, and display content instantly. |
+| Regression of backend and CMS features | Critical | Zero modifications to Laravel API controllers, database migrations, Sanctum auth, or page builder schemas. Only the public visual presentation and interaction layers are elevated. |

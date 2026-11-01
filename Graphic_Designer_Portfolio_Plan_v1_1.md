@@ -13,7 +13,7 @@
 5. Advanced dashboard: projects, categories, page builder, site settings, SEO, analytics.
 6. React + Vite + **JavaScript**, SSR for public routes; admin CSR; Laravel REST API; **MySQL**; Laravel Sanctum.
 7. Arabic/English, RTL/LTR, localized content and SEO; language-specific URLs.
-8. Home page with hero, featured work, services, about, contact, editable using constrained block-based Page Builder.
+8. Hybrid Single-Page Experience: ONE continuous, immersive, scroll-driven homepage (Hero, Selected Work horizontal showcase, About, Skills & Expertise, Creative Journey timeline, Contact), combined with independent dynamic project detail pages and an independent CSR admin dashboard.
 9. Draft/preview/publish for pages and project layouts; public always reads published snapshot.
 10. Search bilingual title, category, tool, year, popularity, recency.
 11. Rule-based recommendations; personalization **only after explicit consent**; generic recommendations otherwise.
@@ -25,7 +25,7 @@
 17. Security: HTTPS, authorization, CSRF/session protection, rate limiting, security headers, file validation, logs and secrets management.
 18. Tests: PHPUnit, Vitest + React Testing Library, Playwright; production-ready acceptance.
 19. Monitoring: uptime/API/SSR, server CPU/RAM/disk, email alerts; advanced error handling/retries.
-20. Visual direction approved: clean editorial white canvas, vivid project imagery, subtle scroll reveals/hover/floating details, dark mode, reduced-motion support.
+20. Visual direction approved: Apple/iOS-inspired premium dark editorial aesthetic, monumental typography, subtle glassmorphism and depth, GSAP + ScrollTrigger scroll-driven storytelling, vivid project imagery, high-contrast light/dark modes, and rigorous prefers-reduced-motion support.
 
 ### Explicit non-goals for v1
 - Public user accounts, payments, multi-designer tenants, video hosting, freeform HTML/JS in page builder, AI/ML model training, full historical version-control UI, and an internal contact inbox.
@@ -402,6 +402,34 @@ Note: exact scripts and ports must be verified in implementation. Never run migr
 
 **Phase 09 gate:** all acceptance checks green, owner approves go-live, monitoring and restore tested, documented rollback.
 
+## 12.1 Phase 10 — Hybrid Single-Page Experience Redesign (Tasks 10.01–10.11)
+
+Per owner Master Directive (2026-11-01), the public frontend is elevated into a continuous, immersive, Apple/iOS-inspired Hybrid Single-Page Experience. This phase restructures public presentation into ONE continuous homepage with independent project-detail pages, powered by GSAP + ScrollTrigger and an Apple-inspired design system.
+
+**10.01 Design system & tokens.** Apple Human Interface Guidelines tokens: clamp display typography (`clamp(3.5rem, 8vw, 8.5rem)`), subtle glassmorphism (`backdrop-blur-md`), 1px translucent borders, refined stone/amber dark & light palettes, accessible contrast. Tests: token snapshot, contrast checks, focus-visible.
+
+**10.02 Hybrid global navigation.** Header with smooth anchor scrolling to `#work`, `#about`, `#skills`, `#contact` on homepage; routes cleanly to `/:locale/#section` from standalone project pages. Deep linking and back/forward history preserved. Tests: anchor navigation, active state, drawer toggle, keyboard accessibility.
+
+**10.03 Cinematic hero section.** Full-viewport hero, status pill (`AVAILABLE FOR SELECT COMMISSIONS`), oversized editorial title, staggered text reveals, subtle ambient glow, and animated scroll affordance. Tests: SSR headline rendering, RTL layout symmetry, reduced-motion bypass.
+
+**10.04 Selected work interactive showcase.** The visual centerpiece: pinned GSAP ScrollTrigger horizontal track on desktop with scrubbed progress bar, card parallax, and interactive hover zoom. Graceful touch swipe fallback on mobile. Links to dedicated project detail pages. Tests: horizontal track rendering, dynamic Laravel API data binding, keyboard tab navigation, reduced-motion bypass.
+
+**10.05 Editorial about section.** Asymmetric editorial composition with biography, design philosophy cards, high-contrast whitespace, and scroll-triggered reveals. Tests: CMS content rendering, translation integrity, responsive layout.
+
+**10.06 Skills & creative capabilities matrix.** Interactive typography-first capabilities matrix (Brand Identity, Packaging, Editorial, Digital Direction) without generic progress bars. Tests: category mapping, hover states, keyboard focus.
+
+**10.07 Creative journey & milestones timeline.** Chronological milestone archive with monumental year typography (`2024`, `2023`, `2022`) and project/recognition cards. Tests: year rendering, hover interaction, responsive mobile stacking.
+
+**10.08 Full-screen cinematic contact section.** Full-bleed closing section, high-impact CTA, live contact form with CSRF protection, anti-spam honeypot, and real-time validation. Tests: field validation, duplicate submit lock, accessible alerts.
+
+**10.09 Dynamic project detail pages.** Standalone, SEO-optimized detail routes (`/:locale/projects/:slug`) featuring full-bleed hero media, metadata chips, editorial layout, ordered media gallery, lightbox viewer, and next/prev project navigation. Tests: route loading, slug resolution, 404 fallback, SEO metadata.
+
+**10.10 Responsive & reduced-motion accessibility hardening.** Multi-breakpoint review (390px, 768px, 1024px, 1440px), touch gestures, keyboard flow (`Tab`, `Escape`), visible focus rings, WCAG 2.1 AA compliance, and complete `prefers-reduced-motion` compliance. Tests: automated accessibility suite, reduced motion zeroing.
+
+**10.11 Playwright visual & motion verification.** Full E2E visual verification across Desktop Chromium and Mobile Chrome. Validates scroll-driven animations, captures desktop and mobile screenshots, verifies RTL/LTR symmetry, and tests reduced-motion behavior. Tests: 12 visual & motion E2E scenarios passed.
+
+**Phase 10 gate:** continuous animated homepage verified in real browsers (desktop + mobile); independent project detail pages fully functional; zero backend/API/admin regressions; visual evidence recorded.
+
 ## 13. Mandatory E2E scenario catalog
 
 | ID | Scenario | Expected result |
@@ -464,11 +492,11 @@ If prerequisite missing, implement local adapters/mocks and mark blocked product
 
 ## 17. Execution sequence and reporting format
 
-Implement tasks `01.01` through `09.12` in order, respecting dependencies; a phase may be internally parallelized only when isolated and verified. **Do not start by generating the entire app in one uncontrolled pass.** Use vertical slices and commits. Maintain this report after every task:
+Implement tasks across all phases in order (`01.01` through `10.11`), respecting dependencies. Continue autonomous sequential execution without stopping between tasks or sections. Maintain this report after every task:
 
 ```
 Task ID:
-Status: NOT_STARTED | IN_PROGRESS | BLOCKED | DONE
+Status: NOT_STARTED | IN_PROGRESS | BLOCKED | DONE | REWORK_REQUIRED
 Files changed:
 Tests written first:
 Skills discovered/activated and evidence:
@@ -480,4 +508,4 @@ Blockers/owner inputs:
 Next task:
 ```
 
-**First action for agent:** discover available skills and read the relevant instructions (Section 2A), then inspect repository and environment, compare with this plan, report gaps, then execute **Task 01.01 only**. Continue subsequent tasks after verified completion according to owner instruction; pause for missing credentials, major architectural changes and deployment authorization.
+Execute all tasks sequentially on dedicated feature branches, verify each slice with targeted tests and browser inspection, record progress in `docs/PROGRESS.md`, and merge into `dev`.
