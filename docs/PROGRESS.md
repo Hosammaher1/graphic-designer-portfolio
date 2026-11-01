@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 80 of 108 tasks started, 80 completed (74.1%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 81 of 108 tasks started, 81 completed (75.0%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,10 +17,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 6 | 6 | In progress (6/12 done) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 7 | 7 | In progress (7/12 done) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
 | 10 | Hybrid Single-Page Redesign | 11 | 0 | 0 | Redesign Phase Gate |
-| **Total** | | **108** | **80** | **80** | **74.1% Complete** |
+| **Total** | | **108** | **81** | **81** | **75.0% Complete** |
 
 ## Task register
 
@@ -105,7 +105,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.04 | Rate limiting hardening | DONE | PASS: PHPUnit RateLimitingHardeningTest (4 passed, 113 assertions: general API 60/min, contact 3/min & 10/day, auth 5/min per IP/email, admin write 30/min, 429 Retry-After headers) + 25 Security/Contact tests | None available (manual checklist) | None (ready for 08.05) | 07cf2fe |
 | 08.05 | Error handling and redacting | DONE | PASS: PHPUnit ErrorHandlingAndRedactingTest (5 passed, 29 assertions: query masking, zero path/stack trace leakage, standard error JSON format 401/404/405/500) + Vitest error-boundary (2 passed: React rendering crash interception, production stack redaction, bilingual recovery UI) | None available (manual checklist) | None (ready for 08.06) | 857aea6 |
 | 08.06 | Security penetration tests | DONE | PASS: PHPUnit SecurityPenetrationTest (15 passed, 96 assertions across OWASP Top 10) + 26 Security suite tests | None available (manual checklist) | None (ready for 08.07) | d3f1a06 |
-| 08.07 | Automated backup script | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.07 | Automated backup script | DONE | PASS: PHPUnit BackupDatabaseTest (7 passed, 29 assertions: AES-256-CBC, manifest, SHA-256 checksum, 7-day retention purge, artisan command, failure alert) | None available (manual checklist) | None (ready for 08.08) | 36e1b7c |
 | 08.08 | Backup restore verification | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.09 | Health check endpoint | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.10 | Uptime and alert configuration | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -5058,4 +5058,54 @@ Next task:
 - **PHPUnit Full Security Suite (`--filter=Security`):** PASS (26 passed, 165 assertions in 9.73s).
 
 #### Next Task
-- **Phase 08 — Task 08.07: Automated backup script**
+- **Phase 08 — Task 08.07: Automated backup script** (Completed)
+
+---
+
+### Task 08.07: Automated backup script
+- **Task ID:** 08.07
+- **Title:** Automated backup script
+- **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
+- **Status:** DONE
+- **Branch:** feat/08.07-automated-backup-script
+- **Remote:** origin/feat/08.07-automated-backup-script
+
+#### Implementation Summary
+1. **Portable Database SQL Dump Engine (`App\Services\Backup\DatabaseBackupService`):**
+   - Implemented streaming SQL exporter using PDO across all MySQL tables.
+   - Preserves table structures (`CREATE TABLE`), drop guards, foreign key checks (`SET FOREIGN_KEY_CHECKS=0`), utf8mb4 charset, and chunked `INSERT INTO` statements with safe value quoting and null handling.
+   - Runs deterministically without requiring external system binary dependencies (`mysqldump`).
+2. **Metadata Manifest Generation:**
+   - Manifest records generation timestamp (ISO 8601), database name, app version, table list with exact row counts, Cloudinary media asset reference count, SHA-256 integrity checksum of unencrypted SQL, and encryption cipher.
+3. **AES-256-CBC Encrypted Packaging & HMAC Authentication:**
+   - Archive is encrypted using AES-256-CBC with an encryption key configured via `BACKUP_ENCRYPTION_KEY` or `APP_KEY`.
+   - Packages random 16-byte IV, ciphertext, and HMAC-SHA256 signature (Encrypt-then-MAC authentication) to strictly detect tampering or wrong-key attempts.
+   - Archive naming format: `portfolio_backup_YYYY-MM-DD_HHmmss.enc`.
+4. **Automated 7-Day Retention Policy:**
+   - `purgeOldBackups` method scans backup storage disk, parses timestamps, and automatically purges archives older than 7 days while preserving recent ones.
+5. **Artisan Command & Scheduler Integration:**
+   - Created `backup:run` Artisan command supporting custom disks (`--disk=`), retention days (`--retention=`), and custom keys (`--key=`).
+   - Configured daily execution at 02:00 UTC in `backend/routes/console.php`.
+   - Dispatches critical error logging and failure alert webhooks upon failure.
+6. **Infrastructure Shell & PowerShell Automation:**
+   - Created `infrastructure/backup/backup.sh` (POSIX bash runner for Linux / Oracle Cloud VM cron).
+   - Created `infrastructure/backup/backup.ps1` (PowerShell runner for Windows task scheduler).
+
+#### Files Created and Modified
+- `backend/config/backup.php`: Created backup configuration (disk, encryption key, retention days, alert webhook).
+- `backend/config/filesystems.php`: Added `backups` filesystem disk configuration pointing to `storage/app/backups`.
+- `backend/app/Services/Backup/DatabaseBackupService.php`: Created backup service handling export, manifest, encryption, decryption, and retention.
+- `backend/app/Console/Commands/BackupDatabaseCommand.php`: Created Artisan command `backup:run`.
+- `backend/routes/console.php`: Scheduled daily database backup at 02:00.
+- `infrastructure/backup/backup.sh`: Created Linux cron backup execution shell script.
+- `infrastructure/backup/backup.ps1`: Created Windows PowerShell backup runner.
+- `backend/tests/Feature/BackupDatabaseTest.php`: Created feature test suite verifying archive creation, encryption, decryption, HMAC tamper rejection, 7-day retention purge, and failure alerts (7 tests, 29 assertions).
+- `docs/PROGRESS.md`: Recorded Task 08.07 completion, updated task register and Phase 08 count to 7/12.
+
+#### Verification Evidence
+- **PHPUnit `BackupDatabaseTest`:** PASS (7 passed, 29 assertions in 2.98s).
+- **Artisan `backup:run` execution:** PASS (Created `portfolio_backup_2026-11-01_201358.enc`, 26 tables, 35,207 bytes).
+- **PHPUnit Regression `SecurityPenetrationTest`:** PASS (15 passed, 96 assertions in 5.90s).
+
+#### Next Task
+- **Phase 08 — Task 08.08: Backup restore verification**

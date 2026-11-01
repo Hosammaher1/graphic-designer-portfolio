@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Automatically purge soft-deleted projects older than 30 days every day
 Schedule::command('projects:purge-trash --days=30')->daily();
+
+// Daily encrypted database backup and 7-day retention
+Schedule::command('backup:run')->dailyAt('02:00');
