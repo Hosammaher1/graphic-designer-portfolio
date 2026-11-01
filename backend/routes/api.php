@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
     Route::get('/health', [HealthController::class, 'health'])->name('api.v1.health');
+    Route::get('/health/live', [HealthController::class, 'live'])->name('api.v1.health.live');
+    Route::get('/health/ready', [HealthController::class, 'ready'])->name('api.v1.health.ready');
     Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('api.v1.sitemap');
 
     // Public Projects & Categories API

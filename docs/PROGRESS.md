@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 82 of 108 tasks started, 82 completed (75.9%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 83 of 108 tasks started, 83 completed (76.9%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
 
 ## Status and evidence rules
 
@@ -17,10 +17,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 8 | 8 | In progress (8/12 done) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 9 | 9 | In progress (9/12 done) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
 | 10 | Hybrid Single-Page Redesign | 11 | 0 | 0 | Redesign Phase Gate |
-| **Total** | | **108** | **82** | **82** | **75.9% Complete** |
+| **Total** | | **108** | **83** | **83** | **76.9% Complete** |
 
 ## Task register
 
@@ -107,7 +107,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.06 | Security penetration tests | DONE | PASS: PHPUnit SecurityPenetrationTest (15 passed, 96 assertions across OWASP Top 10) + 26 Security suite tests | None available (manual checklist) | None (ready for 08.07) | d3f1a06 |
 | 08.07 | Automated backup script | DONE | PASS: PHPUnit BackupDatabaseTest (7 passed, 29 assertions: AES-256-CBC, manifest, SHA-256 checksum, 7-day retention purge, artisan command, failure alert) | None available (manual checklist) | None (ready for 08.08) | 36e1b7c |
 | 08.08 | Backup restore verification | DONE | PASS: PHPUnit BackupRestoreVerificationTest (6 passed, 21 assertions: verify-only dry run, SQL restore, table count match, sample record integrity, wrong key/tamper rejection) | None available (manual checklist) | None (ready for 08.09) | 75e921b |
-| 08.09 | Health check endpoint | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.09 | Health check endpoint | DONE | PASS: PHPUnit HealthCheckEndpointTest (5 passed) + HealthTest (1 passed, 11 assertions) = 6 passed, 41 assertions: liveness, readiness, DB ping latency, cache/storage checks, 503 degraded | None available (manual checklist) | None (ready for 08.10) | 9ef4b1a |
 | 08.10 | Uptime and alert configuration | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.11 | Graceful degradation | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.12 | Operations runbook | NOT_STARTED | Not run | — | Phase 07 gate | — |
@@ -5152,4 +5152,39 @@ Next task:
 - **Artisan `backup:restore --verify-only`:** PASS (Verified archive decryptability and SHA-256 checksum).
 
 #### Next Task
-- **Phase 08 — Task 08.09: Health check endpoint**
+- **Phase 08 — Task 08.09: Health check endpoint** (Completed)
+
+---
+
+### Task 08.09: Health check endpoint
+- **Task ID:** 08.09
+- **Title:** Health check endpoint
+- **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
+- **Status:** DONE
+- **Branch:** feat/08.09-health-check-endpoint
+- **Remote:** origin/feat/08.09-health-check-endpoint
+
+#### Implementation Summary
+1. **Multi-Tier Health, Liveness, and Readiness Endpoints (`HealthController`):**
+   - **`/api/v1/health` and `/health`:** Core status check assessing database connectivity (`SELECT 1`), Cache read/write availability, and local Storage writability. Returns HTTP 200 with service map if database is healthy; returns HTTP 503 degraded status if database connection fails.
+   - **`/api/v1/health/live` and `/health/live`:** Lightweight liveness probe returning HTTP 200 `{"status": "ok", "services": {"api": "alive"}}` for process supervision and process restart decisions without hammering external dependencies.
+   - **`/api/v1/health/ready` and `/health/ready`:** Detailed readiness probe reporting per-dependency health (`db`, `cache`, `storage`), measured database ping latency in milliseconds, process memory usage in MB, and available disk headroom in bytes. Returns HTTP 503 `not_ready` if critical services fail.
+2. **Security & Zero Information Disclosure:**
+   - Strict masking ensures database credentials, connection names, usernames, passwords, system file paths, and SQL exceptions are completely omitted from all health responses.
+3. **Dual Routing Architecture:**
+   - Both `/api/v1/health*` (REST API prefix) and root `/health*` (web route) are registered to accommodate standard Nginx reverse proxies, cloud load balancers, and external uptime monitors.
+
+#### Files Created and Modified
+- `backend/app/Http/Controllers/Api/V1/HealthController.php`: Implemented multi-tier health, liveness, and readiness probes with dependency checks and latency measurement.
+- `backend/routes/api.php`: Registered `/health`, `/health/live`, and `/health/ready` under `v1` prefix.
+- `backend/routes/web.php`: Registered root `/health`, `/health/live`, and `/health/ready` web endpoints.
+- `backend/tests/Feature/HealthCheckEndpointTest.php`: Created automated feature tests for dependency health, web routes, liveness probe, readiness metrics, and 503 degraded responses under database failure (5 tests, 30 assertions).
+- `docs/PROGRESS.md`: Recorded Task 08.09 completion, updated task register and Phase 08 count to 9/12.
+
+#### Verification Evidence
+- **PHPUnit `HealthCheckEndpointTest`:** PASS (5 passed, 30 assertions in 0.28s).
+- **PHPUnit `HealthTest` Regression:** PASS (1 passed, 11 assertions in 0.26s).
+- **Combined Health Suite (`--filter=Health`):** PASS (6 passed, 41 assertions in 0.77s).
+
+#### Next Task
+- **Phase 08 — Task 08.10: Uptime and alert configuration**
