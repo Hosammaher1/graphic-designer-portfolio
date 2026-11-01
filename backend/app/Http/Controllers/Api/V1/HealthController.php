@@ -22,7 +22,7 @@ class HealthController extends Controller
         $allHealthy = $dbHealth['healthy'] && $cacheHealth && $storageHealth;
 
         return response()->json([
-            'status' => $dbHealth['healthy'] ? 'ok' : 'degraded',
+            'status' => $allHealthy ? 'ok' : 'degraded',
             'timestamp' => now()->toIso8601String(),
             'version' => config('app.version', '1.0.0'),
             'services' => [
@@ -31,7 +31,7 @@ class HealthController extends Controller
                 'cache' => $cacheHealth ? 'healthy' : 'unhealthy',
                 'storage' => $storageHealth ? 'healthy' : 'unhealthy',
             ],
-        ], $dbHealth['healthy'] ? 200 : 503);
+        ], $allHealthy ? 200 : 503);
     }
 
     /**
@@ -57,7 +57,7 @@ class HealthController extends Controller
         $cacheHealth = $this->checkCache();
         $storageHealth = $this->checkStorage();
 
-        $isReady = $dbHealth['healthy'];
+        $isReady = $dbHealth['healthy'] && $cacheHealth && $storageHealth;
 
         $diskFree = @disk_free_space(storage_path());
         $diskTotal = @disk_total_space(storage_path());

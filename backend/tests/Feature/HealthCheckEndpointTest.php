@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class HealthCheckEndpointTest extends TestCase
@@ -108,5 +110,41 @@ class HealthCheckEndpointTest extends TestCase
         $content = $response->getContent();
         $this->assertStringNotContainsString('PDOException', $content);
         $this->assertStringNotContainsString('Connection refused', $content);
+    }
+
+    public function test_cache_failure_marks_health_and_readiness_unavailable_without_exposing_error(): void
+    {
+        Cache::partialMock()->shouldReceive('put')
+            ->with('health_check_ping', 1, 10)
+            ->andThrow(new \RuntimeException('private cache connection string'));
+
+        $health = $this->getJson('/api/v1/health');
+        $health->assertStatus(503)->assertJsonPath('status', 'degraded');
+        $health->assertJsonPath('services.cache', 'unhealthy');
+
+        $ready = $this->getJson('/api/v1/health/ready');
+        $ready->assertStatus(503)->assertJsonPath('status', 'not_ready');
+        $ready->assertJsonPath('dependencies.cache.status', 'unhealthy');
+        $this->assertStringNotContainsString('private cache connection string', $ready->getContent());
+
+        $this->getJson('/api/v1/health/live')->assertStatus(200);
+    }
+
+    public function test_storage_failure_marks_health_and_readiness_unavailable_without_exposing_error(): void
+    {
+        Storage::partialMock()->shouldReceive('disk')
+            ->with('local')
+            ->andThrow(new \RuntimeException('private storage path'));
+
+        $health = $this->getJson('/api/v1/health');
+        $health->assertStatus(503)->assertJsonPath('status', 'degraded');
+        $health->assertJsonPath('services.storage', 'unhealthy');
+
+        $ready = $this->getJson('/api/v1/health/ready');
+        $ready->assertStatus(503)->assertJsonPath('status', 'not_ready');
+        $ready->assertJsonPath('dependencies.storage.status', 'unhealthy');
+        $this->assertStringNotContainsString('private storage path', $ready->getContent());
+
+        $this->getJson('/api/v1/health/live')->assertStatus(200);
     }
 }
