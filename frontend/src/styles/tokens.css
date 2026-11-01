@@ -61,6 +61,15 @@
   --font-size-3xl: 2rem;      /* 32px */
   --font-size-4xl: 2.75rem;   /* 44px */
   --font-size-5xl: 3.5rem;    /* 56px */
+  --font-size-display-clamp: clamp(3.5rem, 8.5vw, 8.5rem);
+  --font-size-heading-clamp: clamp(2.25rem, 5vw, 4.5rem);
+  --font-size-subheading-clamp: clamp(1.25rem, 2.5vw, 2rem);
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-blur: 16px;
+  --glass-glow: rgba(217, 119, 6, 0.08);
+  --color-amber-accent: #d97706;
+  --color-amber-muted: rgba(217, 119, 6, 0.12);
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -190,6 +199,12 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  --glass-bg: rgba(28, 25, 23, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 16px;
+  --glass-glow: rgba(251, 191, 36, 0.08);
+  --color-amber-accent: #fbbf24;
+  --color-amber-muted: rgba(251, 191, 36, 0.15);
 }
 
 /* ==========================================================================

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-// Ensure standard Web Storage implementation in jsdom test environment
+// Ensure standard Web Storage & MatchMedia implementation in jsdom test environment
 if (typeof window !== 'undefined') {
   let store = {};
   const mockStorage = {
@@ -35,5 +35,22 @@ if (typeof window !== 'undefined') {
     globalThis.localStorage = mockStorage;
   } catch (e) {
     // Ignore if not configurable
+  }
+
+  // Ensure window.matchMedia polyfill for GSAP and responsive tests
+  if (typeof window.matchMedia !== 'function') {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }),
+    });
   }
 }

@@ -3,7 +3,7 @@ import { Sun, Moon } from 'lucide-react';
 import { t } from '../i18n/config.js';
 
 export function ThemeToggle({ locale = 'ar', className = '' }) {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
