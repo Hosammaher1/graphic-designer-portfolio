@@ -7,6 +7,7 @@ import { ConsentProvider } from '../context/ConsentContext.jsx';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import ConsentBanner from '../components/ConsentBanner.jsx';
 import ConsentModal from '../components/ConsentModal.jsx';
+import ErrorBoundary from '../components/ErrorBoundary.jsx';
 
 export default function App() {
   const location = useLocation();
@@ -23,24 +24,8 @@ export default function App() {
 
   if (isAdminRoute) {
     return (
-      <AuthProvider>
-        <Routes>
-          {routes.map((route, idx) => (
-            <Route key={idx} path={route.path} element={route.element}>
-              {route.children?.map((child, cIdx) => (
-                <Route key={cIdx} path={child.path} element={child.element} />
-              ))}
-            </Route>
-          ))}
-        </Routes>
-      </AuthProvider>
-    );
-  }
-
-  return (
-    <AuthProvider>
-      <ConsentProvider locale={currentLocale}>
-        <PublicLayout locale={currentLocale}>
+      <ErrorBoundary>
+        <AuthProvider>
           <Routes>
             {routes.map((route, idx) => (
               <Route key={idx} path={route.path} element={route.element}>
@@ -50,10 +35,30 @@ export default function App() {
               </Route>
             ))}
           </Routes>
-        </PublicLayout>
-        <ConsentBanner locale={currentLocale} />
-        <ConsentModal locale={currentLocale} />
-      </ConsentProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <ConsentProvider locale={currentLocale}>
+          <PublicLayout locale={currentLocale}>
+            <Routes>
+              {routes.map((route, idx) => (
+                <Route key={idx} path={route.path} element={route.element}>
+                  {route.children?.map((child, cIdx) => (
+                    <Route key={cIdx} path={child.path} element={child.element} />
+                  ))}
+                </Route>
+              ))}
+            </Routes>
+          </PublicLayout>
+          <ConsentBanner locale={currentLocale} />
+          <ConsentModal locale={currentLocale} />
+        </ConsentProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
