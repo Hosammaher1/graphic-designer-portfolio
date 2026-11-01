@@ -35,6 +35,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 1. API General Rate Limiter (60 requests/minute)
+        RateLimiter::for('api_general', function (Request $request) {
+            if ($request->is('api/v1/health*')) {
+                return Limit::none();
+            }
+
+            $identifier = $request->user()?->id ?: ($request->ip() ?: '127.0.0.1');
+
+            return Limit::perMinute(60)->by($identifier)->response(function () {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Too many requests. Please wait a minute before retrying. / تم تجاوز الحد المسموح به من الطلبات.',
+                ], 429, [
+                    'Retry-After' => 60,
+                ]);
+            });
+        });
+
+        // 2. Public Contact Inquiries (3/min and 10/day per IP)
         RateLimiter::for('contact', function (Request $request) {
             $ip = $request->ip() ?: '127.0.0.1';
 
@@ -56,6 +75,40 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 }),
             ];
+        });
+
+        // 3. Authentication Login Rate Limiter (5 requests/minute per IP and email)
+        RateLimiter::for('auth_login', function (Request $request) {
+            $email = (string) $request->input('email', '');
+            $ip = $request->ip() ?: '127.0.0.1';
+            $key = strtolower(trim($email)) . '|' . $ip;
+
+            return Limit::perMinute(5)->by($key)->response(function () {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Too many login attempts. Please try again later. / محاولات دخول كثيرة جداً، يرجى الانتظار دقيقة قبل المحاولة مجدداً.',
+                ], 429, [
+                    'Retry-After' => 60,
+                ]);
+            });
+        });
+
+        // 4. Admin Write Endpoints Rate Limiter (30 mutations/minute per admin/IP)
+        RateLimiter::for('admin_write', function (Request $request) {
+            if (in_array(strtoupper($request->method()), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+                $identifier = $request->user()?->id ?: ($request->ip() ?: '127.0.0.1');
+
+                return Limit::perMinute(30)->by($identifier)->response(function () {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Too many admin write requests. Please slow down and try again later. / تم تجاوز الحد المسموح به لعمليات التعديل.',
+                    ], 429, [
+                        'Retry-After' => 60,
+                    ]);
+                });
+            }
+
+            return Limit::none();
         });
     }
 }

@@ -48,7 +48,9 @@ class AuthController extends Controller
                 'status' => 'error',
                 'message' => 'Too many login attempts. Please try again later.',
                 'retry_after' => $seconds,
-            ], 429);
+            ], 429, [
+                'Retry-After' => (string) $seconds,
+            ]);
         }
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
