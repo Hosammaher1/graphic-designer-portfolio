@@ -1,5 +1,18 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Codex non-frontend continuation checkpoint — 2026-11-01
+
+The current owner instruction limits this run to non-frontend work through Phase 09. Do not edit frontend files or execute Phase 10. The historical redesign plan below remains context, not authorization for this run.
+
+- Current working branch: `feat/08.10-uptime-and-alert-configuration` (based on verified 08.09 work).
+- Tracker status: 83 tasks DONE of 108, with 08.10 locally verified but `BLOCKED` because `gh auth status` reports an invalid token for `Hosammaher1`. No push has been verified for 08.10.
+- Local 08.10 evidence: focused monitoring suite 10 passed/44 assertions; full backend suite 290 passed/1,366 assertions; PHP syntax checks and `php artisan schedule:list` passed. API/SSR probes are configured by environment placeholders and are off until URLs are supplied. Alert delivery is off until `MONITORING_ENABLED` and a destination are configured.
+- The master plan still names 08.10 “Health checks” and 08.11 “Monitoring,” while this tracker records health checks at 08.09 and uptime/alerts at 08.10. Treat the master plan's acceptance criteria as a phase gate and preserve this task history; do not double count either implementation. Host CPU monitoring remains unverified.
+- No frontend files were modified during this continuation. Phase 10 remains untouched.
+- Next eligible work: finish publishing 08.10 after GitHub authentication is repaired; proceed with non-frontend portions of 08.11 and 08.12, then Phase 09 without deployment or merges.
+
+---
+
 **Prepared:** 2026-11-01
 **Canonical scope:** `Graphic_Designer_Portfolio_Plan_v1_1.md`
 **Audit:** `docs/PLAN_AUDIT.md`

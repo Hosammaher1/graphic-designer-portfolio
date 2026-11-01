@@ -13,3 +13,6 @@ Schedule::command('projects:purge-trash --days=30')->daily();
 
 // Daily encrypted database backup and 7-day retention
 Schedule::command('backup:run')->dailyAt('02:00');
+
+// System uptime and resource threshold monitoring every 5 minutes
+Schedule::command('monitor:check --alert')->everyFiveMinutes();

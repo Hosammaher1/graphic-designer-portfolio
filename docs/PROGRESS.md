@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 83 of 108 tasks started, 83 completed (76.9%). **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Full autonomous execution mode approved by owner.
+**Snapshot:** 2026-11-01. **Implementation:** 84 of 108 tasks started, 83 completed (76.9%); Task 08.10 is locally verified but blocked at push. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Non-frontend work through Phase 09 only; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
@@ -17,10 +17,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 9 | 9 | In progress (9/12 done) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 10 | 9 | In progress (9/12 done; 08.10 push blocked) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
-| 10 | Hybrid Single-Page Redesign | 11 | 0 | 0 | Redesign Phase Gate |
-| **Total** | | **108** | **83** | **83** | **76.9% Complete** |
+| 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
+| **Total** | | **108** | **84** | **83** | **76.9% Complete** |
 
 ## Task register
 
@@ -108,7 +108,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.07 | Automated backup script | DONE | PASS: PHPUnit BackupDatabaseTest (7 passed, 29 assertions: AES-256-CBC, manifest, SHA-256 checksum, 7-day retention purge, artisan command, failure alert) | None available (manual checklist) | None (ready for 08.08) | 36e1b7c |
 | 08.08 | Backup restore verification | DONE | PASS: PHPUnit BackupRestoreVerificationTest (6 passed, 21 assertions: verify-only dry run, SQL restore, table count match, sample record integrity, wrong key/tamper rejection) | None available (manual checklist) | None (ready for 08.09) | 75e921b |
 | 08.09 | Health check endpoint | DONE | PASS: PHPUnit HealthCheckEndpointTest (5 passed) + HealthTest (1 passed, 11 assertions) = 6 passed, 41 assertions: liveness, readiness, DB ping latency, cache/storage checks, 503 degraded | None available (manual checklist) | None (ready for 08.10) | 9ef4b1a |
-| 08.10 | Uptime and alert configuration | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.10 | Uptime and alert configuration | BLOCKED | PASS locally: SystemMonitoringAndAlertTest 10 tests/44 assertions; full backend 290 tests/1366 assertions; PHP syntax and schedule list pass | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | GitHub CLI token invalid; local commit/push pending. Host CPU monitoring remains for Phase 08 gate. | — |
 | 08.11 | Graceful degradation | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 08.12 | Operations runbook | NOT_STARTED | Not run | — | Phase 07 gate | — |
 | 09.01 | Production build scripts | NOT_STARTED | Not run | — | Phase 08 gate | — |
@@ -5188,3 +5188,17 @@ Next task:
 
 #### Next Task
 - **Phase 08 — Task 08.10: Uptime and alert configuration**
+
+---
+
+### Task 08.10: Uptime and alert configuration — local verification checkpoint
+
+- **Status:** BLOCKED at GitHub publish. Implementation and local tests pass; no remote push has been verified.
+- **Branch / commit / remote:** `feat/08.10-uptime-and-alert-configuration`; local commit pending; `origin` is `https://github.com/Hosammaher1/graphic-designer-portfolio.git`.
+- **Implementation:** Added five-minute scheduled `monitor:check --alert`, database/disk/PHP-memory/failed-job checks, configurable API and SSR HTTP probes, threshold alerts, cooldown deduplication, and recovery emails/webhooks. Monitoring defaults off; example environment settings require an explicit alert destination. Dry runs and disabled monitoring do not change alert cooldown state. Failed or absent delivery does not suppress later alerts. Probe URLs, response bodies, and delivery exception messages are omitted from alerts and logs.
+- **Files:** `backend/routes/console.php`, `backend/app/Console/Commands/CheckSystemHealthCommand.php`, `backend/app/Mail/SystemAlertMail.php`, `backend/app/Services/Monitoring/SystemMonitorService.php`, `backend/config/monitoring.php`, `backend/.env.example`, `backend/tests/Feature/SystemMonitoringAndAlertTest.php`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`.
+- **Tests first:** Four new behavior checks were observed failing before fixes: dry-run cooldown, disabled monitoring, API outage alert, and no-delivery cooldown. A subsequent recovery-test failure came from Laravel `Http::fake()` merging callbacks; the test fake was corrected after reading the installed framework implementation.
+- **Commands and results:** `php artisan test --filter=SystemMonitoringAndAlertTest` PASS, 10 tests/44 assertions; `php artisan test --no-ansi` PASS, 290 tests/1,366 assertions; `php -l` on the service, command, and mailable PASS; `php artisan schedule:list` PASS and shows the five-minute monitor; Git diff and secret review pending before commit.
+- **Skills:** `superpowers:brainstorming` (read; existing approved plan supplied the design), `superpowers:test-driven-development` and its `writing-good-tests.md` reference, `superpowers:systematic-debugging`, and `superpowers:verification-before-completion` at `C:/Users/HP/.codex/plugins/cache/openai-curated-remote/superpowers/7.0.1/skills/`.
+- **Blockers and limits:** `gh auth status` reports an invalid active token; no push or GitHub Actions verification is possible yet. Real API/SSR uptime endpoints and an alert destination have not been supplied, so production notifications are unverified. Host CPU utilization remains unimplemented and is required before the master plan's Phase 08 monitoring gate can pass. Frontend files were not changed.
+- **Next task:** Finish staged review and local commit; publish after authentication is repaired. Continue eligible non-frontend 08.11 work, recording frontend dependencies as deferred.
