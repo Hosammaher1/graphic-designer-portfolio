@@ -39,6 +39,13 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 - **Checks:** New focused assertions failed as expected before implementation. Focused suite with isolated SQLite: 4 passed/29 assertions. Full MySQL suite: `php artisan test --no-ansi --compact` passed, 296 tests/1391 assertions. A temporary SQLite full-suite run failed 16 database-specific tests; the configured XAMPP MySQL test server was restarted and the required MySQL suite passed. Skill: `superpowers:test-driven-development`, `superpowers:systematic-debugging`.
 - **Blocker and handoff:** The frozen Node SSR server sends a separate permissive CSP. Next eligible work: canonical 08.04 error contract and 08.06 redaction. GitHub auth is still invalid; no push or CI result is claimed.
 
+### Current Task 08.04 checkpoint (2026-11-02)
+
+- **Status:** IN_PROGRESS; backend exception and admin-policy error envelopes improved, with SSR error behavior and remaining validation/controller messages still open.
+- **Implementation/files:** `backend/bootstrap/app.php` now uses fixed localized status messages instead of exception text, avoiding route-path disclosure in 404 responses; `backend/app/Http/Middleware/EnsureUserIsAdmin.php` localizes admin 401/403 while preserving the existing English 403 contract. Added `backend/lang/en/api_errors.php` and `backend/lang/ar/api_errors.php`; expanded `backend/tests/Feature/ErrorHandlingAndRedactingTest.php`; updated the compliance audit, progress, and handoff docs. No frontend file changed.
+- **Checks:** New Arabic 404/500 and admin 403 tests failed before implementation. Focused error/authorization suites passed (13 tests/65 assertions). Full MySQL suite: `php artisan test --no-ansi --compact` passed (298 tests/1400 assertions). Skill: `superpowers:test-driven-development`, `superpowers:systematic-debugging`.
+- **Blocker and handoff:** SSR 500 behavior requires frozen frontend work or live browser proof. Validation field messages and some controller errors remain English. Next eligible work: canonical 08.06 audit redaction; GitHub auth remains invalid, so no push/CI is claimed.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -119,7 +126,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.01 | Security audit | IN_PROGRESS | Historical SecurityPenetrationTest 15 passed/96 assertions; input/rate-limit suites also exist | — | SSRF/open redirect review and security finding closure pending | d3f1a06 |
 | 08.02 | Upload hardening | IN_PROGRESS | FileUploadSecurityTest 9 passed/39 assertions: fileinfo-only MIME, extension match, JPEG/PNG/WebP only, 15MB and dimension/pixel caps | superpowers:test-driven-development | Provider upload/delete and image re-encoding/transform lack integration proof; original URL remains public; full suite 295 passed/1386 assertions | 22768fe |
 | 08.03 | Security headers/TLS | IN_PROGRESS | SecurityHeadersTest 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions; production API CSP excludes inline/eval and localhost, HSTS is production-only | superpowers:test-driven-development, superpowers:systematic-debugging | Frozen Node SSR CSP remains permissive; live TLS/browser script check DEFERRED | 9c71af4 |
-| 08.04 | Error contract | IN_PROGRESS | Historical ErrorHandlingAndRedactingTest 5 passed/29 assertions; frontend boundary exists | — | Localized errors and SSR 500 proof pending; frontend DEFERRED | 857aea6 |
+| 08.04 | Error contract | IN_PROGRESS | Localized safe API exceptions and admin 401/403; focused suites 13 passed/65 assertions; full MySQL suite 298 passed/1400 assertions | superpowers:test-driven-development, superpowers:systematic-debugging | SSR 500 and browser proof DEFERRED; validation field/controller error localization remains | 857aea6 |
 | 08.05 | Retry/idempotency | IN_PROGRESS | Analytics idempotency and trash provider retry exist; canonical workflow suite not run | — | Upload/email/cleanup/publish idempotency and bounded retry contract missing | — |
 | 08.06 | Audit logs and redaction | IN_PROGRESS | Historical AuditLogTest and error redaction tests exist | — | Message/body redaction and raw provider exception log review pending | 3788639, 857aea6 |
 | 08.07 | Backup job | BLOCKED | Historical BackupDatabaseTest 7 passed/29 assertions | — | Off-server provider/key custody/remote retention and failure-alert proof missing | 36e1b7c |

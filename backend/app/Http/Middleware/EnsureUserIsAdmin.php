@@ -16,19 +16,22 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
+        $locale = $request->getPreferredLanguage(['en', 'ar']) ?: 'en';
 
         if (!$user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthenticated.',
-            ], 401);
+                'message' => trans('api_errors.http_401', [], $locale),
+                'code' => 401,
+            ], 401, ['Content-Language' => $locale]);
         }
 
         if (!$user->isAdmin()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Forbidden. Administrator access required.',
-            ], 403);
+                'message' => trans('api_errors.http_403_admin', [], $locale),
+                'code' => 403,
+            ], 403, ['Content-Language' => $locale]);
         }
 
         return $next($request);

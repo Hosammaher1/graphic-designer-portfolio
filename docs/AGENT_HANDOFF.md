@@ -2,6 +2,8 @@
 
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
+- Canonical 08.04 local checkpoint: safe fixed Arabic/English API exception messages, route-path-safe 404, localized admin policy envelope with old English 403 preserved. Focused suites 13 passed/65 assertions; full MySQL suite 298 passed/1400 assertions. SSR failure and remaining field/controller localization are open. Branch feat/08.04-canonical-error-contract. Next: canonical 08.06 audit redaction. GitHub auth invalid; no push/CI claimed.
+
 - Canonical 08.03 local checkpoint: production Laravel CSP excludes inline/eval and localhost connections; HSTS is production-only. Focused test 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions. Node SSR CSP is still permissive and frontend files are frozen; live TLS/browser proof remains blocked. Branch feat/08.03-canonical-security-headers. Next: canonical 08.04 and 08.06. GitHub auth remains invalid; no push/CI claimed.
 
 - Canonical 08.02 local hardening checkpoint: JPEG/PNG/WebP only, fileinfo MIME agreement, 15 MB cap, 8192-pixel side cap, 40-million-pixel cap. Focused test: 9 passed/39 assertions; full Laravel suite: 295 passed/1386 assertions. Provider upload/delete, image transform, and protected original remain open, so task is IN_PROGRESS. Current branch: feat/08.02-canonical-upload-hardening. Next eligible task: canonical 08.03 headers. GitHub auth remains invalid; no push or CI is claimed.

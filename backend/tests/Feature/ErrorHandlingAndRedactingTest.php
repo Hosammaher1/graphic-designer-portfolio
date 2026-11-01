@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
@@ -136,5 +137,34 @@ class ErrorHandlingAndRedactingTest extends TestCase
             'status' => 'error',
             'code' => 405,
         ]);
+    }
+
+    public function test_arabic_accept_language_localizes_safe_not_found_and_server_errors(): void
+    {
+        Config::set('app.debug', false);
+
+        $notFound = $this->withHeader('Accept-Language', 'ar,en;q=0.8')
+            ->getJson('/api/v1/non-existent-endpoint-route-xyz');
+        $notFound->assertStatus(404);
+        $notFound->assertJsonPath('message', 'المورد غير موجود.');
+        $this->assertStringNotContainsString('non-existent-endpoint-route-xyz', $notFound->getContent());
+
+        $failure = $this->withHeader('Accept-Language', 'ar,en;q=0.8')
+            ->getJson('/api/v1/test-system-failure');
+        $failure->assertStatus(500);
+        $failure->assertJsonPath('message', 'حدث خطأ داخلي في الخادم.');
+        $this->assertStringNotContainsString('API_SECRET_KEY_123456', $failure->getContent());
+    }
+
+    public function test_arabic_admin_forbidden_response_uses_error_contract(): void
+    {
+        $this->actingAs(User::factory()->make(['is_admin' => false]), 'sanctum');
+
+        $response = $this->withHeader('Accept-Language', 'ar')
+            ->getJson('/api/v1/admin/profile');
+
+        $response->assertStatus(403);
+        $response->assertJsonPath('message', 'غير مسموح بهذا الإجراء.');
+        $response->assertJsonPath('code', 403);
     }
 }

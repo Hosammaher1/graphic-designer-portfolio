@@ -29,49 +29,42 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if ($request->is('api/*') || $request->expectsJson()) {
+                $locale = $request->getPreferredLanguage(['en', 'ar']) ?: 'en';
                 $statusCode = 500;
-                $message = 'An internal server error occurred.';
+                $message = trans('api_errors.internal', [], $locale);
 
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
                     $statusCode = $e->getStatusCode();
-                    $message = $e->getMessage() ?: match ($statusCode) {
-                        400 => 'Bad request.',
-                        401 => 'Unauthenticated.',
-                        403 => 'This action is unauthorized.',
-                        404 => 'Resource not found.',
-                        405 => 'Method not allowed.',
-                        419 => 'Page expired.',
-                        422 => 'The given data was invalid.',
-                        429 => 'Too many requests.',
-                        default => 'An error occurred.',
-                    };
+                    $key = in_array($statusCode, [400, 401, 403, 404, 405, 419, 422, 429], true)
+                        ? 'http_'.$statusCode : 'http_default';
+                    $message = trans('api_errors.'.$key, [], $locale);
                 } elseif ($e instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
                     $statusCode = 429;
-                    $message = 'Too many requests. Please try again later.';
+                    $message = trans('api_errors.http_429', [], $locale);
                 } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     $statusCode = 401;
-                    $message = 'Unauthenticated.';
+                    $message = trans('api_errors.http_401', [], $locale);
                 } elseif ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                     $statusCode = 403;
-                    $message = 'This action is unauthorized.';
+                    $message = trans('api_errors.http_403', [], $locale);
                 } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
                     $statusCode = 404;
-                    $message = 'Resource not found.';
+                    $message = trans('api_errors.http_404', [], $locale);
                 } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => $e->getMessage() ?: 'The given data was invalid.',
+                        'message' => trans('api_errors.http_422', [], $locale),
                         'errors' => $e->errors(),
                         'code' => 422,
-                    ], 422);
+                    ], 422, ['Content-Language' => $locale]);
                 } elseif ($e instanceof \Illuminate\Database\QueryException) {
                     $statusCode = 500;
-                    $message = 'A database error occurred. Details have been safely logged.';
+                    $message = trans('api_errors.database', [], $locale);
                 }
 
                 // In debug mode and not a database query error, allow detailed error message for developers
                 if (config('app.debug') && !($e instanceof \Illuminate\Database\QueryException) && $statusCode === 500) {
-                    $message = $e->getMessage() ?: 'An internal server error occurred.';
+                    $message = $e->getMessage() ?: trans('api_errors.internal', [], $locale);
                 }
 
                 $headers = [];
@@ -83,7 +76,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'status' => 'error',
                     'message' => $message,
                     'code' => $statusCode,
-                ], $statusCode, $headers);
+                ], $statusCode, array_merge($headers, ['Content-Language' => $locale]));
             }
         });
     })->create();
