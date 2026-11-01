@@ -21,7 +21,7 @@ class CheckSystemHealthCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Monitor system health metrics (CPU/RAM/Disk/DB/Queue) and dispatch alerts';
+    protected $description = 'Monitor DB, disk, PHP memory, queue, and configured HTTP probes; dispatch alerts';
 
     /**
      * Execute the console command.

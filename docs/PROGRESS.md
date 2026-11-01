@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-01. **Implementation:** 85 of 108 tasks started, 83 completed (76.9%); Tasks 08.10 and 08.11 have locally verified non-frontend work but remain blocked/deferred. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Non-frontend work through Phase 09 only; the frontend is frozen and Phase 10 is outside this run.
+**Snapshot:** 2026-11-01. **Implementation:** 86 of 108 tasks started, 83 completed (76.9%); Tasks 08.10–08.12 have locally verified non-frontend work but remain blocked/deferred. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Non-frontend work through Phase 09 only; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
@@ -17,10 +17,10 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 05 | Flexible Page Builder and Publishing | 12 | 12 | 12 | Gate passed (12/12) |
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
-| 08 | Security, Reliability, Backups, Monitoring | 12 | 11 | 9 | In progress (9/12 done; 08.10 push blocked, 08.11 partial) |
+| 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 9 | Partial (9/12 done; 08.10–08.12 blocked/deferred) |
 | 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
 | 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
-| **Total** | | **108** | **85** | **83** | **76.9% Complete** |
+| **Total** | | **108** | **86** | **83** | **76.9% Complete** |
 
 ## Task register
 
@@ -110,7 +110,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.09 | Health check endpoint | DONE | PASS: PHPUnit HealthCheckEndpointTest (5 passed) + HealthTest (1 passed, 11 assertions) = 6 passed, 41 assertions: liveness, readiness, DB ping latency, cache/storage checks, 503 degraded | None available (manual checklist) | None (ready for 08.10) | 9ef4b1a |
 | 08.10 | Uptime and alert configuration | BLOCKED | PASS locally: SystemMonitoringAndAlertTest 10 tests/44 assertions; full backend 290 tests/1366 assertions; PHP syntax and schedule list pass | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | GitHub CLI token invalid; push pending. Host CPU monitoring remains for Phase 08 gate. | 154262e |
 | 08.11 | Graceful degradation | BLOCKED | PASS locally: HealthCheckEndpointTest 7 tests/46 assertions; full backend 292 tests/1382 assertions | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | Non-frontend health/readiness path verified; frontend fallback DEFERRED; GitHub push blocked by auth | 146eea9 |
-| 08.12 | Operations runbook | NOT_STARTED | Not run | — | Phase 07 gate | — |
+| 08.12 | Operations runbook | BLOCKED | PASS locally: Artisan monitor/queue help, health routes, dry-run monitor, PHP syntax, runbook link | superpowers:verification-before-completion; writing-good-tests checklist (no prose test) | Live off-server restore, alert delivery, provider/browser drills pending; frontend DEFERRED; GitHub auth blocks push | — |
 | 09.01 | Production build scripts | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.02 | Nginx configuration | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.03 | Process supervision | NOT_STARTED | Not run | — | Phase 08 gate | — |
@@ -5215,3 +5215,16 @@ Next task:
 - **Skills:** `superpowers:test-driven-development`, `superpowers:systematic-debugging`, and `superpowers:verification-before-completion` from `C:/Users/HP/.codex/plugins/cache/openai-curated-remote/superpowers/7.0.1/skills/`.
 - **Security and limits:** No frontend file was touched. No secrets or exception strings are returned by degraded responses. Frontend error/fallback UI and browser failure states are DEFERRED. A live provider outage drill remains for Phase 08/09 gates.
 - **Next task:** Complete the eligible 08.12 operations runbook and continue non-frontend Phase 09 preparation.
+
+---
+
+### Task 08.12: Operations runbook — non-frontend checkpoint
+
+- **Status:** BLOCKED for overall task/phase completion. The local operations runbook is prepared and command-checked. Production and frontend-dependent drills are outstanding.
+- **Branch / commit:** `feat/08.12-operations-runbook`; local commit pending at this checkpoint.
+- **Implementation:** Added [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) with health and monitoring commands, incident response, scheduler/queue/log guidance, backup/restore boundary, and a verification matrix. Corrected `monitor:check` help text so it no longer claims unavailable CPU coverage.
+- **Files:** `docs/OPERATIONS_RUNBOOK.md`, `backend/app/Console/Commands/CheckSystemHealthCommand.php`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`.
+- **Checks:** `php artisan help monitor:check`, `php artisan help queue:failed`, and `php artisan route:list --path=health` passed. `php artisan monitor:check` exited 0 with healthy local DB/disk/PHP-memory/failed-job status and did not send alerts. `php -l app/Console/Commands/CheckSystemHealthCommand.php` passed. The linked backup runbook exists. Human prose received document/command review rather than a source-text test.
+- **Skills:** `superpowers:verification-before-completion` and `superpowers:test-driven-development/writing-good-tests.md` reference at `C:/Users/HP/.codex/plugins/cache/openai-curated-remote/superpowers/7.0.1/skills/`.
+- **Deferred and blocked:** No real off-server encrypted restore, external uptime/alert delivery, host CPU sampling, provider outage drill, or browser/SSR failure drill was run. Browser/frontend work is DEFERRED by the owner. GitHub CLI token remains invalid, so no push or CI verification can be claimed. No frontend files were changed.
+- **Next task:** Continue independent Phase 09 non-frontend preparation. Do not declare the Phase 08 gate passed.

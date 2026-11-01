@@ -11,6 +11,7 @@ The current owner instruction limits this run to non-frontend work through Phase
 - No frontend files were modified during this continuation. Phase 10 remains untouched.
 - Next eligible work: finish publishing 08.10 after GitHub authentication is repaired; proceed with non-frontend portions of 08.11 and 08.12, then Phase 09 without deployment or merges.
 - Task 08.11 non-frontend checkpoint: cache and storage outages now make health/readiness return 503 while liveness stays 200. Focused PHP tests passed (7 tests/46 assertions); full backend suite passed (292 tests/1,382 assertions). The frontend portion is DEFERRED. Branch `feat/08.11-graceful-degradation` has local commit `146eea9`; GitHub push remains blocked.
+- Task 08.12 non-frontend checkpoint: `docs/OPERATIONS_RUNBOOK.md` now records checked local commands, incident response, and the evidence still needed for the Phase 08 gate. The `monitor:check` help text was corrected to describe actual metrics. Branch `feat/08.12-operations-runbook` has local uncommitted changes pending review. No live off-server restore, provider drill, external alert delivery, or browser drill has been verified; frontend checks remain DEFERRED.
 
 ---
 
