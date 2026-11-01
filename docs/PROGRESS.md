@@ -110,7 +110,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.09 | Health check endpoint | DONE | PASS: PHPUnit HealthCheckEndpointTest (5 passed) + HealthTest (1 passed, 11 assertions) = 6 passed, 41 assertions: liveness, readiness, DB ping latency, cache/storage checks, 503 degraded | None available (manual checklist) | None (ready for 08.10) | 9ef4b1a |
 | 08.10 | Uptime and alert configuration | BLOCKED | PASS locally: SystemMonitoringAndAlertTest 10 tests/44 assertions; full backend 290 tests/1366 assertions; PHP syntax and schedule list pass | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | GitHub CLI token invalid; push pending. Host CPU monitoring remains for Phase 08 gate. | 154262e |
 | 08.11 | Graceful degradation | BLOCKED | PASS locally: HealthCheckEndpointTest 7 tests/46 assertions; full backend 292 tests/1382 assertions | superpowers:test-driven-development; superpowers:systematic-debugging; superpowers:verification-before-completion | Non-frontend health/readiness path verified; frontend fallback DEFERRED; GitHub push blocked by auth | 146eea9 |
-| 08.12 | Operations runbook | BLOCKED | PASS locally: Artisan monitor/queue help, health routes, dry-run monitor, PHP syntax, runbook link | superpowers:verification-before-completion; writing-good-tests checklist (no prose test) | Live off-server restore, alert delivery, provider/browser drills pending; frontend DEFERRED; GitHub auth blocks push | — |
+| 08.12 | Operations runbook | BLOCKED | PASS locally: Artisan monitor/queue help, health routes, dry-run monitor, PHP syntax, runbook link | superpowers:verification-before-completion; writing-good-tests checklist (no prose test) | Live off-server restore, alert delivery, provider/browser drills pending; frontend DEFERRED; GitHub auth blocks push | 448b21e |
 | 09.01 | Production build scripts | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.02 | Nginx configuration | NOT_STARTED | Not run | — | Phase 08 gate | — |
 | 09.03 | Process supervision | NOT_STARTED | Not run | — | Phase 08 gate | — |
@@ -5221,7 +5221,7 @@ Next task:
 ### Task 08.12: Operations runbook — non-frontend checkpoint
 
 - **Status:** BLOCKED for overall task/phase completion. The local operations runbook is prepared and command-checked. Production and frontend-dependent drills are outstanding.
-- **Branch / commit:** `feat/08.12-operations-runbook`; local commit pending at this checkpoint.
+- **Branch / commit:** `feat/08.12-operations-runbook`; local commit `448b21e`; push pending.
 - **Implementation:** Added [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) with health and monitoring commands, incident response, scheduler/queue/log guidance, backup/restore boundary, and a verification matrix. Corrected `monitor:check` help text so it no longer claims unavailable CPU coverage.
 - **Files:** `docs/OPERATIONS_RUNBOOK.md`, `backend/app/Console/Commands/CheckSystemHealthCommand.php`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`.
 - **Checks:** `php artisan help monitor:check`, `php artisan help queue:failed`, and `php artisan route:list --path=health` passed. `php artisan monitor:check` exited 0 with healthy local DB/disk/PHP-memory/failed-job status and did not send alerts. `php -l app/Console/Commands/CheckSystemHealthCommand.php` passed. The linked backup runbook exists. Human prose received document/command review rather than a source-text test.
