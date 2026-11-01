@@ -10,7 +10,7 @@ The current owner instruction limits this run to non-frontend work through Phase
 - The master plan still names 08.10 “Health checks” and 08.11 “Monitoring,” while this tracker records health checks at 08.09 and uptime/alerts at 08.10. Treat the master plan's acceptance criteria as a phase gate and preserve this task history; do not double count either implementation. Host CPU monitoring remains unverified.
 - No frontend files were modified during this continuation. Phase 10 remains untouched.
 - Next eligible work: finish publishing 08.10 after GitHub authentication is repaired; proceed with non-frontend portions of 08.11 and 08.12, then Phase 09 without deployment or merges.
-- Task 08.11 non-frontend checkpoint: cache and storage outages now make health/readiness return 503 while liveness stays 200. Focused PHP tests passed (7 tests/46 assertions); full backend suite passed (292 tests/1,382 assertions). The frontend portion is DEFERRED. Branch `feat/08.11-graceful-degradation` has local uncommitted changes pending review; GitHub push remains blocked.
+- Task 08.11 non-frontend checkpoint: cache and storage outages now make health/readiness return 503 while liveness stays 200. Focused PHP tests passed (7 tests/46 assertions); full backend suite passed (292 tests/1,382 assertions). The frontend portion is DEFERRED. Branch `feat/08.11-graceful-degradation` has local commit `146eea9`; GitHub push remains blocked.
 
 ---
 
