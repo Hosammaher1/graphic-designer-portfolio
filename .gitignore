@@ -43,6 +43,7 @@ build/
 .vite/
 frontend/dist/
 frontend/dist-ssr/
+*.zip
 
 # Test and coverage artifacts
 coverage/
