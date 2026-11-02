@@ -163,6 +163,21 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Tests / skills:** Bash syntax passed. A disposable WSL `/tmp` fixture passed preflight, rejected `--apply` without the approval flag, and switched its own symlink with the flag; the fixture was removed. Git Bash on Windows could not create a real symlink, so WSL was used after sandbox access approval. Staged whitespace and secret-pattern checks passed. Used `superpowers:verification-before-completion`.
 - **Blockers / next task:** No approved staging host, two real releases, compatible migration proof or owner approval exists for a forced-failure rollback drill. Continue canonical 09.07 production smoke assessment; do not mark rollback or Phase 09 DONE.
 
+### Task 09.07: Production smoke — current-session checkpoint
+
+- **Task ID / status:** 09.07, BLOCKED. A read-only smoke script and acceptance checklist are prepared; no live site was tested.
+- **Branch / commit / remote:** `feat/09.07-smoke-preparation`; local `6b07714`. No push or GitHub CI verified.
+- **Implementation / files:** Added `infrastructure/deployment/smoke-readonly.sh` and `docs/PRODUCTION_SMOKE.md`. The script plans or runs HTTPS GET checks for Arabic/English pages, API health, robots and sitemap, and checks SSR locale markers. It does not submit contact, authenticate or mutate data. No frontend file changed.
+- **Tests / skills:** Bash syntax and `--plan` passed; HTTP and credential-bearing URLs were rejected. No live network request was made. Staged whitespace check passed. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Production/staging URL, deployment, Cloudinary, test recipient, credentials and owner approval are absent. Full auth/contact/images/SSR/HTTPS acceptance remains unverified. 09.08 browser matrix is DEFERRED under the frontend freeze; next eligible assessment is 09.09 Security/SEO audit.
+
+### Task 09.08: Browser matrix — deferred checkpoint
+
+- **Task ID / status:** 09.08, DEFERRED. The canonical Chromium/Firefox/WebKit and mobile, theme, locale, keyboard and reduced-motion matrix depends on a deployed frontend and browser execution, both outside the current frontend freeze and unavailable infrastructure.
+- **Branch / commit / remote:** No 09.08 implementation commit or push. Existing frontend files and browser tests were not modified or run.
+- **Implementation / files / tests / skills:** No implementation or browser result is claimed. This report updates `docs/PROGRESS.md` only; used `superpowers:verification-before-completion` to keep status evidence-based.
+- **Blockers / next task:** Owner must lift the frontend freeze and provide an approved environment for browser acceptance. Continue 09.09 local non-frontend security/SEO checks.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -258,8 +273,8 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 09.04 | CI final | BLOCKED | Workflow YAML parsed; Composer 5 advisories/1 package, frontend npm 3 findings, E2E npm 0; no GitHub run | superpowers:verification-before-completion | Critical audit findings, frontend freeze, invalid GitHub auth and required check unset | 5b21cd3 |
 | 09.05 | Deployment workflow | BLOCKED | Artifact digest positive/negative checks passed; staging dry run unrun | superpowers:verification-before-completion | CI/security gate, trusted artifact, host, secure deploy and owner approval missing | a36af49 |
 | 09.06 | Rollback | IN_PROGRESS | Disposable WSL symlink preflight, approval rejection and switch passed; staging drill unrun | superpowers:verification-before-completion | Real prior release, migrations, forced failure and healthy recovery unverified | a118651 |
-| 09.07 | Production smoke | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
-| 09.08 | Browser matrix | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.07 | Production smoke | BLOCKED | Bash syntax/plan and invalid URL tests passed; no live smoke | superpowers:verification-before-completion | No deployed domain/providers/test recipient/owner approval | 6b07714 |
+| 09.08 | Browser matrix | DEFERRED | Not run | superpowers:verification-before-completion | Frontend freeze and no deployed environment | — |
 | 09.09 | Security/SEO audit | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
