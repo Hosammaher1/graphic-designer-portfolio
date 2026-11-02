@@ -178,6 +178,35 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Implementation / files / tests / skills:** No implementation or browser result is claimed. This report updates `docs/PROGRESS.md` only; used `superpowers:verification-before-completion` to keep status evidence-based.
 - **Blockers / next task:** Owner must lift the frontend freeze and provide an approved environment for browser acceptance. Continue 09.09 local non-frontend security/SEO checks.
 
+### Task 09.09: Security/SEO audit — current-session checkpoint
+
+- **Task ID / status:** 09.09, BLOCKED for full acceptance. Focused local backend evidence and a proxy indexing safeguard are recorded.
+- **Branch / commit / remote:** `feat/09.09-security-seo-evidence`; local `29adf15`. No push or GitHub CI verified.
+- **Implementation / files:** Added `docs/SECURITY_SEO_AUDIT.md` with criterion-level evidence; updated `infrastructure/nginx/portfolio.conf.template` to send `X-Robots-Tag: noindex, nofollow` for admin routes. No frontend file changed.
+- **Tests / skills:** Focused `SecurityHeadersTest|SitemapTest|RobotsTest|PublicProjectsApiTest` passed: 19 tests/100 assertions. Staged whitespace check passed. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Live TLS/header/crawl evidence, SSR CSP and 500 response, OG/canonical browser proof, Nginx validation, and dependency vulnerability remediation remain open. Continue 09.10 performance acceptance assessment; do not release with the current critical audit findings.
+
+### Task 09.10: Performance acceptance — deferred checkpoint
+
+- **Task ID / status:** 09.10, DEFERRED. The master plan requires mobile Lighthouse/Web Vitals measurements for home, gallery and detail pages, then target thresholds chosen from the baseline and measured values. No deployed URL or approved frontend measurement is available.
+- **Branch / commit / remote:** No 09.10 implementation commit or push.
+- **Implementation / files / tests / skills:** No measurements, thresholds or tuning are claimed. This status is recorded in `docs/PROGRESS.md`; used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Frontend freeze and missing deployment prevent the canonical acceptance run. Continue 09.11 external backup/monitoring drill assessment.
+
+### Task 09.11: Backup/monitoring live drill — blocked checkpoint
+
+- **Task ID / status:** 09.11, BLOCKED. Previous local backup and monitoring tests do not satisfy the live encrypted remote backup, isolated restore, synthetic outage email, log rotation and disk-headroom drill.
+- **Branch / commit / remote:** No 09.11 implementation commit or push.
+- **Implementation / files / tests / skills:** No live drill was run or claimed in this session. This status is recorded in `docs/PROGRESS.md`; used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Approved host, off-server destination/key custody, alert recipient/provider and owner authorization are missing. Continue 09.12 release sign-off assessment.
+
+### Task 09.12: Release sign-off — blocked checkpoint
+
+- **Task ID / status:** 09.12, BLOCKED. Owner design/content/legal/runbook review, release tag, changelog and deployment report must follow verified acceptance and owner approval.
+- **Branch / commit / remote:** No release tag, deployment commit, push or CI verification is claimed.
+- **Implementation / files / tests / skills:** No sign-off or release was performed. This status is recorded in `docs/PROGRESS.md`; used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Phase 08 and 09 gates remain open, CI audits fail, live restore/rollback/monitoring are unverified, and frontend checks are deferred. Next step is owner input and approved remediation, not Phase 10.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -275,10 +304,10 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 09.06 | Rollback | IN_PROGRESS | Disposable WSL symlink preflight, approval rejection and switch passed; staging drill unrun | superpowers:verification-before-completion | Real prior release, migrations, forced failure and healthy recovery unverified | a118651 |
 | 09.07 | Production smoke | BLOCKED | Bash syntax/plan and invalid URL tests passed; no live smoke | superpowers:verification-before-completion | No deployed domain/providers/test recipient/owner approval | 6b07714 |
 | 09.08 | Browser matrix | DEFERRED | Not run | superpowers:verification-before-completion | Frontend freeze and no deployed environment | — |
-| 09.09 | Security/SEO audit | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
-| 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
-| 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
-| 09.12 | Release sign-off | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.09 | Security/SEO audit | BLOCKED | Focused backend 19 passed/100 assertions; live TLS/SSR/crawl unrun; dependency audits fail | superpowers:verification-before-completion | Critical advisories, frontend CSP/metadata, host validation and live evidence | 29adf15 |
+| 09.10 | Performance acceptance | DEFERRED | No mobile Lighthouse/Web Vitals measurement | superpowers:verification-before-completion | Frontend freeze and no deployed URL; thresholds require baseline | — |
+| 09.11 | Backup/monitoring live drill | BLOCKED | No live drill; prior local tests do not satisfy criterion | superpowers:verification-before-completion | Remote backup, isolated restore, alert provider, host/log evidence missing | — |
+| 09.12 | Release sign-off | BLOCKED | No owner sign-off, tag, deployment report or go-live | superpowers:verification-before-completion | Phase gates open, audits fail, owner approval and frontend acceptance missing | — |
 | 10.01 | Apple-inspired design system & tokens | DONE | PASS: Vitest design-system-apple (4 passed), design-system regression (21 passed) | apple-design-system | Ready for 10.02 | ee223ad |
 | 10.02 | Hybrid global navigation & smooth anchor routing | NOT_STARTED | Not run | hybrid-portfolio-architecture | Ready for implementation | — |
 | 10.03 | Cinematic hero with staggered typography | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
