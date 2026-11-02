@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-02. **Implementation:** 87 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** The owner redirected work to eligible Phase 09 preparation while the Phase 08 gate remains open; the frontend is frozen and Phase 10 is outside this run.
+**Snapshot:** 2026-11-02. **Implementation:** 88 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** The owner redirected work to eligible Phase 09 preparation while the Phase 08 gate remains open; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
@@ -18,61 +18,118 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 0 | Canonical audit: partial/blocked; gate open |
-| 09 | CI/CD, Oracle Deployment, Release | 12 | 1 | 0 | Readiness inventory blocked on owner inputs; preparation only |
+| 09 | CI/CD, Oracle Deployment, Release | 12 | 2 | 0 | Readiness blocked; infrastructure scripts in progress; no deployment |
 | 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
-| **Total** | | **108** | **87** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
+| **Total** | | **108** | **88** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
-### Current Task 08.02 checkpoint (2026-11-02)
+## Current-session canonical task reports
+
+These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.
+
+### Task 08.01: Security audit — current-session checkpoint
+
+- **Task ID / phase / status:** 08.01, Phase 08, IN_PROGRESS. The canonical matrix and historical-label mapping are recorded in `docs/PHASE08_COMPLIANCE_AUDIT.md`; no canonical security sign-off is claimed.
+- **Branch / commits / remote:** `feat/08-canonical-compliance`; local `1af9af0`, `51575bb`; push pending, no CI verified.
+- **Implementation / files:** Corrected the Phase 08 task register in `docs/PROGRESS.md`, documented acceptance criteria and URL/upload findings in `docs/PHASE08_COMPLIANCE_AUDIT.md`, and updated `docs/AGENT_HANDOFF.md`. Existing application code was not changed for this audit.
+- **Tests / skills:** Baseline focused Phase 08 suites passed (69 tests/389 assertions). Used `superpowers:verification-before-completion` and the approved master plan.
+- **Blockers / next task:** Upload, CSP, provider, SSR and live-operations findings kept the task IN_PROGRESS. Next canonical task: 08.02 Upload hardening.
+
+### Task 08.02: Upload hardening — current-session checkpoint
 
 - **Status:** IN_PROGRESS; provider upload/delete and protected originals are unresolved. Phase 08 gate remains open.
+- **Task ID / branch / commit / remote:** 08.02; `feat/08.02-canonical-upload-hardening`; local `c4fdf3b`; push pending, no CI verified.
 - **Implementation:** Server-side image validation now rejects empty files, unsupported formats, filename/MIME disagreement, unreadable dimensions, images above 8192 pixels per side or 40 million pixels total, and files above 15 MB. No frontend file changed.
 - **Files:** `backend/app/Services/Security/FileUploadSecurityService.php`, `backend/tests/Feature/FileUploadSecurityTest.php`, `docs/DECISIONS.md`, `docs/PHASE08_COMPLIANCE_AUDIT.md`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`.
 - **Checks:** Three new focused tests failed before implementation as expected; `php artisan test --filter=FileUploadSecurityTest --no-ansi --compact` passed (9 tests/39 assertions); `php artisan test --no-ansi --compact` passed (295 tests/1386 assertions); `git diff --check` passed. Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** The Cloudinary adapter is still a stand-in and exposes a public original URL. Continue with canonical 08.03 security headers, then 08.04/08.06 error redaction. `gh auth status` still reports an invalid token; no push or CI is claimed.
 
-### Current Task 08.03 checkpoint (2026-11-02)
+### Task 08.03: Security headers/TLS — current-session checkpoint
 
 - **Status:** IN_PROGRESS. Backend production headers are tightened; frozen Node SSR headers, live TLS, and browser script behavior remain unverified.
+- **Task ID / branch / commit / remote:** 08.03; `feat/08.03-canonical-security-headers`; local `9f1b25a`; push pending, no CI verified.
+- **Files:** `backend/app/Http/Middleware/SecurityHeadersMiddleware.php`, `backend/tests/Feature/SecurityHeadersTest.php`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`, `docs/PHASE08_COMPLIANCE_AUDIT.md`.
 - **Implementation/files:** `backend/app/Http/Middleware/SecurityHeadersMiddleware.php` now omits inline/eval and localhost CSP allowances in production and emits HSTS only in production; `backend/tests/Feature/SecurityHeadersTest.php` checks both environments. Updated `docs/PHASE08_COMPLIANCE_AUDIT.md`, `docs/PROGRESS.md`, and `docs/AGENT_HANDOFF.md`; no frontend file changed.
 - **Checks:** New focused assertions failed as expected before implementation. Focused suite with isolated SQLite: 4 passed/29 assertions. Full MySQL suite: `php artisan test --no-ansi --compact` passed, 296 tests/1391 assertions. A temporary SQLite full-suite run failed 16 database-specific tests; the configured XAMPP MySQL test server was restarted and the required MySQL suite passed. Skill: `superpowers:test-driven-development`, `superpowers:systematic-debugging`.
 - **Blocker and handoff:** The frozen Node SSR server sends a separate permissive CSP. Next eligible work: canonical 08.04 error contract and 08.06 redaction. GitHub auth is still invalid; no push or CI result is claimed.
 
-### Current Task 08.04 checkpoint (2026-11-02)
+### Task 08.04: Error contract — current-session checkpoint
 
 - **Status:** IN_PROGRESS; backend exception and admin-policy error envelopes improved, with SSR error behavior and remaining validation/controller messages still open.
+- **Task ID / branch / commit / remote:** 08.04; `feat/08.04-canonical-error-contract`; local `048f461`; push pending, no CI verified.
+- **Files:** `backend/bootstrap/app.php`, `backend/app/Http/Middleware/EnsureUserIsAdmin.php`, `backend/lang/en/api_errors.php`, `backend/lang/ar/api_errors.php`, `backend/tests/Feature/ErrorHandlingAndRedactingTest.php`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`, `docs/PHASE08_COMPLIANCE_AUDIT.md`.
 - **Implementation/files:** `backend/bootstrap/app.php` now uses fixed localized status messages instead of exception text, avoiding route-path disclosure in 404 responses; `backend/app/Http/Middleware/EnsureUserIsAdmin.php` localizes admin 401/403 while preserving the existing English 403 contract. Added `backend/lang/en/api_errors.php` and `backend/lang/ar/api_errors.php`; expanded `backend/tests/Feature/ErrorHandlingAndRedactingTest.php`; updated the compliance audit, progress, and handoff docs. No frontend file changed.
 - **Checks:** New Arabic 404/500 and admin 403 tests failed before implementation. Focused error/authorization suites passed (13 tests/65 assertions). Full MySQL suite: `php artisan test --no-ansi --compact` passed (298 tests/1400 assertions). Skill: `superpowers:test-driven-development`, `superpowers:systematic-debugging`.
 - **Blocker and handoff:** SSR 500 behavior requires frozen frontend work or live browser proof. Validation field messages and some controller errors remain English. Next eligible work: canonical 08.06 audit redaction; GitHub auth remains invalid, so no push/CI is claimed.
 
-### Current Task 08.05 checkpoint (2026-11-02)
+### Task 08.05: Retry/idempotency — current-session checkpoint
 
 - **Status:** IN_PROGRESS. Keyed contact and project-publish retries are idempotent locally; upload and provider recovery remain open.
+- **Task ID / branch / commit / remote:** 08.05; `feat/08.05-canonical-retry-idempotency`; local `f520350`; push pending, no CI verified.
+- **Files:** `backend/app/Http/Controllers/Api/V1/ContactController.php`, `backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php`, `backend/app/Services/Publishing/ProjectPublishingService.php`, `backend/app/Models/Inquiry.php`, two `backend/database/migrations/2026_11_02_0805*` files, both inquiry mailables, `backend/tests/Feature/ContactInquiryTest.php`, `backend/tests/Feature/PageAtomicPublishTest.php`, `backend/tests/Feature/Projects/PublishIdempotencyTest.php`, and the three tracking docs.
 - **Implementation/files:** Added inquiry key hash/fingerprint columns and unique project-publish request records in two migrations; updated `Inquiry`, `ContactController`, `ProjectController`, and `ProjectPublishingService`. Contact replay returns the existing inquiry without another queued mail; changed payload with the same key returns 409. Project publish replay does not advance the snapshot; a key from a prior snapshot returns 409. Inquiry mailables have three attempts with bounded backoff. Added/expanded `ContactInquiryTest`, `PublishIdempotencyTest`, and `PageAtomicPublishTest`; updated audit, progress, and handoff docs. No frontend file changed.
 - **Checks:** Contact and project-publish replay tests failed before implementation. Focused suites passed (15 tests/84 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (301 tests/1421 assertions). Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** Real upload-provider retries, timeout-after-accept mail semantics, and failed queue-dispatch recovery need a durable provider/outbox workflow and external proof. Next: canonical 08.06 audit logs/redaction, then 08.09 cleanup retry. GitHub auth remains invalid; no push or CI is claimed.
 
-### Current Task 08.06 checkpoint (2026-11-02)
+### Task 08.06: Audit logs and redaction — current-session checkpoint
 
 - **Status:** IN_PROGRESS; local audit/redaction controls pass, but live log retention and database-outage audit persistence are unverified.
+- **Task ID / branch / commit / remote:** 08.06; `feat/08.06-canonical-audit-redaction`; local `e51870d`; push pending, no CI verified.
+- **Files:** `backend/app/Services/AuditLogger.php`, `backend/app/Http/Middleware/AuditAdminMutation.php`, `backend/app/Services/Backup/DatabaseBackupService.php`, `backend/app/Console/Commands/PurgeTrashedProjects.php`, `backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php`, `backend/bootstrap/app.php`, `backend/routes/api.php`, `backend/tests/Feature/Auth/AuditLogTest.php`, `backend/tests/Feature/BackupDatabaseTest.php`, `backend/tests/Feature/ErrorHandlingAndRedactingTest.php`, and the three tracking docs.
 - **Implementation/files:** `AuditLogger` now redacts nested message/body/payload/exception/trace/cookie keys and hashes untrusted User-Agent values. New `AuditAdminMutation` middleware records route, method, and response status for authenticated admin mutations without request bodies. Production exception reporting in `backend/bootstrap/app.php` and backup/provider failure paths use fixed messages and exception class names; updated `backend/routes/api.php`, `DatabaseBackupService`, `PurgeTrashedProjects`, and `ProjectController`. Expanded `AuditLogTest`, `BackupDatabaseTest`, and `ErrorHandlingAndRedactingTest`; updated audit, progress, and handoff docs. No frontend file changed.
 - **Checks:** Message-body, backup-secret, production exception, admin mutation, and User-Agent tests failed before their fixes. Focused suites passed (23 tests/111 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (306 tests/1436 assertions). Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** Live log shipping/rotation and a production incident drill require deployment. Next canonical work: 08.07/08.08 external backup proof remains blocked; complete local 08.09 cleanup retry. GitHub auth remains invalid; no push or CI is claimed.
 
-### Current Task 08.09 checkpoint (2026-11-02)
+### Task 08.09: Trash cleanup scheduler — current-session checkpoint
 
 - **Status:** IN_PROGRESS; local scheduled cleanup recovery passes, real provider deletion remains unverified. The owner directed an immediate transition to Phase 09 after this work was already started.
+- **Task ID / branch / commit / remote:** 08.09; `feat/08.09-canonical-trash-cleanup`; local `da4eebc`; push pending, no CI verified.
+- **Files:** `backend/app/Console/Commands/PurgeTrashedProjects.php`, `backend/app/Models/MediaAsset.php`, `backend/database/migrations/2026_11_02_080900_add_pending_delete_to_media_assets_table.php`, `backend/tests/Feature/Projects/ProjectTrashTest.php`, and the three tracking docs.
 - **Implementation/files:** Added `pending_delete_at` to media assets in a migration and model. `PurgeTrashedProjects` marks provider failures for a later daily retry, rechecks for new project references before deleting, and removes a recovered asset exactly once. Expanded `ProjectTrashTest` with transient recovery, shared-media cancellation, inclusive 30-day boundary, and repeated-run checks; updated audit, progress, and handoff docs. No frontend file changed.
 - **Checks:** Durable retry test failed before implementation. Focused `ProjectTrashTest` passed (8 tests/49 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (308 tests/1449 assertions). Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** Cloudinary deletion is still a stand-in. Move to eligible Phase 09 preparation on the preserved 09.01 branch without claiming the Phase 08 gate passed. GitHub auth remains invalid; no push or CI is claimed.
 
-### Current Task 09.01 checkpoint (2026-11-02)
+### Task 08.10: Health checks — current-session checkpoint
+
+- **Task ID / status:** 08.10, BLOCKED. The backend health/readiness correction is locally verified; separate Node SSR readiness is DEFERRED under the frontend freeze.
+- **Branch / commits / remote:** Historical label `feat/08.11-graceful-degradation`; local `146eea9`, `060980b`; the earlier baseline health commit `559eefd` predates this session. The local commits are not pushed; no CI verified.
+- **Implementation / files:** `backend/app/Http/Controllers/Api/V1/HealthController.php` now responds 503 when DB, cache, or storage is unavailable while liveness stays 200. Updated `backend/tests/Feature/HealthCheckEndpointTest.php`, `docs/PROGRESS.md`, and `docs/AGENT_HANDOFF.md`.
+- **Tests / skills:** Cache/storage degradation tests failed first, then `HealthCheckEndpointTest` passed (7 tests/46 assertions) and the full MySQL suite passed (292 tests/1382 assertions). Used `superpowers:test-driven-development`, `superpowers:systematic-debugging`, and `superpowers:verification-before-completion`.
+- **Blockers / next task:** SSR process readiness and live probe proof are missing; next canonical task: 08.11 Monitoring.
+
+### Task 08.11: Monitoring — current-session checkpoint
+
+- **Task ID / status:** 08.11, IN_PROGRESS. Local probes and alert logic pass; host CPU and live notification proof remain open.
+- **Branch / commits / remote:** Historical label `feat/08.10-uptime-and-alert-configuration`; local `154262e`, `d74eef3`; push pending, no CI verified.
+- **Implementation / files:** Added scheduled `monitor:check --alert`, database/disk/PHP-memory/failed-job checks, configurable API/SSR HTTP probes, alert deduplication and recovery email/webhook behavior. Changed `backend/routes/console.php`, `backend/app/Console/Commands/CheckSystemHealthCommand.php`, `backend/app/Mail/SystemAlertMail.php`, `backend/app/Services/Monitoring/SystemMonitorService.php`, `backend/config/monitoring.php`, `backend/.env.example`, `backend/tests/Feature/SystemMonitoringAndAlertTest.php`, `docs/PROGRESS.md`, and `docs/AGENT_HANDOFF.md`.
+- **Tests / skills:** Focused monitoring suite passed (10 tests/44 assertions); full MySQL suite passed (290 tests/1366 assertions); PHP syntax and schedule-list checks passed. Used `superpowers:test-driven-development`, `superpowers:systematic-debugging`, and `superpowers:verification-before-completion`.
+- **Blockers / next task:** Host CPU sampling, outside-in uptime, live mail alerts, and host log rotation proof are missing; next canonical task: 08.12 Reliability E2E.
+
+### Task 08.12: Reliability E2E — current-session checkpoint
+
+- **Task ID / status:** 08.12, BLOCKED. The operations runbook supports the task, but the canonical combined reliability E2E test was not run.
+- **Branch / commits / remote:** Historical label `feat/08.12-operations-runbook`; local `448b21e`, `7d7c4c2`; push pending, no CI verified.
+- **Implementation / files:** Added `docs/OPERATIONS_RUNBOOK.md`, corrected `backend/app/Console/Commands/CheckSystemHealthCommand.php` help text, and updated `docs/PROGRESS.md` and `docs/AGENT_HANDOFF.md`.
+- **Checks / skills:** `php artisan help monitor:check`, `php artisan help queue:failed`, `php artisan route:list --path=health`, local `php artisan monitor:check`, and command PHP syntax check passed. Used `superpowers:verification-before-completion` and the `writing-good-tests.md` reference.
+- **Blockers / next task:** Live Cloudinary/mail failures, off-server restore, SSR 500/recovery, and frontend/browser E2E remain unverified or DEFERRED. The owner later redirected work to Phase 09 preparation; Phase 08 gate stays open.
+
+### Task 09.01: Production readiness inventory — current-session checkpoint
 
 - **Status:** BLOCKED on owner-supplied domain, DNS, OCI tenancy/home region/VM and actual quota, Cloudinary, mail, remote backup, and release approvals. The owner explicitly redirected work to Phase 09 preparation while the Phase 08 gate remains open.
+- **Task ID / branch / commits / remote:** 09.01; `feat/09.01-canonical-readiness`; local `1e2e207`; prior WIP `2e446b0` remains on `feat/09.01-production-readiness-and-backend-build`; push pending, no CI verified.
+- **Files:** `docs/PRODUCTION_READINESS.md`, `docs/PROGRESS.md`, `docs/AGENT_HANDOFF.md`. The copied `infrastructure/deployment/build-backend.sh` is an untracked 09.02 artifact on the current branch.
 - **Implementation/files:** Reused the saved WIP inventory as `docs/PRODUCTION_READINESS.md` on `feat/09.01-canonical-readiness`; updated it with Oracle's current published Always Free A1 allocation and the distinction between public limits and tenancy capacity. Corrected all 12 Phase 09 task titles in `docs/PROGRESS.md` to Section 12 of the master plan, and updated `docs/AGENT_HANDOFF.md`. The saved `infrastructure/deployment/build-backend.sh` belongs to 09.02 and remains separate. No frontend file changed.
 - **Checks:** `bash infrastructure/deployment/build-backend.sh --check` passed (Composer manifest valid; Artisan syntax valid), without dependency install. Oracle's official Always Free documentation was reviewed; tenancy capacity and service availability cannot be verified from this workspace. Skill: `superpowers:verification-before-completion`.
 - **Blocker and handoff:** No live provider or deployment claim. Next eligible work: 09.02 infrastructure-script preparation; GitHub auth remains invalid, so no push or CI is claimed.
+
+### Task 09.02: Infrastructure scripts — current-session handoff
+
+- **Task ID / status:** 09.02, IN_PROGRESS. No infrastructure configuration or live service validation has been completed.
+- **Branch / commit / remote:** Current branch `feat/09.01-canonical-readiness`; no 09.02 commit on this branch. Saved WIP commit `2e446b0` remains on `feat/09.01-production-readiness-and-backend-build`; no push or CI verified.
+- **Implementation / files:** The copied `infrastructure/deployment/build-backend.sh` is the only current 09.02 artifact and is **untracked**. It was not edited during this documentation handoff. No frontend file changed.
+- **Tests / skills:** `bash infrastructure/deployment/build-backend.sh --check` passed: Composer manifest valid and Artisan syntax valid; no dependencies installed. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Nginx, PHP-FPM, Node SSR supervision, MySQL, firewall, TLS, log rotation, `nginx -t`, startup, firewall-port and certificate-renewal checks remain. Antigravity's next canonical task is 09.02; do not deploy or call it DONE.
 
 ## Task register
 
@@ -151,20 +208,20 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 07.08 | Bundle optimization | DONE | PASS: Vitest bundle-optimization (3 passed: vendor chunk splitting react/router/lucide, gzip size budget <150kB, Vite manualChunks config) + Client build (vendor-react 69kB, vendor-router 14kB, vendor-lucide 5kB, index 52kB gzip) | None available (manual checklist) | None (ready for 07.09) | 0d98531 |
 | 07.09 | Core Web Vitals audit | DONE | PASS: Vitest core-web-vitals (7 passed: CWV budgets LCP/CLS/INP/FID, rating classification, hero image preload SSR/DOM sync, CLS preservation, RUM observer) + 32 SEO/performance tests passed + Client & SSR build | None available (manual checklist) | None (ready for 07.10) | 006dda0 |
 | 07.10 | E2E SEO and contact | DONE | PASS: Playwright seo-contact (18 passed across Desktop Chromium & Mobile Chrome) + Phase 07 Gate Suites (20 PHPUnit, 40 Vitest, 44 Playwright = 104 passed) | None available (manual checklist) | None (Phase 07 Gate PASSED, ready for Phase 08) | bec6fff |
-| 08.01 | Security audit | IN_PROGRESS | Historical SecurityPenetrationTest 15 passed/96 assertions; input/rate-limit suites also exist | — | SSRF/open redirect review and security finding closure pending | d3f1a06 |
-| 08.02 | Upload hardening | IN_PROGRESS | FileUploadSecurityTest 9 passed/39 assertions: fileinfo-only MIME, extension match, JPEG/PNG/WebP only, 15MB and dimension/pixel caps | superpowers:test-driven-development | Provider upload/delete and image re-encoding/transform lack integration proof; original URL remains public; full suite 295 passed/1386 assertions | 22768fe |
-| 08.03 | Security headers/TLS | IN_PROGRESS | SecurityHeadersTest 4 passed/29 assertions; full MySQL suite 296 passed/1391 assertions; production API CSP excludes inline/eval and localhost, HSTS is production-only | superpowers:test-driven-development, superpowers:systematic-debugging | Frozen Node SSR CSP remains permissive; live TLS/browser script check DEFERRED | 9c71af4 |
-| 08.04 | Error contract | IN_PROGRESS | Localized safe API exceptions and admin 401/403; focused suites 13 passed/65 assertions; full MySQL suite 298 passed/1400 assertions | superpowers:test-driven-development, superpowers:systematic-debugging | SSR 500 and browser proof DEFERRED; validation field/controller error localization remains | 857aea6 |
-| 08.05 | Retry/idempotency | IN_PROGRESS | Contact keyed replay dedups inquiry/mail; publish keyed replay preserves snapshot; queued mail bounded retries/backoff; focused 15 passed/84, full MySQL 301 passed/1421 | superpowers:test-driven-development | Upload-provider idempotency, transient recovery, accepted-email timeout, and queue-dispatch recovery remain open | — |
-| 08.06 | Audit logs and redaction | IN_PROGRESS | Admin mutations audited without bodies; nested sensitive keys redacted, UA hashed, production exception/provider logs fixed-text; focused 23 passed/111, full MySQL 306 passed/1436 | superpowers:test-driven-development | Live log retention/incident proof and audit persistence during DB outage remain unverified | 3788639, 857aea6 |
+| 08.01 | Security audit | IN_PROGRESS | Canonical matrix and focused URL/upload surface review; baseline Phase 08 suites 69 passed/389 assertions | superpowers:verification-before-completion | Critical upload/CSP findings and final sign-off remain open | 1af9af0, 51575bb |
+| 08.02 | Upload hardening | IN_PROGRESS | FileUploadSecurityTest 9 passed/39 assertions; full MySQL 295 passed/1386; MIME/dimension/image-only validation | superpowers:test-driven-development | Real provider upload/transform/private original unresolved | c4fdf3b |
+| 08.03 | Security headers/TLS | IN_PROGRESS | SecurityHeadersTest 4 passed/29 assertions; full MySQL 296 passed/1391; production Laravel CSP/HSTS tightened | superpowers:test-driven-development, superpowers:systematic-debugging | Frozen Node SSR CSP and live TLS/browser checks DEFERRED | 9f1b25a |
+| 08.04 | Error contract | IN_PROGRESS | Focused 13 passed/65 assertions; full MySQL 298 passed/1400; safe Arabic/English API errors | superpowers:test-driven-development, superpowers:systematic-debugging | SSR 500 DEFERRED; validation field/controller localization incomplete | 048f461 |
+| 08.05 | Retry/idempotency | IN_PROGRESS | Focused 15 passed/84 assertions; full MySQL 301 passed/1421; keyed contact/publish dedup and mail retry | superpowers:test-driven-development | Upload provider retry, accepted-email timeout, and queue recovery unresolved | f520350 |
+| 08.06 | Audit logs and redaction | IN_PROGRESS | Focused 23 passed/111 assertions; full MySQL 306 passed/1436; admin mutation audit and secret redaction | superpowers:test-driven-development | Live log retention and audit persistence during DB outage unverified | e51870d |
 | 08.07 | Backup job | BLOCKED | Historical BackupDatabaseTest 7 passed/29 assertions | — | Off-server provider/key custody/remote retention and failure-alert proof missing | 36e1b7c |
 | 08.08 | Restore drill | BLOCKED | Historical BackupRestoreVerificationTest 6 passed/21 assertions | — | Real encrypted off-server restore to isolated DB pending | 75e921b |
-| 08.09 | Trash cleanup scheduler | IN_PROGRESS | Daily purge and durable pending-delete retry; 30-day/shared/recovery/idempotency focused 8 passed/49, full MySQL 308 passed/1449 | superpowers:test-driven-development | Real Cloudinary delete/recovery drill unverified; provider adapter remains a stand-in | de4c894 |
-| 08.10 | Health checks | BLOCKED | Local HealthCheckEndpointTest 7 passed/46 assertions; API/root 503 degradation | superpowers:test-driven-development | SSR readiness missing; frontend/SSR DEFERRED; live probes unverified | 559eefd, 146eea9 |
-| 08.11 | Monitoring | IN_PROGRESS | Local SystemMonitoringAndAlertTest 10 passed/44 assertions; disk/PHP-memory/uptime/alerts | superpowers:test-driven-development | Host CPU, external uptime, real alert and host log rotation pending | 154262e |
-| 08.12 | Reliability E2E | BLOCKED | Backend suites and operations runbook exist; no canonical E2E proof | — | Provider/DB/restore/SSR recovery matrix pending; frontend DEFERRED | 448b21e |
-| 09.01 | Production readiness inventory | BLOCKED | Inventory created; Oracle published limits reviewed; backend build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/region/quota, providers, backup target, DNS, and GitHub auth missing; no live proof | 2e446b0 (saved WIP) |
-| 09.02 | Infrastructure scripts | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 08.09 | Trash cleanup scheduler | IN_PROGRESS | ProjectTrashTest 8 passed/49 assertions; full MySQL 308 passed/1449; pending deletion retry and 30-day boundary | superpowers:test-driven-development | Real Cloudinary delete/recovery drill unverified | da4eebc |
+| 08.10 | Health checks | BLOCKED | HealthCheckEndpointTest 7 passed/46 assertions; full MySQL 292 passed/1382; API/root 503 degradation | superpowers:test-driven-development | SSR readiness DEFERRED; live probes unverified | 559eefd (historical), 146eea9, 060980b |
+| 08.11 | Monitoring | IN_PROGRESS | SystemMonitoringAndAlertTest 10 passed/44 assertions; full MySQL 290 passed/1366; probes/alerts/dedup | superpowers:test-driven-development | Host CPU and outside-in/live alerts unverified | 154262e, d74eef3 |
+| 08.12 | Reliability E2E | BLOCKED | Operations runbook and local command checks exist; no canonical combined E2E proof | superpowers:verification-before-completion | Cloudinary/mail/restore/SSR recovery drill and frontend browser work DEFERRED | 448b21e, 7d7c4c2 |
+| 09.01 | Production readiness inventory | BLOCKED | Inventory committed; Oracle published limits reviewed; build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/capacity, providers, remote backup, DNS and approval missing | 1e2e207; 2e446b0 saved WIP |
+| 09.02 | Infrastructure scripts | IN_PROGRESS | Saved backend build script --check passed: Composer manifest valid, Artisan syntax valid; no build/install | superpowers:verification-before-completion | Script untracked on current branch; Nginx/PHP-FPM/SSR/MySQL/firewall/TLS/log rotation and live validation pending | 2e446b0 saved WIP |
 | 09.03 | Secrets/environment | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.04 | CI final | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.05 | Deployment workflow | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
@@ -4703,7 +4760,7 @@ Next task:
   Phase 08 — Task 08.01: Security headers and CSP (Content Security Policy, HSTS, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy; Nginx & Laravel middleware).
 ```
 
-### Task 08.01: Security headers and CSP
+### Historical Task 08.01: Security headers and CSP (canonical 08.03)
 
 - **Status:** DONE
 - **Branch:** `feat/08.01-security-headers-and-csp`
@@ -4771,7 +4828,7 @@ Next task:
   Phase 08 — Task 08.02: Input sanitization and XSS (HTMLPurifier / strip_tags sanitization for rich text, block builder content, contact form inputs, UTF-8 normalization, SQL injection resistance).
 ```
 
-### Task 08.02: Input sanitization and XSS
+### Historical Task 08.02: Input sanitization and XSS (canonical 08.01/08.04 evidence)
 
 - **Status:** DONE
 - **Branch:** `feat/08.02-input-sanitization-and-xss`
@@ -5073,7 +5130,7 @@ Next task:
 
 ---
 
-### Task 08.06: Security penetration tests
+### Historical Task 08.06: Security penetration tests (canonical 08.01 evidence)
 - **Task ID:** 08.06
 - **Title:** Security penetration tests
 - **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
@@ -5114,7 +5171,7 @@ Next task:
 
 ---
 
-### Task 08.07: Automated backup script
+### Historical Task 08.07: Automated backup script (canonical 08.07 partial evidence)
 - **Task ID:** 08.07
 - **Title:** Automated backup script
 - **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
@@ -5164,7 +5221,7 @@ Next task:
 
 ---
 
-### Task 08.08: Backup restore verification
+### Historical Task 08.08: Backup restore verification (canonical 08.08 partial evidence)
 - **Task ID:** 08.08
 - **Title:** Backup restore verification
 - **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
@@ -5208,7 +5265,7 @@ Next task:
 
 ---
 
-### Task 08.09: Health check endpoint
+### Historical Task 08.09: Health check endpoint (canonical 08.10)
 - **Task ID:** 08.09
 - **Title:** Health check endpoint
 - **Phase:** Phase 08 — Security, Reliability, Backups, Monitoring
@@ -5243,7 +5300,7 @@ Next task:
 
 ---
 
-### Task 08.10: Uptime and alert configuration — local verification checkpoint
+### Historical Task 08.10: Uptime and alert configuration — local verification checkpoint (canonical 08.11)
 
 - **Status:** BLOCKED at GitHub publish. Implementation and local tests pass; no remote push has been verified.
 - **Branch / commit / remote:** `feat/08.10-uptime-and-alert-configuration`; local commit `154262e`; `origin` is `https://github.com/Hosammaher1/graphic-designer-portfolio.git`. Push pending.
@@ -5257,7 +5314,7 @@ Next task:
 
 ---
 
-### Task 08.11: Graceful degradation — non-frontend checkpoint
+### Historical Task 08.11: Graceful degradation — non-frontend checkpoint (canonical 08.10)
 
 - **Status:** BLOCKED for overall task completion. The non-frontend health/readiness correction is locally verified; frontend fallback behavior is DEFERRED under the owner's absolute frontend freeze, and push is blocked by invalid GitHub CLI authentication.
 - **Branch / commit:** `feat/08.11-graceful-degradation`; local commit `146eea9`; push pending.
@@ -5270,7 +5327,7 @@ Next task:
 
 ---
 
-### Task 08.12: Operations runbook — non-frontend checkpoint
+### Historical Task 08.12: Operations runbook — non-frontend checkpoint (supports canonical 08.12)
 
 - **Status:** BLOCKED for overall task/phase completion. The local operations runbook is prepared and command-checked. Production and frontend-dependent drills are outstanding.
 - **Branch / commit:** `feat/08.12-operations-runbook`; local commit `448b21e`; push pending.
