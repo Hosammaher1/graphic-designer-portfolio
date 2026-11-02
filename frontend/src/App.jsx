@@ -13,15 +13,15 @@ import { AllProjectsScreen } from './components/AllProjectsScreen';
 import AdminApp from './admin/AdminApp';
 
 export default function App({ initialUrl, initialLocale }) {
-  // Locale state: default to 'ar' (Arabic) with bilingual 'en' support
+  // Locale state: default to 'en' with bilingual 'ar' support
   const [lang, setLang] = useState(() => {
     if (initialLocale) return initialLocale;
     if (typeof window !== 'undefined') {
       const pathname = window.location.pathname;
-      if (pathname.startsWith('/en')) return 'en';
       if (pathname.startsWith('/ar')) return 'ar';
+      if (pathname.startsWith('/en')) return 'en';
     }
-    return 'ar';
+    return 'en';
   });
 
   // Route state: 'home' | 'work' | 'admin'

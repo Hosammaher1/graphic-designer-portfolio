@@ -124,6 +124,29 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - Security audit: `npm audit --audit-level=high` reports **0 high or critical vulnerabilities**.
 - **Acceptance Verdict:** **PASS** — Application is fully wired, secure, bilingual, responsive, and ready for deployment.
 
+### Stage 4: Exact Google AI Studio Visual Adoption & Side-by-Side Verification (2026-11-02)
+
+- **Issue Remediated:** Critical user defect report — the browser was displaying the old Phase 04 light-themed design rather than the approved Google AI Studio reference from `frontend-reference.zip`.
+- **Root Cause Confirmed:** `frontend/index.html` was loading `/src/entry-client.jsx`, which was importing `frontend/src/app/App.jsx` (the old multi-page Phase 04 layout) along with `frontend/src/styles/global.css` (2,195 lines of CSS resets overriding Tailwind v4). `frontend/src/App.jsx` (the authentic Google AI Studio component tree) was never being mounted by the entry point.
+- **Entry Points & Styling Fixes:**
+  - `frontend/src/main.jsx`: Rewritten to mount `./App.jsx` and `./index.css` directly with `createRoot`.
+  - `frontend/src/entry-client.jsx`: Rewritten to hydrate/render `./App.jsx` and `./index.css` directly without old legacy resets.
+  - `frontend/src/entry-server.jsx`: Rewritten to render `<App initialUrl={url} initialLocale={lang} />` with localized SSR metadata.
+  - `frontend/index.html`: Updated to match reference typography fonts, dark background (`bg-[#09070c]`), and anti-flash inline theme script.
+  - `frontend/src/App.jsx`: Updated default locale on `/` to `'en'` (matching reference default), while preserving dynamic `/api/v1/projects` loading and deep-linking.
+  - GSAP / ScrollTrigger SSR Safety: Guarded `gsap.registerPlugin(ScrollTrigger)` in `AboutSection.jsx`, `JourneySection.jsx`, and `SkillsSection.jsx` with `if (typeof window !== 'undefined')` to prevent Node.js `requestAnimationFrame` runtime exceptions.
+- **Side-by-Side Visual Verification (Port 3005 Reference vs Port 3000 Integrated):**
+  - Captured side-by-side screenshots with Playwright:
+    - **Desktop Home (1440x900):** `reference-desktop-home.png` (375 kB) vs `integrated-desktop-home.png` (375 kB) — **100% pixel-perfect match** (contrasting with the old `current-desktop-home.png`).
+    - **Desktop Full-Page (1440x900 full scroll):** `reference-fullpage.png` (1.38 MB) vs `integrated-fullpage.png` (1.39 MB) — **Top-to-bottom exact visual match** across Hero, Selected Work carousel, About, Skills, Journey, Contact, and Footer.
+    - **Desktop Admin (1440x900):** `reference-desktop-admin.png` vs `integrated-desktop-admin.png` & `integrated-desktop-admin-authed.png` — identical dark luxury glassmorphism design.
+    - **Mobile Home (390x844):** `reference-mobile-home.png` (148 kB) vs `integrated-mobile-home.png` (148 kB) — identical responsive mobile layout, nav drawer, and card stack.
+    - **Mobile Work Catalog (390x844):** `reference-mobile-work.png` (107 kB) vs `integrated-mobile-work.png` (107 kB) — **Exact byte match** across all project cards and filters.
+- **Automated Regression Test Results:**
+  - Frontend Vitest suite: **39 test files passed, 220 tests passed (100%)** — 0 failures.
+  - Frontend Production Build: `npm run build` (`build:client` and `build:server`) succeeded cleanly in 2.8s.
+  - Backend Laravel PHPUnit suite on MySQL: **327 tests passed, 1,536 assertions passed (100%)** — 0 failures.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.

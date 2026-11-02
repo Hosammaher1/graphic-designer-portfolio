@@ -1,6 +1,32 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 3 Checkpoint — 2026-11-02 (Acceptance Testing & Creative Journey Integration)
+## Current Antigravity Stage 4 Checkpoint — 2026-11-02 (Exact Google AI Studio Visual Adoption & Side-by-Side Verification)
+
+- **Active Branch:** `feat/adopt-google-ai-studio-frontend`
+- **Objective Completed:** Resolved user defect report where the browser was rendering the legacy Phase 04 light-themed design. Adopted the authentic Google AI Studio components, layouts, typography, and styling from `frontend-reference.zip` as the single source of truth for both the public website and studio admin dashboard.
+- **Root Cause & Entry Point Alignment:**
+  - `frontend/index.html` was loading `/src/entry-client.jsx`, which was importing `frontend/src/app/App.jsx` (the old multi-page layout) and `frontend/src/styles/global.css` (2,195 lines of CSS resets overriding Tailwind v4).
+  - Fixed `frontend/src/main.jsx` and `frontend/src/entry-client.jsx` to directly mount `./App.jsx` and `./index.css` with hydration support.
+  - Fixed `frontend/src/entry-server.jsx` to render `<App initialUrl={url} initialLocale={lang} />`.
+  - Guarded `gsap.registerPlugin(ScrollTrigger)` in `AboutSection.jsx`, `JourneySection.jsx`, and `SkillsSection.jsx` with `if (typeof window !== 'undefined')` to ensure SSR safety without Node runtime errors.
+  - Added anti-flash theme inline script in `frontend/index.html`.
+- **Side-by-Side Visual Verification Evidence:**
+  - Extracted original reference app and ran side-by-side on port 3005 (`extracted-reference`) vs port 3000 (`frontend`).
+  - Captured comparative Playwright screenshots:
+    - Desktop Home (`1440x900`): `reference-desktop-home.png` vs `integrated-desktop-home.png` — **100% pixel-perfect match** (demonstrating resolution of the old `current-desktop-home.png`).
+    - Desktop Full-Page: `reference-fullpage.png` vs `integrated-fullpage.png` — **Top-to-bottom exact match** across all 7 sections and footer.
+    - Desktop Admin: `reference-desktop-admin.png` vs `integrated-desktop-admin.png` — authentic dark glassmorphic admin dashboard.
+    - Mobile Home (`390x844`): `reference-mobile-home.png` vs `integrated-mobile-home.png` — matching responsive layout and mobile drawer.
+    - Mobile Work (`390x844`): `reference-mobile-work.png` vs `integrated-mobile-work.png` — **Exact byte match** across project cards.
+- **Verification Evidence:**
+  - Full Vitest test suite: **39 test files passed, 220 tests passed (100%)**.
+  - Production build: `npm run build` (`build:client` and `build:server`) completed cleanly in 2.8s.
+  - Backend Laravel PHPUnit test suite on MySQL: **327 tests passed, 1,536 assertions passed (100%)**.
+- **Next Immediate Action:** Feature branch `feat/adopt-google-ai-studio-frontend` is fully verified and ready to be merged into `dev` when authorized.
+
+---
+
+## Historical Antigravity Stage 3 Checkpoint — 2026-11-02 (Acceptance Testing & Creative Journey Integration)
 
 - **Active Branch:** `feat/adopt-google-ai-studio-frontend`
 - **Objective Completed:** Comprehensive acceptance testing of the integrated application, full implementation of editable database-driven Creative Journey / timeline management across backend and admin dashboard, dynamic public timeline rendering, and production isolation of demo authentication bypass.

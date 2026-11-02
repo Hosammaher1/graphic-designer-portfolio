@@ -1,28 +1,27 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark scroll-smooth">
+<!doctype html>
+<html lang="en" dir="ltr" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mohammed — Cinematic Graphic Designer Portfolio</title>
+    <title>Hosam Maher — Cinematic Graphic Designer Portfolio</title>
+    <meta name="description" content="Luxury single-page graphic designer portfolio featuring cinematic art direction, interactive Selected Work carousel, bilingual English & Arabic support, and full-detail project modal." />
+    <!-- Anti-flash inline theme script -->
+    <script>
+      (function() {
+        const saved = localStorage.getItem('portfolio-theme');
+        const theme = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <!--ssr-head-tags-->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Cinzel:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      (function() {
-        try {
-          var saved = localStorage.getItem('portfolio-theme');
-          var theme = saved === 'light' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', theme);
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          }
-        } catch (e) {}
-      })();
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Cinzel:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-[#09070c] text-neutral-100 antialiased selection:bg-rose-500/30 selection:text-rose-200 overflow-x-hidden min-h-screen">
     <div id="root"><!--ssr-outlet--></div>

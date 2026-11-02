@@ -8,25 +8,25 @@ describe('Server-Side Rendering (SSR)', () => {
   it('RED/GREEN: renders Arabic route with title and semantic HTML before client JS', () => {
     const result = renderServer('/ar/');
     expect(result).toBeDefined();
-    expect(result.html).toContain('تصميم بصري هادف');
+    expect(result.html).toContain('تحويل الأفكار إلى تجارب بصرية ذات معنى');
     expect(result.lang).toBe('ar');
     expect(result.dir).toBe('rtl');
-    expect(result.title).toContain('محمد — مصمم جرافيك');
+    expect(result.title).toContain('مصمم جرافيك');
   });
 
   it('renders English route with English title and LTR direction', () => {
     const result = renderServer('/en/');
     expect(result).toBeDefined();
-    expect(result.html).toContain('Intentional visual design');
+    expect(result.html).toContain('Turning ideas into meaningful visual experiences');
     expect(result.lang).toBe('en');
     expect(result.dir).toBe('ltr');
-    expect(result.title).toContain('Mohammed — Graphic');
+    expect(result.title).toContain('Graphic');
   });
 
   it('renders Admin authentication route on the server without errors', () => {
     const result = renderServer('/admin/login');
     expect(result).toBeDefined();
-    expect(result.html).toContain('Portfolio Administration');
+    expect(result.html).toContain('Studio Administration');
   });
 
   it('enforces strict CSP without unsafe-eval or localhost connect in production', () => {

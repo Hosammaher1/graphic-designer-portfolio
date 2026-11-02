@@ -14,7 +14,9 @@ import { WaveTransition } from './WaveTransition';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export const SkillsSection = ({ lang }) => {
   const t = translations[lang].skills;
