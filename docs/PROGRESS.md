@@ -49,6 +49,43 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - Live Cloudinary provider verification remains BLOCKED until owner supplies active production credentials.
 - **Next Step:** Integrate the newly designed Google AI Studio React frontend while preserving API contracts and SSR compatibility.
 
+### Stage 2: Adopt Google AI Studio Frontend (Public Website & Studio Admin)
+
+- **Task Scope & Status:** Full adoption of approved Google AI Studio reference application (`frontend-reference.zip`) across the public visitor website and independent studio administration dashboard, preserving the cinematic glassmorphism visual language, Tailwind CSS v4, and motion suite, and integrating with Laravel REST APIs, MySQL backend, and Sanctum session authentication.
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (branched from `feat/security-remediation-and-cloudinary` at `1aea86a`).
+  - `9ebb9d2`: `feat(frontend): integrate Google AI Studio visual design assets, Tailwind v4, and typography`
+  - `fd7b46e`: `feat(frontend): adopt Google AI Studio public and admin experience with full backend API wiring`
+  - Push pending (GitHub CLI interactive re-authentication needed).
+- **Public Visitor Experience Implemented:**
+  - One continuous, immersive, scroll-driven homepage:
+    - Navbar: 1-row top header with monogram brand lockup, section anchor scroll-spy, language switcher (`AR` / `EN`), light/dark theme toggle, and mobile navigation drawer.
+    - Hero section (`HeroSection.jsx`): typography layout, interactive featured identity card, and illuminated wave transition.
+    - Selected Work carousel (`SelectedWorkSection.jsx`): interactive slide controls, metadata badges, thumbnail navigation, and CTA button to all projects.
+    - About Me section (`AboutSection.jsx`): designer biography, statistics badges, and brand philosophy highlights.
+    - Skills & Expertise dashboard (`SkillsSection.jsx`): categorized competencies and guiding principles.
+    - Creative Journey timeline (`JourneySection.jsx`): milestone nodes and timeline navigation.
+    - Contact section (`ContactSection.jsx`): wired to `POST /api/v1/contact` with multi-honeypot anti-spam (`website_url`, `hp_fax`, `website`), submission timing check (`_form_loaded_at`), and real success confirmation.
+    - Footer (`Footer.jsx`): copyright, social links (Behance, Dribbble, LinkedIn, Instagram), and privacy preferences modal trigger.
+    - Project Details overlay modal (`ProjectDetailsModal.jsx`): full project brief, high-res artworks, lightbox, and previous/next navigation.
+    - All Projects gallery screen (`AllProjectsScreen.jsx`): filterable and searchable project grid.
+- **Studio Admin Dashboard Implemented:**
+  - Overview Dashboard (`OverviewDashboardPage.jsx`): live statistics, 14-day views analytics SVG chart, recent & popular projects.
+  - Projects Management (`ProjectsListPage.jsx` & `ProjectEditorPage.jsx`): full CRUD, drag-and-drop media ordering, featured toggle, category filter, search, bilingual title/description/SEO.
+  - Categories Management (`CategoriesPage.jsx`): list, create, update, delete, sort order.
+  - Media Library (`MediaLibraryPage.jsx` & `MediaPickerModal.jsx`): real multipart file uploads via `POST /api/v1/admin/media/upload`, deletion via `DELETE /api/v1/admin/media/:id`, and local asset fallback.
+  - Visual Page Builder (`PageBuilderListPage.jsx` & `PageBuilderEditorPage.jsx`): multi-viewport preview (desktop, tablet, mobile), modular layout blocks, live reordering, draft/publish controls.
+  - Audience Analytics (`AnalyticsPage.jsx`): date range filtering (`7d`, `30d`, `90d`), SVG views trajectory, top projects, traffic sources.
+  - SEO Management (`SeoPage.jsx`): meta titles, Open Graph descriptions, schema.org preview.
+  - Studio Settings (`SettingsPage.jsx`): designer profile, branding, contact defaults.
+  - Trash & Recovery (`TrashPage.jsx`): soft-deleted projects list, 30-day recovery timeline, restore (`/restore`), and permanent purge (`/force`).
+  - Studio Login (`AdminLoginPage.jsx`): stateful Sanctum session authentication (`POST /api/v1/auth/login`), quick demo entry mode, error alerts.
+- **Testing & Verification Executed:**
+  - Vitest frontend regression suite: **38 test files, 217 tests passed (100%)**.
+  - Production client & SSR builds: `npm run build:client` (built in 4.41s) and `npm run build:server` (built in 789ms) succeeded with Rollup manualChunks vendor splitting (`vendor-react`, `vendor-router`, `vendor-lucide`).
+  - Laravel backend regression test suite: **319 passed, 1,487 assertions (100%)** on MySQL.
+  - Security audit: `npm audit --audit-level=high` reports **0 high or critical vulnerabilities**.
+- **Next Step:** Update handoff documentation and review deployment requirements with owner.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.
