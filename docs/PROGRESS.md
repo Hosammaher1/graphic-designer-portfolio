@@ -139,6 +139,14 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Tests / skills:** Bash syntax passed; missing-file and in-repository negative cases rejected as expected. A positive chmod test could not run on Windows Git Bash because `chmod 600` still reports mode `644` on NTFS. Staged whitespace and secret-pattern checks passed; tracked env/key filename scan found only `.env.example` files. Used `superpowers:verification-before-completion`.
 - **Blockers / next task:** Owner must provision scoped secrets and deploy identity, repair GitHub authentication interactively, prove server ACLs and key rotation, and inspect CI logs. Continue eligible 09.04 CI preparation without claiming branch protection or CI success.
 
+### Task 09.04: CI final — current-session checkpoint
+
+- **Task ID / status:** 09.04, BLOCKED for completion. The local workflow has an audit job and an aggregate gate, but dependency audits currently fail and GitHub enforcement is unverified.
+- **Branch / commit / remote:** `feat/09.04-ci-gates-preparation`; local `5b21cd3`. No push or CI run verified because GitHub CLI authentication remains invalid.
+- **Implementation / files:** Updated `.github/workflows/ci.yml` with read-only `GITHUB_TOKEN` permissions, Composer and npm lockfile audits, and `CI Gate` requiring backend, frontend, Playwright and audit jobs to succeed. Existing frontend source, dependencies and build jobs were not modified.
+- **Tests / skills:** Symfony YAML parsed the workflow and found all five jobs; `git diff --cached --check` passed. Full Composer audit of the locked dependencies exited 1: five advisories affecting `laravel/framework` v11.57.1, including a critical TokenGuard authentication advisory. Frontend npm audit exited 1 with three Vitest/tinypool findings (two critical, one moderate); E2E npm audit exited 0 with zero vulnerabilities. Commands were rerun outside the network-restricted sandbox after initial connection failures. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Owner must choose a supported Laravel remediation path consistent with the approved stack; frontend dependency remediation is DEFERRED by the freeze. Configure `CI Gate` as a required `main` status check after authenticated access is restored, and prove a deliberately failing check blocks merge/deploy. Continue eligible 09.05 deployment workflow preparation; do not claim CI is green.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -231,7 +239,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 09.01 | Production readiness inventory | BLOCKED | Inventory committed; Oracle published limits reviewed; build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/capacity, providers, remote backup, DNS and approval missing | 1e2e207; 2e446b0 saved WIP |
 | 09.02 | Infrastructure scripts | IN_PROGRESS | Bash syntax, Composer validation, Artisan syntax and staged whitespace checks passed; host validation unrun | superpowers:verification-before-completion | No host/domain; nginx -t, service startup, firewall, TLS renewal and log rotation unverified | c3479eb; 2e446b0 saved WIP |
 | 09.03 | Secrets/environment | IN_PROGRESS | Bash syntax and negative permission checks passed; Linux positive/ACL checks unrun | superpowers:verification-before-completion | Credentials, GitHub environment, server permissions and deploy-key rotation unverified | c7647a6 |
-| 09.04 | CI final | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.04 | CI final | BLOCKED | Workflow YAML parsed; Composer 5 advisories/1 package, frontend npm 3 findings, E2E npm 0; no GitHub run | superpowers:verification-before-completion | Critical audit findings, frontend freeze, invalid GitHub auth and required check unset | 5b21cd3 |
 | 09.05 | Deployment workflow | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.06 | Rollback | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.07 | Production smoke | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
