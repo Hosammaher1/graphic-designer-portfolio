@@ -212,4 +212,17 @@ class ContactInquiryTest extends TestCase
         $deleteResponse->assertStatus(200);
         $this->assertDatabaseMissing('inquiries', ['id' => $unreadInquiry->id]);
     }
+
+    public function test_contact_submission_rejects_crlf_in_email(): void
+    {
+        $response = $this->postJson('/api/v1/contact', [
+            'name' => 'Attacker User',
+            'email' => "injected\r\ncc:spammer@example.com",
+            'subject' => 'CRLF Test',
+            'message' => 'Attempting CRLF injection via email header payload.',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+    }
 }

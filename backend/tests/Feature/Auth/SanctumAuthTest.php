@@ -119,4 +119,12 @@ class SanctumAuthTest extends TestCase
         $this->assertTrue(config('session.http_only'));
         $this->assertEquals('lax', config('session.same_site'));
     }
+
+    public function test_token_guard_is_disabled_and_only_sanctum_session_guard_is_configured(): void
+    {
+        $guards = config('auth.guards');
+        $this->assertArrayHasKey('web', $guards);
+        $this->assertEquals('session', $guards['web']['driver']);
+        $this->assertArrayNotHasKey('api', $guards, 'Legacy TokenGuard driver is not configured.');
+    }
 }

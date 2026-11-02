@@ -23,7 +23,7 @@ class ContactInquiryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'string', 'email:rfc,filter', 'max:255', 'not_regex:/[\r\n]/'],
             'subject' => ['required', 'string', 'min:2', 'max:200'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             'website_url' => ['nullable', 'string'],
