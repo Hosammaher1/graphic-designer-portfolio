@@ -191,6 +191,56 @@ class ProjectTrashTest extends TestCase
 
         // Project itself is purged despite provider failure
         $this->assertDatabaseMissing('projects', ['id' => $expired->id]);
+        $this->assertNotNull($asset->fresh()->pending_delete_at);
+
+        // The next scheduled run can finish the durable deletion without replaying the project purge.
+        $mockStorage->shouldReceive('delete')
+            ->once()
+            ->with('portfolio/flakey_asset')
+            ->andReturn(true);
+        $this->assertEquals(0, Artisan::call('projects:purge-trash', ['--days' => 30]));
+        $this->assertDatabaseMissing('media_assets', ['id' => $asset->id]);
+
+        // A further run is safe and does not call the provider again.
+        $this->assertEquals(0, Artisan::call('projects:purge-trash', ['--days' => 30]));
+    }
+
+    public function test_pending_media_deletion_is_cancelled_when_asset_becomes_shared(): void
+    {
+        $storage = Mockery::mock(MediaStorageInterface::class);
+        $storage->shouldNotReceive('delete');
+        $this->app->instance(MediaStorageInterface::class, $storage);
+
+        $asset = MediaAsset::factory()->create([
+            'provider_id' => 'portfolio/reused_asset',
+            'pending_delete_at' => now()->subDay(),
+        ]);
+        $project = Project::factory()->create(['slug' => 'reused-project']);
+        ProjectMedia::factory()->create(['project_id' => $project->id, 'media_asset_id' => $asset->id]);
+
+        $this->assertEquals(0, Artisan::call('projects:purge-trash', ['--days' => 30]));
+        $this->assertDatabaseHas('media_assets', ['id' => $asset->id]);
+        $this->assertNull($asset->fresh()->pending_delete_at);
+    }
+
+    public function test_purge_uses_inclusive_thirty_day_boundary(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+        $storage = Mockery::mock(MediaStorageInterface::class);
+        $storage->shouldNotReceive('delete');
+        $this->app->instance(MediaStorageInterface::class, $storage);
+
+        $atBoundary = Project::factory()->create(['slug' => 'at-boundary']);
+        $atBoundary->delete();
+        Project::withTrashed()->whereKey($atBoundary->id)->update(['deleted_at' => now()->subDays(30)]);
+
+        $justInside = Project::factory()->create(['slug' => 'just-inside']);
+        $justInside->delete();
+        Project::withTrashed()->whereKey($justInside->id)->update(['deleted_at' => now()->subDays(30)->addSecond()]);
+
+        $this->assertEquals(0, Artisan::call('projects:purge-trash', ['--days' => 30]));
+        $this->assertDatabaseMissing('projects', ['id' => $atBoundary->id]);
+        $this->assertSoftDeleted('projects', ['id' => $justInside->id]);
     }
 
     public function test_unauthenticated_cannot_access_trash_restore_or_force_delete(): void

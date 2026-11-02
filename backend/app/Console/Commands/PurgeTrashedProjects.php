@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Project;
 use App\Models\ProjectMedia;
+use App\Models\MediaAsset;
 use App\Services\AuditLogger;
 use App\Services\Media\MediaStorageInterface;
 use Illuminate\Console\Command;
@@ -44,6 +45,23 @@ class PurgeTrashedProjects extends Command
         $purgedCount = 0;
         $failedAssetDeletions = 0;
 
+        if (! $isDryRun) {
+            MediaAsset::whereNotNull('pending_delete_at')->chunkById(100, function ($assets) use ($storage, &$failedAssetDeletions) {
+                foreach ($assets as $asset) {
+                    if (ProjectMedia::where('media_asset_id', $asset->id)->exists()) {
+                        $asset->update(['pending_delete_at' => null]);
+                        continue;
+                    }
+
+                    if ($this->deleteProviderAsset($asset, $storage)) {
+                        $asset->delete();
+                    } else {
+                        $failedAssetDeletions++;
+                    }
+                }
+            });
+        }
+
         foreach ($expiredProjects as $project) {
             if ($isDryRun) {
                 $this->line(" [Dry-run] Would purge project #{$project->id} ({$project->slug}) trashed at {$project->deleted_at}");
@@ -64,27 +82,7 @@ class PurgeTrashedProjects extends Command
                     ->exists();
 
                 if (! $isShared) {
-                    $deleted = false;
-                    $attempts = 0;
-                    $maxAttempts = 3;
-
-                    while (! $deleted && $attempts < $maxAttempts) {
-                        $attempts++;
-                        try {
-                            if ($asset->provider_id) {
-                                $deleted = $storage->delete($asset->provider_id);
-                            } else {
-                                $deleted = true;
-                            }
-                        } catch (\Throwable $e) {
-                            Log::warning("Provider error deleting media asset {$asset->id} (attempt {$attempts}/{$maxAttempts}).", [
-                                'exception_type' => get_class($e),
-                            ]);
-                            if ($attempts >= $maxAttempts) {
-                                $failedAssetDeletions++;
-                            }
-                        }
-                    }
+                    $deleted = $this->deleteProviderAsset($asset, $storage);
 
                     if ($deleted) {
                         try {
@@ -94,6 +92,9 @@ class PurgeTrashedProjects extends Command
                                 'exception_type' => get_class($e),
                             ]);
                         }
+                    } else {
+                        $asset->update(['pending_delete_at' => now()]);
+                        $failedAssetDeletions++;
                     }
                 }
             }
@@ -123,5 +124,26 @@ class PurgeTrashedProjects extends Command
         $this->info("Purged {$purgedCount} expired projects. Failed asset deletions: {$failedAssetDeletions}.");
 
         return Command::SUCCESS;
+    }
+
+    private function deleteProviderAsset(MediaAsset $asset, MediaStorageInterface $storage): bool
+    {
+        if (! $asset->provider_id) {
+            return true;
+        }
+
+        for ($attempt = 1; $attempt <= 3; $attempt++) {
+            try {
+                if ($storage->delete($asset->provider_id)) {
+                    return true;
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Provider error deleting media asset {$asset->id} (attempt {$attempt}/3).", [
+                    'exception_type' => get_class($e),
+                ]);
+            }
+        }
+
+        return false;
     }
 }

@@ -2,6 +2,8 @@
 
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
+- Canonical 08.09 local checkpoint: pending media deletion is retried on later daily runs, new references cancel deletion, inclusive day-30 boundary and idempotent repeated runs tested. Focused suite 8 passed/49 assertions; full MySQL suite 308 passed/1449 assertions. Real Cloudinary deletion remains blocked. Owner redirected work to Phase 09 preparation; Phase 08 gate is still open. Branch feat/08.09-canonical-trash-cleanup. GitHub auth invalid; no push/CI claimed.
+
 - Canonical 08.06 local checkpoint: admin mutations audited by route/method/status without bodies; nested sensitive keys redacted, User-Agent hashed, production exception and provider failure logs fixed-text. Focused suites 23 passed/111 assertions; full MySQL suite 306 passed/1436 assertions. Live log proof remains open. Branch feat/08.06-canonical-audit-redaction. Next: 08.09 durable cleanup. No GitHub push/CI claimed.
 
 - Canonical 08.05 local checkpoint: optional Idempotency-Key deduplicates contact records/mail queue and project snapshot publish; keyed conflict returns 409. Inquiry mailables use three attempts with backoff. Focused suites 15 passed/84 assertions; full MySQL suite 301 passed/1421 assertions. Upload provider retry/idem and mail accepted-timeout recovery remain open. Branch feat/08.05-canonical-retry-idempotency. Next: 08.06 audit redaction. No GitHub push/CI claimed.

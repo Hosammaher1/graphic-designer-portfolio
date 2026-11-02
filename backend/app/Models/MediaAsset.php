@@ -25,6 +25,7 @@ class MediaAsset extends Model
         'variants',
         'has_watermark',
         'reference_count',
+        'pending_delete_at',
     ];
 
     protected $casts = [
@@ -34,6 +35,7 @@ class MediaAsset extends Model
         'variants' => 'array',
         'has_watermark' => 'boolean',
         'reference_count' => 'integer',
+        'pending_delete_at' => 'datetime',
     ];
 
     public function projectMedia(): HasMany

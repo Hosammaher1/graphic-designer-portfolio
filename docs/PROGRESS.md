@@ -60,6 +60,13 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 - **Checks:** Message-body, backup-secret, production exception, admin mutation, and User-Agent tests failed before their fixes. Focused suites passed (23 tests/111 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (306 tests/1436 assertions). Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** Live log shipping/rotation and a production incident drill require deployment. Next canonical work: 08.07/08.08 external backup proof remains blocked; complete local 08.09 cleanup retry. GitHub auth remains invalid; no push or CI is claimed.
 
+### Current Task 08.09 checkpoint (2026-11-02)
+
+- **Status:** IN_PROGRESS; local scheduled cleanup recovery passes, real provider deletion remains unverified. The owner directed an immediate transition to Phase 09 after this work was already started.
+- **Implementation/files:** Added `pending_delete_at` to media assets in a migration and model. `PurgeTrashedProjects` marks provider failures for a later daily retry, rechecks for new project references before deleting, and removes a recovered asset exactly once. Expanded `ProjectTrashTest` with transient recovery, shared-media cancellation, inclusive 30-day boundary, and repeated-run checks; updated audit, progress, and handoff docs. No frontend file changed.
+- **Checks:** Durable retry test failed before implementation. Focused `ProjectTrashTest` passed (8 tests/49 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (308 tests/1449 assertions). Skill: `superpowers:test-driven-development`.
+- **Blocker and handoff:** Cloudinary deletion is still a stand-in. Move to eligible Phase 09 preparation on the preserved 09.01 branch without claiming the Phase 08 gate passed. GitHub auth remains invalid; no push or CI is claimed.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -145,7 +152,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.06 | Audit logs and redaction | IN_PROGRESS | Admin mutations audited without bodies; nested sensitive keys redacted, UA hashed, production exception/provider logs fixed-text; focused 23 passed/111, full MySQL 306 passed/1436 | superpowers:test-driven-development | Live log retention/incident proof and audit persistence during DB outage remain unverified | 3788639, 857aea6 |
 | 08.07 | Backup job | BLOCKED | Historical BackupDatabaseTest 7 passed/29 assertions | — | Off-server provider/key custody/remote retention and failure-alert proof missing | 36e1b7c |
 | 08.08 | Restore drill | BLOCKED | Historical BackupRestoreVerificationTest 6 passed/21 assertions | — | Real encrypted off-server restore to isolated DB pending | 75e921b |
-| 08.09 | Trash cleanup scheduler | IN_PROGRESS | Historical ProjectTrashTest includes 30-day, shared-media, provider-error cases; daily schedule exists | — | Durable retry after exhausted provider deletion missing | de4c894 |
+| 08.09 | Trash cleanup scheduler | IN_PROGRESS | Daily purge and durable pending-delete retry; 30-day/shared/recovery/idempotency focused 8 passed/49, full MySQL 308 passed/1449 | superpowers:test-driven-development | Real Cloudinary delete/recovery drill unverified; provider adapter remains a stand-in | de4c894 |
 | 08.10 | Health checks | BLOCKED | Local HealthCheckEndpointTest 7 passed/46 assertions; API/root 503 degradation | superpowers:test-driven-development | SSR readiness missing; frontend/SSR DEFERRED; live probes unverified | 559eefd, 146eea9 |
 | 08.11 | Monitoring | IN_PROGRESS | Local SystemMonitoringAndAlertTest 10 passed/44 assertions; disk/PHP-memory/uptime/alerts | superpowers:test-driven-development | Host CPU, external uptime, real alert and host log rotation pending | 154262e |
 | 08.12 | Reliability E2E | BLOCKED | Backend suites and operations runbook exist; no canonical E2E proof | — | Provider/DB/restore/SSR recovery matrix pending; frontend DEFERRED | 448b21e |
