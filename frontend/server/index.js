@@ -227,7 +227,10 @@ export async function createServer() {
 }
 
 // Start server when executed directly as entrypoint
-const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
+const isMainModule = !process.env.VITEST && (
+  import.meta.url === pathToFileURL(process.argv[1] || '').href ||
+  (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('server/index.js'))
+);
 if (isMainModule) {
   createServer().catch((err) => {
     console.error('Failed to start SSR server:', err);

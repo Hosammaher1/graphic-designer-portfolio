@@ -1,12 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { translations } from '../data/portfolioData';
 import { ArrowUp, Shield } from 'lucide-react';
 import { useConsent } from '../context/ConsentContext.jsx';
-import { t } from '../i18n/config.js';
 
-export function Footer({ locale = 'ar' }) {
-  const currentYear = new Date().getFullYear();
-  const { openSettings } = useConsent();
+export const Footer = ({ lang, locale }) => {
+  const currentLang = locale || lang || 'ar';
+  const t = (translations[currentLang] || translations.ar || translations.en).footer;
+  const nav = (translations[currentLang] || translations.ar || translations.en).nav;
+
+  let openSettings = null;
+  try {
+    const consentCtx = useConsent();
+    openSettings = consentCtx?.openSettings;
+  } catch (e) {
+    // Graceful fallback if ConsentContext is not present
+  }
 
   const scrollToTop = () => {
     if (typeof window !== 'undefined') {
@@ -14,95 +22,118 @@ export function Footer({ locale = 'ar' }) {
     }
   };
 
-  const navLinks = [
-    { to: `/${locale}/`, label: t('nav.home', locale) },
-    { to: `/${locale}/work`, label: t('nav.work', locale) },
-    { to: `/${locale}/about`, label: t('nav.about', locale) },
-    { to: `/${locale}/contact`, label: t('nav.contact', locale) },
-    { to: '/admin/', label: t('nav.admin', locale) },
-  ];
+  const handleOpenPrivacy = () => {
+    if (openSettings) {
+      openSettings();
+    }
+  };
 
   const socialLinks = [
-    { name: t('social.behance', locale), href: 'https://behance.net', label: 'Behance' },
-    { name: t('social.dribbble', locale), href: 'https://dribbble.com', label: 'Dribbble' },
-    { name: t('social.linkedin', locale), href: 'https://linkedin.com', label: 'LinkedIn' },
-    { name: t('social.instagram', locale), href: 'https://instagram.com', label: 'Instagram' },
+    { label: 'Behance', href: 'https://behance.net' },
+    { label: 'Dribbble', href: 'https://dribbble.com' },
+    { label: 'LinkedIn', href: 'https://linkedin.com' },
+    { label: 'Instagram', href: 'https://instagram.com' },
   ];
 
   return (
-    <footer className="public-footer">
-      <div className="container container-site footer-content">
-        <div className="footer-grid">
-          {/* Brand info */}
-          <div className="footer-brand-col">
-            <h2 className="footer-brand-title">{t('site.title', locale)}</h2>
-            <p className="footer-tagline">{t('footer.tagline', locale)}</p>
+    <footer className="relative bg-[#070509] border-t border-white/10 pt-16 pb-12 overflow-hidden">
+      {/* Top subtle glow line */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-rose-400/30 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Main Footer Row */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/5 text-center md:text-left rtl:md:text-right">
+          {/* Brand lockup */}
+          <div>
+            <div className="flex items-center justify-center md:justify-start gap-2.5">
+              <span className="font-serif text-2xl font-bold tracking-tight text-white">
+                GD
+              </span>
+              <span className="text-sm font-medium text-neutral-300">
+                {currentLang === 'ar' ? 'محمد — مصمم جرافيك' : 'Mohammed — Graphic'}
+              </span>
+            </div>
+            <p className="text-xs text-neutral-400 mt-2 font-light max-w-sm">
+              {t.tagline}
+            </p>
           </div>
 
-          {/* Quick links */}
-          <div className="footer-links-col">
-            <h3 className="footer-heading">{t('footer.quickLinks', locale)}</h3>
-            <ul className="footer-links-list">
-              {navLinks.map((link) => (
-                <li key={link.to}>
-                  <Link to={link.to} className="footer-link">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Navigation Links */}
+          <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-neutral-400">
+            <a href="#hero" className="hover:text-white transition-colors">
+              {nav.home}
+            </a>
+            <a href="#selected-work" className="hover:text-white transition-colors">
+              {nav.work}
+            </a>
+            <a href="#about-me" className="hover:text-white transition-colors">
+              {nav.about}
+            </a>
+            <a href="#skills-expertise" className="hover:text-white transition-colors">
+              {nav.skills}
+            </a>
+            <a href="#creative-journey" className="hover:text-white transition-colors">
+              {nav.journey}
+            </a>
+            <a href="#contact" className="hover:text-white transition-colors">
+              {nav.contact}
+            </a>
+            <a href="/admin" className="hover:text-white transition-colors">
+              {currentLang === 'ar' ? 'لوحة التحكم' : 'Admin'}
+            </a>
           </div>
 
-          {/* Social links */}
-          <div className="footer-social-col">
-            <h3 className="footer-heading">{t('footer.social', locale)}</h3>
-            <ul className="footer-social-list">
-              {socialLinks.map((social) => (
-                <li key={social.label}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="footer-social-link"
-                    aria-label={social.label}
-                  >
-                    {social.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Social Links */}
+          <div className="flex items-center gap-4 text-xs font-mono text-neutral-400">
+            {socialLinks.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="hover:text-white transition-colors"
+              >
+                {s.label}
+              </a>
+            ))}
           </div>
+
+          {/* Back to top button */}
+          <button
+            onClick={scrollToTop}
+            aria-label={t.backToTop}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium text-neutral-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer"
+          >
+            <span>{t.backToTop}</span>
+            <ArrowUp className="w-3.5 h-3.5 text-rose-300" />
+          </button>
         </div>
 
-        {/* Bottom bar */}
-        <div className="footer-bottom">
-          <p className="footer-copyright">
-            © {currentYear} {t('site.designerName', locale)}. {t('footer.rights', locale)}
-          </p>
-          <div className="flex items-center gap-4">
+        {/* Bottom copyright line */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400 text-center sm:text-left rtl:sm:text-right font-mono">
+          <div>
+            © {new Date().getFullYear()} Graphic Designer Portfolio. {currentLang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+          </div>
+
+          <div className="flex items-center gap-6">
             <button
               type="button"
-              onClick={openSettings}
-              className="text-xs text-[var(--color-text-muted,#a1a1aa)] hover:text-[var(--color-text,#fafafa)] transition-colors inline-flex items-center gap-1.5 focus:outline-none focus:underline"
-              aria-label={t('footer.privacyPreferences', locale)}
+              onClick={handleOpenPrivacy}
+              className="text-xs text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1.5 focus:outline-none cursor-pointer"
+              aria-label={currentLang === 'ar' ? 'تفضيلات الخصوصية والكوكيز' : 'Privacy Preferences'}
             >
-              <Shield size={14} aria-hidden="true" />
-              <span>{t('footer.privacyPreferences', locale)}</span>
+              <Shield className="w-3.5 h-3.5" />
+              <span>{currentLang === 'ar' ? 'تفضيلات الخصوصية' : 'Privacy Preferences'}</span>
             </button>
-            <button
-            type="button"
-            onClick={scrollToTop}
-            className="footer-back-to-top"
-            aria-label={t('footer.backToTop', locale)}
-          >
-            <span>{t('footer.backToTop', locale)}</span>
-            <ArrowUp size={16} aria-hidden="true" />
-          </button>
+            <div className="text-[11px] text-neutral-500">
+              Bilingual Design System · English & Arabic
+            </div>
           </div>
         </div>
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;

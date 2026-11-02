@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './app/App.jsx';
 import { initWebVitals } from './utils/webVitals.js';
 import './styles/global.css';
+import './index.css';
 
 hydrateRoot(
   document.getElementById('root'),
