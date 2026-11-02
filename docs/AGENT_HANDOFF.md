@@ -1,5 +1,11 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Phase 09 preparation checkpoint - 2026-11-02
+
+- Owner redirected work to Phase 09 before the Phase 08 gate passed. Canonical Phase 09 task titles now match Section 12 of the master plan. No deployment, protected-branch merge, frontend change, or Phase 10 work is authorized.
+- 09.01 inventory is in docs/PRODUCTION_READINESS.md on feat/09.01-canonical-readiness. Oracle public Always Free limits were checked against current official documentation; tenancy capacity, domain/DNS, provider credentials, remote backup, and release approval are missing. 09.01 is BLOCKED, not DONE.
+- The saved 09.01 WIP commit 2e446b0 remains on its original branch. Its backend build-check script was copied for 09.02 and passed --check without installing dependencies. Next: prepare eligible 09.02 scripts/configs. GitHub auth is invalid; no push or CI is claimed.
+
 ## Current canonical Phase 08 compliance checkpoint — 2026-11-02
 
 - Canonical 08.09 local checkpoint: pending media deletion is retried on later daily runs, new references cancel deletion, inclusive day-30 boundary and idempotent repeated runs tested. Focused suite 8 passed/49 assertions; full MySQL suite 308 passed/1449 assertions. Real Cloudinary deletion remains blocked. Owner redirected work to Phase 09 preparation; Phase 08 gate is still open. Branch feat/08.09-canonical-trash-cleanup. GitHub auth invalid; no push/CI claimed.

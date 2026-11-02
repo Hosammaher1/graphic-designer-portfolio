@@ -2,7 +2,7 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-02. **Implementation:** 86 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** Complete eligible non-frontend Phase 08 work before resuming Phase 09; the frontend is frozen and Phase 10 is outside this run.
+**Snapshot:** 2026-11-02. **Implementation:** 87 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** The owner redirected work to eligible Phase 09 preparation while the Phase 08 gate remains open; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
@@ -18,9 +18,9 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 0 | Canonical audit: partial/blocked; gate open |
-| 09 | CI/CD, Oracle Deployment, Release | 12 | 0 | 0 | Not evaluated |
+| 09 | CI/CD, Oracle Deployment, Release | 12 | 1 | 0 | Readiness inventory blocked on owner inputs; preparation only |
 | 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
-| **Total** | | **108** | **86** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
+| **Total** | | **108** | **87** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
@@ -66,6 +66,13 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 - **Implementation/files:** Added `pending_delete_at` to media assets in a migration and model. `PurgeTrashedProjects` marks provider failures for a later daily retry, rechecks for new project references before deleting, and removes a recovered asset exactly once. Expanded `ProjectTrashTest` with transient recovery, shared-media cancellation, inclusive 30-day boundary, and repeated-run checks; updated audit, progress, and handoff docs. No frontend file changed.
 - **Checks:** Durable retry test failed before implementation. Focused `ProjectTrashTest` passed (8 tests/49 assertions); full MySQL suite `php artisan test --no-ansi --compact` passed (308 tests/1449 assertions). Skill: `superpowers:test-driven-development`.
 - **Blocker and handoff:** Cloudinary deletion is still a stand-in. Move to eligible Phase 09 preparation on the preserved 09.01 branch without claiming the Phase 08 gate passed. GitHub auth remains invalid; no push or CI is claimed.
+
+### Current Task 09.01 checkpoint (2026-11-02)
+
+- **Status:** BLOCKED on owner-supplied domain, DNS, OCI tenancy/home region/VM and actual quota, Cloudinary, mail, remote backup, and release approvals. The owner explicitly redirected work to Phase 09 preparation while the Phase 08 gate remains open.
+- **Implementation/files:** Reused the saved WIP inventory as `docs/PRODUCTION_READINESS.md` on `feat/09.01-canonical-readiness`; updated it with Oracle's current published Always Free A1 allocation and the distinction between public limits and tenancy capacity. Corrected all 12 Phase 09 task titles in `docs/PROGRESS.md` to Section 12 of the master plan, and updated `docs/AGENT_HANDOFF.md`. The saved `infrastructure/deployment/build-backend.sh` belongs to 09.02 and remains separate. No frontend file changed.
+- **Checks:** `bash infrastructure/deployment/build-backend.sh --check` passed (Composer manifest valid; Artisan syntax valid), without dependency install. Oracle's official Always Free documentation was reviewed; tenancy capacity and service availability cannot be verified from this workspace. Skill: `superpowers:verification-before-completion`.
+- **Blocker and handoff:** No live provider or deployment claim. Next eligible work: 09.02 infrastructure-script preparation; GitHub auth remains invalid, so no push or CI is claimed.
 
 ## Task register
 
@@ -156,18 +163,18 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 08.10 | Health checks | BLOCKED | Local HealthCheckEndpointTest 7 passed/46 assertions; API/root 503 degradation | superpowers:test-driven-development | SSR readiness missing; frontend/SSR DEFERRED; live probes unverified | 559eefd, 146eea9 |
 | 08.11 | Monitoring | IN_PROGRESS | Local SystemMonitoringAndAlertTest 10 passed/44 assertions; disk/PHP-memory/uptime/alerts | superpowers:test-driven-development | Host CPU, external uptime, real alert and host log rotation pending | 154262e |
 | 08.12 | Reliability E2E | BLOCKED | Backend suites and operations runbook exist; no canonical E2E proof | — | Provider/DB/restore/SSR recovery matrix pending; frontend DEFERRED | 448b21e |
-| 09.01 | Production build scripts | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.02 | Nginx configuration | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.03 | Process supervision | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.04 | GitHub Actions deploy workflow | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.05 | Deployment approval gate | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.06 | Zero-downtime deploy script | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.07 | Rollback script and drill | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.08 | Browser matrix | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.09 | Security/SEO audit | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Phase 08 gate | — |
-| 09.12 | Release sign-off | NOT_STARTED | Not run | — | Phase 08 gate | — |
+| 09.01 | Production readiness inventory | BLOCKED | Inventory created; Oracle published limits reviewed; backend build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/region/quota, providers, backup target, DNS, and GitHub auth missing; no live proof | 2e446b0 (saved WIP) |
+| 09.02 | Infrastructure scripts | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.03 | Secrets/environment | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.04 | CI final | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.05 | Deployment workflow | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.06 | Rollback | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.07 | Production smoke | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.08 | Browser matrix | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.09 | Security/SEO audit | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.10 | Performance acceptance | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.11 | Backup/monitoring live drill | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.12 | Release sign-off | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 10.01 | Apple-inspired design system & tokens | DONE | PASS: Vitest design-system-apple (4 passed), design-system regression (21 passed) | apple-design-system | Ready for 10.02 | ee223ad |
 | 10.02 | Hybrid global navigation & smooth anchor routing | NOT_STARTED | Not run | hybrid-portfolio-architecture | Ready for implementation | — |
 | 10.03 | Cinematic hero with staggered typography | NOT_STARTED | Not run | cinematic-motion-gsap | Ready for implementation | — |
