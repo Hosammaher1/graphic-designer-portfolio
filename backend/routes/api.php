@@ -27,6 +27,7 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
     Route::post('/recommendations/interest', [\App\Http\Controllers\Api\V1\RecommendationController::class, 'trackInterest'])->name('api.v1.recommendations.interest');
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
+    Route::get('/journey', [\App\Http\Controllers\Api\V1\JourneyController::class, 'index'])->name('api.v1.journey.index');
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
     // Public Contact API (Task 07.05)
@@ -124,6 +125,15 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
         Route::get('inquiries', [\App\Http\Controllers\Api\V1\ContactController::class, 'index'])->name('api.v1.admin.inquiries.index');
         Route::get('inquiries/{id}', [\App\Http\Controllers\Api\V1\ContactController::class, 'show'])->name('api.v1.admin.inquiries.show');
         Route::delete('inquiries/{id}', [\App\Http\Controllers\Api\V1\ContactController::class, 'destroy'])->name('api.v1.admin.inquiries.destroy');
+
+        // Creative Journey / Timeline Management
+        Route::get('journey', [\App\Http\Controllers\Api\V1\JourneyController::class, 'adminIndex'])->name('api.v1.admin.journey.index');
+        Route::post('journey', [\App\Http\Controllers\Api\V1\JourneyController::class, 'store'])->name('api.v1.admin.journey.store');
+        Route::post('journey/reorder', [\App\Http\Controllers\Api\V1\JourneyController::class, 'reorder'])->name('api.v1.admin.journey.reorder');
+        Route::get('journey/{id}', [\App\Http\Controllers\Api\V1\JourneyController::class, 'show'])->name('api.v1.admin.journey.show');
+        Route::put('journey/{id}', [\App\Http\Controllers\Api\V1\JourneyController::class, 'update'])->name('api.v1.admin.journey.update');
+        Route::delete('journey/{id}', [\App\Http\Controllers\Api\V1\JourneyController::class, 'destroy'])->name('api.v1.admin.journey.destroy');
+        Route::post('journey/{id}/publish', [\App\Http\Controllers\Api\V1\JourneyController::class, 'publish'])->name('api.v1.admin.journey.publish');
 
         // Analytics API (Task 06.10)
         Route::prefix('analytics')->group(function () {

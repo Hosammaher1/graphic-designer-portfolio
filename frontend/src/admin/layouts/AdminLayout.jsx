@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Milestone,
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext.jsx';
 import { SearchModal } from '../components/SearchModal.jsx';
@@ -60,6 +61,7 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
     { label: t.nav.categories, path: '/admin/categories', icon: Tags },
     { label: t.nav.media, path: '/admin/media', icon: ImageIcon },
     { label: t.nav.pages, path: '/admin/pages', icon: Layout },
+    { label: t.nav.journey, path: '/admin/journey', icon: Milestone },
     { label: t.nav.analytics, path: '/admin/analytics', icon: BarChart3 },
     { label: t.nav.seo, path: '/admin/seo', icon: Globe },
     { label: t.nav.settings, path: '/admin/settings', icon: Settings },

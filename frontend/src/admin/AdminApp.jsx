@@ -9,6 +9,7 @@ import { CategoriesPage } from './pages/CategoriesPage.jsx';
 import { MediaLibraryPage } from './pages/MediaLibraryPage.jsx';
 import { PageBuilderListPage } from './pages/PageBuilderListPage.jsx';
 import { PageBuilderEditorPage } from './pages/PageBuilderEditorPage.jsx';
+import { JourneyPage } from './pages/JourneyPage.jsx';
 import { AnalyticsPage } from './pages/AnalyticsPage.jsx';
 import { SeoPage } from './pages/SeoPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
@@ -57,7 +58,12 @@ function AdminRouter() {
       return <PageBuilderListPage />;
     }
 
-    // 6. Analytics: /admin/analytics
+    // 6. Creative Journey: /admin/journey
+    if (currentRoute === '/admin/journey') {
+      return <JourneyPage />;
+    }
+
+    // 7. Analytics: /admin/analytics
     if (currentRoute === '/admin/analytics') {
       return <AnalyticsPage />;
     }

@@ -1,6 +1,37 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 2 Checkpoint — 2026-11-02 (Google AI Studio Frontend Adoption)
+## Current Antigravity Stage 3 Checkpoint — 2026-11-02 (Acceptance Testing & Creative Journey Integration)
+
+- **Active Branch:** `feat/adopt-google-ai-studio-frontend`
+- **Objective Completed:** Comprehensive acceptance testing of the integrated application, full implementation of editable database-driven Creative Journey / timeline management across backend and admin dashboard, dynamic public timeline rendering, and production isolation of demo authentication bypass.
+- **Key Enhancements Implemented:**
+  - **Creative Journey Database & Backend:**
+    - Migration `2026_11_02_170000_create_journey_milestones_table.php` on MySQL (`portfolio_dev` and `portfolio_testing`).
+    - Model `JourneyMilestone.php` with `scopePubliclyVisible()` and `toLocalizedArray($locale)`.
+    - REST Controller `JourneyController.php` with public `GET /api/v1/journey` and admin endpoints `GET/POST/PUT/DELETE /api/v1/admin/journey/*`, reordering (`reorder`), and publishing (`publish`).
+    - Database Seeder `JourneyMilestoneSeeder.php` populating the 5 career milestones.
+    - Automated feature tests in `JourneyMilestoneTest.php`: **8 passed, 49 assertions (100%)**.
+  - **Creative Journey Admin UI (`JourneyPage.jsx`):**
+    - Full glassmorphism design matching Google AI Studio design language.
+    - Milestone management table with Move Up / Move Down buttons, Year tags, bilingual Title/Company, Icon previews, Published status toggle, Visibility toggle, Edit modal, and Delete dialog.
+    - Add/Edit modal with inputs for Year, Bilingual Role, Bilingual Company, Bilingual Location, Bilingual Description, Icon selector, Tags, and Media Library asset picker integration.
+    - Wired into `/admin/journey` route in `AdminApp.jsx` and added to sidebar in `AdminLayout.jsx`.
+  - **Dynamic Public Timeline:**
+    - `JourneySection.jsx` updated to fetch milestones from `/api/v1/journey?locale=${lang}` dynamically, with graceful fallback to static data.
+  - **Demo Auth Isolation & Security Hardening:**
+    - Gated quick demo entry behind `import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'`.
+    - In production builds (`import.meta.env.PROD`), demo banner and buttons are completely omitted.
+    - Cleared hardcoded credentials from initial state; hardened `isAuthenticated` check.
+- **Verification Evidence:**
+  - Full Laravel test suite on MySQL: **327 passed, 1,536 assertions (100%)**.
+  - Full Vitest test suite: **39 test files, 220 passed (100%)**.
+  - Production client & server builds (`npm run build`): client built in 2.60s, server built in 374ms.
+  - Security audit: `npm audit --audit-level=high` reports **0 high or critical vulnerabilities**.
+- **Next Immediate Action:** Coordinate with owner for staging/production deployment approval. Do not merge into `main` or deploy without explicit authorization.
+
+---
+
+## Historical Antigravity Stage 2 Checkpoint — 2026-11-02 (Google AI Studio Frontend Adoption)
 
 - **Active Branch:** `feat/adopt-google-ai-studio-frontend` (branched from `feat/security-remediation-and-cloudinary` at `1aea86a`).
 - **Objective Completed:** Successfully adopted the approved Google AI Studio frontend (`frontend-reference.zip`) across the entire repository for BOTH the public visitor website and the independent studio admin dashboard.

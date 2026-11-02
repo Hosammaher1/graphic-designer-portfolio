@@ -55,6 +55,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 - **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (branched from `feat/security-remediation-and-cloudinary` at `1aea86a`).
   - `9ebb9d2`: `feat(frontend): integrate Google AI Studio visual design assets, Tailwind v4, and typography`
   - `fd7b46e`: `feat(frontend): adopt Google AI Studio public and admin experience with full backend API wiring`
+  - `10c8f64`: `docs: document Google AI Studio frontend adoption, test results, and handoff state`
   - Push pending (GitHub CLI interactive re-authentication needed).
 - **Public Visitor Experience Implemented:**
   - One continuous, immersive, scroll-driven homepage:
@@ -84,7 +85,44 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - Production client & SSR builds: `npm run build:client` (built in 4.41s) and `npm run build:server` (built in 789ms) succeeded with Rollup manualChunks vendor splitting (`vendor-react`, `vendor-router`, `vendor-lucide`).
   - Laravel backend regression test suite: **319 passed, 1,487 assertions (100%)** on MySQL.
   - Security audit: `npm audit --audit-level=high` reports **0 high or critical vulnerabilities**.
-- **Next Step:** Update handoff documentation and review deployment requirements with owner.
+- **Next Step:** Complete frontend & admin acceptance testing, dynamic timeline integration, and authentication hardening.
+
+### Stage 3: Complete Acceptance Testing, Creative Journey Management & Demo Auth Isolation
+
+- **Task Scope & Status:** Comprehensive real-world acceptance testing of integrated application, implementation of editable database-driven Creative Journey management across backend and admin dashboard, dynamic public timeline rendering, and production isolation of demo authentication bypass.
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend`
+- **Database & Creative Journey Backend Implemented:**
+  - Migration `2026_11_02_170000_create_journey_milestones_table.php` on both `portfolio_dev` and `portfolio_testing`:
+    - Columns: `id`, `year`, `role_en`, `role_ar`, `company_en`, `company_ar`, `location_en`, `location_ar`, `description_en`, `description_ar`, `icon_name`, `image_url`, `tags`, `achievements`, `sort_order`, `is_visible`, `is_published`, timestamps.
+  - Eloquent Model `JourneyMilestone.php` with `scopePubliclyVisible()` and `toLocalizedArray($locale)`.
+  - RESTful Controller `JourneyController.php`:
+    - Public: `GET /api/v1/journey` (localized by locale, returns only published & visible milestones, with admin preview override).
+    - Admin: `GET /api/v1/admin/journey`, `POST /api/v1/admin/journey`, `GET /api/v1/admin/journey/{id}`, `PUT /api/v1/admin/journey/{id}`, `DELETE /api/v1/admin/journey/{id}`, `POST /api/v1/admin/journey/reorder`, `POST /api/v1/admin/journey/{id}/publish`.
+  - Database Seeder `JourneyMilestoneSeeder.php` seeding the 5 career milestones from 2022 to 2026+.
+  - Automated Feature Test `JourneyMilestoneTest.php`: **8 passed, 49 assertions (100%)**.
+- **Creative Journey Admin Management UI:**
+  - Created `frontend/src/admin/pages/JourneyPage.jsx`:
+    - Full glassmorphism UI matching the Google AI Studio design system.
+    - Milestone table with Move Up / Move Down reordering controls, Year badges, bilingual Role & Company display, Icon preview, Published badge/toggle, and Visibility eye toggle.
+    - Add/Edit Milestone modal with inputs for Year, Role (EN/AR), Company (EN/AR), Location (EN/AR), Description (EN/AR), Icon selector (`Award`, `GraduationCap`, `Laptop`, `Briefcase`, `Rocket`, `Sparkles`, `Star`), Image URL with `MediaPickerModal` integration, Tags, and status toggles.
+    - Delete confirmation dialog with `ConfirmModal`.
+  - Wired into `AdminApp.jsx` at `/admin/journey` and added navigation link in `AdminLayout.jsx` with `Milestone` icon.
+  - Added milestone state management and API dispatchers in `AdminContext.jsx` (`milestones`, `fetchMilestones`, `addMilestone`, `updateMilestone`, `deleteMilestone`, `reorderMilestones`, `togglePublishMilestone`).
+- **Dynamic Public Timeline:**
+  - Updated `JourneySection.jsx` to dynamically fetch published milestones from `/api/v1/journey?locale=${lang}` on mount and language switch.
+  - Supports dynamic icons and bilingual localized titles/descriptions with seamless fallback to static data.
+- **Production Demo Auth Bypass Isolation:**
+  - Hardened `AdminContext.jsx` and `AdminLoginPage.jsx`:
+    - Demo authentication is strictly gated by `import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'`.
+    - In production builds (`import.meta.env.PROD` or when `VITE_ENABLE_DEMO_AUTH` is not `'true'`), the Quick Demo Entry banner and button are completely omitted from the DOM, and `loginDemo` is rejected.
+    - Cleared hardcoded demo credentials from `email` and `password` initial form state.
+    - Fixed initial `isAuthenticated` state logic to ensure non-authenticated users cannot bypass login.
+- **Test Suite Verification Executed:**
+  - Full Laravel PHPUnit regression suite on MySQL: **327 passed, 1,536 assertions (100%)** — 0 failures.
+  - Full Vitest frontend regression suite: **39 test files, 220 passed (100%)** — added `journey-milestones.test.jsx`.
+  - Production Client & SSR Builds: `npm run build:client` (2.60s) and `npm run build:server` (374ms) passed cleanly with Rollup manualChunks vendor splitting.
+  - Security audit: `npm audit --audit-level=high` reports **0 high or critical vulnerabilities**.
+- **Acceptance Verdict:** **PASS** — Application is fully wired, secure, bilingual, responsive, and ready for deployment.
 
 ## Current-session canonical task reports
 

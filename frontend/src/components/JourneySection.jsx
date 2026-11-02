@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { translations, timelineData } from '../data/portfolioData';
-import { GraduationCap, Laptop, Briefcase, Award, Rocket, ArrowUpRight } from 'lucide-react';
+import { GraduationCap, Laptop, Briefcase, Award, Rocket, Sparkles, Star, ArrowUpRight } from 'lucide-react';
 import { WaveTransition } from './WaveTransition';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -9,8 +9,33 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const JourneySection = ({ lang }) => {
   const t = translations[lang].journey;
-  const milestones = timelineData;
+  const [milestones, setMilestones] = useState(timelineData);
   const journeyRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDynamicJourney() {
+      try {
+        const res = await fetch(`/api/v1/journey?locale=${lang}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (
+          isMounted &&
+          data?.status === 'success' &&
+          Array.isArray(data?.data?.milestones) &&
+          data.data.milestones.length > 0
+        ) {
+          setMilestones(data.data.milestones);
+        }
+      } catch (e) {
+        // Fallback gracefully to timelineData
+      }
+    }
+    loadDynamicJourney();
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   const getMilestoneIcon = (iconName) => {
     switch (iconName) {
@@ -24,6 +49,10 @@ export const JourneySection = ({ lang }) => {
         return <Award className="w-5 h-5 text-neutral-200" />;
       case 'Rocket':
         return <Rocket className="w-5 h-5 text-amber-200" />;
+      case 'Sparkles':
+        return <Sparkles className="w-5 h-5 text-[#f4a496]" />;
+      case 'Star':
+        return <Star className="w-5 h-5 text-amber-300" />;
       default:
         return <Award className="w-5 h-5 text-neutral-200" />;
     }
@@ -204,15 +233,15 @@ export const JourneySection = ({ lang }) => {
                               : 'bg-white/5 text-neutral-200 border border-white/10'
                           }`}
                         >
-                          {getMilestoneIcon(item.iconName)}
+                          {getMilestoneIcon(item.iconName || item.icon_name || item.icon)}
                         </div>
 
                         <div>
                           <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-rose-200 transition-colors">
-                            {item.role[lang]}
+                            {item.activeRole || (typeof item.role === 'object' ? item.role?.[lang] : item.role) || item.role_en || ''}
                           </h3>
                           <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1 leading-relaxed">
-                            {item.description[lang]}
+                            {item.activeDescription || (typeof item.description === 'object' ? item.description?.[lang] : item.description) || item.description_en || ''}
                           </p>
                         </div>
                       </div>

@@ -3,9 +3,9 @@ import { Sparkles, Eye, EyeOff, Lock, Mail, ArrowLeft, ArrowRight, ShieldCheck, 
 import { useAdmin } from '../context/AdminContext.jsx';
 
 export function AdminLoginPage() {
-  const { lang, toggleLang, t, login, loginDemo } = useAdmin();
-  const [email, setEmail] = useState('hosam.maher48@gmail.com');
-  const [password, setPassword] = useState('••••••••••••');
+  const { lang, toggleLang, t, login, loginDemo, isDemoAuthEnabled } = useAdmin();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,33 +85,37 @@ export function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Demo Fast Entry Banner */}
-        <div className="mb-6 p-4 rounded-2xl bg-[#842b45]/15 border border-[#f4a496]/25 relative overflow-hidden">
-          <div className="flex items-center gap-2 text-[#f4a496] font-semibold text-xs mb-1.5">
-            <Sparkles className="w-4 h-4 text-[#f4a496]" />
-            <span>{t.login.demoNotice}</span>
-          </div>
-          <p className="text-[11px] text-neutral-300 font-light leading-normal mb-3.5">
-            {t.login.demoDesc}
-          </p>
-          <button
-            type="button"
-            onClick={handleQuickDemoClick}
-            disabled={isLoading}
-            className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#842b45] via-[#6d2036] to-[#421a28] hover:from-[#9c3252] hover:to-[#591b2e] text-[#fcdcd4] font-semibold text-xs tracking-wide transition-all border border-[#f4a496]/40 shadow-xl shadow-black/50 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#f4a496]" />
-            <span>{isLoading ? t.login.signingIn : t.login.quickDemoBtn}</span>
-          </button>
-        </div>
+        {/* Demo Fast Entry Banner (Isolated to Development Mode when explicitly enabled) */}
+        {isDemoAuthEnabled && (
+          <>
+            <div className="mb-6 p-4 rounded-2xl bg-[#842b45]/15 border border-[#f4a496]/25 relative overflow-hidden">
+              <div className="flex items-center gap-2 text-[#f4a496] font-semibold text-xs mb-1.5">
+                <Sparkles className="w-4 h-4 text-[#f4a496]" />
+                <span>{t.login.demoNotice}</span>
+              </div>
+              <p className="text-[11px] text-neutral-300 font-light leading-normal mb-3.5">
+                {t.login.demoDesc}
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickDemoClick}
+                disabled={isLoading}
+                className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#842b45] via-[#6d2036] to-[#421a28] hover:from-[#9c3252] hover:to-[#591b2e] text-[#fcdcd4] font-semibold text-xs tracking-wide transition-all border border-[#f4a496]/40 shadow-xl shadow-black/50 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+              >
+                <ShieldCheck className="w-4 h-4 text-[#f4a496]" />
+                <span>{isLoading ? t.login.signingIn : t.login.quickDemoBtn}</span>
+              </button>
+            </div>
 
-        <div className="relative flex py-2 items-center mb-6">
-          <div className="flex-grow border-t border-white/10" />
-          <span className="flex-shrink mx-3 text-neutral-400 text-[10px] font-mono uppercase tracking-widest">
-            {lang === 'ar' ? 'أو الدخول اليدوي' : 'Or Manual Entry'}
-          </span>
-          <div className="flex-grow border-t border-white/10" />
-        </div>
+            <div className="relative flex py-2 items-center mb-6">
+              <div className="flex-grow border-t border-white/10" />
+              <span className="flex-shrink mx-3 text-neutral-400 text-[10px] font-mono uppercase tracking-widest">
+                {lang === 'ar' ? 'أو الدخول اليدوي' : 'Or Manual Entry'}
+              </span>
+              <div className="flex-grow border-t border-white/10" />
+            </div>
+          </>
+        )}
 
         {/* Form */}
         <form onSubmit={handleStandardSubmit} className="space-y-4">

@@ -6,10 +6,16 @@ import {
   INITIAL_ADMIN_MEDIA,
   INITIAL_ADMIN_PAGES,
   INITIAL_ADMIN_TRASH,
+  INITIAL_ADMIN_JOURNEY,
   INITIAL_ACTIVITY_LOG,
   INITIAL_STUDIO_SETTINGS,
 } from '../data/adminData.js';
 import { resolveLocalized, normalizeAdminProject } from '../utils/localization.js';
+
+const isDemoAuthEnabled =
+  typeof import.meta !== 'undefined' &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.VITE_ENABLE_DEMO_AUTH === 'true';
 
 const AdminContext = createContext(null);
 
@@ -73,10 +79,11 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         return false;
       }
       if (typeof localStorage !== 'undefined') {
-        return localStorage.getItem('studio_admin_auth') !== 'false';
+        const auth = localStorage.getItem('studio_admin_auth');
+        return auth === 'true' || (isDemoAuthEnabled && auth === 'demo');
       }
     }
-    return true;
+    return false;
   });
 
   // Notifications & Toasts
@@ -149,6 +156,18 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       if (res.ok && res.data?.data?.user) {
         setUser(res.data.data.user);
         setIsAuthenticated(true);
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('studio_admin_auth', 'true');
+        }
+      } else {
+        const localAuth = typeof localStorage !== 'undefined' ? localStorage.getItem('studio_admin_auth') : null;
+        if (!isDemoAuthEnabled || localAuth !== 'demo') {
+          setUser(null);
+          setIsAuthenticated(false);
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('studio_admin_auth');
+          }
+        }
       }
     }
     verifySanctumSession();
@@ -232,6 +251,25 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       localStorage.setItem('studio_admin_pages', JSON.stringify(pages));
     }
   }, [pages]);
+
+  // Creative Journey Milestones
+  const [milestones, setMilestones] = useState(() => {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('studio_admin_journey');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return INITIAL_ADMIN_JOURNEY;
+  });
+
+  useEffect(() => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('studio_admin_journey', JSON.stringify(milestones));
+    }
+  }, [milestones]);
 
   // Trash & Recovery
   const [trash, setTrash] = useState(() => {
@@ -385,14 +423,25 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     return null;
   }, []);
 
+  // Fetch real creative journey milestones from Laravel API if available
+  const fetchMilestones = useCallback(async () => {
+    const res = await requestApi('/api/v1/admin/journey');
+    if (res.ok && Array.isArray(res.data?.data?.milestones)) {
+      setMilestones(res.data.data.milestones);
+      return res.data.data.milestones;
+    }
+    return null;
+  }, []);
+
   // On mount if authenticated, attempt to sync backend data
   useEffect(() => {
     if (isAuthenticated) {
       fetchProjects();
       fetchMedia();
       fetchCategories();
+      fetchMilestones();
     }
-  }, [isAuthenticated, fetchProjects, fetchMedia, fetchCategories]);
+  }, [isAuthenticated, fetchProjects, fetchMedia, fetchCategories, fetchMilestones]);
 
   // Authentication Actions
   const login = useCallback(
@@ -434,14 +483,22 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   );
 
   const loginDemo = useCallback(() => {
-    const demoUser = { id: 1, name: 'Admin Demo', email: 'hosam.maher48@gmail.com' };
+    if (!isDemoAuthEnabled) {
+      addToast(
+        lang === 'ar' ? 'وضع الدخول التجريبي معطل في بيئة الإنتاج' : 'Demo authentication is disabled in production',
+        'error'
+      );
+      return false;
+    }
+    const demoUser = { id: 1, name: 'Admin Demo', email: 'demo@mohammed-portfolio.test' };
     setUser(demoUser);
     setIsAuthenticated(true);
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_auth', 'true');
+      localStorage.setItem('studio_admin_auth', 'demo');
     }
     addToast(lang === 'ar' ? 'تم الدخول إلى وضع النموذج التجريبي للاستوديو' : 'Signed in successfully to Demo Mode', 'success');
     navigateAdmin('/admin/dashboard');
+    return true;
   }, [addToast, lang, navigateAdmin]);
 
   const logout = useCallback(async () => {
@@ -809,6 +866,123 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     addToast(lang === 'ar' ? 'تم تفريغ سلة المحذوفات بالكامل' : 'Trash emptied completely', 'info');
   }, [addToast, lang]);
 
+  // Creative Journey Actions
+  const addMilestone = useCallback(
+    async (milestoneData) => {
+      const res = await requestApi('/api/v1/admin/journey', {
+        method: 'POST',
+        body: JSON.stringify(milestoneData),
+      });
+
+      const newMilestone =
+        res.ok && res.data?.data?.milestone
+          ? res.data.data.milestone
+          : {
+              ...milestoneData,
+              id: Date.now(),
+              sort_order: milestones.length + 1,
+              is_visible: milestoneData.is_visible ?? true,
+              is_published: milestoneData.is_published ?? true,
+            };
+
+      setMilestones((prev) => [...prev, newMilestone]);
+      addToast(
+        lang === 'ar' ? 'تمت إضافة المحطة المهنية بنجاح' : 'Milestone added successfully',
+        'success'
+      );
+      return newMilestone;
+    },
+    [addToast, lang, milestones.length]
+  );
+
+  const updateMilestone = useCallback(
+    async (id, fields) => {
+      setMilestones((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, ...fields } : m))
+      );
+
+      if (/^\d+$/.test(String(id))) {
+        requestApi(`/api/v1/admin/journey/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(fields),
+        }).catch(() => {});
+      }
+
+      addToast(
+        lang === 'ar' ? 'تم تحديث بيانات المحطة' : 'Milestone updated successfully',
+        'success'
+      );
+    },
+    [addToast, lang]
+  );
+
+  const deleteMilestone = useCallback(
+    async (id) => {
+      setMilestones((prev) => prev.filter((m) => m.id !== id));
+
+      if (/^\d+$/.test(String(id))) {
+        requestApi(`/api/v1/admin/journey/${id}`, {
+          method: 'DELETE',
+        }).catch(() => {});
+      }
+
+      addToast(
+        lang === 'ar' ? 'تم حذف المحطة المهنية' : 'Milestone deleted',
+        'info'
+      );
+    },
+    [addToast, lang]
+  );
+
+  const reorderMilestones = useCallback(
+    async (orderedIds) => {
+      const orderMap = new Map(orderedIds.map((id, idx) => [id, idx + 1]));
+      setMilestones((prev) => {
+        const updated = prev.map((m) => ({
+          ...m,
+          sort_order: orderMap.get(m.id) ?? m.sort_order,
+        }));
+        return updated.sort((a, b) => a.sort_order - b.sort_order);
+      });
+
+      requestApi('/api/v1/admin/journey/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ order: orderedIds }),
+      }).catch(() => {});
+    },
+    []
+  );
+
+  const togglePublishMilestone = useCallback(
+    async (id) => {
+      let newState = false;
+      setMilestones((prev) =>
+        prev.map((m) => {
+          if (m.id === id) {
+            newState = !m.is_published;
+            return { ...m, is_published: newState };
+          }
+          return m;
+        })
+      );
+
+      if (/^\d+$/.test(String(id))) {
+        requestApi(`/api/v1/admin/journey/${id}/publish`, {
+          method: 'POST',
+          body: JSON.stringify({ is_published: newState }),
+        }).catch(() => {});
+      }
+
+      addToast(
+        lang === 'ar'
+          ? (newState ? 'تم نشر المحطة' : 'تم نقل المحطة إلى المسودة')
+          : (newState ? 'Milestone published' : 'Milestone moved to draft'),
+        'success'
+      );
+    },
+    [addToast, lang]
+  );
+
   // Settings Actions
   const updateStudioSettings = useCallback(
     (newSettings) => {
@@ -839,6 +1013,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     user,
     isAuthenticated,
     isLoadingAuth,
+    isDemoAuthEnabled,
     login,
     loginDemo,
     logout,
@@ -862,6 +1037,13 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     deleteMedia,
     pages,
     setPages,
+    milestones,
+    fetchMilestones,
+    addMilestone,
+    updateMilestone,
+    deleteMilestone,
+    reorderMilestones,
+    togglePublishMilestone,
     trash,
     restoreTrashItem,
     purgeTrashItem,
