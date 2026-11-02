@@ -131,6 +131,14 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Tests / skills:** Bash syntax and `build-backend.sh --check` passed (Composer manifest valid, Artisan syntax valid), with no dependency install. Staged whitespace check passed, intended-file list reviewed, and staged private-key/token patterns returned no matches. Used `superpowers:verification-before-completion`.
 - **Blockers / next task:** No approved Oracle host/domain or Nginx, systemd, PHP-FPM, logrotate and Certbot binaries in this Windows workspace. `nginx -t`, service startup, firewall-port inspection, cert renewal dry run and log rotation are unverified. Continue eligible 09.03 secrets/environment preparation; do not deploy or call 09.02 DONE.
 
+### Task 09.03: Secrets/environment — current-session checkpoint
+
+- **Task ID / status:** 09.03, IN_PROGRESS. The nonsecret inventory and permission checker are locally prepared; live secret provisioning and rotation remain blocked.
+- **Branch / commit / remote:** `feat/09.03-secret-environment-preparation`; local `c7647a6`. No push or GitHub CI verified because the last CLI authentication check failed.
+- **Implementation / files:** Added `docs/SECRETS_ENVIRONMENT.md` for Laravel, MySQL, Cloudinary, mail, backup, monitoring and future deploy-key custody. Added read-only `infrastructure/deployment/check-secret-permissions.sh`; it checks that supplied files resolve outside the repository and have restrictive modes without printing contents. No credentials or frontend files were changed.
+- **Tests / skills:** Bash syntax passed; missing-file and in-repository negative cases rejected as expected. A positive chmod test could not run on Windows Git Bash because `chmod 600` still reports mode `644` on NTFS. Staged whitespace and secret-pattern checks passed; tracked env/key filename scan found only `.env.example` files. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** Owner must provision scoped secrets and deploy identity, repair GitHub authentication interactively, prove server ACLs and key rotation, and inspect CI logs. Continue eligible 09.04 CI preparation without claiming branch protection or CI success.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -222,7 +230,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 08.12 | Reliability E2E | BLOCKED | Operations runbook and local command checks exist; no canonical combined E2E proof | superpowers:verification-before-completion | Cloudinary/mail/restore/SSR recovery drill and frontend browser work DEFERRED | 448b21e, 7d7c4c2 |
 | 09.01 | Production readiness inventory | BLOCKED | Inventory committed; Oracle published limits reviewed; build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/capacity, providers, remote backup, DNS and approval missing | 1e2e207; 2e446b0 saved WIP |
 | 09.02 | Infrastructure scripts | IN_PROGRESS | Bash syntax, Composer validation, Artisan syntax and staged whitespace checks passed; host validation unrun | superpowers:verification-before-completion | No host/domain; nginx -t, service startup, firewall, TLS renewal and log rotation unverified | c3479eb; 2e446b0 saved WIP |
-| 09.03 | Secrets/environment | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.03 | Secrets/environment | IN_PROGRESS | Bash syntax and negative permission checks passed; Linux positive/ACL checks unrun | superpowers:verification-before-completion | Credentials, GitHub environment, server permissions and deploy-key rotation unverified | c7647a6 |
 | 09.04 | CI final | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.05 | Deployment workflow | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.06 | Rollback | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
