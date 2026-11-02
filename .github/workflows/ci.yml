@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ────────────────────────────────────────────────────────────────
   # Job 1: Backend — PHP 8.2 + MariaDB 10.4
@@ -186,3 +189,51 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 7
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Audit locked backend dependencies
+        working-directory: backend
+        run: composer audit --locked --abandoned=report
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Audit frontend lockfile
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Audit E2E lockfile
+        working-directory: e2e
+        run: npm audit --audit-level=high
+
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, e2e, dependency-audit]
+    if: ${{ always() }}
+    steps:
+      - name: Require all checks to pass
+        env:
+          BACKEND_RESULT: ${{ needs.backend.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+          AUDIT_RESULT: ${{ needs['dependency-audit'].result }}
+        run: |
+          test "$BACKEND_RESULT" = success
+          test "$FRONTEND_RESULT" = success
+          test "$E2E_RESULT" = success
+          test "$AUDIT_RESULT" = success
