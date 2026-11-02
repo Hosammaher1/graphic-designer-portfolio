@@ -123,13 +123,13 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Checks:** `bash infrastructure/deployment/build-backend.sh --check` passed (Composer manifest valid; Artisan syntax valid), without dependency install. Oracle's official Always Free documentation was reviewed; tenancy capacity and service availability cannot be verified from this workspace. Skill: `superpowers:verification-before-completion`.
 - **Blocker and handoff:** No live provider or deployment claim. Next eligible work: 09.02 infrastructure-script preparation; GitHub auth remains invalid, so no push or CI is claimed.
 
-### Task 09.02: Infrastructure scripts — current-session handoff
+### Task 09.02: Infrastructure scripts — current-session checkpoint
 
-- **Task ID / status:** 09.02, IN_PROGRESS. No infrastructure configuration or live service validation has been completed.
-- **Branch / commit / remote:** Current branch `feat/09.01-canonical-readiness`; no 09.02 commit on this branch. Saved WIP commit `2e446b0` remains on `feat/09.01-production-readiness-and-backend-build`; no push or CI verified.
-- **Implementation / files:** The copied `infrastructure/deployment/build-backend.sh` is the only current 09.02 artifact and is **untracked**. It was not edited during this documentation handoff. No frontend file changed.
-- **Tests / skills:** `bash infrastructure/deployment/build-backend.sh --check` passed: Composer manifest valid and Artisan syntax valid; no dependencies installed. Used `superpowers:verification-before-completion`.
-- **Blockers / next task:** Nginx, PHP-FPM, Node SSR supervision, MySQL, firewall, TLS, log rotation, `nginx -t`, startup, firewall-port and certificate-renewal checks remain. Antigravity's next canonical task is 09.02; do not deploy or call it DONE.
+- **Task ID / status:** 09.02, IN_PROGRESS. Infrastructure templates and a host checklist are prepared; live acceptance remains open.
+- **Branch / commit / remote:** `feat/09.02-infrastructure-preparation`; local `c3479eb`. Saved WIP commit `2e446b0` remains on `feat/09.01-production-readiness-and-backend-build`. No push or CI verified.
+- **Implementation / files:** Committed the preserved `infrastructure/deployment/build-backend.sh`, plus Nginx, PHP-FPM, MySQL, systemd SSR/queue/scheduler and Laravel logrotate templates under `infrastructure/`. Added `docs/INFRASTRUCTURE_SETUP.md` with staging installation order, firewall port policy, TLS renewal and acceptance commands. No frontend file changed.
+- **Tests / skills:** Bash syntax and `build-backend.sh --check` passed (Composer manifest valid, Artisan syntax valid), with no dependency install. Staged whitespace check passed, intended-file list reviewed, and staged private-key/token patterns returned no matches. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** No approved Oracle host/domain or Nginx, systemd, PHP-FPM, logrotate and Certbot binaries in this Windows workspace. `nginx -t`, service startup, firewall-port inspection, cert renewal dry run and log rotation are unverified. Continue eligible 09.03 secrets/environment preparation; do not deploy or call 09.02 DONE.
 
 ## Task register
 
@@ -221,7 +221,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 08.11 | Monitoring | IN_PROGRESS | SystemMonitoringAndAlertTest 10 passed/44 assertions; full MySQL 290 passed/1366; probes/alerts/dedup | superpowers:test-driven-development | Host CPU and outside-in/live alerts unverified | 154262e, d74eef3 |
 | 08.12 | Reliability E2E | BLOCKED | Operations runbook and local command checks exist; no canonical combined E2E proof | superpowers:verification-before-completion | Cloudinary/mail/restore/SSR recovery drill and frontend browser work DEFERRED | 448b21e, 7d7c4c2 |
 | 09.01 | Production readiness inventory | BLOCKED | Inventory committed; Oracle published limits reviewed; build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/capacity, providers, remote backup, DNS and approval missing | 1e2e207; 2e446b0 saved WIP |
-| 09.02 | Infrastructure scripts | IN_PROGRESS | Saved backend build script --check passed: Composer manifest valid, Artisan syntax valid; no build/install | superpowers:verification-before-completion | Script untracked on current branch; Nginx/PHP-FPM/SSR/MySQL/firewall/TLS/log rotation and live validation pending | 2e446b0 saved WIP |
+| 09.02 | Infrastructure scripts | IN_PROGRESS | Bash syntax, Composer validation, Artisan syntax and staged whitespace checks passed; host validation unrun | superpowers:verification-before-completion | No host/domain; nginx -t, service startup, firewall, TLS renewal and log rotation unverified | c3479eb; 2e446b0 saved WIP |
 | 09.03 | Secrets/environment | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.04 | CI final | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.05 | Deployment workflow | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
