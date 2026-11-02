@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Portfolio Laravel scheduler every minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=portfolio-schedule.service
+
+[Install]
+WantedBy=timers.target

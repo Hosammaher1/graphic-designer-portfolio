@@ -1,0 +1,23 @@
+[Unit]
+Description=Portfolio Node SSR
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=portfolio
+Group=portfolio
+WorkingDirectory=/srv/portfolio/current/frontend
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node /srv/portfolio/current/frontend/server/index.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/srv/portfolio/current
+
+[Install]
+WantedBy=multi-user.target

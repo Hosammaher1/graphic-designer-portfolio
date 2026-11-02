@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Portfolio Laravel scheduler
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/portfolio/current/backend
+ExecStart=/usr/bin/php artisan schedule:run
+NoNewPrivileges=true
+PrivateTmp=true
