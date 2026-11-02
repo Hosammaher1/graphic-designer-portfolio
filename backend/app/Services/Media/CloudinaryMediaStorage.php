@@ -3,6 +3,8 @@
 namespace App\Services\Media;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CloudinaryMediaStorage implements MediaStorageInterface
@@ -22,8 +24,13 @@ class CloudinaryMediaStorage implements MediaStorageInterface
     ) {
     }
 
+    /**
+     * Upload an asset to Cloudinary and return normalized metadata.
+     * Authenticates with Cloudinary REST API using signed requests.
+     */
     public function upload(UploadedFile $file, array $options = []): array
     {
+        // 1. Pre-transfer validation
         if ($file->getSize() > self::MAX_BYTES) {
             throw new \InvalidArgumentException('File exceeds maximum allowed size of 15MB.');
         }
@@ -41,22 +48,101 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             $height = $imageSize[1];
         }
 
+        if (! $this->cloudName || ! $this->apiKey || ! $this->apiSecret) {
+            throw new \RuntimeException('Cloudinary credentials (cloud_name, api_key, api_secret) are not configured.');
+        }
+
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeName = Str::slug($originalName) . '-' . Str::random(8) . '.' . ($file->getClientOriginalExtension() ?: 'jpg');
         $providerId = 'portfolio/' . Str::uuid();
 
-        $cloud = $this->cloudName ?: 'demo';
-        $baseUrl = "https://res.cloudinary.com/{$cloud}/image/upload";
+        $timestamp = time();
+        $paramsToSign = [
+            'public_id' => $providerId,
+            'timestamp' => (string) $timestamp,
+        ];
+
+        if (! empty($options['folder'])) {
+            $paramsToSign['folder'] = (string) $options['folder'];
+        }
+
+        ksort($paramsToSign);
+        $paramString = http_build_query($paramsToSign, '', '&', PHP_QUERY_RFC3986);
+        $signature = sha1($paramString . $this->apiSecret);
+
+        $endpoint = "https://api.cloudinary.com/v1_1/{$this->cloudName}/image/upload";
+
+        $multipartData = [
+            [
+                'name'     => 'file',
+                'contents' => fopen($file->getRealPath(), 'r'),
+                'filename' => $safeName,
+            ],
+            [
+                'name'     => 'api_key',
+                'contents' => $this->apiKey,
+            ],
+            [
+                'name'     => 'timestamp',
+                'contents' => (string) $timestamp,
+            ],
+            [
+                'name'     => 'public_id',
+                'contents' => $providerId,
+            ],
+            [
+                'name'     => 'signature',
+                'contents' => $signature,
+            ],
+        ];
+
+        if (! empty($options['folder'])) {
+            $multipartData[] = [
+                'name'     => 'folder',
+                'contents' => (string) $options['folder'],
+            ];
+        }
+
+        try {
+            $response = Http::timeout(25)
+                ->retry(2, 200, throw: false)
+                ->asMultipart()
+                ->post($endpoint, $multipartData);
+        } catch (\Throwable $e) {
+            Log::error('Cloudinary upload network failure.', [
+                'provider_id' => $providerId,
+                'error_type'  => get_class($e),
+            ]);
+            throw new \RuntimeException('Cloudinary media upload failed due to network connection error.');
+        }
+
+        if (! $response->successful()) {
+            $errorMessage = $response->json('error.message') ?? 'Unknown Cloudinary error';
+            Log::error('Cloudinary upload rejected.', [
+                'status'      => $response->status(),
+                'provider_id' => $providerId,
+                'message'     => $errorMessage,
+            ]);
+            throw new \RuntimeException("Cloudinary upload failed: {$errorMessage}");
+        }
+
+        $result = $response->json();
+        $actualBytes = $result['bytes'] ?? $file->getSize();
+        $actualWidth = $result['width'] ?? $width;
+        $actualHeight = $result['height'] ?? $height;
+        $secureUrl = $result['secure_url'] ?? "https://res.cloudinary.com/{$this->cloudName}/image/upload/{$providerId}";
+
+        $baseUrl = "https://res.cloudinary.com/{$this->cloudName}/image/upload";
 
         return [
             'provider'      => 'cloudinary',
             'provider_id'   => $providerId,
             'file_name'     => $safeName,
             'mime_type'     => $mime,
-            'bytes'         => $file->getSize(),
-            'width'         => $width,
-            'height'        => $height,
-            'original_url'  => "{$baseUrl}/{$providerId}",
+            'bytes'         => $actualBytes,
+            'width'         => $actualWidth,
+            'height'        => $actualHeight,
+            'original_url'  => $secureUrl,
             'variants'      => [
                 'thumbnail' => "{$baseUrl}/c_fill,w_300,h_300,q_auto,f_auto/{$providerId}",
                 'medium'    => "{$baseUrl}/c_limit,w_800,q_auto,f_auto/{$providerId}",
@@ -67,11 +153,61 @@ class CloudinaryMediaStorage implements MediaStorageInterface
         ];
     }
 
+    /**
+     * Delete an asset from Cloudinary using authenticated destroy API.
+     */
     public function delete(string $providerId): bool
     {
-        return true;
+        if (! $this->cloudName || ! $this->apiKey || ! $this->apiSecret) {
+            throw new \RuntimeException('Cloudinary credentials (cloud_name, api_key, api_secret) are not configured.');
+        }
+
+        $timestamp = time();
+        $paramsToSign = [
+            'public_id' => $providerId,
+            'timestamp' => (string) $timestamp,
+        ];
+
+        ksort($paramsToSign);
+        $paramString = http_build_query($paramsToSign, '', '&', PHP_QUERY_RFC3986);
+        $signature = sha1($paramString . $this->apiSecret);
+
+        $endpoint = "https://api.cloudinary.com/v1_1/{$this->cloudName}/image/destroy";
+
+        try {
+            $response = Http::timeout(15)
+                ->retry(2, 200, throw: false)
+                ->asForm()
+                ->post($endpoint, [
+                    'public_id' => $providerId,
+                    'api_key'   => $this->apiKey,
+                    'timestamp' => (string) $timestamp,
+                    'signature' => $signature,
+                ]);
+        } catch (\Throwable $e) {
+            Log::error('Cloudinary destroy network failure.', [
+                'provider_id' => $providerId,
+                'error_type'  => get_class($e),
+            ]);
+            return false;
+        }
+
+        if (! $response->successful()) {
+            Log::error('Cloudinary destroy request rejected.', [
+                'status'      => $response->status(),
+                'provider_id' => $providerId,
+            ]);
+            return false;
+        }
+
+        $result = $response->json('result');
+
+        return in_array($result, ['ok', 'not found'], true);
     }
 
+    /**
+     * Generate an optimized delivery URL with on-the-fly transformations.
+     */
     public function getDeliveryUrl(string $providerId, array $transformations = []): string
     {
         $cloud = $this->cloudName ?: 'demo';
@@ -92,6 +228,9 @@ class CloudinaryMediaStorage implements MediaStorageInterface
         return "https://res.cloudinary.com/{$cloud}/image/upload/{$transformString}/{$providerId}";
     }
 
+    /**
+     * Generate a watermarked delivery URL.
+     */
     public function getWatermarkedUrl(string $providerId, string $watermarkText = ''): string
     {
         $cloud = $this->cloudName ?: 'demo';
