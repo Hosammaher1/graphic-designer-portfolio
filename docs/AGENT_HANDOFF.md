@@ -1,5 +1,30 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Remediation Stage 1 Checkpoint — 2026-11-02
+
+- **Active Branch:** `feat/security-remediation-and-cloudinary` (branched from `feat/09.09-security-seo-evidence` at `e12e726`).
+- **Objective Completed:** Security remediation (Laravel, Frontend, SSR) and Real Cloudinary integration verified locally without touching or replacing frontend UI components.
+- **Backend Security Remediation:**
+  - Audited five `laravel/framework` advisories. Confirmed TokenGuard (GHSA-f9x3-7vq9-cph6) is non-applicable because only `session` guard with Sanctum cookies is configured; added automated assertion in `SanctumAuthTest.php`.
+  - Hardened email validation in `ContactInquiryRequest`, `AuthController`, and `ProfileController` with `email:rfc,filter` and `not_regex:/[\r\n]/` to eliminate CRLF injection (GHSA-5vg9-5847-vvmq); added test in `ContactInquiryTest.php`.
+  - Updated patch dependencies: `filp/whoops` (2.18.7 => 2.19.1), `league/commonmark` (2.10.4 => 2.10.7).
+  - Full backend test suite passed: **319 passed, 1,487 assertions (100%)** on MySQL.
+- **Frontend Dependency Remediation:**
+  - Added package overrides in `frontend/package.json` for `tinypool` (`^2.1.2`) and `@vitest/mocker` (`^4.1.12`), resolving critical Prototype Pollution vulnerabilities (GHSA-5gmw-xhrv-c9v3, GHSA-85c8-ppgw-ccpr).
+  - `npm audit --audit-level=high` in `frontend/` now exits with code 0 (zero high/critical vulnerabilities).
+- **SSR Security Hardening:**
+  - Refactored `frontend/server/index.js` with `getSecurityHeaders(isProduction)`: production CSP omits `unsafe-eval` and `http://localhost:*` / `ws://localhost:*`, enforces HSTS (`max-age=31536000; includeSubDomains; preload`).
+  - Production error responses masked to generic 500 status message without exposing stack traces or `err.message`.
+  - Added test suite in `frontend/tests/ssr.test.jsx`. Vitest passed: **38 test files, 217 passed (100%)**. Production build (`npm run build`) passed.
+- **Real Cloudinary Integration:**
+  - Replaced stub in `CloudinaryMediaStorage.php` with signed REST API calls: `image/upload` (multipart) and `image/destroy` (form).
+  - Implemented bounded retries (`retry(2, 200)`), timeouts, pre-transfer MIME/size checks, and safe error logging without credential exposure.
+  - Added unit test suite `CloudinaryMediaStorageTest.php` with 9 passing tests (32 assertions) using `Http::fake()`.
+  - Real provider verification with live Cloudinary account remains BLOCKED until owner supplies active production credentials.
+- **Next Immediate Action:** Integrate the newly designed Google AI Studio React frontend (both public visitor website and admin dashboard) while preserving the verified API contracts, bilingual RTL/LTR support, and SSR compatibility.
+
+---
+
 ## Current Phase 09 preparation checkpoint - 2026-11-02
 
 - **Last fully DONE authorized task:** Historical 07.10 E2E SEO and contact, completed before this Codex session. No canonical Phase 08 or 09 task reached DONE during this session.

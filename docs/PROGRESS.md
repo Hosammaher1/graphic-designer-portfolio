@@ -24,6 +24,31 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
+## Current Antigravity remediation reports — 2026-11-02
+
+### Remediation Stage 1: Security Remediation & Real Cloudinary Integration
+
+- **Task Scope & Status:** Security vulnerability remediation (Laravel framework advisories, frontend tooling prototype pollution, SSR CSP & error masking) and real Cloudinary media adapter implementation.
+- **Branch / Remote:** `feat/security-remediation-and-cloudinary` (branched from `feat/09.09-security-seo-evidence` at `e12e726`). Push pending (GitHub CLI interactive re-authentication needed).
+- **Backend Security Remediation:**
+  - Audited 5 `laravel/framework` advisories. TokenGuard bypass (GHSA-f9x3-7vq9-cph6) confirmed non-applicable as only `session` guard is configured for Sanctum authentication; added automated verification test in `SanctumAuthTest.php`.
+  - Addressed CRLF email injection (GHSA-5vg9-5847-vvmq) at application level by enforcing `email:rfc,filter` and `not_regex:/[\r\n]/` across `ContactInquiryRequest`, `AuthController`, and `ProfileController`; added automated regression test in `ContactInquiryTest.php`.
+  - Updated patch dependencies: `filp/whoops` (2.18.7 => 2.19.1), `league/commonmark` (2.10.4 => 2.10.7).
+  - MySQL backend test suite: **319 passed, 1,487 assertions (100%)** — 11 new tests, 38 new assertions, 0 failures.
+- **Frontend Security Remediation:**
+  - Added package overrides in `frontend/package.json` for `tinypool` (`^2.1.2`) and `@vitest/mocker` (`^4.1.12`), resolving critical Prototype Pollution vulnerabilities (GHSA-5gmw-xhrv-c9v3, GHSA-85c8-ppgw-ccpr).
+  - `npm audit --audit-level=high` in `frontend/` now passes with exit code 0 (zero high/critical vulnerabilities).
+- **SSR Security Hardening:**
+  - Refactored `frontend/server/index.js` with `getSecurityHeaders(isProduction)`: production CSP omits `unsafe-eval` and `http://localhost:*` / `ws://localhost:*`, enforces HSTS (`max-age=31536000; includeSubDomains; preload`).
+  - Masked production HTTP 500 error responses to prevent disclosure of internal exception messages, paths, and stack traces to visitors, while logging diagnostics safely on server.
+  - Added unit test suite in `frontend/tests/ssr.test.jsx`. Vitest passed: **38 test files, 217 passed (100%)**. Production client & server builds (`npm run build`) passed in 2.5s.
+- **Real Cloudinary Integration:**
+  - Replaced stub implementation in `CloudinaryMediaStorage.php` with signed REST API calls: `image/upload` (multipart) and `image/destroy` (form).
+  - Implemented bounded retries (`retry(2, 200)`), timeouts, pre-transfer MIME/size checks, and safe error logging without credential exposure.
+  - Added unit test suite `CloudinaryMediaStorageTest.php` with 9 passing tests (32 assertions) using `Http::fake()`.
+  - Live Cloudinary provider verification remains BLOCKED until owner supplies active production credentials.
+- **Next Step:** Integrate the newly designed Google AI Studio React frontend while preserving API contracts and SSR compatibility.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.
