@@ -2,11 +2,11 @@
 
 **Source of truth:** [Graphic_Designer_Portfolio_Plan_v1_1.md](../Graphic_Designer_Portfolio_Plan_v1_1.md), version 1.1. This tracker mirrors its task IDs and titles; it does not change the approved scope.
 
-**Snapshot:** 2026-11-02. **Implementation:** 88 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** The owner redirected work to eligible Phase 09 preparation while the Phase 08 gate remains open; the frontend is frozen and Phase 10 is outside this run.
+**Snapshot:** 2026-11-02. **Implementation:** 94 of 108 tasks started, 63 marked DONE (58.3%), 11 historical Phase 04 tasks marked REWORK_REQUIRED, and 12 canonical Phase 08 tasks open. Four additional Phase 09 tasks were assessed as BLOCKED or DEFERRED without implementation. **Architecture:** Hybrid Single-Page Redesign approved by owner. **Current authorization:** The owner redirected work to eligible Phase 09 preparation while the Phase 08 gate remains open; the frontend is frozen and Phase 10 is outside this run.
 
 ## Status and evidence rules
 
-Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a row only with real evidence. Record exact check commands and results, skill names and sources, blockers, commit hashes, and the next handoff in a task report below. A blank dash means no task-specific evidence yet; it does not mean a test passed. Phase gates remain open until their required checks and review are recorded.
+Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `DONE` for each task. Update a row only with real evidence. Record exact check commands and results, skill names and sources, blockers, commit hashes, and the next handoff in a task report below. A blank dash means no task-specific evidence yet; it does not mean a test passed. Phase gates remain open until their required checks and review are recorded.
 
 | Phase | Name | Tasks | Started | Done | Gate |
 | --- | --- | ---: | ---: | ---: | --- |
@@ -18,9 +18,9 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, or `DONE` for each task. Update a r
 | 06 | Search, Recommendations, Consent, Analytics | 12 | 12 | 12 | Gate passed (12/12) |
 | 07 | SEO, Contact, Performance | 10 | 10 | 10 | Gate passed (10/10) |
 | 08 | Security, Reliability, Backups, Monitoring | 12 | 12 | 0 | Canonical audit: partial/blocked; gate open |
-| 09 | CI/CD, Oracle Deployment, Release | 12 | 2 | 0 | Readiness blocked; infrastructure scripts in progress; no deployment |
+| 09 | CI/CD, Oracle Deployment, Release | 12 | 8 | 0 | Local preparation only; CI audits fail and live release gates are open |
 | 10 | Hybrid Single-Page Redesign | 11 | 1 | 1 | Historical 10.01 only; no Phase 10 work authorized in this run |
-| **Total** | | **108** | **88** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
+| **Total** | | **108** | **94** | **63** | **58.3% DONE; 11 REWORK_REQUIRED** |
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
@@ -136,7 +136,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Task ID / status:** 09.03, IN_PROGRESS. The nonsecret inventory and permission checker are locally prepared; live secret provisioning and rotation remain blocked.
 - **Branch / commit / remote:** `feat/09.03-secret-environment-preparation`; local `c7647a6`. No push or GitHub CI verified because the last CLI authentication check failed.
 - **Implementation / files:** Added `docs/SECRETS_ENVIRONMENT.md` for Laravel, MySQL, Cloudinary, mail, backup, monitoring and future deploy-key custody. Added read-only `infrastructure/deployment/check-secret-permissions.sh`; it checks that supplied files resolve outside the repository and have restrictive modes without printing contents. No credentials or frontend files were changed.
-- **Tests / skills:** Bash syntax passed; missing-file and in-repository negative cases rejected as expected. A positive chmod test could not run on Windows Git Bash because `chmod 600` still reports mode `644` on NTFS. Staged whitespace and secret-pattern checks passed; tracked env/key filename scan found only `.env.example` files. Used `superpowers:verification-before-completion`.
+- **Tests / skills:** Bash syntax, missing-file and in-repository negative cases passed. Windows Git Bash could not verify POSIX modes on NTFS, so an isolated WSL `/tmp` fixture was run later: mode `0600` passed, mode `0644` and an in-repository file were rejected; no credential material was used. Staged whitespace and secret-pattern checks passed; tracked env/key filename scan found only `.env.example` files. Used `superpowers:verification-before-completion`.
 - **Blockers / next task:** Owner must provision scoped secrets and deploy identity, repair GitHub authentication interactively, prove server ACLs and key rotation, and inspect CI logs. Continue eligible 09.04 CI preparation without claiming branch protection or CI success.
 
 ### Task 09.04: CI final — current-session checkpoint
@@ -298,7 +298,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 08.12 | Reliability E2E | BLOCKED | Operations runbook and local command checks exist; no canonical combined E2E proof | superpowers:verification-before-completion | Cloudinary/mail/restore/SSR recovery drill and frontend browser work DEFERRED | 448b21e, 7d7c4c2 |
 | 09.01 | Production readiness inventory | BLOCKED | Inventory committed; Oracle published limits reviewed; build prerequisite check passed | superpowers:verification-before-completion | Owner domain, OCI tenancy/capacity, providers, remote backup, DNS and approval missing | 1e2e207; 2e446b0 saved WIP |
 | 09.02 | Infrastructure scripts | IN_PROGRESS | Bash syntax, Composer validation, Artisan syntax and staged whitespace checks passed; host validation unrun | superpowers:verification-before-completion | No host/domain; nginx -t, service startup, firewall, TLS renewal and log rotation unverified | c3479eb; 2e446b0 saved WIP |
-| 09.03 | Secrets/environment | IN_PROGRESS | Bash syntax and negative permission checks passed; Linux positive/ACL checks unrun | superpowers:verification-before-completion | Credentials, GitHub environment, server permissions and deploy-key rotation unverified | c7647a6 |
+| 09.03 | Secrets/environment | IN_PROGRESS | Bash and isolated WSL permission positive/negative checks passed; host ACL checks unrun | superpowers:verification-before-completion | Credentials, GitHub environment, server permissions and deploy-key rotation unverified | c7647a6 |
 | 09.04 | CI final | BLOCKED | Workflow YAML parsed; Composer 5 advisories/1 package, frontend npm 3 findings, E2E npm 0; no GitHub run | superpowers:verification-before-completion | Critical audit findings, frontend freeze, invalid GitHub auth and required check unset | 5b21cd3 |
 | 09.05 | Deployment workflow | BLOCKED | Artifact digest positive/negative checks passed; staging dry run unrun | superpowers:verification-before-completion | CI/security gate, trusted artifact, host, secure deploy and owner approval missing | a36af49 |
 | 09.06 | Rollback | IN_PROGRESS | Disposable WSL symlink preflight, approval rejection and switch passed; staging drill unrun | superpowers:verification-before-completion | Real prior release, migrations, forced failure and healthy recovery unverified | a118651 |

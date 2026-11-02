@@ -39,6 +39,8 @@
 
 **GitHub:** `gh auth status` last reported an invalid token. Re-authenticate only through the owner's interactive `gh auth login -h github.com` workflow. No push or GitHub CI result is claimed for the local Phase 08 branches.
 
+**Phase 09 continuation note (2026-11-02):** The earlier 09.02 handoff sentence above is historical. Local Phase 09 preparation now reaches canonical 09.09; 09.10 is DEFERRED, and 09.11–09.12 are BLOCKED. The Phase 08 gate is still open, the final local backend regression passed 308 tests/1,449 assertions, and [FINAL_CODE_REVIEW_PHASE09.md](FINAL_CODE_REVIEW_PHASE09.md) records release blockers. No remote push, live CI result or deployment is verified.
+
 ## Focused security surface review
 
 The backend source search found outbound HTTP only in configured monitoring/backup alert paths. No controller redirect or request-derived redirect destination was found. This narrows the current SSRF/open-redirect surface, but it does not close 08.01 while the upload and CSP findings above remain open. The Cloudinary adapter's URL construction is a local stand-in, not proof of a remote upload or protected original. The upload review follows the [OWASP File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html); the URL surface review follows [OWASP SSRF](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html) and [redirect](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html) guidance.
