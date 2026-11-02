@@ -155,6 +155,14 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 - **Tests / skills:** Bash syntax and valid/mismatched/malformed digest cases passed with a temporary fixture. Staged whitespace and secret-pattern checks passed. Used `superpowers:verification-before-completion`.
 - **Blockers / next task:** Live staging, CI artifact, secure channel, domain, server, secrets, owner approval, and a green 09.04 gate are unavailable. A digest match alone is not archive extraction safety. Continue independent 09.06 rollback design and tests; do not mark 09.05 DONE.
 
+### Task 09.06: Rollback — current-session checkpoint
+
+- **Task ID / status:** 09.06, IN_PROGRESS. Guarded local symlink switching and the runbook are prepared; the canonical live forced-failure drill is blocked.
+- **Branch / commit / remote:** `feat/09.06-rollback-preparation`; local `a118651`. No push or GitHub CI verified.
+- **Implementation / files:** Added `infrastructure/deployment/switch-release.sh` with release-root containment, required-artifact preflight, read-only `--check`, explicit approval flag for `--apply`, and an atomic symlink rename. Added `docs/ROLLBACK_RUNBOOK.md` for previous-release retention, service recovery and expand/contract migration compatibility. No frontend file was changed or live release switched.
+- **Tests / skills:** Bash syntax passed. A disposable WSL `/tmp` fixture passed preflight, rejected `--apply` without the approval flag, and switched its own symlink with the flag; the fixture was removed. Git Bash on Windows could not create a real symlink, so WSL was used after sandbox access approval. Staged whitespace and secret-pattern checks passed. Used `superpowers:verification-before-completion`.
+- **Blockers / next task:** No approved staging host, two real releases, compatible migration proof or owner approval exists for a forced-failure rollback drill. Continue canonical 09.07 production smoke assessment; do not mark rollback or Phase 09 DONE.
+
 ## Task register
 
 | ID | Task from approved plan | Status | Test result | Skills used | Blockers / handoff | Commit |
@@ -249,7 +257,7 @@ These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is P
 | 09.03 | Secrets/environment | IN_PROGRESS | Bash syntax and negative permission checks passed; Linux positive/ACL checks unrun | superpowers:verification-before-completion | Credentials, GitHub environment, server permissions and deploy-key rotation unverified | c7647a6 |
 | 09.04 | CI final | BLOCKED | Workflow YAML parsed; Composer 5 advisories/1 package, frontend npm 3 findings, E2E npm 0; no GitHub run | superpowers:verification-before-completion | Critical audit findings, frontend freeze, invalid GitHub auth and required check unset | 5b21cd3 |
 | 09.05 | Deployment workflow | BLOCKED | Artifact digest positive/negative checks passed; staging dry run unrun | superpowers:verification-before-completion | CI/security gate, trusted artifact, host, secure deploy and owner approval missing | a36af49 |
-| 09.06 | Rollback | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
+| 09.06 | Rollback | IN_PROGRESS | Disposable WSL symlink preflight, approval rejection and switch passed; staging drill unrun | superpowers:verification-before-completion | Real prior release, migrations, forced failure and healthy recovery unverified | a118651 |
 | 09.07 | Production smoke | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.08 | Browser matrix | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
 | 09.09 | Security/SEO audit | NOT_STARTED | Not run | — | Owner inputs, Phase 08 gate, or frontend freeze as applicable | — |
