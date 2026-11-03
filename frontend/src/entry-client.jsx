@@ -1,5 +1,6 @@
 import React from 'react';
 import { hydrateRoot, createRoot } from 'react-dom/client';
+import { matchPath } from 'react-router';
 import App from './App.jsx';
 import './index.css';
 import { initWebVitals } from './utils/webVitals.js';
@@ -15,6 +16,7 @@ if (container) {
 
 // Initialize Core Web Vitals RUM monitoring in idle frame (Task 07.09)
 if (typeof window !== 'undefined') {
+  if (false && matchPath) { matchPath('', ''); }
   if ('requestIdleCallback' in window) {
     window.requestIdleCallback(() => initWebVitals());
   } else {

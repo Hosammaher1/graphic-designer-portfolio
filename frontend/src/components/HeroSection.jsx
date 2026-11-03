@@ -1,11 +1,38 @@
 import React, { useRef, useEffect } from 'react';
-import { translations } from '../data/portfolioData';
+import { translations, resolveText } from '../data/portfolioData';
 import { WaveTransition } from './WaveTransition';
 import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 
-export const HeroSection = ({ lang, onOpenProject }) => {
+export const HeroSection = ({
+  lang,
+  onOpenProject,
+  settings,
+  featuredProject,
+}) => {
   const t = translations[lang].hero;
+
+  const kicker = settings?.hero?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
+  const titleLine1 = settings?.hero?.[lang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleLine1;
+  const titleLine2 = settings?.hero?.[lang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleLine2;
+  const description = settings?.hero?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+
+  const hasFeatured = Boolean(featuredProject);
+  const cardKicker = hasFeatured
+    ? (lang === 'ar' ? 'مشروع مميز' : 'FEATURED CASE')
+    : (lang === 'ar' ? 'استوديو التصميم' : 'STUDIO ARCHIVE');
+  const cardTitle = hasFeatured
+    ? resolveText(featuredProject.title, lang, 'Studio Case')
+    : (settings?.profile?.[lang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.featuredCardTitle);
+
+  const handleCardClick = () => {
+    if (hasFeatured && (featuredProject.slug || featuredProject.id)) {
+      onOpenProject(featuredProject.slug || featuredProject.id);
+    } else {
+      scrollToAbout();
+    }
+  };
+
   const heroRef = useRef(null);
   const titleRef = useRef(null);
   const cardStackRef = useRef(null);
@@ -78,7 +105,7 @@ export const HeroSection = ({ lang, onOpenProject }) => {
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right">
             {/* Kicker: "Hello, I'm a" */}
             <p className="hero-stagger text-base sm:text-lg text-neutral-300 font-light mb-3">
-              {t.kicker}
+              {kicker}
             </p>
 
             {/* Large Serif Display Headline */}
@@ -86,13 +113,13 @@ export const HeroSection = ({ lang, onOpenProject }) => {
               ref={titleRef}
               className="hero-stagger font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal tracking-tight text-white leading-[1.05] mb-6"
             >
-              <span className="block">{t.titleLine1}</span>
-              <span className="block italic">{t.titleLine2}</span>
+              <span className="block">{titleLine1}</span>
+              <span className="block italic">{titleLine2}</span>
             </h1>
 
             {/* Subtitle */}
             <p className="hero-stagger text-base sm:text-lg text-neutral-300/90 leading-relaxed max-w-lg mb-8 font-light">
-              {t.description}
+              {description}
             </p>
 
             {/* Pill Action Buttons */}
@@ -136,7 +163,7 @@ export const HeroSection = ({ lang, onOpenProject }) => {
 
               {/* Center Prominent Card with Botanical Petal Graphic */}
               <div
-                onClick={() => onOpenProject('noya-skincare')}
+                onClick={handleCardClick}
                 className="relative z-20 w-[84%] sm:w-[86%] h-[92%] rounded-3xl glass-panel-active border border-rose-300/30 shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-5 sm:p-6 flex flex-col justify-between overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-500"
               >
                 {/* Botanical Petal Floral Artwork */}
@@ -178,15 +205,15 @@ export const HeroSection = ({ lang, onOpenProject }) => {
                 {/* Card Top Pill Badge */}
                 <div className="relative z-10 flex items-center justify-between">
                   <span className="text-[10px] sm:text-xs font-mono tracking-widest text-rose-200/90 uppercase px-3 py-1 rounded-full glass-panel-subtle border border-rose-300/20">
-                    FEATURED CASE
+                    {cardKicker}
                   </span>
                 </div>
 
-                {/* Card Bottom: "Brand Identity & Visual System" + Circle Arrow Button */}
+                {/* Card Bottom: Project / Tagline + Circle Arrow Button */}
                 <div className="relative z-10 flex items-end justify-between gap-3 pt-6 border-t border-rose-300/15">
                   <div>
                     <h3 className="font-serif text-lg sm:text-xl font-medium text-white italic tracking-wide leading-tight">
-                      {t.featuredCardTitle}
+                      {cardTitle}
                     </h3>
                   </div>
 

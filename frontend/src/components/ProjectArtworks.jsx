@@ -1,6 +1,18 @@
 import React from 'react';
 
-export const ProjectArtwork = ({ id, className = '' }) => {
+export const ProjectArtwork = ({ id, src, alt = '', className = '', priority = false }) => {
+  const imageSource = src || (typeof id === 'string' && (id.startsWith('http://') || id.startsWith('https://') || id.startsWith('/') || id.startsWith('data:')) ? id : null);
+  if (imageSource) {
+    return (
+      <img
+        src={imageSource}
+        alt={alt || 'Project artwork'}
+        loading={priority ? 'eager' : 'lazy'}
+        className={`w-full h-full object-cover ${className}`}
+      />
+    );
+  }
+
   switch (id) {
     // -------------------------------------------------------------------------
     // NOYA SKINCARE SUITE

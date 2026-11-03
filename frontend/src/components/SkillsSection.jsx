@@ -18,9 +18,14 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const SkillsSection = ({ lang }) => {
+export const SkillsSection = ({ lang, settings }) => {
   const t = translations[lang].skills;
   const sectionRef = useRef(null);
+
+  const kicker = settings?.skills?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
+  const titleLine1 = settings?.skills?.[lang === 'ar' ? 'titleLine1Ar' : 'titleLine1En'] || t.titleLine1;
+  const titleLine2 = settings?.skills?.[lang === 'ar' ? 'titleLine2Ar' : 'titleLine2En'] || t.titleLine2;
+  const description = settings?.skills?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -186,14 +191,14 @@ export const SkillsSection = ({ lang }) => {
         {/* Top Header: Kicker, Title, Subtitle */}
         <div className="skill-stagger max-w-2xl mb-12 sm:mb-16 text-left rtl:text-right">
           <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
-            {t.kicker}
+            {kicker}
           </div>
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.1] mb-4">
-            <span className="block">{t.titleLine1}</span>
-            <span className="block">{t.titleLine2}</span>
+            <span className="block">{titleLine1}</span>
+            <span className="block">{titleLine2}</span>
           </h2>
           <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            {t.description}
+            {description}
           </p>
         </div>
 

@@ -3,10 +3,13 @@ import { translations } from '../data/portfolioData';
 import { ArrowUp, Shield } from 'lucide-react';
 import { useConsent } from '../context/ConsentContext.jsx';
 
-export const Footer = ({ lang, locale }) => {
+export const Footer = ({ lang, locale, settings }) => {
   const currentLang = locale || lang || 'ar';
   const t = (translations[currentLang] || translations.ar || translations.en).footer;
   const nav = (translations[currentLang] || translations.ar || translations.en).nav;
+
+  const designerName = settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] || (currentLang === 'ar' ? 'محمد — مصمم جرافيك' : 'Mohammed — Graphic');
+  const footerTagline = settings?.profile?.[currentLang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.tagline;
 
   let openSettings = null;
   try {
@@ -29,10 +32,10 @@ export const Footer = ({ lang, locale }) => {
   };
 
   const socialLinks = [
-    { label: 'Behance', href: 'https://behance.net' },
-    { label: 'Dribbble', href: 'https://dribbble.com' },
-    { label: 'LinkedIn', href: 'https://linkedin.com' },
-    { label: 'Instagram', href: 'https://instagram.com' },
+    { label: 'Behance', href: settings?.profile?.behanceUrl || 'https://behance.net' },
+    { label: 'Dribbble', href: settings?.profile?.dribbbleUrl || 'https://dribbble.com' },
+    { label: 'LinkedIn', href: settings?.profile?.linkedinUrl || 'https://linkedin.com' },
+    { label: 'Instagram', href: settings?.profile?.instagramUrl || 'https://instagram.com' },
   ];
 
   return (
@@ -50,11 +53,11 @@ export const Footer = ({ lang, locale }) => {
                 GD
               </span>
               <span className="text-sm font-medium text-neutral-300">
-                {currentLang === 'ar' ? 'محمد — مصمم جرافيك' : 'Mohammed — Graphic'}
+                {designerName}
               </span>
             </div>
             <p className="text-xs text-neutral-400 mt-2 font-light max-w-sm">
-              {t.tagline}
+              {footerTagline}
             </p>
           </div>
 

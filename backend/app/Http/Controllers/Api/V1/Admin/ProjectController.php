@@ -50,18 +50,32 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request): JsonResponse
     {
         $project = Project::create([
-            'slug'        => $request->slug,
-            'status'      => $request->input('status', 'draft'),
-            'is_featured' => $request->boolean('is_featured', false),
-            'year'        => $request->input('year'),
-            'client'      => $request->input('client'),
+            'slug'           => $request->slug,
+            'status'         => $request->input('status', 'draft'),
+            'is_featured'    => $request->boolean('is_featured', false),
+            'year'           => $request->input('year'),
+            'client'         => $request->input('client'),
+            'cover_media_id' => $request->input('cover_media_id'),
         ]);
 
         foreach ($request->translations as $trans) {
             $project->translations()->create($trans);
         }
 
-        $project->load(['translations', 'categories', 'tools']);
+        if ($request->has('category_ids')) {
+            $project->categories()->sync($request->input('category_ids'));
+        }
+
+        if ($request->has('tool_ids')) {
+            $project->tools()->sync($request->input('tool_ids'));
+        }
+
+        // If status is published, generate the published snapshot immediately
+        if ($request->input('status') === 'published') {
+            app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
+        }
+
+        $project->load(['translations', 'categories', 'tools', 'coverMedia']);
 
         return response()->json([
             'status' => 'success',
@@ -106,7 +120,24 @@ class ProjectController extends Controller
             }
         }
 
-        $project->load(['translations', 'categories', 'tools']);
+        if ($request->has('category_ids')) {
+            $project->categories()->sync($request->input('category_ids'));
+        }
+
+        if ($request->has('tool_ids')) {
+            $project->tools()->sync($request->input('tool_ids'));
+        }
+
+        // Re-publish or unpublish if status was modified
+        if ($request->has('status')) {
+            if ($request->input('status') === 'published') {
+                app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
+            } elseif ($request->input('status') === 'draft') {
+                app(\App\Services\Publishing\ProjectPublishingService::class)->unpublish($project);
+            }
+        }
+
+        $project->load(['translations', 'categories', 'tools', 'coverMedia']);
 
         return response()->json([
             'status' => 'success',

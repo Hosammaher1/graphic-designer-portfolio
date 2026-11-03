@@ -1715,3 +1715,19 @@ export const translations = {
     },
   },
 };
+
+/**
+ * Universally safe text resolver for localized string/object fields.
+ * Prevents React Error #31 (Objects are not valid as a React child).
+ */
+export function resolveText(val, lang = 'en', fallback = '') {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'string') return val.trim().length > 0 ? val : fallback;
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    const candidate = val[lang] || val.en || val.ar || '';
+    if (typeof candidate === 'string' && candidate.trim().length > 0) return candidate;
+    return fallback;
+  }
+  return fallback;
+}

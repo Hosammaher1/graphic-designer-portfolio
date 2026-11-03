@@ -98,8 +98,8 @@ export async function createServer() {
         return;
       }
 
-      // Proxy /api/ requests to Laravel API backend
-      if (cleanUrl.startsWith('/api/') || cleanUrl === '/sitemap.xml' || cleanUrl === '/robots.txt') {
+      // Proxy /api/, /sanctum/, /storage/ requests to Laravel API backend
+      if (cleanUrl.startsWith('/api/') || cleanUrl.startsWith('/sanctum/') || cleanUrl.startsWith('/storage/') || cleanUrl === '/sitemap.xml' || cleanUrl === '/robots.txt') {
         const backendOrigin = process.env.BACKEND_URL || 'http://127.0.0.1:8001';
         const targetUrl = new URL(url, backendOrigin);
         const proxyHeaders = { ...req.headers, host: targetUrl.host };
@@ -110,8 +110,13 @@ export async function createServer() {
             headers: proxyHeaders,
           },
           (proxyRes) => {
+            if (proxyRes.headers['set-cookie']) {
+              res.setHeader('set-cookie', proxyRes.headers['set-cookie']);
+            }
+            const proxyHeadersObj = { ...proxyRes.headers };
+            delete proxyHeadersObj['set-cookie'];
             res.writeHead(proxyRes.statusCode || 500, {
-              ...proxyRes.headers,
+              ...proxyHeadersObj,
               ...headers,
             });
             proxyRes.pipe(res);

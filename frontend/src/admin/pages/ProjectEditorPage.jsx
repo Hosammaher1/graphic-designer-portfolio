@@ -158,7 +158,7 @@ export function ProjectEditorPage({ projectId }) {
     }
   };
 
-  const handleSave = (publishState = status) => {
+  const handleSave = async (publishState = status) => {
     setIsSaving(true);
     const projectPayload = {
       title: titleEn,
@@ -183,15 +183,18 @@ export function ProjectEditorPage({ projectId }) {
       seoDesc,
     };
 
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
       if (isEditing) {
-        updateProject(projectId, projectPayload);
+        await updateProject(projectId, projectPayload);
       } else {
-        const created = addProject(projectPayload);
-        navigateAdmin(`/admin/projects/${created.id}/edit`);
+        const created = await addProject(projectPayload);
+        if (created?.id) {
+          navigateAdmin(`/admin/projects/${created.id}/edit`);
+        }
       }
-    }, 500);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

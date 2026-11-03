@@ -3,6 +3,7 @@ import {
   categoriesData,
   getAllPublishedProjects,
   translations,
+  resolveText,
 } from '../data/portfolioData';
 import { ProjectArtwork } from './ProjectArtworks';
 import {
@@ -21,9 +22,33 @@ export const AllProjectsScreen = ({
   lang,
   onBackToHome,
   onOpenProject,
+  projects: passedProjects,
+  categories: passedCategories,
+  settings,
 }) => {
   const t = translations[lang].allProjects;
-  const allProjects = useMemo(() => getAllPublishedProjects(), []);
+  const allProjects = useMemo(() => {
+    return Array.isArray(passedProjects) ? passedProjects : [];
+  }, [passedProjects]);
+
+  // Categories list from database or default
+  const categoriesData = useMemo(() => {
+    if (Array.isArray(passedCategories) && passedCategories.length > 0) {
+      return [
+        { id: 'all', name: { en: 'All Projects', ar: 'جميع الأعمال' } },
+        ...passedCategories.map((c) => ({
+          id: c.slug || String(c.id),
+          name: {
+            en: c.name || c.slug,
+            ar: c.name || c.slug,
+          },
+        })),
+      ];
+    }
+    return [
+      { id: 'all', name: { en: 'All Projects', ar: 'جميع الأعمال' } },
+    ];
+  }, [passedCategories]);
 
   // Filter & Search & Sort states
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -34,18 +59,26 @@ export const AllProjectsScreen = ({
   const gridRef = useRef(null);
   const containerRef = useRef(null);
 
+  // Helper to match category against project
+  const projectMatchesCategory = (p, catId) => {
+    if (catId === 'all') return true;
+    if (Array.isArray(p.categoryIds) && p.categoryIds.includes(catId)) return true;
+    if (Array.isArray(p.categories) && p.categories.some((c) => c.slug === catId || String(c.id) === catId)) return true;
+    if (typeof p.category === 'string' && p.category.toLowerCase() === catId.toLowerCase()) return true;
+    if (p.category && (p.category.slug === catId || p.category.en === catId || p.category.ar === catId)) return true;
+    return false;
+  };
+
   // Compute category counts dynamically
   const categoryCounts = useMemo(() => {
     const counts = { all: allProjects.length };
     categoriesData.forEach((cat) => {
       if (cat.id !== 'all') {
-        counts[cat.id] = allProjects.filter((p) =>
-          p.categoryIds.includes(cat.id)
-        ).length;
+        counts[cat.id] = allProjects.filter((p) => projectMatchesCategory(p, cat.id)).length;
       }
     });
     return counts;
-  }, [allProjects]);
+  }, [allProjects, categoriesData]);
 
   // Filtered & Sorted Projects
   const filteredProjects = useMemo(() => {
@@ -53,20 +86,22 @@ export const AllProjectsScreen = ({
 
     // 1. Category Filter
     if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.categoryIds.includes(selectedCategory));
+      result = result.filter((p) => projectMatchesCategory(p, selectedCategory));
     }
 
     // 2. Search Query (Bilingual Title, Description, Category, Services)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter((p) => {
-        const titleEn = p.title.en.toLowerCase();
-        const titleAr = p.title.ar.toLowerCase();
-        const descEn = p.description.en.toLowerCase();
-        const descAr = p.description.ar.toLowerCase();
-        const catEn = p.category.en.toLowerCase();
-        const catAr = p.category.ar.toLowerCase();
-        const tools = p.tools.join(' ').toLowerCase();
+        const titleEn = (p.title?.en || (typeof p.title === 'string' ? p.title : '')).toLowerCase();
+        const titleAr = (p.title?.ar || (typeof p.title === 'string' ? p.title : '')).toLowerCase();
+        const descEn = (p.description?.en || p.subtitle?.en || '').toLowerCase();
+        const descAr = (p.description?.ar || p.subtitle?.ar || '').toLowerCase();
+        const catEn = (p.category?.en || (typeof p.category === 'string' ? p.category : '')).toLowerCase();
+        const catAr = (p.category?.ar || (typeof p.category === 'string' ? p.category : '')).toLowerCase();
+        const tools = Array.isArray(p.tools)
+          ? p.tools.map((t) => (typeof t === 'string' ? t : t.name || t.slug)).join(' ').toLowerCase()
+          : '';
 
         return (
           titleEn.includes(q) ||
@@ -84,8 +119,8 @@ export const AllProjectsScreen = ({
     if (sortBy === 'newest') {
       result.sort(
         (a, b) =>
-          new Date(b.publicationDate).getTime() -
-          new Date(a.publicationDate).getTime()
+          new Date(b.publicationDate || b.published_at || b.year).getTime() -
+          new Date(a.publicationDate || a.published_at || a.year).getTime()
       );
     } else if (sortBy === 'oldest') {
       result.sort(
@@ -266,7 +301,7 @@ export const AllProjectsScreen = ({
                       : 'glass-panel-subtle text-neutral-300 hover:text-white hover:border-white/20'
                   }`}
                 >
-                  <span>{cat.name[lang]}</span>
+                  <span>{resolveText(cat.name, lang, 'Category')}</span>
                   <span
                     className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
                       isActive
@@ -317,16 +352,24 @@ export const AllProjectsScreen = ({
                 >
                   {/* Artwork Showcase Box */}
                   <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#160c18]">
-                    <ProjectArtwork
-                      id={project.artworkId}
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
+                    {project.image ? (
+                      <img
+                        src={project.image}
+                        alt={resolveText(project.title, lang, '')}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <ProjectArtwork
+                        id={project.artworkId || 'noya-skincare'}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    )}
 
                     {/* Gradient Overlay for Text Readability */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0e0711] via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
 
                     {/* Featured Star / Badge */}
-                    {project.isFeatured && (
+                    {(project.featured || project.isFeatured) && (
                       <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider text-amber-200 glass-panel border border-amber-300/30 flex items-center gap-1.5 shadow-md">
                         <Sparkles className="w-3 h-3 text-amber-300" />
                         <span>FEATURED</span>
@@ -344,24 +387,28 @@ export const AllProjectsScreen = ({
                     <div>
                       {/* Category Label */}
                       <span className="text-[11px] font-mono tracking-wider text-rose-300 uppercase block mb-1">
-                        {project.category[lang]}
+                        {resolveText(project.category, lang, 'Design')}
                       </span>
 
                       {/* Project Title */}
                       <h3 className="font-serif text-xl sm:text-2xl font-bold text-white group-hover:text-rose-200 transition-colors leading-tight">
-                        {project.title[lang]}
+                        {resolveText(project.title, lang, 'Untitled Project')}
                       </h3>
 
                       {/* Brief Subtitle */}
                       <p className="text-xs text-neutral-400 font-light mt-1.5 line-clamp-2 leading-relaxed">
-                        {project.subtitle[lang]}
+                        {resolveText(project.subtitle, lang) || resolveText(project.client, lang, 'Studio Case')}
                       </p>
                     </div>
 
                     {/* Card Footer: Tags & Arrow Button */}
                     <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
                       <span className="text-[11px] font-mono text-neutral-500">
-                        {project.tools.slice(0, 2).join(' · ')}
+                        {Array.isArray(project.tags) && project.tags.length > 0
+                          ? project.tags.slice(0, 2).join(' · ')
+                          : Array.isArray(project.tools)
+                          ? project.tools.slice(0, 2).join(' · ')
+                          : 'Brand & Visual'}
                       </span>
 
                       {/* Circle Arrow Action Button */}

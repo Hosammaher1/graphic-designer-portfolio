@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { translations, getFeaturedProjects } from '../data/portfolioData';
+import { translations, getFeaturedProjects, resolveText } from '../data/portfolioData';
 import { ProjectArtwork } from './ProjectArtworks';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
@@ -9,22 +9,28 @@ export const SelectedWorkSection = ({
   onOpenProject,
   onNavigateAllProjects,
   featuredMode = 'manual',
+  projects: passedProjects,
+  settings,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const t = translations[lang].work;
-  // Get exactly three featured projects according to mode (manual or latest)
-  const projects = getFeaturedProjects(featuredMode, 3);
+  // Use passed database projects or empty array if provided
+  const projects = Array.isArray(passedProjects)
+    ? passedProjects.slice(0, 3)
+    : [];
   const total = projects.length;
-  const currentProject = projects[activeIndex] || projects[0];
+  const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
 
   const sectionRef = useRef(null);
   const activeCardRef = useRef(null);
 
   const handlePrev = () => {
+    if (total === 0) return;
     setActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1));
   };
 
   const handleNext = () => {
+    if (total === 0) return;
     setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
 
@@ -108,144 +114,211 @@ export const SelectedWorkSection = ({
 
         </div>
 
-        {/* Carousel Center Stage: Active Centered Card with Flanking Peeks */}
-        <div className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4">
-          
-          {/* Left Flanking Peek Card */}
-          <div
-            onClick={handlePrev}
-            className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
-          >
-            <ProjectArtwork id={projects[prevIndex].artworkId} className="w-full h-full" />
-            <div className="absolute inset-0 bg-black/60" />
-          </div>
-
-          {/* Large Centered Active Project Card */}
-          <div
-            ref={activeCardRef}
-            onClick={() => onOpenProject(currentProject.id)}
-            className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
-          >
-            {/* Project Artwork */}
-            <ProjectArtwork id={currentProject.artworkId} className="w-full h-full object-cover" />
-
-            {/* Subtle Contrast Gradient at bottom for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
-
-            {/* Top Badge: Featured Case */}
-            <div className="absolute top-5 left-6 rtl:left-auto rtl:right-6 pointer-events-none">
-              <span className="px-3.5 py-1 rounded-full text-[11px] font-mono tracking-widest text-rose-200 glass-panel-active border border-rose-300/30 uppercase">
-                {t.featuredLabel} · 0{activeIndex + 1}/0{total}
-              </span>
+        {total === 0 ? (
+          /* Luxury Empty State when database has 0 projects */
+          <div className="relative w-full max-w-xl mx-auto my-12 p-8 sm:p-12 rounded-3xl glass-panel-active border border-[#f4a496]/25 shadow-2xl shadow-black/85 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#842b45] to-[#421a28] border border-[#f4a496]/40 p-0.5 shadow-xl shadow-black/50 flex items-center justify-center">
+              <span className="text-[#fcdcd4] font-serif font-bold text-xl tracking-tight">GD</span>
             </div>
-
-            {/* Overlaid Project Information on the active card */}
-            <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-10 rtl:left-auto rtl:right-6 rtl:sm:right-10 right-6 flex items-end justify-between gap-4 pointer-events-none">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-[#f4a496]/80 mb-2">
+              {lang === 'ar' ? 'معرض الأعمال' : 'Curated Portfolio Showcase'}
+            </div>
+            <h3 className="font-serif text-2xl sm:text-3xl font-normal text-white mb-3">
+              <span>{lang === 'ar' ? 'أعمال مختارة ' : 'Curating '}</span>
+              <span className="text-[#f4a496] italic font-serif">{lang === 'ar' ? 'قيد التوثيق' : 'New Works'}</span>
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-400 font-light max-w-md mx-auto leading-relaxed mb-6">
+              {lang === 'ar'
+                ? 'يجري حالياً توثيق دراسات حالة جديدة وأنظمة هوية بصرية متميزة. استكشف مسيرة العمل أو تواصل مباشرة لبدء مشروعك القادم.'
+                : 'New creative case studies and visual identity systems are currently being documented. Explore the creative journey or get in touch for custom design commissions.'}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-all shadow-lg"
+              >
+                <span>{lang === 'ar' ? 'تواصل مع الاستوديو' : 'Get in Touch'}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 rtl:rotate-180" />
+              </a>
+              <a
+                href="#creative-journey"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium text-neutral-200 glass-panel hover:text-white border border-white/10 hover:border-white/25 transition-all"
+              >
+                <span>{lang === 'ar' ? 'استكشف المسيرة' : 'Creative Journey'}</span>
+              </a>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Carousel Center Stage: Active Centered Card with Flanking Peeks */}
+            <div className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4">
               
-              <div className="text-left rtl:text-right max-w-lg">
-                {/* Title & Subtitle */}
-                <h3 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
-                  {currentProject.title[lang]}
-                </h3>
-                <p className="font-serif text-lg sm:text-xl text-neutral-200 italic font-light mt-0.5 mb-3">
-                  {currentProject.subtitle[lang]}
-                </p>
+              {/* Left Flanking Peek Card */}
+              {total > 1 && (
+                <div
+                  onClick={handlePrev}
+                  className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
+                >
+                  {projects[prevIndex]?.image ? (
+                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full" />
+                  )}
+                  <div className="absolute inset-0 bg-black/60" />
+                </div>
+              )}
 
-                {/* Pill Tags */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
-                    {t.tagBranding}
+              {/* Large Centered Active Project Card */}
+              <div
+                ref={activeCardRef}
+                onClick={() => onOpenProject(currentProject.slug || currentProject.id)}
+                className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
+              >
+                {/* Project Artwork or Image */}
+                {currentProject.image ? (
+                  <img
+                    src={currentProject.image}
+                    alt={resolveText(currentProject.title, lang, '')}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                ) : (
+                  <ProjectArtwork id={currentProject.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
+                )}
+
+                {/* Subtle Contrast Gradient at bottom for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+
+                {/* Top Badge: Featured Case */}
+                <div className="absolute top-5 left-6 rtl:left-auto rtl:right-6 pointer-events-none">
+                  <span className="px-3.5 py-1 rounded-full text-[11px] font-mono tracking-widest text-rose-200 glass-panel-active border border-rose-300/30 uppercase">
+                    {t.featuredLabel} · 0{activeIndex + 1}/0{total}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
-                    {t.tagPackaging}
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
-                    {t.tagVisual}
-                  </span>
+                </div>
+
+                {/* Overlaid Project Information on the active card */}
+                <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-10 rtl:left-auto rtl:right-6 rtl:sm:right-10 right-6 flex items-end justify-between gap-4 pointer-events-none">
+                  
+                  <div className="text-left rtl:text-right max-w-lg">
+                    {/* Title & Subtitle */}
+                    <h3 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+                      {resolveText(currentProject.title, lang, 'Untitled Project')}
+                    </h3>
+                    <p className="font-serif text-lg sm:text-xl text-neutral-200 italic font-light mt-0.5 mb-3">
+                      {resolveText(currentProject.subtitle, lang) || resolveText(currentProject.client, lang, 'Studio Case')}
+                    </p>
+
+                    {/* Pill Tags */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {currentProject.tags && currentProject.tags.length > 0 ? (
+                        currentProject.tags.map((tName, i) => (
+                          <span key={i} className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
+                            {typeof tName === 'string' ? tName : resolveText(tName, lang, 'Design')}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
+                          {resolveText(currentProject.category, lang, t.tagBranding)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* White Round Arrow Button to open modal */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenProject(currentProject.slug || currentProject.id);
+                    }}
+                    aria-label="Open project case study"
+                    className="pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white hover:bg-neutral-100 text-neutral-900 flex items-center justify-center shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  >
+                    <ArrowRight className="w-5 h-5 rtl:rotate-180 text-neutral-900" />
+                  </button>
+
                 </div>
               </div>
 
-              {/* White Round Arrow Button to open modal */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenProject(currentProject.id);
-                }}
-                aria-label="Open project case study"
-                className="pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white hover:bg-neutral-100 text-neutral-900 flex items-center justify-center shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <ArrowRight className="w-5 h-5 rtl:rotate-180 text-neutral-900" />
-              </button>
+              {/* Right Flanking Peek Card */}
+              {total > 1 && (
+                <div
+                  onClick={handleNext}
+                  className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
+                >
+                  {projects[nextIndex]?.image ? (
+                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full" />
+                  )}
+                  <div className="absolute inset-0 bg-black/60" />
+                </div>
+              )}
 
             </div>
-          </div>
 
-          {/* Right Flanking Peek Card */}
-          <div
-            onClick={handleNext}
-            className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
-          >
-            <ProjectArtwork id={projects[nextIndex].artworkId} className="w-full h-full" />
-            <div className="absolute inset-0 bg-black/60" />
-          </div>
+            {/* Carousel Pagination Dots Indicator */}
+            {total > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6 mb-8">
+                {projects.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveIndex(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`h-1.5 transition-all duration-300 rounded-full ${
+                      idx === activeIndex
+                        ? 'w-8 bg-white shadow-sm'
+                        : 'w-2.5 bg-white/30 hover:bg-white/60'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
 
-        </div>
+            {/* Three Corresponding Interactive Rounded Thumbnails */}
+            {total > 1 && (
+              <div className="mt-4 flex justify-center">
+                <div className={`grid grid-cols-${Math.min(total, 3)} gap-3 sm:gap-6 max-w-xl w-full`}>
+                  {projects.map((item, idx) => {
+                    const isActive = idx === activeIndex;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveIndex(idx)}
+                        className={`group relative h-20 sm:h-28 rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
+                          isActive
+                            ? 'border-2 border-rose-300 shadow-[0_0_20px_rgba(244,164,150,0.5)] scale-105 z-10'
+                            : 'border border-white/10 opacity-60 hover:opacity-100 hover:scale-[1.02]'
+                        }`}
+                      >
+                        {item.image ? (
+                          <img src={item.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <ProjectArtwork id={item.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
+                        )}
+                        {isActive && (
+                          <div className="absolute inset-0 bg-rose-500/10 pointer-events-none" />
+                        )}
+                        <div className="absolute bottom-1.5 inset-x-1.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-mono text-neutral-200 truncate">
+                          {item.title?.[lang] || item.title?.en || item.title}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
-        {/* Carousel Pagination Dots Indicator (3 dots for 3 featured projects) */}
-        <div className="flex items-center justify-center gap-2 mt-6 mb-8">
-          {projects.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveIndex(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-              className={`h-1.5 transition-all duration-300 rounded-full ${
-                idx === activeIndex
-                  ? 'w-8 bg-white shadow-sm'
-                  : 'w-2.5 bg-white/30 hover:bg-white/60'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Three Corresponding Interactive Rounded Thumbnails */}
-        <div className="mt-4 flex justify-center">
-          <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-xl w-full">
-            {projects.map((item, idx) => {
-              const isActive = idx === activeIndex;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveIndex(idx)}
-                  className={`group relative h-20 sm:h-28 rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
-                    isActive
-                      ? 'border-2 border-rose-300 shadow-[0_0_20px_rgba(244,164,150,0.5)] scale-105 z-10'
-                      : 'border border-white/10 opacity-60 hover:opacity-100 hover:scale-[1.02]'
-                  }`}
-                >
-                  <ProjectArtwork id={item.artworkId} className="w-full h-full object-cover" />
-                  {isActive && (
-                    <div className="absolute inset-0 bg-rose-500/10 pointer-events-none" />
-                  )}
-                  {/* Subtle label overlay on hover/active */}
-                  <div className="absolute bottom-1.5 inset-x-1.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-mono text-neutral-200 truncate">
-                    {item.title[lang]}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Elegant Premium CTA Button below carousel: "View All Projects ↗" */}
-        <div className="mt-14 flex items-center justify-center">
-          <button
-            onClick={onNavigateAllProjects}
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <span>{t.viewAllProjects}</span>
-            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform rtl:rotate-180" />
-          </button>
-        </div>
+            {/* Elegant Premium CTA Button below carousel: "View All Projects ↗" */}
+            <div className="mt-14 flex items-center justify-center">
+              <button
+                onClick={onNavigateAllProjects}
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <span>{t.viewAllProjects}</span>
+                <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform rtl:rotate-180" />
+              </button>
+            </div>
+          </>
+        )}
 
       </div>
     </section>

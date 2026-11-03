@@ -36,8 +36,11 @@ export default function App({ initialUrl, initialLocale }) {
     return 'home';
   });
 
-  const [publishedProjects, setPublishedProjects] = useState(() => getAllPublishedProjects());
+  const [publishedProjects, setPublishedProjects] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [siteSettings, setSiteSettings] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [detailedProject, setDetailedProject] = useState(null);
   const [modalCollection, setModalCollection] = useState(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
@@ -58,16 +61,12 @@ export default function App({ initialUrl, initialLocale }) {
     if (typeof window === 'undefined') return;
 
     const pathname = window.location.pathname;
-    const match = pathname.match(/(?:\/(?:ar|en))?\/projects\/([a-zA-Z0-9_-]+)/);
+    if (pathname.startsWith('/admin')) return;
+
+    const match = pathname.match(/^(?:\/(?:ar|en))?\/projects\/([a-zA-Z0-9_-]+)$/);
     if (match && match[1]) {
       const slug = match[1];
-      const allProjects = getAllPublishedProjects();
-      const found = allProjects.find((p) => p.id === slug || p.slug === slug);
-      if (found) {
-        setSelectedProjectId(found.id);
-        setModalCollection(allProjects);
-        setIsModalOpen(true);
-      }
+      openProjectModal(slug);
     }
   }, []);
 
@@ -87,6 +86,7 @@ export default function App({ initialUrl, initialLocale }) {
 
       if (pathname.startsWith('/admin') || hash.startsWith('#/admin') || hash === '#admin') {
         setRoute('admin');
+        setIsModalOpen(false);
         return;
       }
 
@@ -97,15 +97,10 @@ export default function App({ initialUrl, initialLocale }) {
       }
 
       // Check for deep-linked project
-      const match = pathname.match(/(?:\/(?:ar|en))?\/projects\/([a-zA-Z0-9_-]+)/);
+      const match = pathname.match(/^(?:\/(?:ar|en))?\/projects\/([a-zA-Z0-9_-]+)$/);
       if (match && match[1]) {
         const slug = match[1];
-        const allProjects = getAllPublishedProjects();
-        const found = allProjects.find((p) => p.id === slug || p.slug === slug);
-        if (found) {
-          setSelectedProjectId(found.id);
-          setIsModalOpen(true);
-        }
+        openProjectModal(slug);
       }
 
       // Default home
@@ -123,48 +118,84 @@ export default function App({ initialUrl, initialLocale }) {
     };
   }, []);
 
-  // Fetch real published projects from backend API to augment catalog
+  // Fetch real published projects, categories, and settings from backend API
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let isMounted = true;
-    async function loadBackendProjects() {
+    async function loadBackendData() {
       try {
-        const res = await fetch(`/api/v1/projects?locale=${lang}`, {
-          headers: { Accept: 'application/json' },
-        });
-        if (res.ok) {
-          const json = await res.json();
-          const apiProjects = json.data?.projects?.data;
-          if (Array.isArray(apiProjects) && apiProjects.length > 0 && isMounted) {
-            // Keep curated demo projects while ensuring real projects appear
-            const normalizedApi = apiProjects.map((p) => ({
+        const [projRes, catRes, setRes] = await Promise.all([
+          fetch(`/api/v1/projects?locale=${lang}`, { headers: { Accept: 'application/json' } }),
+          fetch(`/api/v1/categories?locale=${lang}`, { headers: { Accept: 'application/json' } }),
+          fetch(`/api/v1/settings?locale=${lang}`, { headers: { Accept: 'application/json' } }),
+        ]);
+
+        if (projRes.ok) {
+          const json = await projRes.json();
+          const apiProjects = json.data?.projects?.data || [];
+          const normalizedApi = apiProjects.map((p) => {
+            const titleEn = p.title || p.slug;
+            const titleAr = p.title || p.slug;
+            const summaryEn = p.summary || '';
+            const summaryAr = p.summary || '';
+            const catName = p.categories?.[0]?.name || p.categories?.[0]?.slug || (lang === 'ar' ? 'هوية بصرية' : 'Branding');
+            const cover = p.cover_url || null;
+            return {
               id: p.slug || String(p.id),
-              title: { en: p.title || p.slug, ar: p.title || p.slug },
-              subtitle: { en: p.summary || '', ar: p.summary || '' },
-              category: { en: p.categories?.[0]?.name || 'Branding', ar: p.categories?.[0]?.name || 'هوية بصرية' },
-              tags: p.tools?.map((t) => t.name || t.slug) || ['Design', 'Brand'],
+              slug: p.slug,
+              title: { en: titleEn, ar: titleAr },
+              subtitle: { en: summaryEn, ar: summaryAr },
+              description: { en: p.description || summaryEn, ar: p.description || summaryAr },
+              category: { en: catName, ar: catName },
+              categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
+              categories: p.categories || [],
+              tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
+              tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
               year: String(p.year || new Date().getFullYear()),
-              image: p.cover_url || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
+              image: cover,
+              coverImage: cover,
               client: { en: p.client || 'Studio Client', ar: p.client || 'عميل الاستوديو' },
               featured: Boolean(p.is_featured),
-              metrics: [],
-              artworks: [],
-            }));
+              publicationDate: p.published_at || String(p.year || ''),
+              gallery: Array.isArray(p.media) ? p.media.map((m, idx) => ({
+                id: m.id || `${p.slug}-media-${idx}`,
+                url: m.display_url || m.url,
+                src: m.display_url || m.url,
+                title: { en: m.caption_en || titleEn, ar: m.caption_ar || titleAr },
+                caption: { en: m.caption_en || summaryEn, ar: m.caption_ar || summaryAr },
+                type: m.is_cover ? 'cover' : 'gallery',
+              })) : [],
+              services: [{ en: 'Brand Identity', ar: 'الهوية البصرية' }, { en: 'Visual Design', ar: 'التصميم المرئي' }],
+            };
+          });
 
-            setPublishedProjects((prev) => {
-              const existingIds = new Set(prev.map((item) => item.id));
-              const newItems = normalizedApi.filter((item) => !existingIds.has(item.id));
-              return [...newItems, ...prev];
-            });
+          if (isMounted) {
+            setPublishedProjects(normalizedApi);
+          }
+        }
+
+        if (catRes.ok) {
+          const catJson = await catRes.json();
+          const apiCats = catJson.data || [];
+          if (isMounted) {
+            setCategories(apiCats);
+          }
+        }
+
+        if (setRes.ok) {
+          const setJson = await setRes.json();
+          const apiSettings = setJson.data?.settings || setJson.data || null;
+          if (isMounted) {
+            setSiteSettings(apiSettings);
           }
         }
       } catch (e) {
-        // Fallback to portfolioData.js projects
+        // Fallback safely to empty state without throwing runtime exceptions
       }
     }
 
-    loadBackendProjects();
+    loadBackendData();
     return () => {
       isMounted = false;
     };
@@ -239,26 +270,79 @@ export default function App({ initialUrl, initialLocale }) {
     setLang((prev) => (prev === 'en' ? 'ar' : 'en'));
   }, []);
 
-  const openProjectModal = useCallback((projectId, collection) => {
+  const openProjectModal = useCallback(async (projectId, collection) => {
     setSelectedProjectId(projectId);
-    setModalCollection(collection || getAllPublishedProjects());
+    setModalCollection(collection || publishedProjects);
     setIsModalOpen(true);
-  }, []);
+
+    try {
+      const res = await fetch(`/api/v1/projects/${projectId}?locale=${lang}`, {
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const p = json.data?.project;
+        if (p) {
+          const titleEn = p.title || p.slug;
+          const titleAr = p.title || p.slug;
+          const summaryEn = p.summary || '';
+          const summaryAr = p.summary || '';
+          const catName = p.categories?.[0]?.name || p.categories?.[0]?.slug || (lang === 'ar' ? 'هوية بصرية' : 'Branding');
+          const cover = p.cover_url || null;
+
+          const fullProject = {
+            id: p.slug || String(p.id),
+            slug: p.slug,
+            title: { en: titleEn, ar: titleAr },
+            subtitle: { en: summaryEn, ar: summaryAr },
+            description: { en: p.description || summaryEn, ar: p.description || summaryAr },
+            category: { en: catName, ar: catName },
+            categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
+            categories: p.categories || [],
+            tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
+            tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
+            year: String(p.year || new Date().getFullYear()),
+            image: cover,
+            coverImage: cover,
+            client: { en: p.client || 'Studio Client', ar: p.client || 'عميل الاستوديو' },
+            featured: Boolean(p.is_featured),
+            publicationDate: p.published_at || String(p.year || ''),
+            gallery: Array.isArray(p.media) ? p.media.map((m, idx) => ({
+              id: m.id || `${p.slug}-media-${idx}`,
+              url: m.display_url || m.url,
+              src: m.display_url || m.url,
+              title: { en: m.caption_en || titleEn, ar: m.caption_ar || titleAr },
+              caption: { en: m.caption_en || summaryEn, ar: m.caption_ar || summaryAr },
+              type: m.is_cover ? 'cover' : 'gallery',
+            })) : [],
+            services: [{ en: 'Brand Identity', ar: 'الهوية البصرية' }, { en: 'Visual Design', ar: 'التصميم المرئي' }],
+          };
+          setDetailedProject(fullProject);
+        }
+      }
+    } catch (e) {
+      // Graceful fallback
+    }
+  }, [lang, publishedProjects]);
 
   const closeProjectModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
 
   const navigateProjectModal = useCallback((projectId) => {
-    setSelectedProjectId(projectId);
-  }, []);
+    openProjectModal(projectId);
+  }, [openProjectModal]);
 
   const allPublished = publishedProjects;
-  const activeProject = selectedProjectId
-    ? allPublished.find((p) => p.id === selectedProjectId) ||
-      projectsData.find((p) => p.id === selectedProjectId) ||
-      allPublished[0]
+  const baseActive = selectedProjectId
+    ? (modalCollection || allPublished).find((p) => p.id === selectedProjectId || p.slug === selectedProjectId) ||
+      allPublished.find((p) => p.id === selectedProjectId || p.slug === selectedProjectId) ||
+      null
     : null;
+
+  const activeProject = (detailedProject && (detailedProject.id === selectedProjectId || detailedProject.slug === selectedProjectId))
+    ? detailedProject
+    : baseActive;
 
   if (route === 'admin') {
     return <AdminApp />;
@@ -284,6 +368,9 @@ export default function App({ initialUrl, initialLocale }) {
         <div className="flex-1">
           <AllProjectsScreen
             lang={lang}
+            projects={publishedProjects}
+            categories={categories}
+            settings={siteSettings}
             onBackToHome={() => navigateRoute('home', 'selected-work')}
             onOpenProject={(id, collection) => openProjectModal(id, collection)}
           />
@@ -291,40 +378,46 @@ export default function App({ initialUrl, initialLocale }) {
       ) : (
         <main className="flex-1">
           {/* Section 1: Hero */}
-          <HeroSection lang={lang} onOpenProject={(id) => openProjectModal(id)} />
+          <HeroSection
+            lang={lang}
+            settings={siteSettings}
+            featuredProject={publishedProjects.find((p) => p.featured) || (publishedProjects.length > 0 ? publishedProjects[0] : null)}
+            onOpenProject={(id) => openProjectModal(id)}
+          />
 
           {/* Section 2: Selected Work Carousel */}
           <SelectedWorkSection
             lang={lang}
-            onOpenProject={(id) => openProjectModal(id)}
+            projects={publishedProjects}
+            onOpenProject={(id, col) => openProjectModal(id, col)}
             onNavigateAllProjects={() => navigateRoute('work')}
           />
 
           {/* Section 3: About Me */}
-          <AboutSection lang={lang} />
+          <AboutSection lang={lang} settings={siteSettings} />
 
           {/* Section 4: Skills & Expertise Glassmorphism Dashboard */}
-          <SkillsSection lang={lang} />
+          <SkillsSection lang={lang} settings={siteSettings} />
 
           {/* Section 5: Creative Journey Timeline */}
           <JourneySection lang={lang} />
 
           {/* Section 6: Contact Section */}
-          <ContactSection lang={lang} />
+          <ContactSection lang={lang} settings={siteSettings} />
         </main>
       )}
 
       {/* Section 7: Footer */}
-      <Footer lang={lang} />
+      <Footer lang={lang} settings={siteSettings} />
 
       {/* Section 8: The CRITICAL Project Details Modal (Overlays above either screen) */}
       <ProjectDetailsModal
         project={activeProject}
-        isOpen={isModalOpen}
+        isOpen={isModalOpen && Boolean(activeProject) && route !== 'admin'}
         onClose={closeProjectModal}
         lang={lang}
         onNavigateProject={navigateProjectModal}
-        projectCollection={modalCollection}
+        projectCollection={modalCollection || publishedProjects}
       />
     </div>
   );

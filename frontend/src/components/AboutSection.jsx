@@ -9,9 +9,21 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const AboutSection = ({ lang }) => {
+export const AboutSection = ({ lang, settings }) => {
   const t = translations[lang].about;
   const sectionRef = useRef(null);
+
+  const kicker = settings?.about?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
+  const titleStart = settings?.about?.[lang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
+  const titleAccent = settings?.about?.[lang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
+  const description = settings?.about?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+
+  const statProjectsCount = settings?.about?.statProjects || '50+';
+  const statClientsCount = settings?.about?.statClients || '20+';
+  const statYearsCount = settings?.about?.statYears || '5+';
+
+  const badgeTitle = settings?.profile?.[lang === 'ar' ? 'titleAr' : 'titleEn'] || t.badgeTitle;
+  const badgeSubtitle = settings?.profile?.[lang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.badgeSubtitle;
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -123,11 +135,11 @@ export const AboutSection = ({ lang }) => {
                   <div className="flex items-center gap-1.5 text-amber-300 mb-1">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span className="text-xs font-serif font-bold text-white">
-                      {t.badgeTitle}
+                      {badgeTitle}
                     </span>
                   </div>
                   <p className="text-[10px] text-neutral-300 font-sans tracking-wide">
-                    {t.badgeSubtitle}
+                    {badgeSubtitle}
                   </p>
                 </div>
 
@@ -136,7 +148,7 @@ export const AboutSection = ({ lang }) => {
                   <div className="grid grid-cols-3 divide-x divide-white/10 text-center rtl:divide-x-reverse">
                     <div>
                       <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
-                        50<span className="text-rose-300 font-sans">+</span>
+                        {statProjectsCount}
                       </div>
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statProjects}
@@ -145,7 +157,7 @@ export const AboutSection = ({ lang }) => {
 
                     <div>
                       <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
-                        20<span className="text-rose-300 font-sans">+</span>
+                        {statClientsCount}
                       </div>
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statClients}
@@ -154,7 +166,7 @@ export const AboutSection = ({ lang }) => {
 
                     <div>
                       <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
-                        5<span className="text-rose-300 font-sans">+</span>
+                        {statYearsCount}
                       </div>
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statYears}
@@ -171,18 +183,18 @@ export const AboutSection = ({ lang }) => {
           <div className="about-reveal lg:col-span-7 text-left rtl:text-right">
             {/* Kicker: "03 / About Me ——" */}
             <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-3 tracking-wider">
-              {t.kicker}
+              {kicker}
             </div>
 
             {/* Title: "About Me" */}
             <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-6">
-              <span>{t.titleStart} </span>
-              <span className="text-[#f4a496] italic font-serif">{t.titleAccent}</span>
+              <span>{titleStart} </span>
+              <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
             </h2>
 
             {/* Description Paragraph */}
             <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-8 max-w-2xl">
-              {t.description}
+              {description}
             </p>
 
             {/* Four Expertise Cards in a row */}

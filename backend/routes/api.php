@@ -28,6 +28,7 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
     Route::get('/projects/{slug}', [\App\Http\Controllers\Api\V1\PublicProjectController::class, 'show'])->name('api.v1.projects.show');
     Route::get('/categories', [\App\Http\Controllers\Api\V1\PublicCategoryController::class, 'index'])->name('api.v1.categories.index');
     Route::get('/journey', [\App\Http\Controllers\Api\V1\JourneyController::class, 'index'])->name('api.v1.journey.index');
+    Route::get('/settings', [\App\Http\Controllers\Api\V1\SiteSettingController::class, 'publicSettings'])->name('api.v1.settings.public');
     Route::get('/search', [\App\Http\Controllers\Api\V1\SearchController::class, 'search'])->name('api.v1.search');
 
     // Public Contact API (Task 07.05)
@@ -134,6 +135,10 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
         Route::put('journey/{id}', [\App\Http\Controllers\Api\V1\JourneyController::class, 'update'])->name('api.v1.admin.journey.update');
         Route::delete('journey/{id}', [\App\Http\Controllers\Api\V1\JourneyController::class, 'destroy'])->name('api.v1.admin.journey.destroy');
         Route::post('journey/{id}/publish', [\App\Http\Controllers\Api\V1\JourneyController::class, 'publish'])->name('api.v1.admin.journey.publish');
+
+        // Studio Site Settings (Hero, About, Skills, Contact, Branding)
+        Route::get('settings', [\App\Http\Controllers\Api\V1\SiteSettingController::class, 'adminShow'])->name('api.v1.admin.settings.show');
+        Route::put('settings', [\App\Http\Controllers\Api\V1\SiteSettingController::class, 'adminUpdate'])->name('api.v1.admin.settings.update');
 
         // Analytics API (Task 06.10)
         Route::prefix('analytics')->group(function () {

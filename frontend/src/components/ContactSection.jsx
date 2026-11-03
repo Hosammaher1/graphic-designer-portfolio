@@ -2,9 +2,16 @@ import React, { useState, useRef } from 'react';
 import { translations } from '../data/portfolioData';
 import { Mail, CheckCircle2, Send, ArrowUpRight, AlertCircle } from 'lucide-react';
 
-export const ContactSection = ({ lang = 'ar' }) => {
+export const ContactSection = ({ lang = 'ar', settings }) => {
   const currentLang = lang === 'en' ? 'en' : 'ar';
   const t = (translations[currentLang] || translations.ar || translations.en).contact;
+
+  const kicker = settings?.contact?.[currentLang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
+  const titleStart = settings?.contact?.[currentLang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
+  const titleAccent = settings?.contact?.[currentLang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
+  const description = settings?.contact?.[currentLang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+  const directEmail = settings?.contact?.directEmail || settings?.profile?.email || 'hosam.maher48@gmail.com';
+  const availableStatus = settings?.contact?.[currentLang === 'ar' ? 'availabilityAr' : 'availabilityEn'] || t.availableStatus;
 
   const formLoadedAt = useRef(Date.now());
   const [formState, setFormState] = useState({
@@ -103,14 +110,14 @@ export const ContactSection = ({ lang = 'ar' }) => {
         {/* Section Header: Kicker, Title, Subtitle */}
         <div className="max-w-2xl mb-14 text-left rtl:text-right">
           <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
-            {t.kicker}
+            {kicker}
           </div>
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-4">
-            <span>{t.titleStart} </span>
-            <span className="text-[#f4a496] italic font-serif">{t.titleAccent}</span>
+            <span>{titleStart} </span>
+            <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
           </h2>
           <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            {t.description}
+            {description}
           </p>
         </div>
 
@@ -265,7 +272,7 @@ export const ContactSection = ({ lang = 'ar' }) => {
               </p>
 
               <a
-                href="mailto:hosam.maher48@gmail.com"
+                href={`mailto:${directEmail}`}
                 className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-300/30 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-3.5">
@@ -275,7 +282,7 @@ export const ContactSection = ({ lang = 'ar' }) => {
                   <div>
                     <div className="text-[11px] font-mono text-neutral-400">STUDIO INBOX</div>
                     <div className="text-sm font-medium text-white group-hover:text-rose-200 transition-colors">
-                      hosam.maher48@gmail.com
+                      {directEmail}
                     </div>
                   </div>
                 </div>
@@ -286,7 +293,7 @@ export const ContactSection = ({ lang = 'ar' }) => {
               <div className="mt-6 pt-6 border-t border-white/5 flex items-center gap-3">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-xs text-neutral-300 font-light">
-                  {t.availableStatus}
+                  {availableStatus}
                 </span>
               </div>
             </div>

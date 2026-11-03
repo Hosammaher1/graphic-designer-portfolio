@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { translations, projectsData } from '../data/portfolioData';
+import { translations, projectsData, resolveText } from '../data/portfolioData';
 import { ProjectArtwork } from './ProjectArtworks';
 import {
   X,
@@ -43,6 +43,8 @@ export const ProjectDetailsModal = ({
   const t = translations[lang].modal;
   const activeList = projectCollection && projectCollection.length > 0 ? projectCollection : projectsData;
 
+  const getLoc = (val) => resolveText(val, lang, '');
+
   // Background scroll locking
   useEffect(() => {
     if (isOpen) {
@@ -64,16 +66,41 @@ export const ProjectDetailsModal = ({
   }, [isOpen]);
 
   // Construct comprehensive image collection for current project
+  const coverSrc = project?.coverImage || project?.imageUrl || project?.image || null;
+  const projectGallery = Array.isArray(project?.gallery) ? project.gallery : [];
+  const normalizedGallery = projectGallery.map((item, idx) => {
+    if (typeof item === 'string') {
+      return {
+        id: `${project?.id}-g-${idx}`,
+        src: item,
+        artworkId: item,
+        title: project?.title,
+        caption: project?.subtitle || project?.title,
+        type: 'image',
+      };
+    }
+    return {
+      ...item,
+      id: item.id || `${project?.id}-g-${idx}`,
+      src: item.url || item.src || null,
+      artworkId: item.artworkId || item.url || item.src || project?.artworkId,
+      title: item.title || project?.title,
+      caption: item.caption || project?.subtitle || project?.title,
+      type: item.type || 'image',
+    };
+  });
+
   const allImages = project
     ? [
         {
           id: `${project.id}-cover`,
-          artworkId: project.artworkId,
+          src: coverSrc,
+          artworkId: project.artworkId || coverSrc || project.slug,
           title: project.title,
-          caption: project.subtitle,
-          type: 'packaging',
+          caption: project.subtitle || project.title,
+          type: 'cover',
         },
-        ...project.gallery,
+        ...normalizedGallery,
       ]
     : [];
 
@@ -210,10 +237,10 @@ export const ProjectDetailsModal = ({
               </span>
               <div className="text-left rtl:text-right hidden sm:block">
                 <span className="text-xs sm:text-sm font-serif text-white font-medium block">
-                  {allImages[selectedLightboxIndex].title[lang]}
+                  {getLoc(allImages[selectedLightboxIndex]?.title)}
                 </span>
                 <span className="text-[10px] text-neutral-400 font-light block">
-                  {project.title[lang]} · {project.category[lang]}
+                  {getLoc(project?.title)} · {getLoc(project?.category)}
                 </span>
               </div>
             </div>
@@ -262,7 +289,8 @@ export const ProjectDetailsModal = ({
           <div className="relative flex-1 w-full max-w-6xl flex items-center justify-center my-auto p-2 sm:p-6 overflow-hidden">
             <div className="relative w-full h-[65vh] sm:h-[75vh] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
               <ProjectArtwork
-                id={allImages[selectedLightboxIndex].artworkId}
+                id={allImages[selectedLightboxIndex]?.artworkId}
+                src={allImages[selectedLightboxIndex]?.src}
                 className="w-full h-full object-contain"
                 priority={true}
               />
@@ -272,7 +300,7 @@ export const ProjectDetailsModal = ({
           {/* Bottom Bar: Bilingual Caption & Quick Thumbnail Strip */}
           <div className="w-full max-w-5xl text-center py-2 z-20 space-y-3">
             <p className="text-xs sm:text-sm text-neutral-300 font-light max-w-2xl mx-auto px-4 leading-relaxed">
-              {allImages[selectedLightboxIndex].caption[lang]}
+              {getLoc(allImages[selectedLightboxIndex]?.caption)}
             </p>
 
             {/* Quick mini-thumbnail selector */}
@@ -287,7 +315,7 @@ export const ProjectDetailsModal = ({
                       : 'border-white/15 opacity-50 hover:opacity-100'
                   }`}
                 >
-                  <ProjectArtwork id={img.artworkId} className="w-full h-full object-cover" />
+                  <ProjectArtwork id={img.artworkId} src={img.src} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -324,26 +352,26 @@ export const ProjectDetailsModal = ({
                 {String(currentIndex + 1).padStart(2, '0')} / {String(totalProjects).padStart(2, '0')}
               </span>
               <span className="text-xs font-mono tracking-wider text-neutral-300 hidden sm:inline uppercase">
-                {project.category[lang]}
+                {getLoc(project?.category)}
               </span>
             </div>
 
             {/* Nav Controls: Prev / Next / Close */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => onNavigateProject(prevProject.id)}
+                onClick={() => prevProject && onNavigateProject(prevProject.id)}
                 aria-label={t.previous}
                 className="p-2 rounded-xl glass-panel-subtle hover:border-rose-300/40 text-neutral-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-                title={prevProject.title[lang]}
+                title={getLoc(prevProject?.title)}
               >
                 <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
               </button>
 
               <button
-                onClick={() => onNavigateProject(nextProject.id)}
+                onClick={() => nextProject && onNavigateProject(nextProject.id)}
                 aria-label={t.next}
                 className="p-2 rounded-xl glass-panel-subtle hover:border-rose-300/40 text-neutral-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-                title={nextProject.title[lang]}
+                title={getLoc(nextProject?.title)}
               >
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
@@ -371,16 +399,16 @@ export const ProjectDetailsModal = ({
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono tracking-widest text-rose-300 glass-panel border border-rose-300/20 uppercase mb-3">
                   <Sparkles className="w-3 h-3 text-amber-300" />
-                  <span>{project.category[lang]} · {project.year}</span>
+                  <span>{getLoc(project?.category)} · {project?.year || ''}</span>
                 </div>
                 <h1
                   id="modal-project-title"
                   className="font-serif text-3xl sm:text-5xl md:text-6xl font-normal text-white tracking-tight leading-[1.1]"
                 >
-                  {project.title[lang]}
+                  {getLoc(project?.title)}
                 </h1>
                 <p className="text-base sm:text-xl text-rose-200/90 font-light mt-2 max-w-3xl leading-relaxed">
-                  {project.subtitle[lang]}
+                  {getLoc(project?.subtitle || project?.summary)}
                 </p>
               </div>
 
@@ -391,7 +419,7 @@ export const ProjectDetailsModal = ({
                     {t.client}
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-white mt-0.5 block">
-                    {project.client[lang]}
+                    {getLoc(project?.client) || 'Studio Client'}
                   </span>
                 </div>
 
@@ -400,7 +428,7 @@ export const ProjectDetailsModal = ({
                     {t.year}
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-white mt-0.5 block">
-                    {project.year}
+                    {project?.year || new Date().getFullYear()}
                   </span>
                 </div>
 
@@ -409,7 +437,7 @@ export const ProjectDetailsModal = ({
                     {t.category}
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-rose-300 mt-0.5 block">
-                    {project.category[lang]}
+                    {getLoc(project?.category)}
                   </span>
                 </div>
 
@@ -429,7 +457,7 @@ export const ProjectDetailsModal = ({
               onClick={() => setSelectedLightboxIndex(0)}
               className="group relative w-full h-80 sm:h-[460px] md:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer"
             >
-              <ProjectArtwork id={project.artworkId} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" priority={true} />
+              <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" priority={true} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
               {/* Hover Lightbox Indicator Badge */}
@@ -439,7 +467,7 @@ export const ProjectDetailsModal = ({
               </div>
 
               <div className="absolute bottom-4 left-4 rtl:left-auto rtl:right-4 px-3.5 py-1.5 rounded-xl bg-black/60 backdrop-blur-md text-xs font-mono text-rose-200 border border-rose-300/20">
-                01 / {String(allImages.length).padStart(2, '0')} · {allImages[0].title[lang]}
+                01 / {String(allImages.length).padStart(2, '0')} · {getLoc(allImages[0]?.title)}
               </div>
             </div>
 
@@ -450,7 +478,7 @@ export const ProjectDetailsModal = ({
                   {t.caseStudyNarrative}
                 </span>
                 <p className="text-base sm:text-lg text-neutral-200 font-light leading-relaxed">
-                  {project.description[lang]}
+                  {getLoc(project?.description)}
                 </p>
               </div>
 
@@ -464,7 +492,7 @@ export const ProjectDetailsModal = ({
                     </h3>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-300 font-light leading-relaxed">
-                    {project.objectives[lang]}
+                    {getLoc(project?.objectives) || (lang === 'en' ? 'Craft a distinctive visual identity and elevated brand experience.' : 'بناء هوية بصرية متميزة وتجربة علامة تجارية راقية.')}
                   </p>
                 </div>
 
@@ -476,14 +504,14 @@ export const ProjectDetailsModal = ({
                     </h3>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-300 font-light leading-relaxed">
-                    {project.creativeConcept[lang]}
+                    {getLoc(project?.creativeConcept) || (lang === 'en' ? 'Harmonizing minimalist typography with warm editorial aesthetics.' : 'التناغم بين التيبوغرافيا البسيطة والجماليات التحريرية الدافئة.')}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* 4. BRAND & VISUAL IDENTITY SYSTEM (Color Swatches & Typography) */}
-            {project.brandSystem && (
+            {project?.brandSystem && (
               <div className="space-y-6 text-left rtl:text-right pt-4 border-t border-rose-300/15">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-2xl font-normal text-white flex items-center gap-2.5">
@@ -491,13 +519,13 @@ export const ProjectDetailsModal = ({
                     <span>{t.brandSystem}</span>
                   </h3>
                   <span className="text-xs font-mono text-neutral-400">
-                    {project.brandSystem.palette.length} SWATCHES
+                    {project.brandSystem.palette?.length || 0} SWATCHES
                   </span>
                 </div>
 
                 {/* Color Palette Grid with copyable HEX codes */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {project.brandSystem.palette.map((swatch) => (
+                  {(project.brandSystem.palette || []).map((swatch) => (
                     <div
                       key={swatch.hex}
                       onClick={() => handleCopyHex(swatch.hex)}
@@ -585,20 +613,21 @@ export const ProjectDetailsModal = ({
                     {t.allImagesInCase}
                   </h3>
                   <p className="text-xs text-neutral-400 mt-1">
-                    {t.galleryItemsCount.replace('{count}', String(project.gallery.length))}
+                    {t.galleryItemsCount.replace('{count}', String(projectGallery.length))}
                   </p>
                 </div>
               </div>
 
               {/* Asymmetric / Two-Column Responsive Gallery Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                {project.gallery.map((item, gIdx) => {
+                {projectGallery.map((item, gIdx) => {
                   const globalIdx = gIdx + 1; // 0 is cover
                   const isFull = item.span === 'full';
+                  const itemSrc = item.url || item.src || null;
 
                   return (
                     <div
-                      key={item.id}
+                      key={item.id || gIdx}
                       onClick={() => setSelectedLightboxIndex(globalIdx)}
                       className={`group relative rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-rose-300/50 cursor-pointer shadow-xl transition-all duration-300 flex flex-col ${
                         isFull ? 'md:col-span-2' : ''
@@ -616,13 +645,14 @@ export const ProjectDetailsModal = ({
                       >
                         <ProjectArtwork
                           id={item.artworkId}
+                          src={itemSrc}
                           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
                         />
 
                         {/* Top Badge: Type & Index */}
                         <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex items-center gap-2">
                           <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-wider text-rose-200 glass-panel border border-rose-300/30 uppercase">
-                            {String(globalIdx + 1).padStart(2, '0')} · {item.type}
+                            {String(globalIdx + 1).padStart(2, '0')} · {item.type || 'image'}
                           </span>
                         </div>
 
@@ -635,10 +665,10 @@ export const ProjectDetailsModal = ({
                       {/* Item Caption Box */}
                       <div className="p-5 sm:p-6 bg-gradient-to-b from-[#140b17] to-[#0c050f] border-t border-white/5">
                         <h4 className="font-serif text-lg font-bold text-white group-hover:text-rose-200 transition-colors">
-                          {item.title[lang]}
+                          {getLoc(item.title)}
                         </h4>
                         <p className="text-xs sm:text-sm text-neutral-300/80 font-light mt-1 leading-relaxed">
-                          {item.caption[lang]}
+                          {getLoc(item.caption)}
                         </p>
                       </div>
                     </div>
@@ -656,10 +686,10 @@ export const ProjectDetailsModal = ({
                   <span>{t.servicesProvided}</span>
                 </h4>
                 <ul className="space-y-2.5">
-                  {project.services.map((srv, sIdx) => (
+                  {(project?.services || []).map((srv, sIdx) => (
                     <li key={sIdx} className="flex items-center gap-2.5 text-xs sm:text-sm text-neutral-300">
                       <CheckCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                      <span>{srv[lang]}</span>
+                      <span>{getLoc(srv)}</span>
                     </li>
                   ))}
                 </ul>
@@ -672,18 +702,18 @@ export const ProjectDetailsModal = ({
                   <span>{t.toolsUtilized}</span>
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {project.tools.map((tool) => (
+                  {(project?.tools || []).map((tool, tIdx) => (
                     <span
-                      key={tool}
+                      key={typeof tool === 'string' ? tool : tool.name || tIdx}
                       className="px-3 py-1.5 rounded-lg text-xs font-mono text-neutral-300 bg-neutral-900/70 border border-white/5"
                     >
-                      {tool}
+                      {typeof tool === 'string' ? tool : tool.name}
                     </span>
                   ))}
                 </div>
 
                 {/* Recognition & Results */}
-                {project.results && project.results.length > 0 && (
+                {project?.results && project.results.length > 0 && (
                   <div className="mt-6 pt-4 border-t border-white/5">
                     <span className="text-[11px] font-mono tracking-wider text-rose-300 uppercase block mb-2 font-semibold">
                       {t.resultsTitle}
@@ -692,7 +722,7 @@ export const ProjectDetailsModal = ({
                       {project.results.map((res, rIdx) => (
                         <li key={rIdx} className="flex items-start gap-2 text-xs text-neutral-300">
                           <Award className="w-3.5 h-3.5 text-amber-300 mt-0.5 shrink-0" />
-                          <span>{res[lang]}</span>
+                          <span>{getLoc(res)}</span>
                         </li>
                       ))}
                     </ul>
@@ -704,18 +734,18 @@ export const ProjectDetailsModal = ({
             {/* 7. BOTTOM FOOTER NAVIGATION: SEAMLESS PREV / NEXT CASE STUDY TOUR */}
             <div className="pt-8 border-t border-rose-300/15 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
-                onClick={() => onNavigateProject(prevProject.id)}
+                onClick={() => prevProject && onNavigateProject(prevProject.id)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-semibold text-neutral-200 glass-panel-subtle hover:border-rose-300/40 hover:text-white transition-all"
               >
                 <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
-                <span>{t.previous}: {prevProject.title[lang]}</span>
+                <span>{t.previous}: {getLoc(prevProject?.title)}</span>
               </button>
 
               <button
-                onClick={() => onNavigateProject(nextProject.id)}
+                onClick={() => nextProject && onNavigateProject(nextProject.id)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 shadow-md hover:shadow-xl transition-all"
               >
-                <span>{t.next}: {nextProject.title[lang]}</span>
+                <span>{t.next}: {getLoc(nextProject?.title)}</span>
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
               </button>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Palette,
@@ -20,6 +20,7 @@ export function SettingsPage() {
 
   // Profile form state
   const [name, setName] = useState(settings.profile?.name || 'Hosam Maher');
+  const [nameAr, setNameAr] = useState(settings.profile?.nameAr || 'حسام ماهر');
   const [taglineEn, setTaglineEn] = useState(settings.profile?.taglineEn || '');
   const [taglineAr, setTaglineAr] = useState(settings.profile?.taglineAr || '');
   const [bioEn, setBioEn] = useState(settings.profile?.bioEn || '');
@@ -29,6 +30,26 @@ export function SettingsPage() {
   const [dribbble, setDribbble] = useState(settings.profile?.dribbbleUrl || '');
   const [instagram, setInstagram] = useState(settings.profile?.instagramUrl || '');
   const [linkedin, setLinkedin] = useState(settings.profile?.linkedinUrl || '');
+
+  // Hero & About Content form state
+  const [heroKickerEn, setHeroKickerEn] = useState(settings.hero?.kickerEn || "Hello, I'm a");
+  const [heroKickerAr, setHeroKickerAr] = useState(settings.hero?.kickerAr || 'مرحباً، أنا');
+  const [heroTitleEn, setHeroTitleEn] = useState(settings.hero?.titleStartEn || 'Graphic');
+  const [heroTitleAr, setHeroTitleAr] = useState(settings.hero?.titleStartAr || 'مصمم');
+  const [heroAccentEn, setHeroAccentEn] = useState(settings.hero?.titleAccentEn || 'Designer');
+  const [heroAccentAr, setHeroAccentAr] = useState(settings.hero?.titleAccentAr || 'جرافيك');
+  const [heroDescEn, setHeroDescEn] = useState(settings.hero?.descEn || '');
+  const [heroDescAr, setHeroDescAr] = useState(settings.hero?.descAr || '');
+
+  const [aboutDescEn, setAboutDescEn] = useState(settings.about?.descEn || '');
+  const [aboutDescAr, setAboutDescAr] = useState(settings.about?.descAr || '');
+  const [statProjects, setStatProjects] = useState(settings.about?.statProjects || '50+');
+  const [statClients, setStatClients] = useState(settings.about?.statClients || '20+');
+  const [statYears, setStatYears] = useState(settings.about?.statYears || '5+');
+
+  const [contactEmail, setContactEmail] = useState(settings.contact?.directEmail || settings.profile?.email || 'hosam.maher48@gmail.com');
+  const [contactAvailabilityEn, setContactAvailabilityEn] = useState(settings.contact?.availabilityEn || 'Available for freelance & select projects');
+  const [contactAvailabilityAr, setContactAvailabilityAr] = useState(settings.contact?.availabilityAr || 'متاح للمشاريع الإبداعية والاستشارات المختارة');
 
   // Branding form state
   const [monogram, setMonogram] = useState(settings.branding?.monogram || 'GD');
@@ -48,14 +69,65 @@ export function SettingsPage() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveSettings = (e) => {
+  // Synchronize state when backend settings are loaded or updated
+  useEffect(() => {
+    if (!settings) return;
+    if (settings.profile) {
+      if (settings.profile.name !== undefined) setName(settings.profile.name);
+      if (settings.profile.nameAr !== undefined) setNameAr(settings.profile.nameAr);
+      if (settings.profile.taglineEn !== undefined) setTaglineEn(settings.profile.taglineEn);
+      if (settings.profile.taglineAr !== undefined) setTaglineAr(settings.profile.taglineAr);
+      if (settings.profile.bioEn !== undefined) setBioEn(settings.profile.bioEn);
+      if (settings.profile.bioAr !== undefined) setBioAr(settings.profile.bioAr);
+      if (settings.profile.email !== undefined) setEmail(settings.profile.email);
+      if (settings.profile.behanceUrl !== undefined) setBehance(settings.profile.behanceUrl);
+      if (settings.profile.dribbbleUrl !== undefined) setDribbble(settings.profile.dribbbleUrl);
+      if (settings.profile.instagramUrl !== undefined) setInstagram(settings.profile.instagramUrl);
+      if (settings.profile.linkedinUrl !== undefined) setLinkedin(settings.profile.linkedinUrl);
+    }
+    if (settings.hero) {
+      if (settings.hero.kickerEn !== undefined) setHeroKickerEn(settings.hero.kickerEn);
+      if (settings.hero.kickerAr !== undefined) setHeroKickerAr(settings.hero.kickerAr);
+      if (settings.hero.titleStartEn !== undefined) setHeroTitleEn(settings.hero.titleStartEn);
+      if (settings.hero.titleStartAr !== undefined) setHeroTitleAr(settings.hero.titleStartAr);
+      if (settings.hero.titleAccentEn !== undefined) setHeroAccentEn(settings.hero.titleAccentEn);
+      if (settings.hero.titleAccentAr !== undefined) setHeroAccentAr(settings.hero.titleAccentAr);
+      if (settings.hero.descEn !== undefined) setHeroDescEn(settings.hero.descEn);
+      if (settings.hero.descAr !== undefined) setHeroDescAr(settings.hero.descAr);
+    }
+    if (settings.about) {
+      if (settings.about.descEn !== undefined) setAboutDescEn(settings.about.descEn);
+      if (settings.about.descAr !== undefined) setAboutDescAr(settings.about.descAr);
+      if (settings.about.statProjects !== undefined) setStatProjects(settings.about.statProjects);
+      if (settings.about.statClients !== undefined) setStatClients(settings.about.statClients);
+      if (settings.about.statYears !== undefined) setStatYears(settings.about.statYears);
+    }
+    if (settings.contact) {
+      if (settings.contact.directEmail !== undefined) setContactEmail(settings.contact.directEmail);
+      if (settings.contact.availabilityEn !== undefined) setContactAvailabilityEn(settings.contact.availabilityEn);
+      if (settings.contact.availabilityAr !== undefined) setContactAvailabilityAr(settings.contact.availabilityAr);
+    }
+    if (settings.branding) {
+      if (settings.branding.monogram !== undefined) setMonogram(settings.branding.monogram);
+      if (settings.branding.studioName !== undefined) setStudioName(settings.branding.studioName);
+      if (settings.branding.accentColor !== undefined) setAccentColor(settings.branding.accentColor);
+    }
+    if (settings.preferences) {
+      if (settings.preferences.defaultLanguage !== undefined) setDefaultLang(settings.preferences.defaultLanguage);
+      if (settings.preferences.featuredMode !== undefined) setFeaturedMode(settings.preferences.featuredMode);
+      if (settings.preferences.enableCarouselAutoplay !== undefined) setCarouselAutoplay(Boolean(settings.preferences.enableCarouselAutoplay));
+      if (settings.preferences.showContactForm !== undefined) setShowContactForm(settings.preferences.showContactForm !== false);
+    }
+  }, [settings]);
+
+  const handleSaveSettings = async (e) => {
     e?.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      updateStudioSettings({
+    try {
+      await updateStudioSettings({
         profile: {
           name,
+          nameAr,
           taglineEn,
           taglineAr,
           bioEn,
@@ -71,6 +143,28 @@ export function SettingsPage() {
           studioName,
           accentColor,
         },
+        hero: {
+          kickerEn: heroKickerEn,
+          kickerAr: heroKickerAr,
+          titleStartEn: heroTitleEn,
+          titleStartAr: heroTitleAr,
+          titleAccentEn: heroAccentEn,
+          titleAccentAr: heroAccentAr,
+          descEn: heroDescEn,
+          descAr: heroDescAr,
+        },
+        about: {
+          descEn: aboutDescEn,
+          descAr: aboutDescAr,
+          statProjects,
+          statClients,
+          statYears,
+        },
+        contact: {
+          directEmail: contactEmail,
+          availabilityEn: contactAvailabilityEn,
+          availabilityAr: contactAvailabilityAr,
+        },
         preferences: {
           defaultLanguage: defaultLang,
           featuredMode,
@@ -78,8 +172,9 @@ export function SettingsPage() {
           showContactForm,
         },
       });
-      addToast(t.settings.savedNotice, 'success');
-    }, 400);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePasswordSubmit = (e) => {
@@ -139,6 +234,18 @@ export function SettingsPage() {
         >
           <User className="w-4 h-4 text-[#f4a496]" />
           <span>{t.settings.tabs.profile}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('content')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'content'
+              ? 'glass-panel-active text-[#fcdcd4] border border-[#f4a496]/35 shadow-sm'
+              : 'text-neutral-400 hover:text-white glass-panel-subtle'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-[#f4a496]" />
+          <span>{lang === 'ar' ? 'محتوى الرئيسية' : 'Homepage Content'}</span>
         </button>
 
         <button
@@ -429,6 +536,191 @@ export function SettingsPage() {
                 className="rounded border-white/20 bg-white/10 text-[#842b45] focus:ring-0"
               />
             </label>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: HOMEPAGE CONTENT (HERO, ABOUT & METRICS) */}
+      {activeTab === 'content' && (
+        <div className="p-6 sm:p-7 rounded-3xl glass-panel border border-[#f4a496]/15 shadow-2xl space-y-6 max-w-4xl">
+          <div className="border-b border-white/10 pb-4">
+            <h3 className="font-serif text-lg font-bold text-white mb-1">
+              {lang === 'ar' ? 'قسم الواجهة الرئيسية (Hero Section)' : 'Hero Section Headlines & Kicker'}
+            </h3>
+            <p className="text-xs text-neutral-400 font-light">
+              {lang === 'ar' ? 'تخصيص العناوين والوصف البصري في أعلى الصفحة الرئيسية' : 'Customize the prominent animated headlines, kicker, and introduction'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Hero Kicker (English)
+              </label>
+              <input
+                type="text"
+                value={heroKickerEn}
+                onChange={(e) => setHeroKickerEn(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-sans focus:outline-none focus:border-[#f4a496]/60"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Hero Kicker (العربية)
+              </label>
+              <input
+                type="text"
+                dir="rtl"
+                value={heroKickerAr}
+                onChange={(e) => setHeroKickerAr(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-arabic focus:outline-none focus:border-[#f4a496]/60"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Headline Line 1 (English / Arabic)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Graphic"
+                  value={heroTitleEn}
+                  onChange={(e) => setHeroTitleEn(e.target.value)}
+                  className="w-1/2 px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-sans focus:outline-none focus:border-[#f4a496]/60"
+                />
+                <input
+                  type="text"
+                  dir="rtl"
+                  placeholder="مصمم"
+                  value={heroTitleAr}
+                  onChange={(e) => setHeroTitleAr(e.target.value)}
+                  className="w-1/2 px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-arabic focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Headline Line 2 (Accent / Italic)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Designer"
+                  value={heroAccentEn}
+                  onChange={(e) => setHeroAccentEn(e.target.value)}
+                  className="w-1/2 px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-sans focus:outline-none focus:border-[#f4a496]/60"
+                />
+                <input
+                  type="text"
+                  dir="rtl"
+                  placeholder="جرافيك"
+                  value={heroAccentAr}
+                  onChange={(e) => setHeroAccentAr(e.target.value)}
+                  className="w-1/2 px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs font-arabic focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Hero Description (English)
+              </label>
+              <textarea
+                rows={3}
+                value={heroDescEn}
+                onChange={(e) => setHeroDescEn(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs leading-relaxed font-sans focus:outline-none focus:border-[#f4a496]/60"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Hero Description (العربية)
+              </label>
+              <textarea
+                rows={3}
+                dir="rtl"
+                value={heroDescAr}
+                onChange={(e) => setHeroDescAr(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs leading-relaxed font-arabic focus:outline-none focus:border-[#f4a496]/60"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/10">
+            <h3 className="font-serif text-lg font-bold text-white mb-1">
+              {lang === 'ar' ? 'قسم من أنا والإحصائيات (About & Metrics)' : 'About Section & Key Metrics'}
+            </h3>
+            <p className="text-xs text-neutral-400 font-light mb-4">
+              {lang === 'ar' ? 'تعديل السرد التعريفي وأرقام الخبرة الموثقة' : 'Update the narrative biography and live showcase metrics'}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                  About Narrative (English)
+                </label>
+                <textarea
+                  rows={3}
+                  value={aboutDescEn}
+                  onChange={(e) => setAboutDescEn(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs leading-relaxed font-sans focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                  About Narrative (العربية)
+                </label>
+                <textarea
+                  rows={3}
+                  dir="rtl"
+                  value={aboutDescAr}
+                  onChange={(e) => setAboutDescAr(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs leading-relaxed font-arabic focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-300 mb-1">
+                  Projects Count
+                </label>
+                <input
+                  type="text"
+                  value={statProjects}
+                  onChange={(e) => setStatProjects(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-300 mb-1">
+                  Clients Count
+                </label>
+                <input
+                  type="text"
+                  value={statClients}
+                  onChange={(e) => setStatClients(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-300 mb-1">
+                  Years Count
+                </label>
+                <input
+                  type="text"
+                  value={statYears}
+                  onChange={(e) => setStatYears(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#f4a496]/60"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -19,12 +19,22 @@ const isDemoAuthEnabled =
 
 const AdminContext = createContext(null);
 
+function getCookie(name) {
+  if (typeof document === 'undefined') return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+  return null;
+}
+
 // Helper for standardized API fetch calls with credentials
 async function requestApi(endpoint, options = {}) {
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const xsrfToken = getCookie('XSRF-TOKEN');
   const defaultHeaders = {
     Accept: 'application/json',
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(xsrfToken ? { 'X-XSRF-TOKEN': xsrfToken } : {}),
   };
 
   try {
@@ -40,13 +50,37 @@ async function requestApi(endpoint, options = {}) {
   }
 }
 
+const safeGetItem = (key) => {
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined' && typeof window.localStorage.getItem === 'function') {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+};
+
+const safeSetItem = (key, val) => {
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined' && typeof window.localStorage.setItem === 'function') {
+    try {
+      window.localStorage.setItem(key, val);
+    } catch (e) {}
+  }
+};
+
+const safeRemoveItem = (key) => {
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined' && typeof window.localStorage.removeItem === 'function') {
+    try {
+      window.localStorage.removeItem(key);
+    } catch (e) {}
+  }
+};
+
 export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   // Localization: 'en' or 'ar'
   const [lang, setLang] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      return localStorage.getItem('studio_admin_lang') || 'en';
-    }
-    return 'en';
+    return safeGetItem('studio_admin_lang') || 'en';
   });
 
   // Current sub-route in Admin (supports both standard pathname and hash routing)
@@ -78,10 +112,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       if (isLoginPath) {
         return false;
       }
-      if (typeof localStorage !== 'undefined') {
-        const auth = localStorage.getItem('studio_admin_auth');
-        return auth === 'true' || (isDemoAuthEnabled && auth === 'demo');
-      }
+      const auth = safeGetItem('studio_admin_auth');
+      return auth === 'true' || (isDemoAuthEnabled && auth === 'demo');
     }
     return false;
   });
@@ -112,9 +144,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       document.documentElement.lang = lang;
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     }
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_lang', lang);
-    }
+    safeSetItem('studio_admin_lang', lang);
   }, [lang]);
 
   // Sync route on popstate and hashchange events
@@ -156,17 +186,13 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       if (res.ok && res.data?.data?.user) {
         setUser(res.data.data.user);
         setIsAuthenticated(true);
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem('studio_admin_auth', 'true');
-        }
+        safeSetItem('studio_admin_auth', 'true');
       } else {
-        const localAuth = typeof localStorage !== 'undefined' ? localStorage.getItem('studio_admin_auth') : null;
+        const localAuth = safeGetItem('studio_admin_auth');
         if (!isDemoAuthEnabled || localAuth !== 'demo') {
           setUser(null);
           setIsAuthenticated(false);
-          if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('studio_admin_auth');
-          }
+          safeRemoveItem('studio_admin_auth');
         }
       }
     }
@@ -185,109 +211,100 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
   // Projects State
   const [projects, setProjects] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_projects_v2');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((p, idx) => normalizeAdminProject(p, idx));
-          }
-        } catch (e) {
-          console.error('Failed to parse saved projects', e);
+    const saved = safeGetItem('studio_admin_projects_v2');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((p, idx) => normalizeAdminProject(p, idx));
         }
+      } catch (e) {
+        console.error('Failed to parse saved projects', e);
       }
     }
-    return projectsData.map((p, idx) => normalizeAdminProject(p, idx));
+    return [];
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_projects_v2', JSON.stringify(projects));
-    }
+    safeSetItem('studio_admin_projects_v2', JSON.stringify(projects));
   }, [projects]);
 
   // Categories State
   const [categories, setCategories] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_categories');
-      if (saved) return JSON.parse(saved);
+    const saved = safeGetItem('studio_admin_categories');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
     }
-    return INITIAL_ADMIN_CATEGORIES;
+    return [];
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_categories', JSON.stringify(categories));
-    }
+    safeSetItem('studio_admin_categories', JSON.stringify(categories));
   }, [categories]);
 
   // Media Library State
   const [media, setMedia] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_media');
-      if (saved) return JSON.parse(saved);
+    const saved = safeGetItem('studio_admin_media');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
     }
     return INITIAL_ADMIN_MEDIA;
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_media', JSON.stringify(media));
-    }
+    safeSetItem('studio_admin_media', JSON.stringify(media));
   }, [media]);
 
   // Page Builder Pages
   const [pages, setPages] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_pages');
-      if (saved) return JSON.parse(saved);
+    const saved = safeGetItem('studio_admin_pages');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
     }
     return INITIAL_ADMIN_PAGES;
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_pages', JSON.stringify(pages));
-    }
+    safeSetItem('studio_admin_pages', JSON.stringify(pages));
   }, [pages]);
 
   // Creative Journey Milestones
   const [milestones, setMilestones] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_journey');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {}
-      }
+    const saved = safeGetItem('studio_admin_journey');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
     }
     return INITIAL_ADMIN_JOURNEY;
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_journey', JSON.stringify(milestones));
-    }
+    safeSetItem('studio_admin_journey', JSON.stringify(milestones));
   }, [milestones]);
 
   // Trash & Recovery
   const [trash, setTrash] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_trash_v2');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            return parsed.map((item) => ({
-              ...item,
-              titleEn: resolveLocalized(item.titleEn, 'en') || resolveLocalized(item.title, 'en') || 'Deleted Item',
-              titleAr: resolveLocalized(item.titleAr, 'ar') || resolveLocalized(item.title, 'ar') || 'عنصر محذوف',
-            }));
-          }
-        } catch (e) {
-          console.error('Failed to parse saved trash', e);
+    const saved = safeGetItem('studio_admin_trash_v2');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => ({
+            ...item,
+            titleEn: resolveLocalized(item.titleEn, 'en') || resolveLocalized(item.title, 'en') || 'Deleted Item',
+            titleAr: resolveLocalized(item.titleAr, 'ar') || resolveLocalized(item.title, 'ar') || 'عنصر محذوف',
+          }));
         }
+      } catch (e) {
+        console.error('Failed to parse saved trash', e);
       }
     }
     return INITIAL_ADMIN_TRASH.map((item) => ({
@@ -298,24 +315,22 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_trash_v2', JSON.stringify(trash));
-    }
+    safeSetItem('studio_admin_trash_v2', JSON.stringify(trash));
   }, [trash]);
 
   // Studio Settings
   const [settings, setSettings] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('studio_admin_settings');
-      if (saved) return JSON.parse(saved);
+    const saved = safeGetItem('studio_admin_settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
     }
     return INITIAL_STUDIO_SETTINGS;
   });
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_settings', JSON.stringify(settings));
-    }
+    safeSetItem('studio_admin_settings', JSON.stringify(settings));
   }, [settings]);
 
   // Activity Log
@@ -357,8 +372,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             clientAr: p.client || '',
             descEn: enTrans.description || enTrans.summary || '',
             descAr: arTrans.description || arTrans.summary || '',
-            coverImage: p.cover_url || p.coverMedia?.url || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
-            views: p.view_count || 1200,
+            coverImage: p.cover_url || p.coverMedia?.url || '',
+            views: p.view_count || 0,
             updatedAt: p.updated_at ? p.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
             tools: (p.tools || []).map((t) => t.name || t.slug).join(', ') || 'Illustrator, Photoshop',
             gallery: p.gallery || [],
@@ -366,12 +381,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           idx
         );
       });
-      if (mapped.length > 0) {
-        setProjects(mapped);
-        return mapped;
-      }
+      setProjects(mapped);
+      return mapped;
     }
-    return null;
+    return [];
   }, []);
 
   // Fetch real media from Laravel API if available
@@ -415,12 +428,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           status: c.is_active ? 'active' : 'inactive',
         };
       });
-      if (mapped.length > 0) {
-        setCategories(mapped);
-        return mapped;
-      }
+      setCategories(mapped);
+      return mapped;
     }
-    return null;
+    return [];
   }, []);
 
   // Fetch real creative journey milestones from Laravel API if available
@@ -433,15 +444,26 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     return null;
   }, []);
 
-  // On mount if authenticated, attempt to sync backend data
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchProjects();
-      fetchMedia();
-      fetchCategories();
-      fetchMilestones();
+  // Fetch studio site settings from Laravel API
+  const fetchSettings = useCallback(async () => {
+    const res = await requestApi('/api/v1/admin/settings');
+    if (res.ok && res.data?.data?.settings) {
+      setSettings(res.data.data.settings);
+      return res.data.data.settings;
     }
-  }, [isAuthenticated, fetchProjects, fetchMedia, fetchCategories, fetchMilestones]);
+    return null;
+  }, []);
+
+  // On mount if authenticated, sync backend data
+  useEffect(() => {
+    fetchProjects();
+    fetchCategories();
+    fetchMilestones();
+    fetchSettings();
+    if (isAuthenticated) {
+      fetchMedia();
+    }
+  }, [isAuthenticated, fetchProjects, fetchCategories, fetchMilestones, fetchSettings, fetchMedia]);
 
   // Authentication Actions
   const login = useCallback(
@@ -461,9 +483,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           const authedUser = res.data.data?.user || { email, name: email.split('@')[0] };
           setUser(authedUser);
           setIsAuthenticated(true);
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('studio_admin_auth', 'true');
-          }
+          safeSetItem('studio_admin_auth', 'true');
           addToast(lang === 'ar' ? 'تم تسجيل الدخول بنجاح إلى لوحة الإدارة' : 'Signed in successfully to Studio Admin', 'success');
           navigateAdmin('/admin/dashboard');
           return { success: true, user: authedUser };
@@ -493,9 +513,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     const demoUser = { id: 1, name: 'Admin Demo', email: 'demo@mohammed-portfolio.test' };
     setUser(demoUser);
     setIsAuthenticated(true);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_auth', 'demo');
-    }
+    safeSetItem('studio_admin_auth', 'demo');
     addToast(lang === 'ar' ? 'تم الدخول إلى وضع النموذج التجريبي للاستوديو' : 'Signed in successfully to Demo Mode', 'success');
     navigateAdmin('/admin/dashboard');
     return true;
@@ -509,9 +527,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     }
     setUser(null);
     setIsAuthenticated(false);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('studio_admin_auth', 'false');
-    }
+    safeSetItem('studio_admin_auth', 'false');
     addToast(lang === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Signed out successfully', 'info');
     navigateAdmin('/admin/login');
   }, [addToast, lang, navigateAdmin]);
@@ -519,53 +535,95 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   // Project Actions
   const addProject = useCallback(
     async (newProj) => {
-      const normalized = normalizeAdminProject(newProj, 0);
+      const slug =
+        newProj.slug ||
+        (newProj.titleEn || newProj.title || 'project')
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, '-')
+          .replace(/^-|-$/g, '') ||
+        `proj-${Date.now()}`;
 
-      // Async backend persistence
-      requestApi('/api/v1/admin/projects', {
+      // Find matching category ID from categories state if slugs/names provided
+      const matchedCategoryIds = [];
+      if (Array.isArray(newProj.categories) && categories.length > 0) {
+        newProj.categories.forEach((cName) => {
+          const found = categories.find(
+            (cat) => cat.nameEn === cName || cat.slug === cName || String(cat.id) === String(cName)
+          );
+          if (found && /^\d+$/.test(String(found.id))) {
+            matchedCategoryIds.push(parseInt(found.id, 10));
+          }
+        });
+      }
+
+      const payload = {
+        slug,
+        status: newProj.status || 'published',
+        is_featured: Boolean(newProj.featured),
+        year: parseInt(newProj.year, 10) || new Date().getFullYear(),
+        client: newProj.clientEn || newProj.client || '',
+        cover_media_id: newProj.coverMediaId || null,
+        category_ids: matchedCategoryIds.length > 0 ? matchedCategoryIds : undefined,
+        translations: [
+          {
+            locale: 'en',
+            title: newProj.titleEn || newProj.title || 'Untitled Project',
+            summary: newProj.descEn || newProj.summary || newProj.subtitle?.en || '',
+            description: newProj.descEn || newProj.description?.en || newProj.summary || '',
+            seo_title: newProj.seoTitle || newProj.titleEn || newProj.title || 'Project',
+            seo_description: newProj.seoDesc || newProj.descEn || '',
+          },
+          {
+            locale: 'ar',
+            title: newProj.titleAr || newProj.titleEn || newProj.title || 'مشروع جديد',
+            summary: newProj.descAr || newProj.descEn || newProj.summary || newProj.subtitle?.ar || '',
+            description: newProj.descAr || newProj.descEn || newProj.description?.ar || newProj.summary || '',
+            seo_title: newProj.seoTitle || newProj.titleAr || newProj.titleEn || 'مشروع',
+            seo_description: newProj.seoDesc || newProj.descAr || '',
+          },
+        ],
+      };
+
+      const res = await requestApi('/api/v1/admin/projects', {
         method: 'POST',
-        body: JSON.stringify({
-          slug: normalized.slug || normalized.titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          status: normalized.status || 'draft',
-          is_featured: Boolean(normalized.featured),
-          year: parseInt(normalized.year, 10) || new Date().getFullYear(),
-          client: normalized.clientEn || '',
-          translations: [
-            {
-              locale: 'en',
-              title: normalized.titleEn,
-              summary: normalized.descEn,
-              description: normalized.descEn,
-              seo_title: normalized.titleEn,
-              seo_description: normalized.descEn,
-            },
-            {
-              locale: 'ar',
-              title: normalized.titleAr || normalized.titleEn,
-              summary: normalized.descAr || normalized.descEn,
-              description: normalized.descAr || normalized.descEn,
-              seo_title: normalized.titleAr || normalized.titleEn,
-              seo_description: normalized.descAr || normalized.descEn,
-            },
-          ],
-        }),
-      }).catch(() => {});
+        body: JSON.stringify(payload),
+      });
 
-      setProjects((prev) => [normalized, ...prev]);
-      setActivities((prev) => [
-        {
-          id: `act-${Date.now()}`,
-          type: 'publish',
-          textEn: `Created project "${normalized.titleEn}"`,
-          textAr: `تم إنشاء المشروع "${normalized.titleAr}"`,
-          time: 'Just now',
-        },
-        ...prev,
-      ]);
-      addToast(lang === 'ar' ? 'تم إنشاء المشروع بنجاح' : 'Project created successfully', 'success');
-      return normalized;
+      if (res.ok && res.data?.data?.project) {
+        const backendProj = res.data.data.project;
+        const normalized = normalizeAdminProject(
+          {
+            ...newProj,
+            id: String(backendProj.id),
+            slug: backendProj.slug,
+            status: backendProj.status,
+            coverImage: newProj.coverImage || backendProj.cover_url || '',
+          },
+          0
+        );
+
+        setProjects((prev) => [normalized, ...prev.filter((p) => p.id !== normalized.id)]);
+        setActivities((prev) => [
+          {
+            id: `act-${Date.now()}`,
+            type: 'publish',
+            textEn: `Created project "${normalized.titleEn}"`,
+            textAr: `تم إنشاء المشروع "${normalized.titleAr}"`,
+            time: 'Just now',
+          },
+          ...prev,
+        ]);
+        addToast(lang === 'ar' ? 'تم إنشاء المشروع بنجاح' : 'Project created successfully', 'success');
+        return normalized;
+      } else {
+        const errMsg = res.data?.message || (lang === 'ar' ? 'فشل إنشاء المشروع' : 'Failed to create project');
+        addToast(errMsg, 'error');
+        const localNormalized = normalizeAdminProject(newProj, 0);
+        setProjects((prev) => [localNormalized, ...prev]);
+        return localNormalized;
+      }
     },
-    [addToast, lang]
+    [addToast, lang, categories]
   );
 
   const updateProject = useCallback(
@@ -591,16 +649,35 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
       // Async backend persistence if id is numeric
       if (/^\d+$/.test(String(id))) {
-        requestApi(`/api/v1/admin/projects/${id}`, {
+        const payload = {
+          slug: updatedFields.slug,
+          status: updatedFields.status,
+          is_featured: updatedFields.featured !== undefined ? Boolean(updatedFields.featured) : undefined,
+          year: updatedFields.year ? parseInt(updatedFields.year, 10) : undefined,
+          client: updatedFields.clientEn || updatedFields.client,
+        };
+
+        if (updatedFields.titleEn || updatedFields.titleAr) {
+          payload.translations = [
+            {
+              locale: 'en',
+              title: updatedFields.titleEn || updatedFields.title,
+              summary: updatedFields.descEn || '',
+              description: updatedFields.descEn || '',
+            },
+            {
+              locale: 'ar',
+              title: updatedFields.titleAr || updatedFields.titleEn,
+              summary: updatedFields.descAr || updatedFields.descEn || '',
+              description: updatedFields.descAr || updatedFields.descEn || '',
+            },
+          ].filter((t) => t.title);
+        }
+
+        await requestApi(`/api/v1/admin/projects/${id}`, {
           method: 'PUT',
-          body: JSON.stringify({
-            slug: updatedFields.slug,
-            status: updatedFields.status,
-            is_featured: updatedFields.featured,
-            year: updatedFields.year ? parseInt(updatedFields.year, 10) : undefined,
-            client: updatedFields.clientEn,
-          }),
-        }).catch(() => {});
+          body: JSON.stringify(payload),
+        });
       }
 
       setActivities((prev) => [
@@ -649,7 +726,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
       // Async backend delete
       if (/^\d+$/.test(String(id))) {
-        requestApi(`/api/v1/admin/projects/${id}`, { method: 'DELETE' }).catch(() => {});
+        await requestApi(`/api/v1/admin/projects/${id}`, { method: 'DELETE' });
       }
 
       addToast(lang === 'ar' ? 'تم نقل المشروع إلى سلة المحذوفات' : 'Project moved to Trash (restorable for 30 days)', 'info');
@@ -685,31 +762,33 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   // Category Actions
   const addCategory = useCallback(
     async (cat) => {
+      const slug = cat.slug || (cat.nameEn || 'category').toLowerCase().replace(/\s+/g, '-');
+      const res = await requestApi('/api/v1/admin/categories', {
+        method: 'POST',
+        body: JSON.stringify({
+          slug,
+          sort_order: categories.length + 1,
+          is_active: true,
+          translations: [
+            { locale: 'en', name: cat.nameEn || 'Category' },
+            { locale: 'ar', name: cat.nameAr || cat.nameEn || 'تصنيف' },
+          ],
+        }),
+      });
+
       const newCat = {
-        id: `cat-${Date.now()}`,
+        id: res.ok && res.data?.data?.category ? String(res.data.data.category.id) : `cat-${Date.now()}`,
         count: 0,
         order: categories.length + 1,
         status: 'active',
-        nameEn: resolveLocalized(cat.name, 'en') || cat.nameEn || 'New Category',
-        nameAr: resolveLocalized(cat.name, 'ar') || cat.nameAr || 'تصنيف جديد',
-        slug: cat.slug || 'category',
+        nameEn: cat.nameEn || 'New Category',
+        nameAr: cat.nameAr || 'تصنيف جديد',
+        slug,
       };
-
-      requestApi('/api/v1/admin/categories', {
-        method: 'POST',
-        body: JSON.stringify({
-          slug: newCat.slug,
-          sort_order: newCat.order,
-          is_active: true,
-          translations: [
-            { locale: 'en', name: newCat.nameEn },
-            { locale: 'ar', name: newCat.nameAr },
-          ],
-        }),
-      }).catch(() => {});
 
       setCategories((prev) => [...prev, newCat]);
       addToast(lang === 'ar' ? 'تم إضافة التصنيف الجديد' : 'New category added', 'success');
+      return newCat;
     },
     [categories.length, addToast, lang]
   );
@@ -985,12 +1064,22 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
   // Settings Actions
   const updateStudioSettings = useCallback(
-    (newSettings) => {
+    async (newSettings) => {
       setSettings((prev) => ({
         ...prev,
         ...newSettings,
       }));
-      addToast(lang === 'ar' ? 'تم حفظ إعدادات الاستوديو' : 'Studio settings saved', 'success');
+
+      const res = await requestApi('/api/v1/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(newSettings),
+      });
+
+      if (res.ok && res.data?.data?.settings) {
+        setSettings(res.data.data.settings);
+      }
+
+      addToast(lang === 'ar' ? 'تم حفظ إعدادات الاستوديو بنجاح' : 'Studio settings saved', 'success');
     },
     [addToast, lang]
   );
@@ -1049,6 +1138,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     purgeTrashItem,
     emptyTrash,
     settings,
+    fetchSettings,
     updateStudioSettings,
     activities,
     notifications,

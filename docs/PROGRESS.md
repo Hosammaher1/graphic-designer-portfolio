@@ -147,6 +147,42 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - Frontend Production Build: `npm run build` (`build:client` and `build:server`) succeeded cleanly in 2.8s.
   - Backend Laravel PHPUnit suite on MySQL: **327 tests passed, 1,536 assertions passed (100%)** — 0 failures.
 
+### Stage 4: Replace Demo Content With Real Database-Driven Content
+
+- **Task Scope & Status:** Turn visually approved Google AI Studio frontend into a fully functional, database-driven portfolio without altering the approved design. Admin dashboard established as single source of truth for all content. Eliminated all hardcoded demo projects, images, and text.
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local feature branch).
+- **Architecture & Single Source of Truth:**
+  - **Zero Fake Data / Luxury Empty State:** When database has no published projects, public website renders an authentic luxury empty state ("Curating New Works") instead of displaying fallback mock items.
+  - **Dynamic Portfolio API Wiring:** Replaced static project arrays with real `GET /api/v1/projects?locale=${lang}` data, including media covers, categories, tags, tools, client, and gallery artworks.
+  - **Dynamic Site Settings Architecture:**
+    - Migration `2026_11_02_210000_create_site_settings_table.php` and Model `SiteSetting.php` for persistent JSON key-value studio settings.
+    - Public endpoint `GET /api/v1/settings` with 1-hour cache and locale tags.
+    - Admin endpoints `GET /api/v1/admin/settings` and `PUT /api/v1/admin/settings` with schema validation, cache invalidation, and `AuditLogger` auditing.
+    - Feature test suite `SiteSettingTest.php` passing (3 tests, 26 assertions).
+  - **Universal Bilingual Text Resolution:** Implemented `resolveText(val, lang, fallback)` in `portfolioData.js` preventing Minified React Error #31 crashes when localized project fields contain empty string values.
+  - **Admin Deep-Linking Router Guard:** Anchored regex in `App.jsx` to `^(?:\/(?:ar|en))?\/projects\/([a-zA-Z0-9_-]+)$` and added `pathname.startsWith('/admin')` guard, preventing `/admin/projects/new` from colliding with public project modal.
+  - **Dynamic Homepage Content Synchronization:** Wired `SettingsPage.jsx` to `AdminContext.jsx` and `PUT /api/v1/admin/settings` for Hero, About, Skills, Contact, and Branding settings; updated `App.jsx` to unwrap `setJson.data?.settings || setJson.data`, instantly reflecting admin edits on public homepage.
+  - **ScrollTrigger Vitest Guard:** Enhanced `setup.js` with `requestAnimationFrame` and `cancelAnimationFrame` stubs, eliminating timer exceptions during post-test cleanup in jsdom.
+- **Automated Verification & Acceptance Testing (`e2e/tests/database-content-acceptance.spec.js`):**
+  - All 5 critical acceptance tests executed and passed (35.6s total):
+    - **Test 1 PASSED:** Empty database renders luxury empty state without demo/fake projects (3.1s).
+    - **Test 2 PASSED:** Admin logs in via Sanctum, creates database project `Aura Minimalist Identity`, and publishes it (6.5s).
+    - **Test 3 PASSED:** Created project appears dynamically on public website and opens modal (4.6s).
+    - **Test 4 PASSED:** Admin edits Hero kicker in settings (`Master of Visual Systems`) and public site reflects changes (8.4s).
+    - **Test 5 PASSED:** Moving project to trash returns public site to luxury empty state (7.2s).
+- **Captured Visual Artifacts:**
+  - `acceptance-empty-database-home.png` (295 kB)
+  - `acceptance-empty-database-work.png` (57 kB)
+  - `acceptance-admin-project-list.png` (161 kB)
+  - `acceptance-public-project-modal.png` (67 kB)
+  - `acceptance-settings-reflection.png` (295 kB)
+  - `acceptance-unpublish-empty-state.png` (263 kB)
+- **Full Regression Test Results:**
+  - **Playwright Acceptance Suite:** 5/5 passed (100%).
+  - **Frontend Vitest Suite:** 39 test files passed, 220 tests passed (100%), 0 errors.
+  - **Frontend Production Build (`npm run build`):** Client (483 kB bundle) and SSR server (763 kB bundle) succeeded cleanly.
+  - **Laravel Backend PHPUnit Suite on MySQL:** 330 tests passed, 1,562 assertions passed (100%), 0 failures.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.

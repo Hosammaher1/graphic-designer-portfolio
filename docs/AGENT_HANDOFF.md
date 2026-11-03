@@ -1,6 +1,44 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 4 Checkpoint — 2026-11-02 (Exact Google AI Studio Visual Adoption & Side-by-Side Verification)
+## Current Antigravity Stage 5 Checkpoint — 2026-11-03 (Replace Demo Content With Real Database-Driven Content)
+
+- **Active Branch:** `feat/adopt-google-ai-studio-frontend`
+- **Objective Completed:** Replaced all hardcoded demo projects, placeholder images, and demo text in the adopted Google AI Studio frontend with real database-driven content via the existing Laravel REST API and MySQL database, strictly preserving the approved visual design.
+- **Key Enhancements Implemented:**
+  - **Dynamic Single Source of Truth:**
+    - Admin dashboard is the single source of truth for all portfolio content: Projects, Categories, Project images/covers/galleries, Hero, About, Skills, Journey, and Contact/Social settings.
+    - Zero fake data policy: Empty database renders luxury empty state ("Curating New Works") with no mock items shown to visitors.
+  - **Site Settings Backend:**
+    - Migration & Model for `site_settings` table.
+    - REST Controller `SiteSettingController.php` with public `GET /api/v1/settings` (cached with 1-hour TTL) and admin `GET /api/v1/admin/settings` / `PUT /api/v1/admin/settings`.
+    - Automated feature tests in `SiteSettingTest.php` (3 passed, 26 assertions).
+  - **Frontend Deep-Linking & Localization Fixes:**
+    - Fixed deep-linking regex bug in `App.jsx` avoiding `/admin/projects/new` collisions with the public project modal.
+    - Implemented universal `resolveText(val, lang, fallback)` helper across all public sections (`SelectedWorkSection`, `HeroSection`, `AllProjectsScreen`, `ProjectDetailsModal`), eliminating Minified React Error #31.
+    - Corrected settings unwrapping (`setJson.data?.settings || setJson.data`) in `App.jsx` and added `useEffect` synchronization in `SettingsPage.jsx`.
+    - Enhanced vitest `setup.js` with `requestAnimationFrame` / `cancelAnimationFrame` stubs, achieving zero unhandled exceptions.
+- **Verification Evidence:**
+  - **Playwright E2E Acceptance Suite (`database-content-acceptance.spec.js`):** 5/5 PASSED (35.6s).
+    - 1. Empty database renders luxury empty state without demo/fake projects (3.1s).
+    - 2. Admin logs in, creates a database project, and saves it (6.5s).
+    - 3. Created project appears dynamically on public website and opens modal (4.6s).
+    - 4. Admin edits homepage settings and public site reflects changes (8.4s).
+    - 5. Unpublishing or deleting project returns public site to luxury empty state (7.2s).
+  - **Screenshots Generated in Artifacts:**
+    - `acceptance-empty-database-home.png` (295 kB)
+    - `acceptance-empty-database-work.png` (57 kB)
+    - `acceptance-admin-project-list.png` (161 kB)
+    - `acceptance-public-project-modal.png` (67 kB)
+    - `acceptance-settings-reflection.png` (295 kB)
+    - `acceptance-unpublish-empty-state.png` (263 kB)
+  - **Frontend Vitest Suite:** 39 test files passed, 220 tests passed (100%), 0 errors.
+  - **Frontend Production Build:** `npm run build` client (483 kB) & SSR server (763 kB) passed cleanly.
+  - **Backend Laravel PHPUnit Suite:** 330 tests passed, 1,562 assertions passed (100%) on MySQL.
+- **Next Immediate Action:** Ready to merge verified feature branch `feat/adopt-google-ai-studio-frontend` into `dev` when authorized.
+
+---
+
+## Historical Antigravity Stage 4 Checkpoint — 2026-11-02 (Exact Google AI Studio Visual Adoption & Side-by-Side Verification)
 
 - **Active Branch:** `feat/adopt-google-ai-studio-frontend`
 - **Objective Completed:** Resolved user defect report where the browser was rendering the legacy Phase 04 light-themed design. Adopted the authentic Google AI Studio components, layouts, typography, and styling from `frontend-reference.zip` as the single source of truth for both the public website and studio admin dashboard.

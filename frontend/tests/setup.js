@@ -53,4 +53,18 @@ if (typeof window !== 'undefined') {
       }),
     });
   }
+
+  // Ensure requestAnimationFrame & cancelAnimationFrame for GSAP ScrollTrigger
+  if (typeof globalThis.requestAnimationFrame !== 'function') {
+    globalThis.requestAnimationFrame = (callback) => setTimeout(() => callback(Date.now()), 16);
+  }
+  if (typeof globalThis.cancelAnimationFrame !== 'function') {
+    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+  }
+  if (typeof window.requestAnimationFrame !== 'function') {
+    window.requestAnimationFrame = globalThis.requestAnimationFrame;
+  }
+  if (typeof window.cancelAnimationFrame !== 'function') {
+    window.cancelAnimationFrame = globalThis.cancelAnimationFrame;
+  }
 }
