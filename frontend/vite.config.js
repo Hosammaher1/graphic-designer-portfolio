@@ -12,6 +12,8 @@ const __dirname = path.dirname(__filename);
  * Integrated with Tailwind CSS v4 and React 19 SSR.
  * Configured with Rollup manualChunks for vendor splitting (Task 07.08).
  */
+const backendTarget = process.env.VITE_BACKEND_URL || process.env.BACKEND_URL || 'http://127.0.0.1:8001';
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -23,15 +25,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
       '/sanctum': {
-        target: 'http://127.0.0.1:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
       '/storage': {
-        target: 'http://127.0.0.1:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
     },

@@ -496,9 +496,25 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           navigateAdmin('/admin/dashboard');
           return { success: true, user: authedUser };
         } else {
-          const errorMsg =
-            res.data?.message ||
-            (lang === 'ar' ? 'بيانات الاعتماد غير صالحة. يرجى المحاولة مرة أخرى.' : 'Invalid credentials. Please check email and password.');
+          let errorMsg = res.data?.message;
+          if (!errorMsg) {
+            if (res.status >= 500 || res.status === 0) {
+              errorMsg =
+                lang === 'ar'
+                  ? 'تعذر الاتصال بالخادم الخلفي. يرجى التأكد من تشغيل خادم Laravel.'
+                  : 'Unable to reach backend server. Please verify the Laravel server is running.';
+            } else if (res.status === 419) {
+              errorMsg =
+                lang === 'ar'
+                  ? 'انتهت صلاحية جلسة الأمان (CSRF). يرجى تحديث الصفحة والمحاولة مجدداً.'
+                  : 'Security session expired (CSRF). Please refresh the page and try again.';
+            } else {
+              errorMsg =
+                lang === 'ar'
+                  ? 'بيانات الاعتماد غير صالحة. يرجى التحقق من البريد وكلمة المرور.'
+                  : 'Invalid credentials. Please check email and password.';
+            }
+          }
           return { success: false, error: errorMsg };
         }
       } catch (err) {
