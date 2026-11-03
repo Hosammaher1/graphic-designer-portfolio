@@ -150,7 +150,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 ### Stage 4: Replace Demo Content With Real Database-Driven Content
 
 - **Task Scope & Status:** Turn visually approved Google AI Studio frontend into a fully functional, database-driven portfolio without altering the approved design. Admin dashboard established as single source of truth for all content. Eliminated all hardcoded demo projects, images, and text.
-- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local feature branch).
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local commit `508c50a`).
 - **Architecture & Single Source of Truth:**
   - **Zero Fake Data / Luxury Empty State:** When database has no published projects, public website renders an authentic luxury empty state ("Curating New Works") instead of displaying fallback mock items.
   - **Dynamic Portfolio API Wiring:** Replaced static project arrays with real `GET /api/v1/projects?locale=${lang}` data, including media covers, categories, tags, tools, client, and gallery artworks.
@@ -186,7 +186,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 ### Stage 5: Approved Eclipse Theme Toggle + Circular Reveal Implementation
 
 - **Task Scope & Status:** Implement approved Eclipse Theme Toggle and expanding circular wave transition while preserving the existing Google AI Studio dark theme and adopting the approved Light Mode palette.
-- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local feature branch).
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local commit `508c50a`).
 - **Design & Architecture:**
   - **Eclipse Button Design:**
     - Replaced existing Sun/Moon toggle with custom Eclipse symbol featuring two overlapping celestial discs: Warm Ivory (`#F6F1EB`) and Primary Burgundy (`#5C1628`).
@@ -233,7 +233,7 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 ### Stage 6: Official MO Branding, Contact Channels, Navigation Security & About Me Portrait Integration (2026-11-03)
 
 - **Task Scope & Status:** Integrated official MO logo (`/logo/logo.png`) and updated contact channels to official Mohammed Maher details (Email, WhatsApp direct, Instagram). Removed public Admin navigation links from visitor-facing components, removed designer name from Navbar to show logo exclusively, updated About Me section with prominent designer identity (Mohammed Maher Aldaya / محمد ماهر الداية) and professional title, integrated official transparent portrait (`/profile/mohammed-maher-profile.png`) bottom-aligned with proper clearance for floating badges, and connected profile photo management in Admin settings.
-- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local feature branch).
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local commit `508c50a`).
 - **Features & Architecture Implemented:**
   - **Official MO Logo Adoption:**
     - Replaced all visual "GD" text monograms with the official MO logo image (`/logo/logo.png`) across desktop Navbar, mobile menu, Footer, Admin Dashboard sidebar, and Admin Login page.
