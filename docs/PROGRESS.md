@@ -275,6 +275,30 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - `about-portrait-mobile.png` (922 kB): Verified mobile About Me layout and portrait positioning.
   - `footer-no-admin-link.png` (93 kB): Verified Footer with official MO logo, social links, and zero admin links.
 
+### Stage 8: Secure Administrator Password Setup CLI Command (2026-11-03)
+
+- **Task Scope & Status:** Created a dedicated, secure interactive local CLI command (`php artisan admin:set-password`) allowing the project owner to securely set or reset the administrator password in the local terminal without exposing plaintext credentials.
+- **Branch / Commits / Remote:** `feat/configure-admin-password` (local commit `0c5ae07`).
+- **Features & Architecture Implemented:**
+  - **Interactive & Hidden Input Prompting:**
+    - Prompts the administrator for the target account email with intelligent fallback to existing active administrator records in MySQL (`admin@portfolio.test`).
+    - Prompts for password and password confirmation using hidden terminal input (`$this->secret()`), preventing shoulder-surfing and terminal history leaks.
+  - **Password Strength Validation:**
+    - Enforces robust minimum password strength requirements: minimum 8 characters, letters (mixed uppercase and lowercase), and numbers.
+    - Validates matching confirmation before attempting to update credentials.
+  - **Single Source of Truth & Zero Duplication:**
+    - Updates the existing administrator record in MySQL idempotently without creating duplicate user rows.
+    - If the administrator does not exist, provides an interactive initialization flow (`--create`) with full name assignment, automatic elevation (`is_admin = true`), and email verification.
+  - **Zero Exposure & Secure Hashing:**
+    - Uses Laravel's native configured hashing framework (`Hash::make()`).
+    - Never echoes, stores, or logs plaintext passwords.
+    - Variables are immediately cleared from memory upon saving.
+    - Records an append-only audit log entry (`admin.password.cli_set`) with full automated sensitive key redaction.
+- **Verification Evidence:**
+  - **Backend PHPUnit Feature Test (`SetAdminPasswordCommandTest.php`):** **7 tests, 54 assertions passed (100%)**.
+  - **Backend PHPUnit Auth Suite (`tests/Feature/Auth`):** **37 tests, 196 assertions passed (100%)**.
+  - **Frontend Regression Suite (`npm test`):** **40 test files passed, 227 tests passed (100%)**.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.
