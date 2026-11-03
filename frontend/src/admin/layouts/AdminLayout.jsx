@@ -272,20 +272,26 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
                       </span>
                     </div>
                     <div className="py-1 space-y-1 max-h-64 overflow-y-auto modal-scrollbar">
-                      {notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          className="p-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
-                        >
-                          <div className="text-xs font-semibold text-white flex items-center justify-between">
-                            <span>{lang === 'ar' ? n.titleAr : n.titleEn}</span>
-                            <span className="text-[10px] text-neutral-500 font-light">{n.time}</span>
-                          </div>
-                          <p className="text-[11px] text-neutral-400 mt-1 font-light leading-relaxed">
-                            {lang === 'ar' ? n.descAr : n.descEn}
-                          </p>
+                      {notifications.length === 0 ? (
+                        <div className="py-6 text-center text-xs text-neutral-400 font-light">
+                          {lang === 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications'}
                         </div>
-                      ))}
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className="p-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+                          >
+                            <div className="text-xs font-semibold text-white flex items-center justify-between">
+                              <span>{lang === 'ar' ? n.titleAr : n.titleEn}</span>
+                              <span className="text-[10px] text-neutral-500 font-light">{n.time}</span>
+                            </div>
+                            <p className="text-[11px] text-neutral-400 mt-1 font-light leading-relaxed">
+                              {lang === 'ar' ? n.descAr : n.descEn}
+                            </p>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -298,7 +304,7 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
                   className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full glass-panel-subtle hover:border-[#f4a496]/40 transition-all cursor-pointer"
                 >
                   <img
-                    src="/assets/aistudio/Cinematic_Designer_About_Me_Portfolio_c9684d8c.png"
+                    src={settings.profile?.profilePhoto || '/profile/mohammed-maher-profile.png'}
                     alt="Mohammed Maher"
                     className="w-7 h-7 rounded-full object-cover border border-[#f4a496]/40"
                   />

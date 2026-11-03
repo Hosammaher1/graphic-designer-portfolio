@@ -322,6 +322,58 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - **Frontend Vitest Suite:** 40 test files, 227 tests passed (100%).
   - **Frontend Production Build:** Compiled cleanly in 2.42s.
 
+### Stage 10: Complete Audit & Removal of Demo Data From Admin Dashboard (2026-11-04)
+
+- **Task Scope & Status:** Comprehensive audit and replacement of all mock, hardcoded, simulated, and placeholder business data across the entire Admin Dashboard (Overview Dashboard, Analytics, Categories, Trash, Media, and Layout Shell) with real Laravel API and MySQL-backed data.
+- **Branch / Commits / Remote:** `feat/admin-dashboard-real-data` (branched from `fix/admin-login-connection-and-sanctum`).
+- **Features & Architecture Implemented:**
+  - **Elimination of Mock Data Sources:**
+    - `OverviewDashboardPage.jsx`:
+      - Removed hardcoded `12,480` initial view accumulator; views are now calculated from real `analyticsOverview.summary.total_views` or real database project views sum.
+      - Removed fabricated numbers and badges: `"4,890"` unique visitors, `"3m 42s"` average time, `"+3 new"`, `"+24.6%"`, and `"+18.2%"`.
+      - Connected Card 4 to real Client Inquiries count (`inquiriesCount.total`, `inquiriesCount.unread`) with dynamic unread badges.
+      - Replaced mock SVG chart data (`DEMO_ANALYTICS.dailyViews`) with real API trend rollups (`analyticsOverview.daily_trend`). Implemented zero-baseline guard preventing divide-by-zero when `maxViews === 0`, rendering an authentic luxury empty notice: *"No visitor traffic recorded in this period yet"*.
+      - Replaced mock activity log with real MySQL audit logs (`fetchActivities`), formatted with relative timestamps (`5m ago`, `2h ago`) and bilingual Arabic/English action descriptors. Added empty state when no activity is logged.
+      - Recent & Popular projects now consume real projects from MySQL, with authentic empty states and real view counts (zero views displayed as `0 views`, never fabricated).
+    - `AnalyticsPage.jsx`:
+      - Removed fake multiplier formula (`multiplier = ...`, `Math.round(4890 * multiplier)`, `Math.round(18620 * multiplier)`).
+      - Removed mock statistics: `"48.2%"`, `"3m 48s"`, `"+28.4%"`, `"+34.1%"`.
+      - Connected to `/api/v1/admin/analytics/overview`, `/api/v1/admin/analytics/top-projects`, and `/api/v1/admin/analytics/traffic-sources`.
+      - Interactive date range switcher (`7d`, `30d`, `90d`, `1y`) now triggers real API queries.
+      - Display real verified visitors, project impressions, and authentic empty states for traffic sources and leaderboard.
+    - `AdminContext.jsx`:
+      - Removed initial mock arrays: `INITIAL_ADMIN_MEDIA`, `INITIAL_ADMIN_TRASH`, and `INITIAL_ACTIVITY_LOG`. Initialized all states to `[]`.
+      - Added real state & fetcher hooks: `fetchAnalytics`, `fetchActivities`, `fetchTrash`, `fetchInquiries`.
+      - Replaced hardcoded notifications array with dynamically derived notifications based on real MySQL counts (unread inquiries, staged trash, unpublished drafts).
+      - Connected mutations (`deleteProject`, `restoreTrashItem`, `purgeTrashItem`, `emptyTrash`, `updateStudioSettings`) to trigger refetches for immediate dashboard synchronization.
+    - `CategoriesPage.jsx` & `AdminLayout.jsx`:
+      - Added elegant empty state row to Categories table when `categories.length === 0`.
+      - Added empty state to notifications dropdown when `notifications.length === 0`.
+      - Updated admin avatar to use verified portrait (`settings.profile.profilePhoto || '/profile/mohammed-maher-profile.png'`).
+    - `localization.js`:
+      - Removed fallback that fabricated views (`Math.max(340, ...)`) and auto-featured projects.
+      - Added `formatRelativeTime(date, lang)` and `formatAuditActivity(log)`.
+  - **Database Records Preserved & Reported:**
+    - Verified all existing database records remain intact without deletion:
+      - Projects: 1 active published project (`id: 9`, `slug: "project"`, 7 real views).
+      - Categories: 0.
+      - Media Assets: 0.
+      - Inquiries: 0.
+      - Journey Milestones: 4 records (2023, 2024, 2025, 2026+).
+      - Site Settings: 1 record (`portfolio_settings`).
+      - Users: 2 records (`admin@portfolio.test`, `mohmmed.maher467@gmail.com`).
+- **Verification Evidence:**
+  - **New Automated Unit/Integration Suite (`frontend/tests/admin-dashboard-real-data.test.jsx`):** **5 tests passed (100%)** in 159ms.
+  - **Full Vitest Regression Suite:** **40 test files passed, 227 tests passed (100%)**.
+  - **Laravel Backend PHPUnit Test Suite (`AdminAnalyticsApiTest.php` & `Auth`):** **43 tests, 231 assertions passed (100%)** on MySQL.
+  - **Playwright E2E Visual Verification (`e2e/tests/admin-dashboard-real-data.spec.js`):** **2 tests passed (100%)** across Desktop Chromium and Mobile Chrome viewports in 14.6s.
+  - **Frontend Production Client & SSR Builds (`npm run build`):** Clean compile in 4.08s (client) and 978ms (SSR).
+- **Captured Visual Artifacts:**
+  - `admin-dashboard-overview-desktop.png` (142 kB): Verified Overview Dashboard displaying real metrics, real inquiries card, zero demo data, and luxury zero-traffic chart.
+  - `admin-dashboard-overview-mobile.png` (74 kB): Verified responsive mobile Overview layout.
+  - `admin-dashboard-analytics-desktop.png` (129 kB): Verified Analytics Intelligence page with real totals, zero multiplier calculations, and empty referral state.
+  - `admin-dashboard-analytics-mobile.png` (78 kB): Verified responsive mobile Analytics layout.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.

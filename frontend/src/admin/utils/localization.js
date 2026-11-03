@@ -95,9 +95,9 @@ export function normalizeAdminProject(p, idx = 0) {
     subtitleEn,
     subtitleAr,
     status: p.status || 'published',
-    views: typeof p.views === 'number' ? p.views : Math.max(340, 1240 - idx * 180 + 45),
-    updatedAt: p.updatedAt || `2026-10-${Math.max(1, 28 - idx)}`,
-    featured: p.isFeatured !== undefined ? !!p.isFeatured : (p.featured !== undefined ? !!p.featured : idx < 3),
+    views: typeof p.views === 'number' ? p.views : (typeof p.view_count === 'number' ? p.view_count : 0),
+    updatedAt: p.updatedAt || (p.updated_at ? p.updated_at.split('T')[0] : new Date().toISOString().split('T')[0]),
+    featured: Boolean(p.is_featured ?? p.isFeatured ?? p.featured ?? false),
     categories: Array.isArray(p.categories) ? p.categories : [categoryEn],
     tools: Array.isArray(p.tools) ? p.tools : ['Adobe Illustrator', 'Adobe Photoshop', 'Figma'],
     year: p.year || '2025',
@@ -105,5 +105,108 @@ export function normalizeAdminProject(p, idx = 0) {
     gallery,
     seoTitle: p.seoTitle || `${titleEn} — Brand Identity Case Study`,
     seoDesc: p.seoDesc || descEn || 'Creative graphic design showcase.',
+  };
+}
+
+/**
+ * Formats a timestamp into a human-readable relative time string.
+ */
+export function formatRelativeTime(dateInput, lang = 'en') {
+  if (!dateInput) return lang === 'ar' ? 'الآن' : 'Just now';
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return String(dateInput);
+  const now = Date.now();
+  const diffSec = Math.floor((now - date.getTime()) / 1000);
+  if (diffSec < 60) return lang === 'ar' ? 'الآن' : 'Just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return lang === 'ar' ? `منذ ${diffMin} دقيقة` : `${diffMin}m ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return lang === 'ar' ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 30) return lang === 'ar' ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
+  return date.toISOString().split('T')[0];
+}
+
+/**
+ * Transforms a backend audit log record into a formatted activity feed item.
+ */
+export function formatAuditActivity(log) {
+  if (!log) return null;
+  const action = log.action || '';
+  const details = log.details || {};
+  const slug = details.slug || details.title || (details.project_id ? `Project #${details.project_id}` : '');
+
+  let textEn = action;
+  let textAr = action;
+  let type = 'general';
+
+  if (action === 'auth.login.success') {
+    textEn = 'Administrator signed in to Studio Admin';
+    textAr = 'تم تسجيل دخول المدير إلى لوحة الإدارة';
+    type = 'auth';
+  } else if (action === 'auth.logout') {
+    textEn = 'Administrator signed out';
+    textAr = 'تم تسجيل الخروج من لوحة الإدارة';
+    type = 'auth';
+  } else if (action === 'auth.login.failed') {
+    textEn = `Failed login attempt for ${details.email || log.actor_email || 'user'}`;
+    textAr = `محاولة دخول فاشلة للحساب ${details.email || log.actor_email || ''}`;
+    type = 'auth';
+  } else if (action === 'project.created') {
+    textEn = `Created project "${slug || 'New Case Study'}"`;
+    textAr = `تم إنشاء المشروع "${slug || 'دراسة حالة جديدة'}"`;
+    type = 'publish';
+  } else if (action === 'project.updated') {
+    textEn = `Updated project "${slug || 'Case Study'}"`;
+    textAr = `تم تحديث بيانات المشروع "${slug || 'المشروع'}"`;
+    type = 'publish';
+  } else if (action === 'project.soft_deleted') {
+    textEn = `Moved project "${slug || 'Project'}" to trash`;
+    textAr = `تم نقل المشروع "${slug || 'المشروع'}" إلى سلة المحذوفات`;
+    type = 'trash';
+  } else if (action === 'project.restored') {
+    textEn = `Restored project "${slug || 'Project'}" from trash`;
+    textAr = `تم استرجاع المشروع "${slug || 'المشروع'}" من سلة المحذوفات`;
+    type = 'restore';
+  } else if (action === 'project.force_deleted') {
+    textEn = `Permanently deleted project "${slug || 'Project'}"`;
+    textAr = `تم الحذف النهائي للمشروع "${slug || 'المشروع'}"`;
+    type = 'trash';
+  } else if (action === 'project.published') {
+    textEn = `Published project "${slug || 'Case Study'}"`;
+    textAr = `تم نشر المشروع "${slug || 'المشروع'}"`;
+    type = 'publish';
+  } else if (action === 'project.unpublish') {
+    textEn = `Unpublished project "${slug || 'Project'}"`;
+    textAr = `تم إلغاء نشر المشروع "${slug || 'المشروع'}"`;
+    type = 'draft';
+  } else if (action === 'media.uploaded') {
+    textEn = `Uploaded media asset "${details.filename || details.original_filename || 'file'}"`;
+    textAr = `تم رفع ملف وسائط جديد "${details.filename || details.original_filename || 'ملف'}"`;
+    type = 'media';
+  } else if (action === 'media.deleted') {
+    textEn = 'Deleted media asset from library';
+    textAr = 'تم حذف ملف وسائط من المكتبة';
+    type = 'media';
+  } else if (action === 'settings.updated') {
+    textEn = 'Updated portfolio studio settings';
+    textAr = 'تم حفظ وتحديث إعدادات الاستوديو';
+    type = 'settings';
+  } else if (action === 'contact.inquiry') {
+    textEn = `Received new client inquiry from ${details.name || details.email || 'Visitor'}`;
+    textAr = `تم استلام استفسار جديد من ${details.name || details.email || 'زائر'}`;
+    type = 'contact';
+  }
+
+  return {
+    id: String(log.id || `act-${Date.now()}`),
+    type,
+    textEn,
+    textAr,
+    rawDate: log.created_at,
+    timeEn: formatRelativeTime(log.created_at, 'en'),
+    timeAr: formatRelativeTime(log.created_at, 'ar'),
+    time: formatRelativeTime(log.created_at, 'en'),
+    actorEmail: log.actor_email,
   };
 }

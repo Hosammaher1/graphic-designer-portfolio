@@ -113,7 +113,14 @@ export function CategoriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {categories.map((cat, idx) => (
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-12 text-center text-xs text-neutral-400 font-light">
+                    {lang === 'ar' ? 'لا توجد تصنيفات مضافة بعد.' : 'No categories created yet.'}
+                  </td>
+                </tr>
+              ) : (
+                categories.map((cat, idx) => (
                 <tr key={cat.id} className="hover:bg-white/[0.03] transition-colors group">
                   <td className="py-4 px-4 sm:px-6 text-neutral-400 font-mono">
                     <div className="flex items-center gap-2">
@@ -180,7 +187,8 @@ export function CategoriesPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

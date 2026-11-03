@@ -3,14 +3,11 @@ import { projectsData } from '../../data/portfolioData.js';
 import {
   ADMIN_I18N,
   INITIAL_ADMIN_CATEGORIES,
-  INITIAL_ADMIN_MEDIA,
   INITIAL_ADMIN_PAGES,
-  INITIAL_ADMIN_TRASH,
   INITIAL_ADMIN_JOURNEY,
-  INITIAL_ACTIVITY_LOG,
   INITIAL_STUDIO_SETTINGS,
 } from '../data/adminData.js';
-import { resolveLocalized, normalizeAdminProject } from '../utils/localization.js';
+import { resolveLocalized, normalizeAdminProject, formatAuditActivity, formatRelativeTime } from '../utils/localization.js';
 
 const isDemoAuthEnabled =
   typeof import.meta !== 'undefined' &&
@@ -119,11 +116,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   });
 
   // Notifications & Toasts
-  const [notifications, setNotifications] = useState([
-    { id: 'notif-1', titleEn: 'New Portfolio View Surge', titleAr: 'ارتفاع في زيارات المعرض', descEn: '+42% visitors from Behance featured feed today.', descAr: '+42% زوار من صفحة الاستكشاف في بيهانس اليوم.', time: '10m ago', unread: true },
-    { id: 'notif-2', titleEn: 'Draft Ready for Review', titleAr: 'مسودة جاهزة للمراجعة', descEn: 'Aura Minimalist editorial layout is saved as draft.', descAr: 'تم حفظ مسودة مشروع أورا مينيمالست.', time: '2h ago', unread: true },
-    { id: 'notif-3', titleEn: 'Trash Reminder', titleAr: 'تذكير بسلة المحذوفات', descEn: '1 project will be purged in 6 days.', descAr: 'مشروع واحد سينتهي موعد استرجاعه خلال 6 أيام.', time: '1d ago', unread: false },
-  ]);
+  const [customNotifications, setCustomNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
 
   const addToast = useCallback((message, type = 'success') => {
@@ -252,15 +245,16 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     safeSetItem('studio_admin_categories', JSON.stringify(categories));
   }, [categories]);
 
-  // Media Library State
+  // Media Library State (real backend assets only)
   const [media, setMedia] = useState(() => {
     const saved = safeGetItem('studio_admin_media');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
       } catch (e) {}
     }
-    return INITIAL_ADMIN_MEDIA;
+    return [];
   });
 
   useEffect(() => {
@@ -297,7 +291,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     safeSetItem('studio_admin_journey', JSON.stringify(milestones));
   }, [milestones]);
 
-  // Trash & Recovery
+  // Trash & Recovery (real backend soft-deleted items only)
   const [trash, setTrash] = useState(() => {
     const saved = safeGetItem('studio_admin_trash_v2');
     if (saved) {
@@ -314,11 +308,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         console.error('Failed to parse saved trash', e);
       }
     }
-    return INITIAL_ADMIN_TRASH.map((item) => ({
-      ...item,
-      titleEn: resolveLocalized(item.titleEn, 'en') || 'Deleted Item',
-      titleAr: resolveLocalized(item.titleAr, 'ar') || 'عنصر محذوف',
-    }));
+    return [];
   });
 
   useEffect(() => {
@@ -340,8 +330,62 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     safeSetItem('studio_admin_settings', JSON.stringify(settings));
   }, [settings]);
 
-  // Activity Log
-  const [activities, setActivities] = useState(INITIAL_ACTIVITY_LOG);
+  // Activity Log (real audit logs from MySQL)
+  const [activities, setActivities] = useState([]);
+
+  // Inquiries & Contact Messages
+  const [inquiries, setInquiries] = useState([]);
+  const [inquiriesCount, setInquiriesCount] = useState({ total: 0, unread: 0 });
+
+  // Analytics State
+  const [analyticsOverview, setAnalyticsOverview] = useState({
+    summary: { total_views: 0, unique_visitors: 0, days_count: 30 },
+    daily_trend: [],
+    previous_period: { total_views: 0, unique_visitors: 0, views_change_percentage: 0 },
+  });
+  const [topAnalyticsProjects, setTopAnalyticsProjects] = useState([]);
+  const [trafficSources, setTrafficSources] = useState([]);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+
+  // Dynamic notifications derived strictly from verified real database state
+  const notifications = useMemo(() => {
+    const list = [...customNotifications];
+    if (inquiriesCount.unread > 0) {
+      list.push({
+        id: 'notif-unread-inquiries',
+        titleEn: 'New Client Inquiry',
+        titleAr: 'رسالة استفسار جديدة',
+        descEn: `You have ${inquiriesCount.unread} unread client inquiry.`,
+        descAr: `لديك ${inquiriesCount.unread} رسائل استفسار جديدة من العملاء.`,
+        time: 'Recent',
+        unread: true,
+      });
+    }
+    if (trash.length > 0) {
+      list.push({
+        id: 'notif-trash-staged',
+        titleEn: 'Trash Retention Notice',
+        titleAr: 'عناصر بسلة المحذوفات',
+        descEn: `${trash.length} project(s) currently staged in trash.`,
+        descAr: `يوجد ${trash.length} مشروع في سلة المحذوفات.`,
+        time: 'Active',
+        unread: false,
+      });
+    }
+    const draftProjects = projects.filter((p) => p.status === 'draft');
+    if (draftProjects.length > 0) {
+      list.push({
+        id: 'notif-drafts-review',
+        titleEn: 'Drafts Ready for Review',
+        titleAr: 'مسودات قيد المراجعة',
+        descEn: `${draftProjects.length} project(s) currently saved as draft.`,
+        descAr: `يوجد ${draftProjects.length} مشروع محفوظ كمسودة.`,
+        time: 'Active',
+        unread: false,
+      });
+    }
+    return list;
+  }, [customNotifications, inquiriesCount.unread, trash.length, projects]);
 
   // Admin Navigation Helper
   const navigateAdmin = useCallback((path) => {
@@ -411,12 +455,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         category: 'Uploads',
         uploadedOn: m.created_at ? m.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
       }));
-      if (mapped.length > 0) {
-        setMedia(mapped);
-        return mapped;
-      }
+      setMedia(mapped);
+      return mapped;
     }
-    return null;
+    return [];
   }, []);
 
   // Fetch real categories from Laravel API if available
@@ -462,16 +504,116 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     return null;
   }, []);
 
-  // On mount if authenticated, sync backend data
+  // Fetch real soft-deleted projects from Laravel API
+  const fetchTrash = useCallback(async () => {
+    const res = await requestApi('/api/v1/admin/projects/trash?per_page=50');
+    if (res.ok && res.data?.data?.projects?.data) {
+      const mapped = res.data.data.projects.data.map((p) => {
+        const enTrans = p.translations?.find((t) => t.locale === 'en') || {};
+        const arTrans = p.translations?.find((t) => t.locale === 'ar') || {};
+        const cat = p.categories?.[0];
+        const deletedAt = p.deleted_at ? new Date(p.deleted_at).getTime() : Date.now();
+        const daysElapsed = Math.floor((Date.now() - deletedAt) / (1000 * 60 * 60 * 24));
+        const daysRemaining = Math.max(0, 30 - daysElapsed);
+
+        return {
+          id: String(p.id),
+          originalId: p.id,
+          itemType: 'project',
+          title: { en: enTrans.title || p.slug, ar: arTrans.title || enTrans.title || p.slug },
+          titleEn: enTrans.title || p.slug,
+          titleAr: arTrans.title || enTrans.title || p.slug,
+          category: cat?.slug || 'Branding',
+          coverImage: p.cover_url || p.coverMedia?.url || '',
+          deletedOn: p.deleted_at ? p.deleted_at.split('T')[0] : new Date().toISOString().split('T')[0],
+          daysRemaining,
+          backupData: p,
+        };
+      });
+      setTrash(mapped);
+      return mapped;
+    }
+    return [];
+  }, []);
+
+  // Fetch real audit logs from Laravel API
+  const fetchActivities = useCallback(async () => {
+    const res = await requestApi('/api/v1/admin/audit-logs?per_page=20');
+    if (res.ok && Array.isArray(res.data?.data?.logs)) {
+      const mapped = res.data.data.logs
+        .map((log) => formatAuditActivity(log))
+        .filter(Boolean);
+      setActivities(mapped);
+      return mapped;
+    }
+    return [];
+  }, []);
+
+  // Fetch real client inquiries from Laravel API
+  const fetchInquiries = useCallback(async () => {
+    const res = await requestApi('/api/v1/admin/inquiries?per_page=50');
+    if (res.ok && res.data?.data) {
+      const items = res.data.data.data || res.data.data;
+      const list = Array.isArray(items) ? items : [];
+      const unread = list.filter((i) => !i.is_read).length;
+      setInquiries(list);
+      setInquiriesCount({ total: res.data.data.total ?? list.length, unread });
+      return list;
+    }
+    return [];
+  }, []);
+
+  // Fetch real analytics (overview, top projects, traffic sources)
+  const fetchAnalytics = useCallback(async (range = '30d') => {
+    setIsLoadingAnalytics(true);
+    try {
+      const apiRange = range === '1y' ? '90d' : range;
+      const [overviewRes, topRes, sourcesRes] = await Promise.all([
+        requestApi(`/api/v1/admin/analytics/overview?range=${apiRange}`),
+        requestApi(`/api/v1/admin/analytics/top-projects?range=${apiRange}`),
+        requestApi(`/api/v1/admin/analytics/traffic-sources?range=${apiRange}`),
+      ]);
+
+      if (overviewRes.ok && overviewRes.data?.data) {
+        setAnalyticsOverview(overviewRes.data.data);
+      }
+      if (topRes.ok && Array.isArray(topRes.data?.data?.projects)) {
+        setTopAnalyticsProjects(topRes.data.data.projects);
+      }
+      if (sourcesRes.ok && sourcesRes.data?.data) {
+        const cats = sourcesRes.data.data.categories || [];
+        setTrafficSources(cats);
+      }
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  }, []);
+
+  // On mount or auth change, sync backend data
   useEffect(() => {
     fetchProjects();
     fetchCategories();
     fetchMilestones();
     fetchSettings();
+    fetchAnalytics('30d');
     if (isAuthenticated) {
       fetchMedia();
+      fetchTrash();
+      fetchActivities();
+      fetchInquiries();
     }
-  }, [isAuthenticated, fetchProjects, fetchCategories, fetchMilestones, fetchSettings, fetchMedia]);
+  }, [
+    isAuthenticated,
+    fetchProjects,
+    fetchCategories,
+    fetchMilestones,
+    fetchSettings,
+    fetchMedia,
+    fetchTrash,
+    fetchActivities,
+    fetchInquiries,
+    fetchAnalytics,
+  ]);
 
   // Authentication Actions
   const login = useCallback(
@@ -751,11 +893,13 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       // Async backend delete
       if (/^\d+$/.test(String(id))) {
         await requestApi(`/api/v1/admin/projects/${id}`, { method: 'DELETE' });
+        fetchTrash();
+        fetchActivities();
       }
 
       addToast(lang === 'ar' ? 'تم نقل المشروع إلى سلة المحذوفات' : 'Project moved to Trash (restorable for 30 days)', 'info');
     },
-    [projects, addToast, lang]
+    [projects, addToast, lang, fetchTrash, fetchActivities]
   );
 
   const toggleFeaturedProject = useCallback(
@@ -941,13 +1085,17 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       }
       setTrash((prev) => prev.filter((t) => t.id !== trashId));
 
-      if (item.originalId && /^\d+$/.test(String(item.originalId))) {
-        requestApi(`/api/v1/admin/projects/${item.originalId}/restore`, { method: 'POST' }).catch(() => {});
+      const numericId = item.originalId || item.id;
+      if (numericId && /^\d+$/.test(String(numericId))) {
+        await requestApi(`/api/v1/admin/projects/${numericId}/restore`, { method: 'POST' }).catch(() => {});
+        fetchProjects();
+        fetchTrash();
+        fetchActivities();
       }
 
       addToast(lang === 'ar' ? 'تم استرجاع العنصر إلى المشاريع النشطة' : 'Item restored successfully', 'success');
     },
-    [trash, addToast, lang]
+    [trash, addToast, lang, fetchProjects, fetchTrash, fetchActivities]
   );
 
   const purgeTrashItem = useCallback(
@@ -955,19 +1103,29 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       const item = trash.find((t) => t.id === trashId);
       setTrash((prev) => prev.filter((t) => t.id !== trashId));
 
-      if (item?.originalId && /^\d+$/.test(String(item.originalId))) {
-        requestApi(`/api/v1/admin/projects/${item.originalId}/force`, { method: 'DELETE' }).catch(() => {});
+      const numericId = item?.originalId || item?.id;
+      if (numericId && /^\d+$/.test(String(numericId))) {
+        await requestApi(`/api/v1/admin/projects/${numericId}/force`, { method: 'DELETE' }).catch(() => {});
+        fetchTrash();
+        fetchActivities();
       }
 
       addToast(lang === 'ar' ? 'تم حذف العنصر نهائياً' : 'Item permanently deleted', 'info');
     },
-    [trash, addToast, lang]
+    [trash, addToast, lang, fetchTrash, fetchActivities]
   );
 
-  const emptyTrash = useCallback(() => {
+  const emptyTrash = useCallback(async () => {
+    for (const item of trash) {
+      const numericId = item.originalId || item.id;
+      if (numericId && /^\d+$/.test(String(numericId))) {
+        requestApi(`/api/v1/admin/projects/${numericId}/force`, { method: 'DELETE' }).catch(() => {});
+      }
+    }
     setTrash([]);
+    fetchActivities();
     addToast(lang === 'ar' ? 'تم تفريغ سلة المحذوفات بالكامل' : 'Trash emptied completely', 'info');
-  }, [addToast, lang]);
+  }, [trash, addToast, lang, fetchActivities]);
 
   // Creative Journey Actions
   const addMilestone = useCallback(
@@ -1103,9 +1261,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         setSettings(res.data.data.settings);
       }
 
+      fetchActivities();
       addToast(lang === 'ar' ? 'تم حفظ إعدادات الاستوديو بنجاح' : 'Studio settings saved', 'success');
     },
-    [addToast, lang]
+    [addToast, lang, fetchActivities]
   );
 
   // Helper bound to current language
@@ -1158,6 +1317,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     reorderMilestones,
     togglePublishMilestone,
     trash,
+    fetchTrash,
     restoreTrashItem,
     purgeTrashItem,
     emptyTrash,
@@ -1165,7 +1325,17 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     fetchSettings,
     updateStudioSettings,
     activities,
+    fetchActivities,
+    inquiries,
+    inquiriesCount,
+    fetchInquiries,
+    analyticsOverview,
+    topAnalyticsProjects,
+    trafficSources,
+    isLoadingAnalytics,
+    fetchAnalytics,
     notifications,
+    setCustomNotifications,
     toasts,
     addToast,
     removeToast,

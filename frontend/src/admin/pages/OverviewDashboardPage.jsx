@@ -1,47 +1,63 @@
 import React from 'react';
 import {
   FolderKanban,
-  FileCheck,
-  FileEdit,
   Eye,
   Users,
-  Clock,
+  Mail,
   Plus,
   Upload,
   Layout,
-  BarChart3,
   ArrowUpRight,
-  ExternalLink,
   Sparkles,
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext.jsx';
 import { StatCard } from '../components/StatCard.jsx';
 import { Badge } from '../components/Badge.jsx';
-import { DEMO_ANALYTICS } from '../data/adminData.js';
 
 export function OverviewDashboardPage() {
-  const { lang, t, projects, activities, navigateAdmin } = useAdmin();
+  const {
+    lang,
+    t,
+    projects,
+    activities,
+    navigateAdmin,
+    analyticsOverview,
+    inquiriesCount,
+  } = useAdmin();
 
   const totalCount = projects.length;
   const publishedCount = projects.filter((p) => p.status === 'published').length;
   const draftCount = projects.filter((p) => p.status === 'draft').length;
-  const totalViews = projects.reduce((acc, curr) => acc + (curr.views || 0), 12480);
+
+  // Real aggregate views from Laravel API or sum of actual project views
+  const totalViews =
+    analyticsOverview?.summary?.total_views !== undefined
+      ? analyticsOverview.summary.total_views
+      : projects.reduce((acc, curr) => acc + (curr.views || 0), 0);
+
+  const uniqueVisitors = analyticsOverview?.summary?.unique_visitors ?? 0;
+  const viewsChangePercentage = analyticsOverview?.previous_period?.views_change_percentage ?? null;
 
   const recentProjects = [...projects].slice(0, 4);
   const popularProjects = [...projects].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 4);
 
-  // SVG Chart points calculation for the 14-day views
-  const chartData = DEMO_ANALYTICS.dailyViews;
-  const maxViews = Math.max(...chartData.map((d) => d.views));
+  // SVG Chart points calculation from real daily trend
+  const chartData = analyticsOverview?.daily_trend || [];
+  const maxViews = chartData.length > 0 ? Math.max(...chartData.map((d) => d.total_views || 0), 0) : 0;
+  const hasTrafficData = maxViews > 0;
   const svgWidth = 700;
   const svgHeight = 180;
   const padding = 20;
 
-  const points = chartData.map((d, index) => {
-    const x = padding + (index / (chartData.length - 1)) * (svgWidth - padding * 2);
-    const y = svgHeight - padding - (d.views / maxViews) * (svgHeight - padding * 2);
-    return `${x},${y}`;
-  }).join(' ');
+  const points = chartData.length > 0
+    ? chartData.map((d, index) => {
+        const x = padding + (index / Math.max(1, chartData.length - 1)) * (svgWidth - padding * 2);
+        const y = hasTrafficData
+          ? svgHeight - padding - ((d.total_views || 0) / maxViews) * (svgHeight - padding * 2)
+          : svgHeight - padding;
+        return `${x},${y}`;
+      }).join(' ')
+    : `${padding},${svgHeight - padding} ${svgWidth - padding},${svgHeight - padding}`;
 
   const areaPoints = `${padding},${svgHeight - padding} ${points} ${svgWidth - padding},${svgHeight - padding}`;
 
@@ -81,35 +97,39 @@ export function OverviewDashboardPage() {
         </div>
       </div>
 
-      {/* Primary Metrics Grid */}
+      {/* Primary Metrics Grid (100% Real MySQL-backed values) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t.overview.statTotalProjects}
           value={totalCount}
-          change="+3 new"
+          change={null}
           icon={FolderKanban}
           description={`${publishedCount} ${t.projects.statusPublished} • ${draftCount} ${t.projects.statusDraft}`}
         />
         <StatCard
           title={t.overview.statViews}
           value={totalViews.toLocaleString()}
-          change="+24.6%"
+          change={viewsChangePercentage !== null && viewsChangePercentage !== 0 ? `${viewsChangePercentage > 0 ? '+' : ''}${viewsChangePercentage}%` : null}
           icon={Eye}
-          description="High engagement from Behance"
+          description={lang === 'ar' ? 'إجمالي مشاهدات المشاريع' : 'Verified case study views'}
         />
         <StatCard
           title={t.overview.statVisitors}
-          value="4,890"
-          change="+18.2%"
+          value={uniqueVisitors.toLocaleString()}
+          change={null}
           icon={Users}
-          description="Unique global visitors"
+          description={lang === 'ar' ? 'زوار فريدون تم التحقق منهم' : 'Unique verified visitors'}
         />
         <StatCard
-          title={t.overview.statAvgTime}
-          value="3m 42s"
-          change="+12.4%"
-          icon={Clock}
-          description="Portfolio case study depth"
+          title={lang === 'ar' ? 'استفسارات العملاء' : 'Client Inquiries'}
+          value={(inquiriesCount?.total || 0).toString()}
+          change={inquiriesCount?.unread > 0 ? `+${inquiriesCount.unread} ${lang === 'ar' ? 'جديد' : 'new'}` : null}
+          icon={Mail}
+          description={
+            inquiriesCount?.unread > 0
+              ? `${inquiriesCount.unread} ${lang === 'ar' ? 'رسالة غير مقروءة' : 'unread inquiries'}`
+              : (lang === 'ar' ? 'جميع الرسائل مقروءة' : 'Direct contact form leads')
+          }
         />
       </div>
 
@@ -123,7 +143,11 @@ export function OverviewDashboardPage() {
                 {lang === 'ar' ? 'التحليلات اللحظية' : 'Real-time Metrics'}
               </div>
               <h2 className="text-base sm:text-lg font-serif font-bold text-white">{t.overview.viewsGraphTitle}</h2>
-              <p className="text-xs text-neutral-400 font-light mt-0.5">Peak interaction during luxury packaging release</p>
+              <p className="text-xs text-neutral-400 font-light mt-0.5">
+                {hasTrafficData
+                  ? (lang === 'ar' ? 'نمو المشاهدات اليومية المسجلة في قاعدة البيانات' : 'Daily visitor views recorded in MySQL')
+                  : (lang === 'ar' ? 'بانتظار تسجيل أولى الزيارات' : 'Awaiting initial visitor traffic telemetry')}
+              </p>
             </div>
             <button
               onClick={() => navigateAdmin('/admin/analytics')}
@@ -135,7 +159,7 @@ export function OverviewDashboardPage() {
           </div>
 
           {/* Responsive SVG Chart */}
-          <div className="w-full overflow-x-auto py-2">
+          <div className="w-full overflow-x-auto py-2 relative">
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-44 overflow-visible">
               <defs>
                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -151,48 +175,65 @@ export function OverviewDashboardPage() {
               <line x1="20" y1="150" x2="680" y2="150" stroke="rgba(244,164,150,0.08)" strokeDasharray="4" />
 
               {/* Gradient Fill Area */}
-              <polygon points={areaPoints} fill="url(#chartGradient)" />
+              {hasTrafficData && <polygon points={areaPoints} fill="url(#chartGradient)" />}
 
               {/* Glowing Line */}
               <polyline
                 fill="none"
-                stroke="#f4a496"
+                stroke={hasTrafficData ? '#f4a496' : 'rgba(244,164,150,0.25)'}
                 strokeWidth="2.5"
                 points={points}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
 
-              {/* Interactive Dots on high points */}
-              {chartData.map((d, index) => {
-                const x = padding + (index / (chartData.length - 1)) * (svgWidth - padding * 2);
-                const y = svgHeight - padding - (d.views / maxViews) * (svgHeight - padding * 2);
-                return (
-                  <circle
-                    key={index}
-                    cx={x}
-                    cy={y}
-                    r={index === chartData.length - 1 ? '4' : '2.5'}
-                    fill="#fff"
-                    stroke="#842b45"
-                    strokeWidth="2"
-                    className="hover:scale-150 transition-transform cursor-pointer"
-                  >
-                    <title>{`${d.date}: ${d.views} views (${d.visitors} visitors)`}</title>
-                  </circle>
-                );
-              })}
+              {/* Interactive Dots on points */}
+              {hasTrafficData &&
+                chartData.map((d, index) => {
+                  const x = padding + (index / Math.max(1, chartData.length - 1)) * (svgWidth - padding * 2);
+                  const y = svgHeight - padding - ((d.total_views || 0) / maxViews) * (svgHeight - padding * 2);
+                  return (
+                    <circle
+                      key={index}
+                      cx={x}
+                      cy={y}
+                      r={index === chartData.length - 1 ? '4' : '2.5'}
+                      fill="#fff"
+                      stroke="#842b45"
+                      strokeWidth="2"
+                      className="hover:scale-150 transition-transform cursor-pointer"
+                    >
+                      <title>{`${d.date}: ${d.total_views || 0} views (${d.unique_visitors || 0} visitors)`}</title>
+                    </circle>
+                  );
+                })}
             </svg>
+
+            {!hasTrafficData && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="text-xs text-neutral-400 font-light bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                  {lang === 'ar' ? 'لا توجد بيانات تفاعل وزيارات مسجلة لهذه الفترة بعد' : 'No visitor traffic recorded in this period yet'}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-white/5 text-[11px] text-neutral-400 font-mono">
-            <span>{chartData[0].date}</span>
-            <span>{chartData[Math.floor(chartData.length / 2)].date}</span>
-            <span className="text-[#f4a496] font-semibold">{chartData[chartData.length - 1].date} ({chartData[chartData.length - 1].views} views)</span>
+            {chartData.length >= 2 ? (
+              <>
+                <span>{chartData[0].date}</span>
+                <span>{chartData[Math.floor(chartData.length / 2)].date}</span>
+                <span className="text-[#f4a496] font-semibold">
+                  {chartData[chartData.length - 1].date} ({chartData[chartData.length - 1].total_views || 0} {lang === 'ar' ? 'مشاهدة' : 'views'})
+                </span>
+              </>
+            ) : (
+              <span>{lang === 'ar' ? 'نافذة الـ 30 يوماً الأخيرة' : 'Last 30 days period'}</span>
+            )}
           </div>
         </div>
 
-        {/* Quick Actions & Short Studio Status */}
+        {/* Quick Actions & Activity Feed */}
         <div className="p-6 sm:p-7 rounded-3xl glass-panel border border-[#f4a496]/15 shadow-xl shadow-black/60 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -242,20 +283,28 @@ export function OverviewDashboardPage() {
             </div>
           </div>
 
-          {/* Activity Feed Preview */}
+          {/* Real MySQL Audit Activity Feed Preview */}
           <div className="mt-6 pt-4 border-t border-white/5">
             <h3 className="text-[11px] font-mono uppercase tracking-widest text-[#f4a496]/80 mb-3">
               {t.overview.recentActivity}
             </h3>
             <div className="space-y-2.5">
-              {activities.slice(0, 3).map((act) => (
-                <div key={act.id} className="text-xs">
-                  <div className="text-neutral-300 leading-snug font-light">
-                    {lang === 'ar' ? act.textAr : act.textEn}
-                  </div>
-                  <div className="text-[10px] text-neutral-500 font-mono mt-0.5">{act.time}</div>
+              {activities.length === 0 ? (
+                <div className="py-4 text-center text-xs text-neutral-500 font-light">
+                  {lang === 'ar' ? 'لا توجد أنشطة مسجلة بعد' : 'No recent activity recorded'}
                 </div>
-              ))}
+              ) : (
+                activities.slice(0, 3).map((act) => (
+                  <div key={act.id} className="text-xs">
+                    <div className="text-neutral-300 leading-snug font-light">
+                      {lang === 'ar' ? act.textAr : act.textEn}
+                    </div>
+                    <div className="text-[10px] text-neutral-500 font-mono mt-0.5">
+                      {lang === 'ar' ? (act.timeAr || act.time) : (act.timeEn || act.time)}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -276,42 +325,56 @@ export function OverviewDashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {recentProjects.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between p-3 rounded-2xl glass-panel-subtle hover:border-[#f4a496]/35 transition-all group"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <img
-                    src={p.coverImage || p.image}
-                    alt={p.titleEn || 'Project thumbnail'}
-                    className="w-12 h-12 rounded-xl object-cover border border-[#f4a496]/20 flex-shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-serif font-bold text-white truncate group-hover:text-[#f4a496] transition-colors">
-                      {lang === 'ar' ? p.titleAr : p.titleEn}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant={p.status} size="sm">
-                        {p.status === 'published' ? t.projects.statusPublished : t.projects.statusDraft}
-                      </Badge>
-                      <span className="text-[11px] text-neutral-400 font-light">
-                        {lang === 'ar' ? p.categoryAr : p.categoryEn}
-                      </span>
+            {recentProjects.length === 0 ? (
+              <div className="p-8 text-center glass-panel-subtle rounded-2xl border border-white/5">
+                <p className="text-xs text-neutral-400 font-light">
+                  {lang === 'ar' ? 'لم يتم إضافة أي مشاريع بعد.' : 'No projects created yet.'}
+                </p>
+                <button
+                  onClick={() => navigateAdmin('/admin/projects/new')}
+                  className="mt-3 inline-block text-xs text-[#f4a496] hover:text-[#fcdcd4] font-medium cursor-pointer"
+                >
+                  {t.overview.newProjectBtn} →
+                </button>
+              </div>
+            ) : (
+              recentProjects.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between p-3 rounded-2xl glass-panel-subtle hover:border-[#f4a496]/35 transition-all group"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <img
+                      src={p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png'}
+                      alt={p.titleEn || 'Project thumbnail'}
+                      className="w-12 h-12 rounded-xl object-cover border border-[#f4a496]/20 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-serif font-bold text-white truncate group-hover:text-[#f4a496] transition-colors">
+                        {lang === 'ar' ? p.titleAr : p.titleEn}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={p.status} size="sm">
+                          {p.status === 'published' ? t.projects.statusPublished : t.projects.statusDraft}
+                        </Badge>
+                        <span className="text-[11px] text-neutral-400 font-light">
+                          {lang === 'ar' ? p.categoryAr : p.categoryEn}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => navigateAdmin(`/admin/projects/${p.id}/edit`)}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium text-[#fcdcd4] bg-[#842b45]/25 hover:bg-[#842b45]/45 border border-[#f4a496]/30 transition-colors cursor-pointer"
-                  >
-                    {t.overview.edit}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigateAdmin(`/admin/projects/${p.id}/edit`)}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium text-[#fcdcd4] bg-[#842b45]/25 hover:bg-[#842b45]/45 border border-[#f4a496]/30 transition-colors cursor-pointer"
+                    >
+                      {t.overview.edit}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -328,39 +391,47 @@ export function OverviewDashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {popularProjects.map((p, rank) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between p-3 rounded-2xl glass-panel-subtle hover:border-[#f4a496]/35 transition-all"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-6 text-center font-bold font-serif text-[#f4a496] text-sm">
-                    #{rank + 1}
-                  </div>
-                  <img
-                    src={p.coverImage || p.image}
-                    alt={p.titleEn || 'Popular project'}
-                    className="w-12 h-12 rounded-xl object-cover border border-[#f4a496]/20 flex-shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-serif font-bold text-white truncate">
-                      {lang === 'ar' ? p.titleAr : p.titleEn}
-                    </div>
-                    <div className="text-[11px] text-neutral-400 font-light mt-0.5">
-                      {p.views?.toLocaleString()} {lang === 'ar' ? 'مشاهدة' : 'views'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {p.featured && (
-                    <Badge variant="featured" size="sm">
-                      {t.projects.featuredBadge.split(' ')[0]}
-                    </Badge>
-                  )}
-                </div>
+            {popularProjects.length === 0 ? (
+              <div className="p-8 text-center glass-panel-subtle rounded-2xl border border-white/5">
+                <p className="text-xs text-neutral-400 font-light">
+                  {lang === 'ar' ? 'لا توجد مشاريع لعرضها.' : 'No projects to display.'}
+                </p>
               </div>
-            ))}
+            ) : (
+              popularProjects.map((p, rank) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between p-3 rounded-2xl glass-panel-subtle hover:border-[#f4a496]/35 transition-all"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-6 text-center font-bold font-serif text-[#f4a496] text-sm">
+                      #{rank + 1}
+                    </div>
+                    <img
+                      src={p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png'}
+                      alt={p.titleEn || 'Popular project'}
+                      className="w-12 h-12 rounded-xl object-cover border border-[#f4a496]/20 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-serif font-bold text-white truncate">
+                        {lang === 'ar' ? p.titleAr : p.titleEn}
+                      </div>
+                      <div className="text-[11px] text-neutral-400 font-light mt-0.5 font-mono">
+                        {(p.views || 0).toLocaleString()} {lang === 'ar' ? 'مشاهدة' : 'views'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {p.featured && (
+                      <Badge variant="featured" size="sm">
+                        {t.projects.featuredBadge.split(' ')[0]}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
