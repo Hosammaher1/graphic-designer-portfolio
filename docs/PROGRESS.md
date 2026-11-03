@@ -183,6 +183,53 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - **Frontend Production Build (`npm run build`):** Client (483 kB bundle) and SSR server (763 kB bundle) succeeded cleanly.
   - **Laravel Backend PHPUnit Suite on MySQL:** 330 tests passed, 1,562 assertions passed (100%), 0 failures.
 
+### Stage 5: Approved Eclipse Theme Toggle + Circular Reveal Implementation
+
+- **Task Scope & Status:** Implement approved Eclipse Theme Toggle and expanding circular wave transition while preserving the existing Google AI Studio dark theme and adopting the approved Light Mode palette.
+- **Branch / Commits / Remote:** `feat/adopt-google-ai-studio-frontend` (local feature branch).
+- **Design & Architecture:**
+  - **Eclipse Button Design:**
+    - Replaced existing Sun/Moon toggle with custom Eclipse symbol featuring two overlapping celestial discs: Warm Ivory (`#F6F1EB`) and Primary Burgundy (`#5C1628`).
+    - Crisp vector SVG rendering with smooth 180° rotation and disc transit along an orbital trajectory on toggle.
+    - Minimal, premium aesthetic with subtle depth (`shadow-sm`), 1px refined border (`border-[rgba(244,164,150,0.2)]` dark, `border-[#E7D9D9]` light), and no flashy glows.
+    - Responsive sizing (`w-9 h-9 sm:w-10 sm:h-10`) wired into top navbar and mobile drawer menu.
+  - **Approved Light Mode Palette:**
+    - Background: `#F6F1EB`
+    - Cards & Panels: `#FFFFFF` with `#E7D9D9` borders
+    - Primary Text: `#242027`
+    - Accent / Buttons: `#5C1628` (hover `#48111f`)
+    - Borders: `#E7D9D9`
+  - **Dark Mode Preservation:**
+    - Existing Google AI Studio dark theme (`#09070c`) preserved 100% identically without altering colors, typography, layout, or animations.
+  - **Circular Reveal Transition:**
+    - View Transitions API (`document.startViewTransition`) expanding circular `clip-path` outward from the exact center coordinates of the clicked Eclipse button (`Math.hypot`).
+    - Smooth 750ms duration with `cubic-bezier(0.4, 0, 0.2, 1)` easing.
+    - Symmetrical support for both Dark → Light and Light → Dark transitions.
+    - Disabled default browser crossfade via `::view-transition-old(root)` / `::view-transition-new(root)` overrides.
+    - Graceful fallback for browsers without View Transitions API.
+    - Fully respects `prefers-reduced-motion` and guards against rapid re-clicks via transitioning lock ref.
+  - **Functionality & Persistence:**
+    - Persistent theme storage via `localStorage.getItem('portfolio-theme')`.
+    - First-visit system color scheme detection (`prefers-color-scheme`).
+    - Anti-flash inline script in `index.html` preventing theme flash and SSR hydration mismatch.
+    - Full keyboard accessibility and bilingual ARIA labels (`aria-label`, `title`).
+- **Automated Verification & E2E Testing (`e2e/tests/eclipse-theme-toggle.spec.js`):**
+  - **Test 1 PASSED:** Desktop: Verify Eclipse button, Dark mode aesthetics, and Circular reveal to Light mode (5.2s).
+  - **Test 2 PASSED:** Mobile: Verify Eclipse toggle in mobile navigation (3.7s).
+  - **Test 3 PASSED:** Persistence across page reload without flashing (4.6s).
+  - **Test 4 PASSED:** Circular Reveal: Capture mid-transition wave expanding from Eclipse button (3.2s).
+  - All 4 Playwright tests passed (22.1s).
+- **Captured Visual Artifacts:**
+  - `eclipse-theme-circular-reveal.png` (244 kB): Mid-wave circular reveal expanding from button.
+  - `eclipse-theme-dark-desktop.png` (254 kB): Verified approved dark theme on desktop.
+  - `eclipse-theme-light-desktop.png` (262 kB): Verified approved ivory/burgundy light theme on desktop.
+  - `eclipse-theme-dark-mobile.png` (124 kB): Verified dark theme on mobile viewport.
+  - `eclipse-theme-light-mobile.png` (133 kB): Verified light theme on mobile viewport.
+- **Regression Suite Verification:**
+  - **Vitest Frontend Suite:** 39 test files passed, 220 tests passed (100%), 0 errors.
+  - **Laravel Backend PHPUnit Suite:** 330 tests passed, 1,562 assertions passed (100%) on MySQL.
+  - **Frontend Production Build (`npm run build`):** Clean compile in 2.5s.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.

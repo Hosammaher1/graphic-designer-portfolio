@@ -64,3 +64,190 @@
 .modal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(244, 164, 150, 0.45);
 }
+
+/* ==========================================================================
+   Circular View Transition for Eclipse Theme Toggle
+   ========================================================================== */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* ==========================================================================
+   Approved Eclipse Light Mode Palette
+   Background: #F6F1EB
+   Cards: #FFFFFF
+   Primary text: #242027
+   Accent/buttons: #5C1628
+   Borders: #E7D9D9
+   ========================================================================== */
+
+html.light,
+html[data-theme="light"] {
+  background-color: #F6F1EB;
+  color: #242027;
+  color-scheme: light;
+}
+
+html.light body,
+html.light #root,
+html.light #root > div,
+html.light main,
+html.light section,
+html.light .bg-\[\#09070c\] {
+  background-color: #F6F1EB !important;
+}
+
+html.light header {
+  border-color: #E7D9D9 !important;
+}
+
+html.light header .bg-\[\#09070c\]\/85,
+html.light header.is-scrolled {
+  background-color: rgba(246, 241, 235, 0.9) !important;
+  border-color: #E7D9D9 !important;
+  box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.05) !important;
+}
+
+/* Glass Panels -> Crisp White Cards with #E7D9D9 borders */
+html.light .glass-panel {
+  background: #FFFFFF !important;
+  border: 1px solid #E7D9D9 !important;
+  box-shadow: 0 4px 24px -2px rgba(92, 22, 40, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .glass-panel-subtle {
+  background: #FFFFFF !important;
+  border: 1px solid #E7D9D9 !important;
+  box-shadow: 0 2px 8px -1px rgba(92, 22, 40, 0.04) !important;
+}
+
+html.light .glass-panel-active {
+  background: #FFFFFF !important;
+  border: 1px solid #5C1628 !important;
+  box-shadow: 0 8px 30px -4px rgba(92, 22, 40, 0.12) !important;
+}
+
+/* Typography & Text */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6,
+html.light .font-serif {
+  color: #242027 !important;
+}
+
+html.light .text-white {
+  color: #242027 !important;
+}
+
+html.light .text-neutral-100 {
+  color: #242027 !important;
+}
+
+html.light .text-neutral-200 {
+  color: #3b3540 !important;
+}
+
+html.light .text-neutral-300 {
+  color: #524a57 !important;
+}
+
+html.light .text-neutral-400 {
+  color: #6e6475 !important;
+}
+
+html.light .text-neutral-500 {
+  color: #8a8094 !important;
+}
+
+/* Accent & Action Buttons */
+html.light a.bg-white,
+html.light button.bg-white,
+html.light .bg-white.text-neutral-900 {
+  background-color: #5C1628 !important;
+  color: #F6F1EB !important;
+  box-shadow: 0 4px 14px -1px rgba(92, 22, 40, 0.3) !important;
+}
+
+html.light a.bg-white:hover,
+html.light button.bg-white:hover,
+html.light .bg-white.text-neutral-900:hover {
+  background-color: #48111f !important;
+  color: #FFFFFF !important;
+}
+
+/* Secondary Action Buttons */
+html.light button.bg-white\/5,
+html.light a.bg-white\/5 {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #5C1628 !important;
+}
+
+html.light button.bg-white\/5:hover,
+html.light a.bg-white\/5:hover {
+  background-color: #F6F1EB !important;
+  border-color: #5C1628 !important;
+}
+
+/* Pill borders */
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-rose-300\/10,
+html.light .border-rose-300\/20 {
+  border-color: #E7D9D9 !important;
+}
+
+/* Atmospheric Glows Softened in Light Mode */
+html.light .blur-\[140px\],
+html.light .blur-\[150px\],
+html.light .blur-\[160px\] {
+  opacity: 0.1 !important;
+}
+
+/* Wave Transitions in Light Mode */
+html.light svg path[fill="#09070c"] {
+  fill: #F6F1EB !important;
+}
+
+/* Modal and Drawers */
+html.light [role="dialog"] {
+  background-color: #F6F1EB !important;
+  color: #242027 !important;
+  border-color: #E7D9D9 !important;
+}
+
+html.light [role="dialog"] .glass-panel {
+  background: #FFFFFF !important;
+}
+
+/* Selection */
+html.light ::selection {
+  background-color: rgba(92, 22, 40, 0.2);
+  color: #5C1628;
+}
+
+/* Custom modal internal scrollbar in Light Mode */
+html.light .modal-scrollbar::-webkit-scrollbar-track {
+  background: #F6F1EB;
+}
+html.light .modal-scrollbar::-webkit-scrollbar-thumb {
+  background: #E7D9D9;
+}
+html.light .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #5C1628;
+}

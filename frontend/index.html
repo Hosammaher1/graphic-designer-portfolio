@@ -8,14 +8,29 @@
     <!-- Anti-flash inline theme script -->
     <script>
       (function() {
-        const saved = localStorage.getItem('portfolio-theme');
-        const theme = saved || 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        try {
+          const saved = localStorage.getItem('portfolio-theme');
+          let theme = saved;
+          if (!theme || (theme !== 'dark' && theme !== 'light')) {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+            if (prefersDark) {
+              theme = 'dark';
+            } else if (prefersLight) {
+              theme = 'light';
+            } else {
+              theme = 'dark';
+            }
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          }
+        } catch (e) {}
       })();
     </script>
     <!--ssr-head-tags-->

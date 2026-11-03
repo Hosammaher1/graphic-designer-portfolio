@@ -1,6 +1,48 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 5 Checkpoint — 2026-11-03 (Replace Demo Content With Real Database-Driven Content)
+## Current Antigravity Stage 6 Checkpoint — 2026-11-03 (Approved Eclipse Theme Toggle + Circular Reveal)
+
+- **Active Branch:** `feat/adopt-google-ai-studio-frontend`
+- **Objective Completed:** Replaced legacy Sun/Moon toggle with custom Eclipse symbol featuring two overlapping discs (`#5C1628` burgundy and `#F6F1EB` warm ivory) and 750ms circular reveal transition outward from button center. Preserved approved dark theme while establishing exact approved Light Mode palette.
+- **Key Enhancements Implemented:**
+  - **Eclipse Button Design:**
+    - Dual overlapping disc SVG symbol (Burgundy `#5C1628` and Warm Ivory `#F6F1EB`) with 180° orbital transit on toggle.
+    - Subtle depth, 1px refined border, responsive size (`w-9 h-9 sm:w-10 sm:h-10`) in both desktop navbar and mobile drawer.
+  - **Approved Light Mode Palette:**
+    - Background: `#F6F1EB`
+    - Cards: `#FFFFFF`
+    - Primary text: `#242027`
+    - Accent/buttons: `#5C1628`
+    - Borders: `#E7D9D9`
+  - **Dark Mode Preservation:**
+    - Existing approved Google AI Studio dark theme preserved 100% identically with zero modifications.
+  - **Circular Reveal Transition:**
+    - View Transitions API (`document.startViewTransition`) with expanding circular `clip-path` from button center over 750ms (`cubic-bezier(0.4, 0, 0.2, 1)`).
+    - Symmetrical support for both Dark → Light and Light → Dark.
+    - Disabled default browser crossfade via CSS.
+    - Graceful fallback for non-supporting browsers and `prefers-reduced-motion`.
+    - Rapid-click prevention with transitioning lock ref.
+  - **Functionality & Anti-Flash:**
+    - Persistent state via `localStorage.getItem('portfolio-theme')`.
+    - System preference detection on initial visit.
+    - Anti-flash inline script in `index.html` preventing hydration flash.
+    - Full keyboard accessibility and bilingual ARIA labels.
+- **Verification Evidence:**
+  - **Playwright E2E Suite (`eclipse-theme-toggle.spec.js`):** 4/4 PASSED (22.1s).
+  - **Visual Screenshots Generated:**
+    - `eclipse-theme-circular-reveal.png` (244 kB): Mid-wave circular reveal expanding outward.
+    - `eclipse-theme-dark-desktop.png` (254 kB): Verified dark theme on desktop.
+    - `eclipse-theme-light-desktop.png` (262 kB): Verified ivory/burgundy light theme on desktop.
+    - `eclipse-theme-dark-mobile.png` (124 kB): Verified dark theme on mobile.
+    - `eclipse-theme-light-mobile.png` (133 kB): Verified light theme on mobile.
+  - **Frontend Vitest Suite:** 39 test files passed, 220 tests passed (100%), 0 errors.
+  - **Frontend Production Build:** Client (505 kB) & SSR Server (767 kB) compiled cleanly in 2.5s.
+  - **Backend Laravel PHPUnit Suite:** 330 tests passed, 1,562 assertions passed (100%) on MySQL.
+- **Next Immediate Action:** Ready to merge verified feature branch `feat/adopt-google-ai-studio-frontend` into `dev` when authorized.
+
+---
+
+## Historical Antigravity Stage 5 Checkpoint — 2026-11-03 (Replace Demo Content With Real Database-Driven Content)
 
 - **Active Branch:** `feat/adopt-google-ai-studio-frontend`
 - **Objective Completed:** Replaced all hardcoded demo projects, placeholder images, and demo text in the adopted Google AI Studio frontend with real database-driven content via the existing Laravel REST API and MySQL database, strictly preserving the approved visual design.

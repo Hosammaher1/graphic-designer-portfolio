@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { translations } from '../data/portfolioData';
-import { Sun, Moon, ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle.jsx';
 
 export const Navbar = ({
   lang,
@@ -11,7 +12,6 @@ export const Navbar = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(false);
   const t = translations[lang].nav;
 
   useEffect(() => {
@@ -21,11 +21,6 @@ export const Navbar = ({
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const toggleTheme = () => {
-    setIsLightMode(!isLightMode);
-    document.documentElement.classList.toggle('light-theme');
-  };
 
   const navLinks = [
     { id: 'hero', label: t.home, href: '#hero' },
@@ -147,18 +142,8 @@ export const Navbar = ({
               </button>
             </div>
 
-            {/* Sun/Moon subtle icon button */}
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme aesthetics"
-              className="p-2 rounded-full bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-            >
-              {isLightMode ? (
-                <Moon className="w-4 h-4 text-rose-300" />
-              ) : (
-                <Sun className="w-4 h-4 text-amber-200" />
-              )}
-            </button>
+            {/* Approved Eclipse Theme Toggle */}
+            <ThemeToggle locale={lang} />
 
             {/* White Pill Primary Action Button: "Get in Touch ↗" */}
             <a
@@ -197,6 +182,12 @@ export const Navbar = ({
                 {link.label}
               </a>
             ))}
+            <div className="flex items-center justify-between py-2 border-b border-white/5">
+              <span className="text-sm font-medium text-neutral-300">
+                {lang === 'ar' ? 'المظهر' : 'Appearance'}
+              </span>
+              <ThemeToggle locale={lang} />
+            </div>
             <a
               href="#contact"
               onClick={(e) => handleLinkClick(e, '#contact', 'contact')}

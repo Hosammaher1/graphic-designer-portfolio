@@ -1,7 +1,31 @@
 import '@testing-library/jest-dom';
 
+// Ensure global requestAnimationFrame & cancelAnimationFrame for Node/jsdom and GSAP ScrollTrigger
+const rafPolyfill = (callback) => setTimeout(() => callback(Date.now()), 16);
+const cafPolyfill = (id) => clearTimeout(id);
+
+if (typeof globalThis.requestAnimationFrame !== 'function') {
+  globalThis.requestAnimationFrame = rafPolyfill;
+}
+if (typeof global !== 'undefined' && typeof global.requestAnimationFrame !== 'function') {
+  global.requestAnimationFrame = rafPolyfill;
+}
+if (typeof globalThis.cancelAnimationFrame !== 'function') {
+  globalThis.cancelAnimationFrame = cafPolyfill;
+}
+if (typeof global !== 'undefined' && typeof global.cancelAnimationFrame !== 'function') {
+  global.cancelAnimationFrame = cafPolyfill;
+}
+
 // Ensure standard Web Storage & MatchMedia implementation in jsdom test environment
 if (typeof window !== 'undefined') {
+  if (typeof window.requestAnimationFrame !== 'function') {
+    window.requestAnimationFrame = rafPolyfill;
+  }
+  if (typeof window.cancelAnimationFrame !== 'function') {
+    window.cancelAnimationFrame = cafPolyfill;
+  }
+
   let store = {};
   const mockStorage = {
     getItem: (key) => store[key] ?? null,
@@ -52,19 +76,5 @@ if (typeof window !== 'undefined') {
         dispatchEvent: () => false,
       }),
     });
-  }
-
-  // Ensure requestAnimationFrame & cancelAnimationFrame for GSAP ScrollTrigger
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback) => setTimeout(() => callback(Date.now()), 16);
-  }
-  if (typeof globalThis.cancelAnimationFrame !== 'function') {
-    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
-  }
-  if (typeof window.requestAnimationFrame !== 'function') {
-    window.requestAnimationFrame = globalThis.requestAnimationFrame;
-  }
-  if (typeof window.cancelAnimationFrame !== 'function') {
-    window.cancelAnimationFrame = globalThis.cancelAnimationFrame;
   }
 }
