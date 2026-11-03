@@ -43,7 +43,7 @@ class SiteSettingTest extends TestCase
                 ],
             ]);
 
-        $this->assertEquals('Hosam Maher', $response->json('data.settings.profile.name'));
+        $this->assertEquals('Mohammed Maher Aldaya', $response->json('data.settings.profile.name'));
     }
 
     public function test_unauthenticated_user_cannot_access_or_update_admin_settings(): void

@@ -361,6 +361,7 @@ export default function App({ initialUrl, initialLocale }) {
         activeSection={activeSection}
         currentRoute={route}
         onNavigateRoute={navigateRoute}
+        settings={siteSettings}
       />
 
       {/* Conditional View Rendering: Continuous Single-Page Homepage OR All Projects Screen */}

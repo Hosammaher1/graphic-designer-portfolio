@@ -660,7 +660,7 @@ export function ProjectEditorPage({ projectId }) {
             </span>
             <div className="p-4 rounded-2xl bg-[#09070c] border border-[#f4a496]/20 max-w-xl">
               <div className="text-[11px] text-neutral-400 flex items-center gap-1 font-mono">
-                <span>portfolio.hosam.design</span>
+                <span>portfolio.mohammed.design</span>
                 <span>›</span>
                 <span>work</span>
                 <span>›</span>

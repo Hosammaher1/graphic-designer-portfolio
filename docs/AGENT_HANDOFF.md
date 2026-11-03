@@ -1,6 +1,53 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 6 Checkpoint — 2026-11-03 (Approved Eclipse Theme Toggle + Circular Reveal)
+## Current Antigravity Stage 7 Checkpoint — 2026-11-03 (Official MO Branding, Contact Channels, Navigation Security & About Me Portrait Integration)
+
+- **Active Branch:** `feat/adopt-google-ai-studio-frontend`
+- **Objective Completed:** Replaced visual "GD" branding with official MO logo (`/logo/logo.png`), updated contact channels (Email, WhatsApp direct, Instagram), removed public Admin links from visitor-facing components, removed brand text from Navbar to show logo exclusively, updated About Me section with prominent designer identity (Mohammed Maher Aldaya / محمد ماهر الداية) and professional title, integrated official transparent portrait (`/profile/mohammed-maher-profile.png`) bottom-aligned with proper clearance for floating badges, and connected profile photo management in Admin settings.
+- **Key Enhancements Implemented:**
+  - **Official MO Logo Adoption:**
+    - Replaced all visual "GD" text monograms with the official MO logo image (`/logo/logo.png`) across desktop Navbar, mobile drawer menu, Footer, Admin Dashboard sidebar, and Admin Login page.
+    - Linked favicon and apple-touch-icon to `/logo/logo.png` in `frontend/index.html`.
+    - Preserved transparent background, colors, proportions, and crisp rendering in both Dark and Light modes.
+  - **Official Contact Channels:**
+    - Direct Email: `mohmmed.maher467@gmail.com` (`mailto:mohmmed.maher467@gmail.com`).
+    - Direct WhatsApp: `https://wa.me/972592382189`, formatted display `+972 59-238-2189`.
+    - Official Instagram: `https://www.instagram.com/mohmmed_ma48/`, handle `@mohmmed_ma48`.
+    - Updated `ContactSection.jsx` to render 3 clickable direct channel cards with `target="_blank" rel="noopener noreferrer"`.
+  - **Public Navigation Security (Admin Link Removal):**
+    - Removed `/admin` link from `Footer.jsx`.
+    - Verified no admin links exist in `Navbar.jsx`, mobile drawer menu, or any visitor-facing components.
+    - Preserved existing admin routes (`/admin/login`, `/admin`, `/admin/projects`, `/admin/journey`, `/admin/settings`, etc.).
+    - Unauthenticated requests to protected admin routes automatically redirect to `/admin/login`.
+    - Server-side Sanctum authentication, CSRF tokens, session cookies, and route guards remain intact.
+  - **Navbar Brand Text Removal:**
+    - Removed designer name and brand text from `Navbar.jsx`.
+    - Navbar now renders exclusively the official MO logo at `/logo/logo.png` on both desktop and mobile viewports.
+    - Logo remains clickable and linked to `#hero`.
+  - **About Me Section & Official Portrait Integration:**
+    - Full English Name: `Mohammed Maher Aldaya`.
+    - Full Arabic Name: `محمد ماهر الداية`.
+    - Professional Title (EN): `Graphic Designer | Visual Identity & Creative Design`.
+    - Professional Title (AR): `مصمم جرافيك | متخصص في الهوية البصرية والتصميم الإبداعي`.
+    - Integrated official portrait (`/profile/mohammed-maher-profile.png`): bottom-aligned with card bottom edge, centered horizontally, with natural proportions (`object-contain object-bottom`).
+    - Adjusted geometry and z-index: top floating name badge and bottom statistics card elevated to `z-20` with `backdrop-blur-xl`, providing ~30-35px clearance above the head without overlapping.
+  - **Admin Settings & Backlog:**
+    - Added Profile Photo management field to `SettingsPage.jsx` with preview thumbnail, reset default button, and `MediaPickerModal` integration.
+    - Audited About card statistics: confirmed that `statProjects` (50+), `statClients` (20+), and `statYears` (5+) are already dynamically supported via `settings.about` in backend `SiteSetting.php`, MySQL `portfolio_settings`, and `SettingsPage.jsx`. Added note to post-launch backlog.
+- **Verification Evidence:**
+  - **Vitest Frontend Regression Suite:** **40 test files passed, 227 tests passed (100%)** — added `branding-identity-acceptance.test.jsx`.
+  - **Playwright E2E Visual Suite (`e2e/tests/branding-identity-about-acceptance.spec.js`):** **9 passed, 1 skipped (mobile only)** (29.8s).
+  - **Laravel Backend PHPUnit Suite (`SiteSettingTest.php`):** **3 passed, 26 assertions passed (100%)** on MySQL.
+  - **Frontend Production Build (`npm run build`):** Client and SSR builds compiled cleanly in 3.18s.
+- **Captured Visual Artifacts:**
+  - `navbar-mo-logo-only.png` (22 kB): Verified Navbar displaying exclusively the official MO logo.
+  - `about-portrait-desktop.png` (1.06 MB): Verified desktop About Me section with bottom-aligned portrait, top name badge, and bottom statistics.
+  - `about-portrait-mobile.png` (922 kB): Verified mobile About Me layout and portrait positioning.
+  - `footer-no-admin-link.png` (93 kB): Verified Footer with official MO logo, social links, and zero admin links.
+
+---
+
+## Historical Antigravity Stage 6 Checkpoint — 2026-11-03 (Approved Eclipse Theme Toggle + Circular Reveal)
 
 - **Active Branch:** `feat/adopt-google-ai-studio-frontend`
 - **Objective Completed:** Replaced legacy Sun/Moon toggle with custom Eclipse symbol featuring two overlapping discs (`#5C1628` burgundy and `#F6F1EB` warm ivory) and 750ms circular reveal transition outward from button center. Preserved approved dark theme while establishing exact approved Light Mode palette.

@@ -514,7 +514,7 @@ export const ProjectArtwork = ({ id, src, alt = '', className = '', priority = f
               <span className="text-[8px] font-mono text-rose-300">ROSE GOLD FOIL</span>
             </div>
             <div className="text-left rtl:text-right">
-              <div className="text-xs text-neutral-200 font-medium">Hosam Maher</div>
+              <div className="text-xs text-neutral-200 font-medium">Mohammed Maher</div>
               <div className="text-[8px] font-mono text-neutral-400">GRAPHIC DESIGNER</div>
             </div>
           </div>

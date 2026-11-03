@@ -122,12 +122,14 @@ export const JourneySection = ({ lang }) => {
         </div>
       </div>
 
-      {/* 3. Right Side: Digital Drawing Tablet with "GD" Typography & Stylus */}
+      {/* 3. Right Side: Digital Drawing Tablet with "MO" Logo & Stylus */}
       <div className="absolute top-1/2 -right-16 sm:right-0 -translate-y-1/2 w-48 sm:w-72 h-64 sm:h-96 opacity-30 pointer-events-none transform rotate-12">
-        <div className="w-full h-full rounded-3xl bg-neutral-950 border-4 border-neutral-800 shadow-2xl p-4 flex flex-col items-center justify-center relative">
-          <span className="font-serif text-5xl sm:text-7xl font-bold text-neutral-300 tracking-tighter">
-            GD
-          </span>
+        <div className="w-full h-full rounded-3xl bg-neutral-950 border-4 border-neutral-800 shadow-2xl p-6 flex flex-col items-center justify-center relative">
+          <img
+            src="/logo/logo.png"
+            alt="MO"
+            className="w-24 sm:w-36 h-auto object-contain opacity-80"
+          />
           <div className="absolute -left-6 bottom-8 w-4 h-36 bg-rose-200/60 rounded-full transform -rotate-45 shadow-lg" />
         </div>
       </div>

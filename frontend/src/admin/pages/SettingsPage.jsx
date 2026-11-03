@@ -10,8 +10,11 @@ import {
   Lock,
   Globe,
   CheckCircle,
+  Image as ImageIcon,
+  RotateCcw,
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext.jsx';
+import { MediaPickerModal } from '../components/MediaPickerModal.jsx';
 
 export function SettingsPage() {
   const { lang, t, settings, updateStudioSettings, addToast } = useAdmin();
@@ -19,16 +22,23 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'branding' | 'preferences' | 'security'
 
   // Profile form state
-  const [name, setName] = useState(settings.profile?.name || 'Hosam Maher');
-  const [nameAr, setNameAr] = useState(settings.profile?.nameAr || 'حسام ماهر');
+  const [name, setName] = useState(settings.profile?.fullNameEn || settings.profile?.name || 'Mohammed Maher Aldaya');
+  const [nameAr, setNameAr] = useState(settings.profile?.fullNameAr || settings.profile?.nameAr || 'محمد ماهر الداية');
+  const [titleEn, setTitleEn] = useState(settings.profile?.titleEn || 'Graphic Designer | Visual Identity & Creative Design');
+  const [titleAr, setTitleAr] = useState(settings.profile?.titleAr || 'مصمم جرافيك | متخصص في الهوية البصرية والتصميم الإبداعي');
+  const [profilePhoto, setProfilePhoto] = useState(settings.profile?.profilePhoto || '/profile/mohammed-maher-profile.png');
+  const [isPhotoPickerOpen, setIsPhotoPickerOpen] = useState(false);
   const [taglineEn, setTaglineEn] = useState(settings.profile?.taglineEn || '');
   const [taglineAr, setTaglineAr] = useState(settings.profile?.taglineAr || '');
   const [bioEn, setBioEn] = useState(settings.profile?.bioEn || '');
   const [bioAr, setBioAr] = useState(settings.profile?.bioAr || '');
-  const [email, setEmail] = useState(settings.profile?.email || 'hosam.maher48@gmail.com');
+  const [email, setEmail] = useState(settings.profile?.email || 'mohmmed.maher467@gmail.com');
   const [behance, setBehance] = useState(settings.profile?.behanceUrl || '');
   const [dribbble, setDribbble] = useState(settings.profile?.dribbbleUrl || '');
-  const [instagram, setInstagram] = useState(settings.profile?.instagramUrl || '');
+  const [instagram, setInstagram] = useState(settings.profile?.instagramUrl || 'https://www.instagram.com/mohmmed_ma48/');
+  const [instagramHandle, setInstagramHandle] = useState(settings.profile?.instagramHandle || settings.contact?.instagramHandle || '@mohmmed_ma48');
+  const [whatsappDisplay, setWhatsappDisplay] = useState(settings.profile?.whatsappDisplay || settings.contact?.whatsappDisplay || '+972 59-238-2189');
+  const [whatsappUrl, setWhatsappUrl] = useState(settings.profile?.whatsappUrl || settings.contact?.whatsappUrl || 'https://wa.me/972592382189');
   const [linkedin, setLinkedin] = useState(settings.profile?.linkedinUrl || '');
 
   // Hero & About Content form state
@@ -47,13 +57,13 @@ export function SettingsPage() {
   const [statClients, setStatClients] = useState(settings.about?.statClients || '20+');
   const [statYears, setStatYears] = useState(settings.about?.statYears || '5+');
 
-  const [contactEmail, setContactEmail] = useState(settings.contact?.directEmail || settings.profile?.email || 'hosam.maher48@gmail.com');
+  const [contactEmail, setContactEmail] = useState(settings.contact?.directEmail || settings.profile?.email || 'mohmmed.maher467@gmail.com');
   const [contactAvailabilityEn, setContactAvailabilityEn] = useState(settings.contact?.availabilityEn || 'Available for freelance & select projects');
   const [contactAvailabilityAr, setContactAvailabilityAr] = useState(settings.contact?.availabilityAr || 'متاح للمشاريع الإبداعية والاستشارات المختارة');
 
   // Branding form state
-  const [monogram, setMonogram] = useState(settings.branding?.monogram || 'GD');
-  const [studioName, setStudioName] = useState(settings.branding?.studioName || 'Hosam Maher Studio');
+  const [monogram, setMonogram] = useState(settings.branding?.monogram || 'MO');
+  const [studioName, setStudioName] = useState(settings.branding?.studioName || 'Mohammed Studio');
   const [accentColor, setAccentColor] = useState(settings.branding?.accentColor || '#f4a496');
 
   // Preferences form state
@@ -73,8 +83,13 @@ export function SettingsPage() {
   useEffect(() => {
     if (!settings) return;
     if (settings.profile) {
-      if (settings.profile.name !== undefined) setName(settings.profile.name);
-      if (settings.profile.nameAr !== undefined) setNameAr(settings.profile.nameAr);
+      if (settings.profile.fullNameEn !== undefined) setName(settings.profile.fullNameEn);
+      else if (settings.profile.name !== undefined) setName(settings.profile.name);
+      if (settings.profile.fullNameAr !== undefined) setNameAr(settings.profile.fullNameAr);
+      else if (settings.profile.nameAr !== undefined) setNameAr(settings.profile.nameAr);
+      if (settings.profile.titleEn !== undefined) setTitleEn(settings.profile.titleEn);
+      if (settings.profile.titleAr !== undefined) setTitleAr(settings.profile.titleAr);
+      if (settings.profile.profilePhoto !== undefined) setProfilePhoto(settings.profile.profilePhoto || '/profile/mohammed-maher-profile.png');
       if (settings.profile.taglineEn !== undefined) setTaglineEn(settings.profile.taglineEn);
       if (settings.profile.taglineAr !== undefined) setTaglineAr(settings.profile.taglineAr);
       if (settings.profile.bioEn !== undefined) setBioEn(settings.profile.bioEn);
@@ -83,6 +98,9 @@ export function SettingsPage() {
       if (settings.profile.behanceUrl !== undefined) setBehance(settings.profile.behanceUrl);
       if (settings.profile.dribbbleUrl !== undefined) setDribbble(settings.profile.dribbbleUrl);
       if (settings.profile.instagramUrl !== undefined) setInstagram(settings.profile.instagramUrl);
+      if (settings.profile.instagramHandle !== undefined) setInstagramHandle(settings.profile.instagramHandle);
+      if (settings.profile.whatsappDisplay !== undefined) setWhatsappDisplay(settings.profile.whatsappDisplay);
+      if (settings.profile.whatsappUrl !== undefined) setWhatsappUrl(settings.profile.whatsappUrl);
       if (settings.profile.linkedinUrl !== undefined) setLinkedin(settings.profile.linkedinUrl);
     }
     if (settings.hero) {
@@ -104,6 +122,10 @@ export function SettingsPage() {
     }
     if (settings.contact) {
       if (settings.contact.directEmail !== undefined) setContactEmail(settings.contact.directEmail);
+      if (settings.contact.instagramUrl !== undefined) setInstagram(settings.contact.instagramUrl);
+      if (settings.contact.instagramHandle !== undefined) setInstagramHandle(settings.contact.instagramHandle);
+      if (settings.contact.whatsappDisplay !== undefined) setWhatsappDisplay(settings.contact.whatsappDisplay);
+      if (settings.contact.whatsappUrl !== undefined) setWhatsappUrl(settings.contact.whatsappUrl);
       if (settings.contact.availabilityEn !== undefined) setContactAvailabilityEn(settings.contact.availabilityEn);
       if (settings.contact.availabilityAr !== undefined) setContactAvailabilityAr(settings.contact.availabilityAr);
     }
@@ -128,6 +150,11 @@ export function SettingsPage() {
         profile: {
           name,
           nameAr,
+          fullNameEn: name,
+          fullNameAr: nameAr,
+          titleEn,
+          titleAr,
+          profilePhoto,
           taglineEn,
           taglineAr,
           bioEn,
@@ -136,6 +163,9 @@ export function SettingsPage() {
           behanceUrl: behance,
           dribbbleUrl: dribbble,
           instagramUrl: instagram,
+          instagramHandle,
+          whatsappDisplay,
+          whatsappUrl,
           linkedinUrl: linkedin,
         },
         branding: {
@@ -162,6 +192,10 @@ export function SettingsPage() {
         },
         contact: {
           directEmail: contactEmail,
+          whatsappDisplay,
+          whatsappUrl,
+          instagramUrl: instagram,
+          instagramHandle,
           availabilityEn: contactAvailabilityEn,
           availabilityAr: contactAvailabilityAr,
         },
@@ -288,10 +322,70 @@ export function SettingsPage() {
       {/* TAB 1: DESIGNER PROFILE */}
       {activeTab === 'profile' && (
         <div className="p-6 sm:p-7 rounded-3xl glass-panel border border-[#f4a496]/15 shadow-2xl space-y-5 max-w-3xl">
+          {/* Profile Photo / Official Portrait for About Me */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-mono uppercase tracking-widest text-[#f4a496]/90 font-medium">
+                  {lang === 'ar' ? 'صورة الملف الشخصي والبورتريه الرسمي' : 'Official Profile Portrait (About Me)'}
+                </h3>
+                <p className="text-[11px] text-neutral-400 font-light mt-0.5">
+                  {lang === 'ar'
+                    ? 'تظهر هذه الصورة في قسم "نبذة عني" وفي بطاقات الهوية الرسمية'
+                    : 'Displayed in the About Me section and official profile badges'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProfilePhoto('/profile/mohammed-maher-profile.png')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] text-neutral-300 hover:text-white glass-panel-subtle hover:border-[#f4a496]/40 transition-colors cursor-pointer"
+                title={lang === 'ar' ? 'استعادة الصورة الرسمية الافتراضية' : 'Reset to official default photo'}
+              >
+                <RotateCcw className="w-3 h-3 text-[#f4a496]" />
+                <span>{lang === 'ar' ? 'استعادة الافتراضي' : 'Reset Default'}</span>
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-24 h-28 sm:w-28 sm:h-32 rounded-2xl overflow-hidden glass-panel border border-[#f4a496]/30 bg-gradient-to-b from-[#1a121e] to-[#140b17] flex items-end justify-center relative shadow-lg shrink-0">
+                <img
+                  src={profilePhoto || '/profile/mohammed-maher-profile.png'}
+                  alt="Profile Preview"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+
+              <div className="flex-1 w-full space-y-2.5">
+                <div>
+                  <label className="block text-[11px] font-mono uppercase text-neutral-400 mb-1">
+                    Image URL or Path
+                  </label>
+                  <input
+                    type="text"
+                    value={profilePhoto}
+                    onChange={(e) => setProfilePhoto(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#f4a496]/60"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPhotoPickerOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-sm cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>{lang === 'ar' ? 'اختيار من مكتبة الوسائط / رفع' : 'Choose from Media / Upload'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
-                {t.settings.designerName}
+                {t.settings.designerName} (English)
               </label>
               <input
                 type="text"
@@ -302,15 +396,54 @@ export function SettingsPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
-                {t.settings.email}
+                اسم المصمم (العربية)
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-sm focus:outline-none focus:border-[#f4a496]/60 transition-all font-sans"
+                type="text"
+                dir="rtl"
+                value={nameAr}
+                onChange={(e) => setNameAr(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-sm focus:outline-none focus:border-[#f4a496]/60 transition-all font-arabic"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                Professional Title (English)
+              </label>
+              <input
+                type="text"
+                value={titleEn}
+                onChange={(e) => setTitleEn(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs focus:outline-none focus:border-[#f4a496]/60 transition-all font-sans"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+                المسمى المهني (العربية)
+              </label>
+              <input
+                type="text"
+                dir="rtl"
+                value={titleAr}
+                onChange={(e) => setTitleAr(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-xs focus:outline-none focus:border-[#f4a496]/60 transition-all font-arabic"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-neutral-300 mb-1.5 font-light">
+              {t.settings.email}
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-sm focus:outline-none focus:border-[#f4a496]/60 transition-all font-sans"
+            />
           </div>
 
           <div>
@@ -388,11 +521,38 @@ export function SettingsPage() {
                 />
               </div>
               <div>
-                <span className="text-[11px] text-neutral-400 font-light">Instagram</span>
+                <span className="text-[11px] text-neutral-400 font-light">Instagram (URL)</span>
                 <input
                   type="text"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs mt-1"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-neutral-400 font-light">Instagram (@Handle)</span>
+                <input
+                  type="text"
+                  value={instagramHandle}
+                  onChange={(e) => setInstagramHandle(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs mt-1"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-neutral-400 font-light">WhatsApp (Display Number)</span>
+                <input
+                  type="text"
+                  value={whatsappDisplay}
+                  onChange={(e) => setWhatsappDisplay(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs mt-1"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-neutral-400 font-light">WhatsApp (Direct URL)</span>
+                <input
+                  type="text"
+                  value={whatsappUrl}
+                  onChange={(e) => setWhatsappUrl(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs mt-1"
                 />
               </div>
@@ -781,6 +941,13 @@ export function SettingsPage() {
           </form>
         </div>
       )}
+      {/* Media Picker for Profile Photo */}
+      <MediaPickerModal
+        isOpen={isPhotoPickerOpen}
+        onClose={() => setIsPhotoPickerOpen(false)}
+        onSelect={(item) => setIsPhotoPickerOpen(false) || setProfilePhoto(item.url)}
+        title={lang === 'ar' ? 'اختيار صورة البورتريه الشخصي' : 'Select Official Profile Portrait'}
+      />
     </div>
   );
 }

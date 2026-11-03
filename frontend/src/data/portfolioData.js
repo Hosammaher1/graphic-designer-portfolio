@@ -346,8 +346,8 @@ export const projectsData = [
     categoryIds: ['brand-identity', 'editorial'],
     year: '2024',
     client: {
-      en: 'Hosam Maher Creative Studio',
-      ar: 'استوديو حسام ماهر الإبداعي',
+      en: 'Mohammed Maher Creative Studio',
+      ar: 'استوديو محمد ماهر الإبداعي',
     },
     description: {
       en: 'Personal creative studio identity focused on precision, typographic balance, and deep obsidian materiality. Includes blind-debossed presentation folders, custom grid systems, and a timeless serif ligature monogram.',

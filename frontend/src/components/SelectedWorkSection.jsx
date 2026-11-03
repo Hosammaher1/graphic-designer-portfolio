@@ -117,8 +117,8 @@ export const SelectedWorkSection = ({
         {total === 0 ? (
           /* Luxury Empty State when database has 0 projects */
           <div className="relative w-full max-w-xl mx-auto my-12 p-8 sm:p-12 rounded-3xl glass-panel-active border border-[#f4a496]/25 shadow-2xl shadow-black/85 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#842b45] to-[#421a28] border border-[#f4a496]/40 p-0.5 shadow-xl shadow-black/50 flex items-center justify-center">
-              <span className="text-[#fcdcd4] font-serif font-bold text-xl tracking-tight">GD</span>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/5 border border-[#f4a496]/40 p-2 shadow-xl shadow-black/50 flex items-center justify-center">
+              <img src="/logo/logo.png" alt="MO" className="w-full h-full object-contain" />
             </div>
             <div className="text-[11px] font-mono uppercase tracking-widest text-[#f4a496]/80 mb-2">
               {lang === 'ar' ? 'معرض الأعمال' : 'Curated Portfolio Showcase'}

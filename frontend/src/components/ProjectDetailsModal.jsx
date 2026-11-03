@@ -446,7 +446,7 @@ export const ProjectDetailsModal = ({
                     Art Direction
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-white mt-0.5 block">
-                    Hosam Maher
+                    Mohammed Maher
                   </span>
                 </div>
               </div>

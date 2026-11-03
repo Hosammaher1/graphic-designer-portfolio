@@ -108,12 +108,14 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
           <div className="h-18 px-5 flex items-center justify-between border-b border-white/5">
             {!sidebarCollapsed ? (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#842b45] to-[#421a28] border border-[#f4a496]/40 flex items-center justify-center text-[#fcdcd4] font-serif font-bold text-base shadow-lg shadow-black/40">
-                  {settings.branding?.monogram || 'GD'}
-                </div>
+                <img
+                  src="/logo/logo.png"
+                  alt="MO"
+                  className="w-9 h-9 object-contain rounded-xl bg-white/5 p-1 border border-[#f4a496]/30 shadow-lg shadow-black/40"
+                />
                 <div>
                   <div className="text-sm font-bold tracking-tight text-white font-serif">
-                    {lang === 'ar' ? 'استوديو حسام' : 'Hosam Studio'}
+                    {lang === 'ar' ? (settings.profile?.nameAr || 'محمد ماهر') : (settings.profile?.name || 'Mohammed Maher')}
                   </div>
                   <div className="text-[10px] text-[#f4a496]/80 font-mono tracking-widest uppercase">
                     {lang === 'ar' ? 'لوحة الإدارة' : 'Admin Studio'}
@@ -121,8 +123,12 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
                 </div>
               </div>
             ) : (
-              <div className="mx-auto w-9 h-9 rounded-xl bg-gradient-to-br from-[#842b45] to-[#421a28] border border-[#f4a496]/40 flex items-center justify-center text-[#fcdcd4] font-serif font-bold text-base shadow">
-                {settings.branding?.monogram || 'GD'}
+              <div className="mx-auto w-9 h-9 rounded-xl bg-white/5 p-1 border border-[#f4a496]/30 flex items-center justify-center shadow">
+                <img
+                  src="/logo/logo.png"
+                  alt="MO"
+                  className="w-full h-full object-contain"
+                />
               </div>
             )}
 
@@ -293,11 +299,11 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
                 >
                   <img
                     src="/assets/aistudio/Cinematic_Designer_About_Me_Portfolio_c9684d8c.png"
-                    alt="Hosam Maher"
+                    alt="Mohammed Maher"
                     className="w-7 h-7 rounded-full object-cover border border-[#f4a496]/40"
                   />
                   <span className="hidden sm:inline-block text-xs font-medium text-white">
-                    {settings.profile?.name || 'Hosam Maher'}
+                    {settings.profile?.name || 'Mohammed Maher'}
                   </span>
                 </button>
 
@@ -309,10 +315,10 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
                   >
                     <div className="px-3 py-2 border-b border-white/5">
                       <div className="text-xs font-serif font-bold text-white">
-                        {settings.profile?.name || 'Hosam Maher'}
+                        {settings.profile?.name || 'Mohammed Maher'}
                       </div>
                       <div className="text-[10px] text-neutral-400 truncate">
-                        {settings.profile?.email || 'hosam.maher48@gmail.com'}
+                        {settings.profile?.email || 'mohmmed.maher467@gmail.com'}
                       </div>
                     </div>
                     <div className="pt-1 space-y-0.5">
@@ -353,10 +359,14 @@ export function AdminLayout({ children, currentPath = '/admin/dashboard' }) {
           <div className="w-72 bg-[#120a17] border-r border-[#f4a496]/20 h-full flex flex-col p-4 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#842b45] to-[#421a28] border border-[#f4a496]/40 flex items-center justify-center text-[#fcdcd4] font-serif font-bold text-sm">
-                  GD
-                </div>
-                <span className="font-serif font-bold text-sm text-white">Hosam Studio</span>
+                <img
+                  src="/logo/logo.png"
+                  alt="MO"
+                  className="w-8 h-8 rounded-xl object-contain bg-white/5 p-1 border border-[#f4a496]/30"
+                />
+                <span className="font-serif font-bold text-sm text-white">
+                  {lang === 'ar' ? (settings.profile?.nameAr || 'محمد ماهر') : (settings.profile?.name || 'Mohammed Maher')}
+                </span>
               </div>
               <button
                 onClick={() => setMobileMenuOpen(false)}

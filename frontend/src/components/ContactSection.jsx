@@ -1,6 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { translations } from '../data/portfolioData';
-import { Mail, CheckCircle2, Send, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { Mail, CheckCircle2, Send, ArrowUpRight, AlertCircle, Instagram } from 'lucide-react';
+
+const WhatsAppIcon = ({ className = 'w-5 h-5' }) => (
+  <svg viewBox="0 0 24 24" className={`${className} fill-current`} aria-hidden="true">
+    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.42 1.44.54.61.19 1.16.17 1.6.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3" />
+  </svg>
+);
 
 export const ContactSection = ({ lang = 'ar', settings }) => {
   const currentLang = lang === 'en' ? 'en' : 'ar';
@@ -10,7 +16,11 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
   const titleStart = settings?.contact?.[currentLang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
   const titleAccent = settings?.contact?.[currentLang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
   const description = settings?.contact?.[currentLang === 'ar' ? 'descAr' : 'descEn'] || t.description;
-  const directEmail = settings?.contact?.directEmail || settings?.profile?.email || 'hosam.maher48@gmail.com';
+  const directEmail = settings?.contact?.directEmail || settings?.profile?.email || 'mohmmed.maher467@gmail.com';
+  const whatsappNumber = settings?.contact?.whatsappDisplay || settings?.profile?.whatsappDisplay || '+972 59-238-2189';
+  const whatsappUrl = settings?.contact?.whatsappUrl || settings?.profile?.whatsappUrl || 'https://wa.me/972592382189';
+  const instagramHandle = settings?.contact?.instagramHandle || settings?.profile?.instagramHandle || '@mohmmed_ma48';
+  const instagramUrl = settings?.contact?.instagramUrl || settings?.profile?.instagramUrl || 'https://www.instagram.com/mohmmed_ma48/';
   const availableStatus = settings?.contact?.[currentLang === 'ar' ? 'availabilityAr' : 'availabilityEn'] || t.availableStatus;
 
   const formLoadedAt = useRef(Date.now());
@@ -141,7 +151,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <a
-                      href="mailto:hosam.maher48@gmail.com?subject=Design%20Inquiry%20from%20Portfolio"
+                      href={`mailto:${directEmail}?subject=Design%20Inquiry%20from%20Portfolio`}
                       className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md"
                     >
                       {currentLang === 'en' ? 'Direct Email Client ↗' : 'فتح البريد الإلكتروني ↗'}
@@ -271,23 +281,77 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                 {t.directDesc}
               </p>
 
-              <a
-                href={`mailto:${directEmail}`}
-                className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-300/30 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-300/20 flex items-center justify-center text-rose-300 group-hover:scale-105 transition-transform">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] font-mono text-neutral-400">STUDIO INBOX</div>
-                    <div className="text-sm font-medium text-white group-hover:text-rose-200 transition-colors">
-                      {directEmail}
+              <div className="space-y-3">
+                {/* Email */}
+                <a
+                  href={`mailto:${directEmail}`}
+                  className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-300/30 transition-all cursor-pointer"
+                  data-testid="contact-card-email"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-300/20 flex items-center justify-center text-rose-300 group-hover:scale-105 transition-transform shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-mono text-neutral-400">
+                        {currentLang === 'ar' ? 'البريد المباشر' : 'STUDIO INBOX'}
+                      </div>
+                      <div className="text-sm font-medium text-white group-hover:text-rose-200 transition-colors truncate">
+                        {directEmail}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-rose-300 transition-colors" />
-              </a>
+                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-rose-300 transition-colors shrink-0" />
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-300/30 transition-all cursor-pointer"
+                  data-testid="contact-card-whatsapp"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-300/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform shrink-0">
+                      <WhatsAppIcon className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-mono text-neutral-400">
+                        {currentLang === 'ar' ? 'واتساب المباشر' : 'WHATSAPP DIRECT'}
+                      </div>
+                      <div className="text-sm font-medium text-white group-hover:text-emerald-200 transition-colors" dir="ltr">
+                        {whatsappNumber}
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-emerald-300 transition-colors shrink-0" />
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-300/30 transition-all cursor-pointer"
+                  data-testid="contact-card-instagram"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-300/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform shrink-0">
+                      <Instagram className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-mono text-neutral-400">
+                        {currentLang === 'ar' ? 'إنستغرام الرسمي' : 'OFFICIAL INSTAGRAM'}
+                      </div>
+                      <div className="text-sm font-medium text-white group-hover:text-pink-200 transition-colors" dir="ltr">
+                        {instagramHandle}
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-pink-300 transition-colors shrink-0" />
+                </a>
+              </div>
 
               {/* Availability Notice */}
               <div className="mt-6 pt-6 border-t border-white/5 flex items-center gap-3">

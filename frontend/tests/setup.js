@@ -1,20 +1,34 @@
 import '@testing-library/jest-dom';
 
 // Ensure global requestAnimationFrame & cancelAnimationFrame for Node/jsdom and GSAP ScrollTrigger
-const rafPolyfill = (callback) => setTimeout(() => callback(Date.now()), 16);
+const rafPolyfill = (callback) => {
+  return setTimeout(() => {
+    try {
+      if (typeof callback === 'function') {
+        callback(Date.now());
+      }
+    } catch (e) {
+      // Ignore background loop errors after test teardown (e.g. GSAP _rafBugFix)
+    }
+  }, 16);
+};
 const cafPolyfill = (id) => clearTimeout(id);
 
-if (typeof globalThis.requestAnimationFrame !== 'function') {
+if (typeof globalThis !== 'undefined') {
   globalThis.requestAnimationFrame = rafPolyfill;
-}
-if (typeof global !== 'undefined' && typeof global.requestAnimationFrame !== 'function') {
-  global.requestAnimationFrame = rafPolyfill;
-}
-if (typeof globalThis.cancelAnimationFrame !== 'function') {
   globalThis.cancelAnimationFrame = cafPolyfill;
 }
-if (typeof global !== 'undefined' && typeof global.cancelAnimationFrame !== 'function') {
+if (typeof global !== 'undefined') {
+  global.requestAnimationFrame = rafPolyfill;
   global.cancelAnimationFrame = cafPolyfill;
+}
+if (typeof window !== 'undefined') {
+  window.requestAnimationFrame = rafPolyfill;
+  window.cancelAnimationFrame = cafPolyfill;
+}
+if (typeof self !== 'undefined') {
+  self.requestAnimationFrame = rafPolyfill;
+  self.cancelAnimationFrame = cafPolyfill;
 }
 
 // Ensure standard Web Storage & MatchMedia implementation in jsdom test environment

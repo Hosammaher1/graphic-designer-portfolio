@@ -6,7 +6,7 @@ import { MediaPickerModal } from '../components/MediaPickerModal.jsx';
 export function SeoPage() {
   const { lang, t, settings, updateStudioSettings, projects, addToast } = useAdmin();
 
-  const [siteTitle, setSiteTitle] = useState(settings.seo?.siteTitle || 'Hosam Maher — Cinematic Graphic Designer Portfolio');
+  const [siteTitle, setSiteTitle] = useState(settings.seo?.siteTitle || 'Mohammed Maher — Cinematic Graphic Designer Portfolio');
   const [siteDescEn, setSiteDescEn] = useState(settings.seo?.siteDescEn || 'Luxury single-page graphic designer portfolio featuring cinematic art direction, interactive Selected Work carousel, bilingual English & Arabic support, and full-detail project modal.');
   const [siteDescAr, setSiteDescAr] = useState(settings.seo?.siteDescAr || 'معرض أعمال مصمم جرافيك فاخر يتميز بالإخراج الفني السينمائي، وكاروسيل أعمال مختارة تفاعلي، ودعم ثنائي اللغة الإنجليزية والعربية.');
   const [ogImage, setOgImage] = useState(settings.seo?.ogImage || '/assets/aistudio/Cinematic_Graphic_Designer_Portfolio_Hero_c9d4f25f.png');
@@ -154,7 +154,7 @@ export function SeoPage() {
                       {lang === 'ar' ? p.titleAr : p.titleEn}
                     </span>
                     <span className="text-[11px] text-neutral-400 font-mono">
-                      portfolio.hosam.design/work/{p.slug || p.id}
+                      portfolio.mohammed.design/work/{p.slug || p.id}
                     </span>
                   </div>
                   <span className="text-emerald-300 font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px]">
@@ -177,7 +177,7 @@ export function SeoPage() {
 
             <div className="p-4 rounded-2xl bg-[#09070c] border border-[#f4a496]/20 space-y-1">
               <div className="text-[11px] text-neutral-400 flex items-center gap-1 font-mono">
-                <span className="text-neutral-300">https://hosammaher.design</span>
+                <span className="text-neutral-300">https://mohammedmaher.design</span>
                 <span>›</span>
               </div>
               <h4 className="text-sm sm:text-base text-[#f4a496] hover:underline font-serif font-medium leading-snug cursor-pointer">
@@ -202,7 +202,7 @@ export function SeoPage() {
               </div>
               <div className="p-4 space-y-1 bg-[#120a17]/90">
                 <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
-                  hosammaher.design
+                  mohammedmaher.design
                 </span>
                 <h4 className="text-xs sm:text-sm font-serif font-bold text-white truncate">
                   {siteTitle}

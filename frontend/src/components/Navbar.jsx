@@ -9,6 +9,7 @@ export const Navbar = ({
   activeSection,
   currentRoute = 'home',
   onNavigateRoute,
+  settings,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,7 +70,7 @@ export const Navbar = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-6">
           
-          {/* Left: GD Circle Logo & Brand Title */}
+          {/* Left: Official MO Logo (Only logo, no designer name or text) */}
           <a
             href="#hero"
             onClick={(e) => {
@@ -80,15 +81,16 @@ export const Navbar = ({
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
-            className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 rounded-lg shrink-0 cursor-pointer"
+            className="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 rounded-lg shrink-0 cursor-pointer"
+            aria-label={lang === 'ar' ? 'الصفحة الرئيسية' : 'Home'}
+            data-testid="navbar-brand-logo"
           >
-            {/* GD Serif Badge */}
-            <span className="font-serif text-2xl font-bold tracking-tight text-white group-hover:text-rose-200 transition-colors">
-              GD
-            </span>
-            <span className="text-sm font-medium text-neutral-300 tracking-normal hidden sm:inline">
-              Graphic Designer
-            </span>
+            {/* Official MO Logo */}
+            <img
+              src="/logo/logo.png"
+              alt="MO"
+              className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105"
+            />
           </a>
 
           {/* Center: Nav links with smooth active indicator */}

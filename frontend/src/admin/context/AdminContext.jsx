@@ -193,6 +193,13 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           setUser(null);
           setIsAuthenticated(false);
           safeRemoveItem('studio_admin_auth');
+          if (typeof window !== 'undefined') {
+            const path = window.location.pathname;
+            if (path.startsWith('/admin') && !path.includes('/login')) {
+              window.history.replaceState(null, '', '/admin/login');
+              setCurrentRoute('/admin/login');
+            }
+          }
         }
       }
     }
@@ -338,16 +345,17 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
   // Admin Navigation Helper
   const navigateAdmin = useCallback((path) => {
+    const targetPath = (!isAuthenticated && path !== '/admin/login') ? '/admin/login' : path;
     if (typeof window !== 'undefined') {
       try {
-        window.history.pushState({ route: path }, '', path);
+        window.history.pushState({ route: targetPath }, '', targetPath);
       } catch (e) {
-        window.location.hash = path;
+        window.location.hash = targetPath;
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    setCurrentRoute(path);
-  }, []);
+    setCurrentRoute(targetPath);
+  }, [isAuthenticated]);
 
   // Fetch real projects from Laravel API if available
   const fetchProjects = useCallback(async () => {

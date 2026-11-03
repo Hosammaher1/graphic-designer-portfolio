@@ -39,9 +39,9 @@ describe('Frontend Smoke Tests', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText(/محمد — مصمم جرافيك/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/محمد/i).length).toBeGreaterThan(0);
     expect(screen.getByText('English')).toBeInTheDocument();
-    expect(screen.getByText('لوحة التحكم')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /لوحة التحكم/i })).not.toBeInTheDocument();
   });
 
   it('renders App shell with English route', () => {
@@ -50,8 +50,8 @@ describe('Frontend Smoke Tests', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Mohammed — Graphic/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Mohammed/i).length).toBeGreaterThan(0);
     expect(screen.getByText('العربية')).toBeInTheDocument();
-    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^admin$/i })).not.toBeInTheDocument();
   });
 });

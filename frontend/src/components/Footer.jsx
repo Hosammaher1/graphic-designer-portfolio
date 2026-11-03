@@ -8,7 +8,7 @@ export const Footer = ({ lang, locale, settings }) => {
   const t = (translations[currentLang] || translations.ar || translations.en).footer;
   const nav = (translations[currentLang] || translations.ar || translations.en).nav;
 
-  const designerName = settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] || (currentLang === 'ar' ? 'محمد — مصمم جرافيك' : 'Mohammed — Graphic');
+  const designerName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] || settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] || (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
   const footerTagline = settings?.profile?.[currentLang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.tagline;
 
   let openSettings = null;
@@ -32,10 +32,11 @@ export const Footer = ({ lang, locale, settings }) => {
   };
 
   const socialLinks = [
+    { label: 'Instagram', href: settings?.contact?.instagramUrl || settings?.profile?.instagramUrl || 'https://www.instagram.com/mohmmed_ma48/' },
+    { label: 'WhatsApp', href: settings?.contact?.whatsappUrl || settings?.profile?.whatsappUrl || 'https://wa.me/972592382189' },
     { label: 'Behance', href: settings?.profile?.behanceUrl || 'https://behance.net' },
     { label: 'Dribbble', href: settings?.profile?.dribbbleUrl || 'https://dribbble.com' },
     { label: 'LinkedIn', href: settings?.profile?.linkedinUrl || 'https://linkedin.com' },
-    { label: 'Instagram', href: settings?.profile?.instagramUrl || 'https://instagram.com' },
   ];
 
   return (
@@ -49,9 +50,12 @@ export const Footer = ({ lang, locale, settings }) => {
           {/* Brand lockup */}
           <div>
             <div className="flex items-center justify-center md:justify-start gap-2.5">
-              <span className="font-serif text-2xl font-bold tracking-tight text-white">
-                GD
-              </span>
+              <img
+                src="/logo/logo.png"
+                alt="MO"
+                className="h-7 sm:h-8 w-auto object-contain"
+                data-testid="footer-brand-logo"
+              />
               <span className="text-sm font-medium text-neutral-300">
                 {designerName}
               </span>
@@ -80,9 +84,6 @@ export const Footer = ({ lang, locale, settings }) => {
             </a>
             <a href="#contact" className="hover:text-white transition-colors">
               {nav.contact}
-            </a>
-            <a href="/admin" className="hover:text-white transition-colors">
-              {currentLang === 'ar' ? 'لوحة التحكم' : 'Admin'}
             </a>
           </div>
 

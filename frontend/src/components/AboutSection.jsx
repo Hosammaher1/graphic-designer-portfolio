@@ -10,13 +10,26 @@ if (typeof window !== 'undefined') {
 }
 
 export const AboutSection = ({ lang, settings }) => {
-  const t = translations[lang].about;
+  const currentLang = lang === 'ar' ? 'ar' : 'en';
+  const t = translations[currentLang]?.about || translations.ar.about;
   const sectionRef = useRef(null);
 
-  const kicker = settings?.about?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
-  const titleStart = settings?.about?.[lang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
-  const titleAccent = settings?.about?.[lang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
-  const description = settings?.about?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+  const kicker = settings?.about?.[currentLang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
+  const titleStart = settings?.about?.[currentLang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
+  const titleAccent = settings?.about?.[currentLang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
+
+  const designerFullName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] ||
+    settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'name'] ||
+    (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
+
+  const designerTitle = settings?.profile?.[currentLang === 'ar' ? 'titleAr' : 'titleEn'] ||
+    (currentLang === 'ar' ? 'مصمم جرافيك | متخصص في الهوية البصرية والتصميم الإبداعي' : 'Graphic Designer | Visual Identity & Creative Design');
+
+  const description = settings?.profile?.[currentLang === 'ar' ? 'bioAr' : 'bioEn'] ||
+    settings?.about?.[currentLang === 'ar' ? 'descAr' : 'descEn'] ||
+    t.description;
+
+  const profilePhoto = settings?.profile?.profilePhoto || settings?.profile?.avatarUrl || '/profile/mohammed-maher-profile.png';
 
   const statProjectsCount = settings?.about?.statProjects || '50+';
   const statClientsCount = settings?.about?.statClients || '20+';
@@ -92,59 +105,41 @@ export const AboutSection = ({ lang, settings }) => {
               {/* Portrait Image Container */}
               <div className="relative rounded-3xl overflow-hidden glass-panel border border-white/10 shadow-2xl h-[420px] sm:h-[480px]">
                 
-                {/* Real photographic illustration of designer holding stylus */}
-                <div className="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#1a121e] via-[#241525] to-[#140b17]">
-                  {/* Atmospheric backlight */}
-                  <div className="absolute top-10 right-4 w-52 h-52 bg-amber-500/20 rounded-full blur-2xl" />
-                  <div className="absolute bottom-10 left-4 w-60 h-60 bg-rose-600/20 rounded-full blur-3xl" />
+                {/* Official Designer Portrait of Mohammed Maher Aldaya */}
+                <div className="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#1a121e] via-[#241525] to-[#140b17] flex items-end justify-center">
+                  {/* Atmospheric backlights */}
+                  <div className="absolute top-6 right-4 w-52 h-52 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-10 left-4 w-60 h-60 bg-rose-600/25 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute inset-0 bg-radial from-transparent via-[#140b17]/20 to-[#09070c]/70 pointer-events-none" />
 
-                  {/* Stylized Silhouette & Studio Environment */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg viewBox="0 0 320 400" className="w-full h-full object-cover text-neutral-100" fill="none">
-                      {/* Studio table & tablet */}
-                      <rect x="0" y="310" width="320" height="90" fill="#130915" />
-                      <path d="M20,330 L110,270 L140,290 L40,360 Z" fill="#201025" stroke="#482550" strokeWidth="1.5" />
-                      
-                      {/* Stylus in hand */}
-                      <line x1="88" y1="160" x2="88" y2="230" stroke="#f6c5b9" strokeWidth="4" strokeLinecap="round" />
-                      
-                      {/* Designer Body & Head Silhouette with warm lighting */}
-                      <path
-                        d="M160,100 C135,100 120,120 120,150 C120,170 130,195 145,205 C115,220 80,245 60,310 L260,310 C240,245 205,220 175,205 C190,195 200,170 200,150 C200,120 185,100 160,100 Z"
-                        fill="#1f1122"
-                      />
-                      {/* Beard & Hair details */}
-                      <path
-                        d="M135,140 C135,120 145,105 160,105 C175,105 185,120 185,140 C185,150 180,165 175,175 C165,185 155,185 145,175 C140,165 135,150 135,140 Z"
-                        fill="#2c1a2f"
-                      />
-                      {/* Warm rim light along face */}
-                      <path
-                        d="M165,115 C175,125 180,140 180,160 C180,175 170,185 160,185"
-                        stroke="#fbcfe8"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        opacity="0.8"
-                      />
-                    </svg>
-                  </div>
+                  {/* Official Image - Bottom-aligned, centered horizontally, natural proportions */}
+                  <img
+                    src={profilePhoto}
+                    alt={designerFullName}
+                    className="relative z-10 h-[76%] sm:h-[80%] w-auto max-w-[85%] sm:max-w-[88%] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-transform duration-700 hover:scale-[1.02]"
+                    data-testid="about-profile-image"
+                    loading="eager"
+                  />
+
+                  {/* Subtle bottom gradient vignette to ensure smooth merge */}
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#140b17] via-[#140b17]/40 to-transparent z-10 pointer-events-none" />
                 </div>
 
                 {/* Top-Left Floating Glass Card: Graphic Designer */}
-                <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 p-3 rounded-2xl glass-panel-active border border-white/20 shadow-xl max-w-[200px]">
+                <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 p-3 rounded-2xl glass-panel-active border border-white/20 shadow-xl max-w-[220px] z-20 backdrop-blur-xl">
                   <div className="flex items-center gap-1.5 text-amber-300 mb-1">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span className="text-xs font-serif font-bold text-white">
-                      {badgeTitle}
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs font-serif font-bold text-white truncate block">
+                      {designerFullName}
                     </span>
                   </div>
-                  <p className="text-[10px] text-neutral-300 font-sans tracking-wide">
-                    {badgeSubtitle}
+                  <p className="text-[10px] text-neutral-300 font-sans tracking-wide leading-tight line-clamp-2">
+                    {designerTitle}
                   </p>
                 </div>
 
                 {/* Bottom Overlay Glass Card: 50+ Projects | 20+ Clients | 5+ Years */}
-                <div className="absolute bottom-4 inset-x-4 p-3.5 sm:p-4 rounded-2xl glass-panel-active border border-white/20 shadow-xl">
+                <div className="absolute bottom-4 inset-x-4 p-3.5 sm:p-4 rounded-2xl glass-panel-active border border-white/20 shadow-xl z-20 backdrop-blur-xl">
                   <div className="grid grid-cols-3 divide-x divide-white/10 text-center rtl:divide-x-reverse">
                     <div>
                       <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
@@ -187,13 +182,23 @@ export const AboutSection = ({ lang, settings }) => {
             </div>
 
             {/* Title: "About Me" */}
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-6">
+            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-3">
               <span>{titleStart} </span>
               <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
             </h2>
 
+            {/* Prominent Designer Identity & Professional Title */}
+            <div className="mb-6 space-y-1">
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight" data-testid="about-designer-name">
+                {designerFullName}
+              </h3>
+              <p className="text-xs sm:text-sm font-mono tracking-wider text-[#f4a496] font-medium uppercase" data-testid="about-designer-title">
+                {designerTitle}
+              </p>
+            </div>
+
             {/* Description Paragraph */}
-            <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-8 max-w-2xl">
+            <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-8 max-w-2xl whitespace-pre-line" data-testid="about-designer-bio">
               {description}
             </p>
 
