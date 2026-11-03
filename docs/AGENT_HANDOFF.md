@@ -1,13 +1,16 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 8 Checkpoint — 2026-11-03 (Secure Administrator Password Setup CLI Command)
+## Current Antigravity Stage 9 Checkpoint — 2026-11-04 (Admin Login Connection & Sanctum Session Resolution)
 
-- **Active Branch:** `feat/configure-admin-password` (local commit `0c5ae07`)
-- **Objective Completed:** Implemented a secure, interactive one-time local CLI command (`php artisan admin:set-password`) allowing the project owner to securely configure their personal administrator password in the local terminal without exposing plaintext credentials. Includes hidden input prompting, password confirmation, robust strength validation (min 8 chars, mixed-case letters, numbers), idempotent account updates, and complete audit logging with zero password leakage.
+- **Active Branch:** `fix/admin-login-connection-and-sanctum` (local commit `8a2b23d`)
+- **Objective Completed:** Diagnosed and resolved the root cause of administrator login failures at `http://localhost:5173/admin/login` for `mohmmed.maher467@gmail.com`. Realigned Vite proxy from port 8000 (occupied by Windows `Manager.exe`) to active Laravel port 8001 (`process.env.VITE_BACKEND_URL || 'http://127.0.0.1:8001'`), registered `localhost:5173` and `127.0.0.1:5173` in `SANCTUM_STATEFUL_DOMAINS`, published CORS configuration with credentials support, differentiated connection errors from invalid credential responses in the frontend, and verified full end-to-end proxy connectivity with CSRF cookies and 200 health responses.
 - **Verification Evidence:**
-  - `tests/Feature/Auth/SetAdminPasswordCommandTest.php`: 7 tests, 54 assertions passed (100%).
-  - Full Auth Suite (`tests/Feature/Auth`): 37 tests, 196 assertions passed (100%).
+  - `http://localhost:5173/api/v1/health`: 200 OK (all services healthy).
+  - `http://localhost:5173/sanctum/csrf-cookie`: 204 No Content with `XSRF-TOKEN` and `laravel_session` cookies.
+  - `http://localhost:5173/api/v1/auth/login`: Verified credential evaluation and rate limiting on `mohmmed.maher467@gmail.com`.
+  - Backend Auth Tests: 37 tests, 196 assertions passed (100%).
   - Frontend Vitest Suite: 40 test files, 227 tests passed (100%).
+  - Production Build: Clean compile in 2.42s.
 - **Key Enhancements Implemented:**
   - **Official MO Logo Adoption:**
     - Replaced all visual "GD" text monograms with the official MO logo image (`/logo/logo.png`) across desktop Navbar, mobile drawer menu, Footer, Admin Dashboard sidebar, and Admin Login page.

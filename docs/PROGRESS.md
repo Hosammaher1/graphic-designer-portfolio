@@ -299,6 +299,29 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - **Backend PHPUnit Auth Suite (`tests/Feature/Auth`):** **37 tests, 196 assertions passed (100%)**.
   - **Frontend Regression Suite (`npm test`):** **40 test files passed, 227 tests passed (100%)**.
 
+### Stage 9: Admin Login Connection & Sanctum Session Resolution (2026-11-04)
+
+- **Task Scope & Status:** Diagnosed and resolved the root causes preventing administrator authentication via `http://localhost:5173/admin/login` for `mohmmed.maher467@gmail.com`.
+- **Branch / Commits / Remote:** `fix/admin-login-connection-and-sanctum` (local commit `8a2b23d`).
+- **Root Cause Analysis:**
+  1. **Vite Proxy Port Disconnect:** On Windows, port 8000 was occupied by system software (`Manager.exe`), while the active Laravel backend was serving on port 8001. `frontend/vite.config.js` was hardcoded to proxy `/api` and `/sanctum` to `http://127.0.0.1:8000`, causing incoming browser login requests to be rejected with HTTP 500 before reaching Laravel.
+  2. **Masked Error Reporting:** When the proxy failed to reach the server, `AdminContext.jsx` received a null message and fell back to the generic message `"Invalid credentials. Please check email and password."`, hiding the network connectivity error.
+  3. **Sanctum Stateful Domains:** `backend/config/sanctum.php` omitted port 5173 (`localhost:5173`, `127.0.0.1:5173`). This caused `EnsureFrontendRequestsAreStateful::fromFrontend()` to return `false`, disabling session and CSRF cookie handling for Vite frontend requests.
+  4. **CORS Credentials:** `backend/config/cors.php` was missing and defaulted to wildcard origins with `supports_credentials = false`, preventing credentialed session cookies from being shared.
+- **Fixes Applied:**
+  - `frontend/vite.config.js`: Updated proxy targets to `process.env.VITE_BACKEND_URL || 'http://127.0.0.1:8001'`.
+  - `backend/config/sanctum.php` & `backend/.env`: Added `localhost:5173` and `127.0.0.1:5173` to `SANCTUM_STATEFUL_DOMAINS`.
+  - `backend/config/cors.php`: Created configuration with explicit allowed origins (`localhost:5173`, `127.0.0.1:5173`, `localhost:8001`) and `supports_credentials => true`.
+  - `frontend/src/admin/context/AdminContext.jsx`: Differentiated network/proxy errors (500/0) and CSRF expiration (419) from invalid credential errors (401/422).
+  - Started Laravel server with `PHP_CLI_SERVER_WORKERS=4` on port 8001 outside sandbox to ensure concurrent browser requests do not block.
+- **Verification Evidence:**
+  - Verified `http://localhost:5173/api/v1/health` returns `200 OK` (db, api, cache, storage all healthy).
+  - Verified `http://localhost:5173/sanctum/csrf-cookie` returns `204 No Content` with `XSRF-TOKEN` and `laravel_session` cookies.
+  - Verified `http://localhost:5173/api/v1/auth/login` forwards cleanly to Laravel and logs attempts for `mohmmed.maher467@gmail.com`.
+  - **Backend PHPUnit Auth Suite:** 37 tests, 196 assertions passed (100%).
+  - **Frontend Vitest Suite:** 40 test files, 227 tests passed (100%).
+  - **Frontend Production Build:** Compiled cleanly in 2.42s.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.
