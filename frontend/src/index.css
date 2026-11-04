@@ -261,27 +261,40 @@
   border-color: #E7D9D9 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root header .bg-\[\#09070c\]\/85,
-:is(html.light, html[data-theme="light"]) #public-root header.is-scrolled {
-  background-color: rgba(246, 241, 235, 0.94) !important;
-  border-color: #E7D9D9 !important;
-  box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.06) !important;
+:is(html.light, html[data-theme="light"]) #public-root header.bg-\[\#09070c\]\/85,
+:is(html.light, html[data-theme="light"]) #public-root header[class*="bg-\[\#09070c\]"],
+:is(html.light, html[data-theme="light"]) #public-root header.backdrop-blur-xl {
+  background-color: rgba(246, 241, 235, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid #E7D9D9 !important;
+  box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.08) !important;
 }
 
 :is(html.light, html[data-theme="light"]) #public-root header nav a {
   color: #5F5660 !important;
+  font-weight: 500 !important;
 }
 
 :is(html.light, html[data-theme="light"]) #public-root header nav a:hover {
   color: #242027 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root header nav a.font-semibold {
+:is(html.light, html[data-theme="light"]) #public-root header nav a.font-semibold,
+:is(html.light, html[data-theme="light"]) #public-root header nav a[class*="font-semibold"] {
   color: #5C1628 !important;
+  font-weight: 600 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root header nav a span.bg-gradient-to-r {
-  background: #5C1628 !important;
+:is(html.light, html[data-theme="light"]) #public-root header nav a > span:first-child {
+  color: inherit !important;
+}
+
+/* Active Section Indicator Underline: Solid Burgundy (#5C1628) */
+:is(html.light, html[data-theme="light"]) #public-root header nav a span.absolute,
+:is(html.light, html[data-theme="light"]) #public-root header nav a span[class*="bg-gradient-to-r"] {
+  background-color: #5C1628 !important;
+  background-image: none !important;
 }
 
 /* EN / AR Segmented Control */
@@ -396,7 +409,9 @@
   color: #3b3540 !important;
 }
 
+:is(html.light, html[data-theme="light"]) #public-root #hero p,
 :is(html.light, html[data-theme="light"]) #public-root .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-300\/90:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
 :is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *) {
   color: #5F5660 !important;
 }
