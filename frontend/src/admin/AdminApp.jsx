@@ -91,9 +91,34 @@ function AdminRouter() {
 }
 
 export default function AdminApp() {
+  React.useEffect(() => {
+    // Admin always enforces its original dark studio theme
+    const prevTheme = document.documentElement.getAttribute('data-theme');
+    const hadLight = document.documentElement.classList.contains('light');
+
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+
+    return () => {
+      // Restore public theme when exiting admin
+      const savedTheme = localStorage.getItem('portfolio-theme') || (hadLight ? 'light' : prevTheme) || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    };
+  }, []);
+
   return (
-    <AdminProvider>
-      <AdminRouter />
-    </AdminProvider>
+    <div id="admin-root" className="admin-root dark min-h-screen bg-[#09070c] text-neutral-100">
+      <AdminProvider>
+        <AdminRouter />
+      </AdminProvider>
+    </div>
   );
 }

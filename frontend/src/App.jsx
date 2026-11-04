@@ -139,7 +139,9 @@ export default function App({ initialUrl, initialLocale }) {
             const titleAr = p.title || p.slug;
             const summaryEn = p.summary || '';
             const summaryAr = p.summary || '';
-            const catName = p.categories?.[0]?.name || p.categories?.[0]?.slug || (lang === 'ar' ? 'هوية بصرية' : 'Branding');
+            const rawCat = p.categories?.[0];
+            const catNameEn = typeof rawCat?.name === 'object' ? (rawCat.name?.en || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'Branding');
+            const catNameAr = typeof rawCat?.name === 'object' ? (rawCat.name?.ar || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'هوية بصرية');
             const cover = p.cover_url || null;
             return {
               id: p.slug || String(p.id),
@@ -147,9 +149,15 @@ export default function App({ initialUrl, initialLocale }) {
               title: { en: titleEn, ar: titleAr },
               subtitle: { en: summaryEn, ar: summaryAr },
               description: { en: p.description || summaryEn, ar: p.description || summaryAr },
-              category: { en: catName, ar: catName },
+              category: { en: catNameEn, ar: catNameAr },
               categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
-              categories: p.categories || [],
+              categories: Array.isArray(p.categories) ? p.categories.map((c) => ({
+                id: c.id,
+                slug: c.slug,
+                name: typeof c.name === 'object' ? c.name : { en: c.name || c.slug, ar: c.name || c.slug },
+                nameEn: typeof c.name === 'object' ? (c.name.en || c.slug) : (c.name || c.slug),
+                nameAr: typeof c.name === 'object' ? (c.name.ar || c.slug) : (c.name || c.slug),
+              })) : [],
               tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
               tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
               year: String(p.year || new Date().getFullYear()),
@@ -177,7 +185,7 @@ export default function App({ initialUrl, initialLocale }) {
 
         if (catRes.ok) {
           const catJson = await catRes.json();
-          const apiCats = catJson.data || [];
+          const apiCats = catJson.data?.categories || (Array.isArray(catJson.data) ? catJson.data : []);
           if (isMounted) {
             setCategories(apiCats);
           }
@@ -287,7 +295,9 @@ export default function App({ initialUrl, initialLocale }) {
           const titleAr = p.title || p.slug;
           const summaryEn = p.summary || '';
           const summaryAr = p.summary || '';
-          const catName = p.categories?.[0]?.name || p.categories?.[0]?.slug || (lang === 'ar' ? 'هوية بصرية' : 'Branding');
+          const rawCat = p.categories?.[0];
+          const catNameEn = typeof rawCat?.name === 'object' ? (rawCat.name?.en || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'Branding');
+          const catNameAr = typeof rawCat?.name === 'object' ? (rawCat.name?.ar || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'هوية بصرية');
           const cover = p.cover_url || null;
 
           const fullProject = {
@@ -296,9 +306,15 @@ export default function App({ initialUrl, initialLocale }) {
             title: { en: titleEn, ar: titleAr },
             subtitle: { en: summaryEn, ar: summaryAr },
             description: { en: p.description || summaryEn, ar: p.description || summaryAr },
-            category: { en: catName, ar: catName },
+            category: { en: catNameEn, ar: catNameAr },
             categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
-            categories: p.categories || [],
+            categories: Array.isArray(p.categories) ? p.categories.map((c) => ({
+              id: c.id,
+              slug: c.slug,
+              name: typeof c.name === 'object' ? c.name : { en: c.name || c.slug, ar: c.name || c.slug },
+              nameEn: typeof c.name === 'object' ? (c.name.en || c.slug) : (c.name || c.slug),
+              nameAr: typeof c.name === 'object' ? (c.name.ar || c.slug) : (c.name || c.slug),
+            })) : [],
             tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
             tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
             year: String(p.year || new Date().getFullYear()),
@@ -350,7 +366,8 @@ export default function App({ initialUrl, initialLocale }) {
 
   return (
     <div
-      className={`min-h-screen bg-[#09070c] text-neutral-100 flex flex-col font-sans selection:bg-rose-500/30 selection:text-rose-200 ${
+      id="public-root"
+      className={`public-root min-h-screen bg-[#09070c] text-neutral-100 flex flex-col font-sans selection:bg-rose-500/30 selection:text-rose-200 ${
         lang === 'ar' ? 'font-arabic' : ''
       }`}
     >

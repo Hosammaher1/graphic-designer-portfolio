@@ -18,7 +18,8 @@ class PublicProjectController extends Controller
         $locale = $request->input('locale', 'ar');
 
         $query = Project::published()
-            ->whereNotNull('published_snapshot');
+            ->whereNotNull('published_snapshot')
+            ->with(['categories.translations']);
 
         if ($request->filled('year')) {
             $query->where('year', (int) $request->year);
@@ -74,7 +75,14 @@ class PublicProjectController extends Controller
                 'title'        => $trans['title'] ?? '',
                 'summary'      => $trans['summary'] ?? '',
                 'cover_url'    => $snapshot['cover_url'] ?? $project->cover_url ?? null,
-                'categories'   => $snapshot['categories'] ?? [],
+                'categories'   => !empty($snapshot['categories']) ? $snapshot['categories'] : $project->categories->map(fn($c) => [
+                    'id'   => $c->id,
+                    'slug' => $c->slug,
+                    'name' => [
+                        'ar' => $c->translations?->firstWhere('locale', 'ar')?->name ?? $c->translation('ar')?->name ?? $c->slug,
+                        'en' => $c->translations?->firstWhere('locale', 'en')?->name ?? $c->translation('en')?->name ?? $c->slug,
+                    ],
+                ])->all(),
                 'tools'        => $snapshot['tools'] ?? [],
             ];
         });
@@ -98,6 +106,7 @@ class PublicProjectController extends Controller
         $project = Project::published()
             ->whereNotNull('published_snapshot')
             ->where('slug', $slug)
+            ->with(['categories.translations'])
             ->first();
 
         if (! $project) {
@@ -172,7 +181,14 @@ class PublicProjectController extends Controller
                     'seo_title'       => $trans['seo_title'] ?? '',
                     'seo_description' => $trans['seo_description'] ?? '',
                     'cover_url'       => $coverUrl,
-                    'categories'      => $snapshot['categories'] ?? [],
+                    'categories'      => !empty($snapshot['categories']) ? $snapshot['categories'] : $project->categories->map(fn($c) => [
+                        'id'   => $c->id,
+                        'slug' => $c->slug,
+                        'name' => [
+                            'ar' => $c->translations?->firstWhere('locale', 'ar')?->name ?? $c->translation('ar')?->name ?? $c->slug,
+                            'en' => $c->translations?->firstWhere('locale', 'en')?->name ?? $c->translation('en')?->name ?? $c->slug,
+                        ],
+                    ])->all(),
                     'tools'           => $snapshot['tools'] ?? [],
                     'media'           => $mediaList,
                     'layout_blocks'   => $snapshot['layout_blocks'] ?? [],

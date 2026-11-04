@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Search,
@@ -27,6 +27,7 @@ export function ProjectsListPage() {
     deleteProject,
     toggleFeaturedProject,
     navigateAdmin,
+    fetchProjects,
   } = useAdmin();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +39,11 @@ export function ProjectsListPage() {
   // Modal confirmation for deletion
   const [projectToDelete, setProjectToDelete] = useState(null);
 
+  // Sync projects from database when visiting projects list
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
   // Filtered & Sorted list
   const filteredProjects = projects
     .filter((p) => {
@@ -48,13 +54,31 @@ export function ProjectsListPage() {
         (p.titleEn && p.titleEn.toLowerCase().includes(q)) ||
         (p.titleAr && p.titleAr.includes(q)) ||
         (p.clientEn && p.clientEn.toLowerCase().includes(q)) ||
-        (p.categoryEn && p.categoryEn.toLowerCase().includes(q));
+        (p.categoryEn && p.categoryEn.toLowerCase().includes(q)) ||
+        (Array.isArray(p.categories) &&
+          p.categories.some((cat) => {
+            const name = typeof cat === 'string' ? cat : (cat.nameEn || cat.name_en || cat.name?.en || cat.slug || '');
+            return name.toLowerCase().includes(q);
+          }));
 
       // Category
       const matchCat =
         selectedCategory === 'ALL' ||
         p.categoryEn === selectedCategory ||
-        p.categories?.includes(selectedCategory);
+        (Array.isArray(p.categories) &&
+          p.categories.some((cat) => {
+            if (typeof cat === 'string') return cat === selectedCategory;
+            if (typeof cat === 'object' && cat !== null) {
+              return (
+                cat.nameEn === selectedCategory ||
+                cat.name_en === selectedCategory ||
+                cat.name?.en === selectedCategory ||
+                cat.slug === selectedCategory ||
+                String(cat.id) === String(selectedCategory)
+              );
+            }
+            return false;
+          }));
 
       // Status
       const matchStatus =
@@ -251,9 +275,30 @@ export function ProjectsListPage() {
 
                     {/* Category */}
                     <td className="py-4 px-4 text-neutral-300">
-                      <span className="px-2.5 py-1 rounded-full glass-panel-subtle border border-white/5 text-[11px]">
-                        {lang === 'ar' ? p.categoryAr : p.categoryEn}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.isArray(p.categories) && p.categories.length > 0 ? (
+                          p.categories.map((c, i) => {
+                            const label =
+                              typeof c === 'string'
+                                ? c
+                                : lang === 'ar'
+                                ? c.name_ar || c.nameAr || c.name_en || c.nameEn || c.slug
+                                : c.name_en || c.nameEn || c.name_ar || c.nameAr || c.slug;
+                            return (
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 rounded-full glass-panel-subtle border border-white/5 text-[10px]"
+                              >
+                                {label}
+                              </span>
+                            );
+                          })
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-full glass-panel-subtle border border-white/5 text-[11px]">
+                            {(lang === 'ar' ? p.categoryAr : p.categoryEn) || 'Branding'}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Status */}
@@ -351,7 +396,19 @@ export function ProjectsListPage() {
 
                 {/* Category tag */}
                 <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 text-[11px] text-[#f4a496] font-mono tracking-wider">
-                  {lang === 'ar' ? p.categoryAr : p.categoryEn}
+                  {Array.isArray(p.categories) && p.categories.length > 0
+                    ? p.categories
+                        .map((c) =>
+                          typeof c === 'string'
+                            ? c
+                            : lang === 'ar'
+                            ? c.name_ar || c.nameAr || c.name_en || c.nameEn || c.slug
+                            : c.name_en || c.nameEn || c.name_ar || c.nameAr || c.slug
+                        )
+                        .join(' · ')
+                    : lang === 'ar'
+                    ? p.categoryAr
+                    : p.categoryEn}
                 </div>
               </div>
 

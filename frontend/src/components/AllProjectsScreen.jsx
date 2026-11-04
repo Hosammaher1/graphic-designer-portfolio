@@ -383,11 +383,18 @@ export const AllProjectsScreen = ({
                   </div>
 
                   {/* Card Bottom Content Area */}
-                  <div className="p-6 flex-1 flex flex-col justify-between text-left rtl:text-right bg-gradient-to-b from-[#140b17] to-[#0c050f]">
+                  <div className="p-6 flex-1 flex flex-col justify-between text-left rtl:text-right bg-gradient-to-b from-[#140b17] to-[#0c050f] project-card-body">
                     <div>
                       {/* Category Label */}
                       <span className="text-[11px] font-mono tracking-wider text-rose-300 uppercase block mb-1">
-                        {resolveText(project.category, lang, 'Design')}
+                        {Array.isArray(project.categories) && project.categories.length > 0
+                          ? project.categories.map((c) =>
+                              typeof c === 'string'
+                                ? c
+                                : (lang === 'ar' ? (c.nameAr || c.name?.ar) : (c.nameEn || c.name?.en)) ||
+                                  resolveText(c.name, lang, c.slug || 'Design')
+                            ).join(' · ')
+                          : resolveText(project.category, lang, 'Design')}
                       </span>
 
                       {/* Project Title */}

@@ -1,6 +1,36 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 12 Checkpoint — 2026-11-04 (Critical Release Blockers: Real Media Upload & React SSR Hydration Isolation)
+## Current Antigravity Stage 13 Checkpoint — 2026-11-04 (P0: Project Creation Regression Resolution, Category Persistence & Strict Theme Isolation)
+
+- **Active Branch:** `fix/categories-persistence-and-light-mode`
+- **Objective Completed:** Complete resolution of P0 regression where new projects disappeared after publishing in Admin, fix category persistence across Admin and public visitor website, and enforce strict theme isolation between Admin (100% dark studio palette) and Public site (approved Eclipse Light Mode palette).
+- **Root Causes Diagnosed & Fixed:**
+  1. *Mock Fallback Disguising Failures:* In `AdminContext.jsx`, `addProject` caught API failures and fabricated local mock objects (`id: 'proj-1'`) in React state instead of bubbling the error. When navigating to `/admin/projects` or refreshing, `fetchProjects()` queried MySQL where the record was never inserted, causing the project to vanish. Removed mock fallback; errors now toast real validation messages.
+  2. *Slug Collision & URL Formatting:* Automatically generate clean, URL-safe slugs from title input with timestamp collision prevention, preventing Laravel 422 `The slug has already been taken.` errors.
+  3. *Guarded Navigation in Editor:* In `ProjectEditorPage.jsx`, editor only navigates to edit page when `created?.id && !created.error`. On validation failure, form values remain intact.
+  4. *Project List Synchronization:* In `ProjectsListPage.jsx`, added `useEffect` to fetch projects on mount, multi-category matching in filter, and localized category badge display.
+  5. *Laravel Snapshot Eager Loading:* `ProjectController.php` eager loads `categories.translations` and assigns `$project = app(ProjectPublishingService::class)->publish($project)` ensuring the snapshot contains categories.
+  6. *Theme Contamination in Admin:* Scoped all public Light Mode rules strictly to `:is(html.light, html[data-theme="light"]) #public-root` and `.public-dialog`. Added explicit `#admin-root, .admin-root` stylesheet rules ensuring Admin Dashboard remains 100% dark (`#09070c`, dark inputs, light text).
+- **Verification Evidence:**
+  - **Playwright E2E Suites:**
+    - `categories-persistence-and-light-mode.spec.js`: Desktop Chromium **3 passed (55.7s)**; Mobile Chrome **3 passed (34.6s)**.
+    - `reproduce-new-project-disappears.spec.js`: Desktop Chromium **1 passed (18.7s)**.
+  - **Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)**.
+  - **Frontend Production Build:** Client bundle (2.60s) and SSR bundle (511ms) built with zero errors.
+- **Captured Visual Proof Artifacts:**
+  - `screenshots/admin-dashboard-dark-desktop.png`: Verified Admin Dashboard original dark studio palette.
+  - `screenshots/admin-projects-list-persisted.png`: Verified created project with multiple categories in Admin project list.
+  - `screenshots/public-homepage-dark-desktop.png`: Verified public website in original Dark Mode.
+  - `screenshots/public-homepage-light-desktop.png`: Verified public website in approved Light Mode (`#F6F1EB`, `#5C1628`).
+  - `screenshots/public-all-projects-light-desktop.png`: Verified All Projects screen with white cards (`#FFFFFF`) and `#E7D9D9` borders.
+  - `screenshots/admin-dashboard-isolated-dark-desktop.png`: Verified Admin Dashboard remains completely dark when user theme is light.
+- **Database State:**
+  - Real user project (Project ID 9, `slug: "project"`, published) is intact and active.
+
+---
+
+## Historical Antigravity Stage 12 Checkpoint — 2026-11-04 (Critical Release Blockers: Real Media Upload & React SSR Hydration Isolation)
 
 - **Active Branch:** `fix/project-images-public-flow` (commit to be merged to `dev`)
 - **Objective Completed:** End-to-end resolution of two critical release blockers:

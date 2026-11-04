@@ -45,8 +45,8 @@ module.exports = defineConfig({
 
   webServer: {
     command: 'node ../frontend/server/index.js',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
+    url: 'http://localhost:3000',
+    reuseExistingServer: true,
     timeout: 15_000,
   },
 });

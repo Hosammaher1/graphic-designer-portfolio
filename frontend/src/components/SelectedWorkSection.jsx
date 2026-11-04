@@ -209,17 +209,30 @@ export const SelectedWorkSection = ({
 
                     {/* Pill Tags */}
                     <div className="flex flex-wrap items-center gap-2">
-                      {currentProject.tags && currentProject.tags.length > 0 ? (
-                        currentProject.tags.map((tName, i) => (
-                          <span key={i} className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
-                            {typeof tName === 'string' ? tName : resolveText(tName, lang, 'Design')}
-                          </span>
-                        ))
+                      {Array.isArray(currentProject.categories) && currentProject.categories.length > 0 ? (
+                        currentProject.categories.map((cat, i) => {
+                          const catName = typeof cat === 'string'
+                            ? cat
+                            : (lang === 'ar' ? (cat.nameAr || cat.name?.ar) : (cat.nameEn || cat.name?.en)) ||
+                              resolveText(cat.name, lang, cat.slug || 'Design');
+                          return (
+                            <span key={`cat-${i}`} className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
+                              {catName}
+                            </span>
+                          );
+                        })
                       ) : (
                         <span className="px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md border border-white/15">
                           {resolveText(currentProject.category, lang, t.tagBranding)}
                         </span>
                       )}
+                      {currentProject.tags && currentProject.tags.length > 0 &&
+                        currentProject.tags.slice(0, 2).map((tName, i) => (
+                          <span key={`tag-${i}`} className="px-3 py-1 rounded-full text-xs text-neutral-400 bg-white/5 backdrop-blur-md border border-white/10">
+                            {typeof tName === 'string' ? tName : resolveText(tName, lang, 'Design')}
+                          </span>
+                        ))
+                      }
                     </div>
                   </div>
 

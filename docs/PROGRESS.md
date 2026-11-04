@@ -24,7 +24,42 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
-## Current Antigravity remediation reports — 2026-11-02
+## Current Antigravity remediation reports — 2026-11-04
+
+### Stage 13: Project Creation Regression Resolution, Category Persistence & Strict Public Light Mode Isolation — 2026-11-04
+
+- **Task Scope & Status:** P0 Critical Release Blocker resolution:
+  1. **New Project Disappearing Regression:** Eliminated mock fallbacks in `AdminContext.jsx` that disguised API failures with local fake IDs (`proj-1`), added automatic URL-safe unique slug generation with collision prevention, wired `ProjectEditorPage.jsx` to navigate only on verified 201 backend responses, and enforced database project synchronization via `fetchProjects()` on mount and after CRUD.
+  2. **Project Category Persistence:** Fixed multi-category serialization and persistence across Laravel `StoreProjectRequest`/`ProjectResource` and React UI. Verified categories remain checked after save, persist across reloads, and appear on public project cards and modal.
+  3. **Strict Theme Isolation:** Restored Admin Dashboard to 100% dark studio aesthetic (`#09070c`, dark inputs, `#f4a496/15` borders, light text) regardless of global theme state. Scoped all public Light Mode CSS strictly to `#public-root` and `.public-dialog` (`#F6F1EB` background, `#FFFFFF` cards, `#242027` text, `#5C1628` accents, `#E7D9D9` borders).
+- **Branch / Remote:** `fix/categories-persistence-and-light-mode`
+- **Files Modified / Created:**
+  - `backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php`: Eager loads `categories.translations` across `index`, `store`, `show`, `update`, and `restore`. Assigned `$project = publish($project)` to ensure `published_snapshot` includes categories.
+  - `backend/app/Http/Controllers/Api/V1/PublicProjectController.php`: Eager loads `categories.translations` with fallback to live categories if snapshot is empty.
+  - `backend/app/Http/Resources/ProjectResource.php`: Added localized category mapping (`name_en`, `name_ar`, `name: {en, ar}`) alongside `id` and `slug`.
+  - `frontend/src/admin/context/AdminContext.jsx`: Removed silent mock fallbacks in `addProject` and `updateProject`. Added slug collision avoidance, validation error toast extraction, and `await fetchProjects()`.
+  - `frontend/src/admin/pages/ProjectEditorPage.jsx`: Added automatic slugification from English title, manual slug override tracking, and guarded navigation preventing redirection on API error.
+  - `frontend/src/admin/pages/ProjectsListPage.jsx`: Added `useEffect` to fetch projects on mount, multi-category search/filter matching, and localized category badges in table and grid views.
+  - `frontend/src/index.css`: Added explicit `#admin-root, .admin-root` theme safeguard rules and strictly scoped all light mode rules under `:is(html.light, html[data-theme="light"]) #public-root` and `.public-dialog`.
+  - `e2e/tests/categories-persistence-and-light-mode.spec.js`: Playwright E2E verification test suite covering project creation, category persistence, MySQL persistence across reload, public website rendering, and admin theme isolation.
+  - `e2e/tests/reproduce-new-project-disappears.spec.js`: Regression reproduction test verifying project visibility after creation and hard reload.
+- **Testing & Verification Executed:**
+  - **Playwright E2E Suites:**
+    - `categories-persistence-and-light-mode.spec.js`: Desktop Chromium **3 passed (55.7s)**; Mobile Chrome **3 passed (34.6s)**.
+    - `reproduce-new-project-disappears.spec.js`: Desktop Chromium **1 passed (18.7s)**.
+  - **Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)**.
+  - **Frontend Production Build:** Client bundle (2.60s) and SSR bundle (511ms) built with zero errors.
+- **Captured Visual Evidence Artifacts:**
+  - `screenshots/admin-dashboard-dark-desktop.png`: Verified Admin Dashboard original dark studio palette.
+  - `screenshots/admin-projects-list-persisted.png`: Verified created project with multiple categories in Admin project list.
+  - `screenshots/public-homepage-dark-desktop.png`: Verified public website in original Dark Mode.
+  - `screenshots/public-homepage-light-desktop.png`: Verified public website in approved Light Mode (`#F6F1EB`, `#5C1628`).
+  - `screenshots/public-all-projects-light-desktop.png`: Verified All Projects screen with white cards (`#FFFFFF`) and `#E7D9D9` borders.
+  - `screenshots/admin-dashboard-isolated-dark-desktop.png`: Verified Admin Dashboard remains completely dark when user theme is light.
+- **Data Protection:**
+  - Verified Project ID 9 (`slug: "project"`, published) remains intact in MySQL.
+  - Real user credentials and database records strictly preserved.
 
 ### Remediation Stage 1: Security Remediation & Real Cloudinary Integration
 

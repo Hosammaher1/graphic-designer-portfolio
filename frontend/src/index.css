@@ -83,7 +83,78 @@
 }
 
 /* ==========================================================================
-   Approved Eclipse Light Mode Palette
+   Admin Studio Theme Safeguard (Always Dark Studio Palette)
+   Strictly isolates Admin Dashboard from any light mode overrides
+   ========================================================================== */
+#admin-root,
+.admin-root {
+  background-color: #09070c !important;
+  color: #f5f5f5 !important;
+  color-scheme: dark !important;
+}
+
+#admin-root .glass-panel,
+.admin-root .glass-panel {
+  background: rgba(22, 16, 26, 0.7) !important;
+  border: 1px solid rgba(244, 164, 150, 0.15) !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+#admin-root .glass-panel-subtle,
+.admin-root .glass-panel-subtle {
+  background: rgba(18, 13, 22, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  color: #d4d4d4 !important;
+}
+
+#admin-root .glass-panel-active,
+.admin-root .glass-panel-active {
+  background: rgba(35, 20, 32, 0.75) !important;
+  border: 1px solid rgba(244, 164, 150, 0.35) !important;
+  box-shadow: 0 8px 32px -4px rgba(226, 130, 126, 0.15), 0 0 20px -2px rgba(132, 43, 69, 0.2) !important;
+  color: #fcdcd4 !important;
+}
+
+#admin-root h1,
+#admin-root h2,
+#admin-root h3,
+#admin-root h4,
+#admin-root h5,
+#admin-root h6,
+.admin-root h1,
+.admin-root h2,
+.admin-root h3,
+.admin-root h4,
+.admin-root h5,
+.admin-root h6 {
+  color: #ffffff !important;
+}
+
+#admin-root input,
+#admin-root textarea,
+#admin-root select,
+.admin-root input,
+.admin-root textarea,
+.admin-root select {
+  background-color: rgba(18, 13, 22, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+#admin-root input:focus,
+#admin-root textarea:focus,
+#admin-root select:focus,
+.admin-root input:focus,
+.admin-root textarea:focus,
+.admin-root select:focus {
+  border-color: rgba(244, 164, 150, 0.6) !important;
+}
+
+/* ==========================================================================
+   Approved Public Visitor Eclipse Light Mode Palette
+   Strictly Scoped to #public-root and .public-dialog
    Background: #F6F1EB
    Cards: #FFFFFF
    Primary text: #242027
@@ -91,163 +162,220 @@
    Borders: #E7D9D9
    ========================================================================== */
 
-html.light,
-html[data-theme="light"] {
-  background-color: #F6F1EB;
-  color: #242027;
+/* Body & Roots in Light Mode */
+:is(html.light, html[data-theme="light"]) body:has(#public-root),
+:is(html.light, html[data-theme="light"]) #public-root,
+:is(html.light, html[data-theme="light"]) .public-root {
+  background-color: #F6F1EB !important;
+  color: #242027 !important;
   color-scheme: light;
 }
 
-html.light body,
-html.light #root,
-html.light #root > div,
-html.light main,
-html.light section,
-html.light .bg-\[\#09070c\] {
+:is(html.light, html[data-theme="light"]) #public-root main,
+:is(html.light, html[data-theme="light"]) #public-root section,
+:is(html.light, html[data-theme="light"]) #public-root footer,
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#09070c\],
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#070509\],
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#0c050f\] {
   background-color: #F6F1EB !important;
 }
 
-html.light header {
+/* Navbar */
+:is(html.light, html[data-theme="light"]) #public-root header {
   border-color: #E7D9D9 !important;
 }
 
-html.light header .bg-\[\#09070c\]\/85,
-html.light header.is-scrolled {
-  background-color: rgba(246, 241, 235, 0.9) !important;
+:is(html.light, html[data-theme="light"]) #public-root header .bg-\[\#09070c\]\/85,
+:is(html.light, html[data-theme="light"]) #public-root header.is-scrolled {
+  background-color: rgba(246, 241, 235, 0.92) !important;
   border-color: #E7D9D9 !important;
-  box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.05) !important;
+  box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.06) !important;
 }
 
 /* Glass Panels -> Crisp White Cards with #E7D9D9 borders */
-html.light .glass-panel {
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel,
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel {
   background: #FFFFFF !important;
   border: 1px solid #E7D9D9 !important;
   box-shadow: 0 4px 24px -2px rgba(92, 22, 40, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
 }
 
-html.light .glass-panel-subtle {
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel-subtle,
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-subtle {
   background: #FFFFFF !important;
   border: 1px solid #E7D9D9 !important;
   box-shadow: 0 2px 8px -1px rgba(92, 22, 40, 0.04) !important;
 }
 
-html.light .glass-panel-active {
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel-active,
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-active {
   background: #FFFFFF !important;
   border: 1px solid #5C1628 !important;
   box-shadow: 0 8px 30px -4px rgba(92, 22, 40, 0.12) !important;
 }
 
-/* Typography & Text */
-html.light h1,
-html.light h2,
-html.light h3,
-html.light h4,
-html.light h5,
-html.light h6,
-html.light .font-serif {
+/* Project Cards in AllProjectsScreen */
+:is(html.light, html[data-theme="light"]) #public-root .project-card-body {
+  background: #FFFFFF !important;
+  border-top: 1px solid #E7D9D9 !important;
+}
+
+/* Typography & Headings */
+:is(html.light, html[data-theme="light"]) #public-root h1,
+:is(html.light, html[data-theme="light"]) #public-root h2,
+:is(html.light, html[data-theme="light"]) #public-root h3,
+:is(html.light, html[data-theme="light"]) #public-root h4,
+:is(html.light, html[data-theme="light"]) #public-root h5,
+:is(html.light, html[data-theme="light"]) #public-root h6,
+:is(html.light, html[data-theme="light"]) .public-dialog h1,
+:is(html.light, html[data-theme="light"]) .public-dialog h2,
+:is(html.light, html[data-theme="light"]) .public-dialog h3 {
   color: #242027 !important;
 }
 
-html.light .text-white {
+:is(html.light, html[data-theme="light"]) #public-root .text-white,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-white {
   color: #242027 !important;
 }
 
-html.light .text-neutral-100 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-100,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-100 {
   color: #242027 !important;
 }
 
-html.light .text-neutral-200 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-200,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-200 {
   color: #3b3540 !important;
 }
 
-html.light .text-neutral-300 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-300,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300 {
   color: #524a57 !important;
 }
 
-html.light .text-neutral-400 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-400,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-400 {
   color: #6e6475 !important;
 }
 
-html.light .text-neutral-500 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-500,
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-500 {
   color: #8a8094 !important;
 }
 
-/* Accent & Action Buttons */
-html.light a.bg-white,
-html.light button.bg-white,
-html.light .bg-white.text-neutral-900 {
+/* Primary Accent & Action Buttons */
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white,
+:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900,
+:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white {
   background-color: #5C1628 !important;
   color: #F6F1EB !important;
   box-shadow: 0 4px 14px -1px rgba(92, 22, 40, 0.3) !important;
 }
 
-html.light a.bg-white:hover,
-html.light button.bg-white:hover,
-html.light .bg-white.text-neutral-900:hover {
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white:hover,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white:hover,
+:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900:hover,
+:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white:hover {
   background-color: #48111f !important;
   color: #FFFFFF !important;
 }
 
 /* Secondary Action Buttons */
-html.light button.bg-white\/5,
-html.light a.bg-white\/5 {
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10 {
   background-color: #FFFFFF !important;
   border-color: #E7D9D9 !important;
   color: #5C1628 !important;
 }
 
-html.light button.bg-white\/5:hover,
-html.light a.bg-white\/5:hover {
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5:hover,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5:hover,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10:hover,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10:hover {
   background-color: #F6F1EB !important;
   border-color: #5C1628 !important;
 }
 
-/* Pill borders */
-html.light .border-white\/5,
-html.light .border-white\/10,
-html.light .border-white\/15,
-html.light .border-white\/20,
-html.light .border-rose-300\/10,
-html.light .border-rose-300\/20 {
+/* Borders */
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/5,
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/10,
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/15,
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/20,
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/10,
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/20,
+:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/5,
+:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/10,
+:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/10,
+:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/20 {
   border-color: #E7D9D9 !important;
 }
 
-/* Atmospheric Glows Softened in Light Mode */
-html.light .blur-\[140px\],
-html.light .blur-\[150px\],
-html.light .blur-\[160px\] {
-  opacity: 0.1 !important;
+/* Inputs, Textareas, and Selects in Public Pages */
+:is(html.light, html[data-theme="light"]) #public-root input,
+:is(html.light, html[data-theme="light"]) #public-root textarea,
+:is(html.light, html[data-theme="light"]) #public-root select {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #242027 !important;
 }
 
-/* Wave Transitions in Light Mode */
-html.light svg path[fill="#09070c"] {
-  fill: #F6F1EB !important;
+:is(html.light, html[data-theme="light"]) #public-root input::placeholder,
+:is(html.light, html[data-theme="light"]) #public-root textarea::placeholder {
+  color: #8a8094 !important;
 }
 
-/* Modal and Drawers */
-html.light [role="dialog"] {
+:is(html.light, html[data-theme="light"]) #public-root label {
+  color: #524a57 !important;
+}
+
+/* Public Modal / Dialog */
+:is(html.light, html[data-theme="light"]) .public-dialog {
+  background-color: rgba(36, 32, 39, 0.7) !important;
+}
+
+:is(html.light, html[data-theme="light"]) .public-modal-panel {
   background-color: #F6F1EB !important;
   color: #242027 !important;
   border-color: #E7D9D9 !important;
 }
 
-html.light [role="dialog"] .glass-panel {
-  background: #FFFFFF !important;
+:is(html.light, html[data-theme="light"]) .public-modal-header {
+  background-color: rgba(246, 241, 235, 0.95) !important;
+  border-color: #E7D9D9 !important;
+}
+
+/* Atmospheric Glows Softened in Light Mode */
+:is(html.light, html[data-theme="light"]) #public-root .blur-\[140px\],
+:is(html.light, html[data-theme="light"]) #public-root .blur-\[150px\],
+:is(html.light, html[data-theme="light"]) #public-root .blur-\[160px\] {
+  opacity: 0.1 !important;
+}
+
+/* Wave Transitions in Light Mode */
+:is(html.light, html[data-theme="light"]) #public-root svg path[fill="#09070c"] {
+  fill: #F6F1EB !important;
 }
 
 /* Selection */
-html.light ::selection {
+:is(html.light, html[data-theme="light"]) #public-root ::selection,
+:is(html.light, html[data-theme="light"]) .public-dialog ::selection {
   background-color: rgba(92, 22, 40, 0.2);
   color: #5C1628;
 }
 
 /* Custom modal internal scrollbar in Light Mode */
-html.light .modal-scrollbar::-webkit-scrollbar-track {
+:is(html.light, html[data-theme="light"]) #public-root .modal-scrollbar::-webkit-scrollbar-track,
+:is(html.light, html[data-theme="light"]) .public-dialog .modal-scrollbar::-webkit-scrollbar-track {
   background: #F6F1EB;
 }
-html.light .modal-scrollbar::-webkit-scrollbar-thumb {
+:is(html.light, html[data-theme="light"]) #public-root .modal-scrollbar::-webkit-scrollbar-thumb,
+:is(html.light, html[data-theme="light"]) .public-dialog .modal-scrollbar::-webkit-scrollbar-thumb {
   background: #E7D9D9;
 }
-html.light .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+:is(html.light, html[data-theme="light"]) #public-root .modal-scrollbar::-webkit-scrollbar-thumb:hover,
+:is(html.light, html[data-theme="light"]) .public-dialog .modal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #5C1628;
 }

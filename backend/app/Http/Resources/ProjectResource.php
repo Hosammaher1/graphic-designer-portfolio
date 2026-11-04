@@ -40,8 +40,14 @@ class ProjectResource extends JsonResource
             'deleted_at'         => $this->deleted_at?->toIso8601String(),
             'translations'       => ProjectTranslationResource::collection($this->whenLoaded('translations')),
             'categories'         => $this->whenLoaded('categories', fn() => $this->categories->map(fn($c) => [
-                'id'   => $c->id,
-                'slug' => $c->slug,
+                'id'      => $c->id,
+                'slug'    => $c->slug,
+                'name_en' => $c->translations?->firstWhere('locale', 'en')?->name ?? $c->translation('en')?->name ?? $c->slug,
+                'name_ar' => $c->translations?->firstWhere('locale', 'ar')?->name ?? $c->translation('ar')?->name ?? $c->slug,
+                'name'    => [
+                    'en' => $c->translations?->firstWhere('locale', 'en')?->name ?? $c->translation('en')?->name ?? $c->slug,
+                    'ar' => $c->translations?->firstWhere('locale', 'ar')?->name ?? $c->translation('ar')?->name ?? $c->slug,
+                ],
             ])),
             'tools'              => $this->whenLoaded('tools', fn() => $this->tools->map(fn($t) => [
                 'id'   => $t->id,

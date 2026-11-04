@@ -409,14 +409,17 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         const enTrans = p.translations?.find((t) => t.locale === 'en') || {};
         const arTrans = p.translations?.find((t) => t.locale === 'ar') || {};
         const cat = p.categories?.[0];
+        const catEn = cat?.name_en || cat?.name?.en || cat?.slug || 'Branding';
+        const catAr = cat?.name_ar || cat?.name?.ar || cat?.slug || 'هوية بصرية';
         return normalizeAdminProject(
           {
             id: String(p.id),
             slug: p.slug,
             titleEn: enTrans.title || p.slug,
             titleAr: arTrans.title || enTrans.title || p.slug,
-            categoryEn: cat?.slug || 'Branding',
-            categoryAr: cat?.slug || 'هوية بصرية',
+            categoryEn: catEn,
+            categoryAr: catAr,
+            categories: Array.isArray(p.categories) ? p.categories : (cat ? [cat] : []),
             status: p.status || 'published',
             featured: Boolean(p.is_featured),
             year: String(p.year || new Date().getFullYear()),
@@ -708,29 +711,72 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     navigateAdmin('/admin/login');
   }, [addToast, lang, navigateAdmin]);
 
+  // Helper to reliably resolve category identifiers into an array of numeric IDs
+  const resolveCategoryIds = (inputCategories, inputCategoryIds, availableCategories = []) => {
+    if (Array.isArray(inputCategoryIds)) {
+      return inputCategoryIds
+        .map((id) => (typeof id === 'number' ? id : parseInt(String(id), 10)))
+        .filter((id) => Number.isInteger(id) && id > 0);
+    }
+    if (!Array.isArray(inputCategories)) return undefined;
+
+    const ids = [];
+    inputCategories.forEach((item) => {
+      if (typeof item === 'number' && Number.isInteger(item) && item > 0) {
+        if (!ids.includes(item)) ids.push(item);
+        return;
+      }
+      if (typeof item === 'object' && item !== null) {
+        const parsedId = Number(item.id);
+        if (Number.isInteger(parsedId) && parsedId > 0) {
+          if (!ids.includes(parsedId)) ids.push(parsedId);
+          return;
+        }
+      }
+      const str = String(item).trim();
+      if (/^\d+$/.test(str)) {
+        const num = parseInt(str, 10);
+        if (num > 0 && !ids.includes(num)) ids.push(num);
+        return;
+      }
+      const match = availableCategories.find(
+        (c) =>
+          String(c.id) === str ||
+          c.slug?.toLowerCase() === str.toLowerCase() ||
+          c.nameEn?.toLowerCase() === str.toLowerCase() ||
+          c.nameAr?.toLowerCase() === str.toLowerCase() ||
+          (typeof c.name === 'object' &&
+            (c.name?.en?.toLowerCase() === str.toLowerCase() || c.name?.ar?.toLowerCase() === str.toLowerCase()))
+      );
+      if (match && /^\d+$/.test(String(match.id))) {
+        const matchId = parseInt(String(match.id), 10);
+        if (!ids.includes(matchId)) ids.push(matchId);
+      }
+    });
+    return ids;
+  };
+
   // Project Actions
   const addProject = useCallback(
     async (newProj) => {
-      const slug =
+      let slug =
         newProj.slug ||
         (newProj.titleEn || newProj.title || 'project')
           .toLowerCase()
           .replace(/[^a-z0-9-]+/g, '-')
-          .replace(/^-|-$/g, '') ||
+          .replace(/^-+|-+$/g, '') ||
         `proj-${Date.now()}`;
 
-      // Find matching category ID from categories state if slugs/names provided
-      const matchedCategoryIds = [];
-      if (Array.isArray(newProj.categories) && categories.length > 0) {
-        newProj.categories.forEach((cName) => {
-          const found = categories.find(
-            (cat) => cat.nameEn === cName || cat.slug === cName || String(cat.id) === String(cName)
-          );
-          if (found && /^\d+$/.test(String(found.id))) {
-            matchedCategoryIds.push(parseInt(found.id, 10));
-          }
-        });
+      // Ensure slug is clean lowercase and matches /^[a-z0-9-]+$/
+      slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || `proj-${Date.now()}`;
+
+      // Check for collision with existing projects in state
+      if (projects.some((p) => p.slug === slug)) {
+        slug = `${slug}-${Date.now()}`;
       }
+
+      // Resolve matching category IDs from categories state or direct IDs
+      const matchedCategoryIds = resolveCategoryIds(newProj.categories, newProj.category_ids, categories) || [];
 
       const rawCoverMediaId = newProj.coverMediaId || newProj.cover_media_id;
       const parsedCoverId = rawCoverMediaId && /^\d+$/.test(String(rawCoverMediaId)) ? parseInt(rawCoverMediaId, 10) : null;
@@ -795,8 +841,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         body: JSON.stringify(payload),
       });
 
-      if (res.ok && res.data?.data?.project) {
-        const backendProj = res.data.data.project;
+      if (res.ok && (res.data?.data?.project || res.data?.data)) {
+        const backendProj = res.data.data.project || res.data.data;
         const normalized = normalizeAdminProject(
           {
             ...newProj,
@@ -820,16 +866,22 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           ...prev,
         ]);
         addToast(lang === 'ar' ? 'تم إنشاء المشروع بنجاح' : 'Project created successfully', 'success');
+
+        try {
+          await fetchProjects();
+        } catch (e) {
+          console.error('Failed to sync projects after add:', e);
+        }
+
         return normalized;
       } else {
-        const errMsg = res.data?.message || (lang === 'ar' ? 'فشل إنشاء المشروع' : 'Failed to create project');
+        const validationErrors = res.data?.errors ? Object.values(res.data.errors).flat().join(', ') : null;
+        const errMsg = validationErrors || res.data?.message || (lang === 'ar' ? 'فشل إنشاء المشروع' : 'Failed to create project');
         addToast(errMsg, 'error');
-        const localNormalized = normalizeAdminProject(newProj, 0);
-        setProjects((prev) => [localNormalized, ...prev]);
-        return localNormalized;
+        return { success: false, error: errMsg };
       }
     },
-    [addToast, lang, categories]
+    [addToast, lang, categories, projects, fetchProjects]
   );
 
   const updateProject = useCallback(
@@ -866,6 +918,11 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           client: updatedFields.clientEn || updatedFields.client,
           cover_media_id: rawCoverMediaId !== undefined ? parsedCoverId : undefined,
         };
+
+        const resolvedCategoryIds = resolveCategoryIds(updatedFields.categories, updatedFields.category_ids, categories);
+        if (resolvedCategoryIds !== undefined) {
+          payload.category_ids = resolvedCategoryIds;
+        }
 
         let mediaItems = [];
         if (Array.isArray(updatedFields.gallery)) {
@@ -914,13 +971,24 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           ].filter((t) => t.title);
         }
 
-        await requestApi(`/api/v1/admin/projects/${id}`, {
+        const res = await requestApi(`/api/v1/admin/projects/${id}`, {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
 
+        if (!res.ok) {
+          const validationErrors = res.data?.errors ? Object.values(res.data.errors).flat().join(', ') : null;
+          const errMsg = validationErrors || res.data?.message || (lang === 'ar' ? 'فشل تحديث المشروع' : 'Failed to update project');
+          addToast(errMsg, 'error');
+          return { success: false, error: errMsg };
+        }
+
         // Sync fresh project data with backend snapshot
-        fetchProjects();
+        try {
+          await fetchProjects();
+        } catch (e) {
+          console.error('Failed to sync projects after update:', e);
+        }
       }
 
       setActivities((prev) => [
@@ -934,6 +1002,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         ...prev,
       ]);
       addToast(lang === 'ar' ? 'تم تحديث المشروع بنجاح' : 'Project updated successfully', 'success');
+      return { success: true };
     },
     [addToast, lang, fetchProjects]
   );

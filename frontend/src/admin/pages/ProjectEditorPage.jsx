@@ -36,11 +36,20 @@ export function ProjectEditorPage({ projectId }) {
   const isEditing = Boolean(projectId && projectId !== 'new');
   const existingProject = isEditing ? projects.find((p) => p.id === projectId) : null;
 
+  const slugify = (text) =>
+    (text || '')
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
   // Form State
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'gallery' | 'seo'
   const [titleEn, setTitleEn] = useState('');
   const [titleAr, setTitleAr] = useState('');
   const [slug, setSlug] = useState('');
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [client, setClient] = useState('');
   const [year, setYear] = useState('2025');
   const [selectedCategories, setSelectedCategories] = useState(['Branding']);
@@ -154,16 +163,77 @@ export function ProjectEditorPage({ projectId }) {
     }
   };
 
+  const isCategoryChecked = (c) => {
+    return selectedCategories.some((sel) => {
+      if (sel === c.id || Number(sel) === Number(c.id)) return true;
+      if (sel === c.slug || sel === c.nameEn || sel === c.nameAr) return true;
+      if (typeof sel === 'object' && sel !== null) {
+        return (
+          Number(sel.id) === Number(c.id) ||
+          sel.slug === c.slug ||
+          sel.nameEn === c.nameEn ||
+          sel.name_en === c.nameEn
+        );
+      }
+      return false;
+    });
+  };
+
+  const handleToggleCategory = (c, checked) => {
+    if (checked) {
+      if (!isCategoryChecked(c)) {
+        setSelectedCategories((prev) => [...prev, c]);
+      }
+    } else {
+      setSelectedCategories((prev) =>
+        prev.filter((sel) => {
+          if (sel === c.id || Number(sel) === Number(c.id)) return false;
+          if (sel === c.slug || sel === c.nameEn || sel === c.nameAr) return false;
+          if (typeof sel === 'object' && sel !== null) {
+            return !(
+              Number(sel.id) === Number(c.id) ||
+              sel.slug === c.slug ||
+              sel.nameEn === c.nameEn ||
+              sel.name_en === c.nameEn
+            );
+          }
+          return true;
+        })
+      );
+    }
+  };
+
   const handleSave = async (publishState = status) => {
     setIsSaving(true);
+    const resolvedCategoryIds = selectedCategories
+      .map((cat) => {
+        if (typeof cat === 'object' && cat !== null && Number.isInteger(Number(cat.id))) {
+          return Number(cat.id);
+        }
+        if (Number.isInteger(Number(cat))) {
+          return Number(cat);
+        }
+        const found = categories.find(
+          (c) => c.nameEn === cat || c.slug === cat || c.nameAr === cat || String(c.id) === String(cat)
+        );
+        return found && Number.isInteger(Number(found.id)) ? Number(found.id) : null;
+      })
+      .filter((id) => Number.isInteger(id) && id > 0);
+
+    const cleanSlug = (slug || slugify(titleEn) || `project-${Date.now()}`)
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
     const projectPayload = {
       title: titleEn,
       titleEn,
       titleAr,
-      slug,
+      slug: cleanSlug,
       client,
       year,
       categories: selectedCategories,
+      category_ids: resolvedCategoryIds,
       category: selectedCategories[0] || 'Branding',
       tools: tools.split(',').map((t) => t.trim()),
       description: {
@@ -183,10 +253,13 @@ export function ProjectEditorPage({ projectId }) {
 
     try {
       if (isEditing) {
-        await updateProject(projectId, projectPayload);
+        const res = await updateProject(projectId, projectPayload);
+        if (res && res.error) {
+          return;
+        }
       } else {
         const created = await addProject(projectPayload);
-        if (created?.id) {
+        if (created?.id && !created.error) {
           navigateAdmin(`/admin/projects/${created.id}/edit`);
         }
       }
@@ -303,7 +376,13 @@ export function ProjectEditorPage({ projectId }) {
                 <input
                   type="text"
                   value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setTitleEn(val);
+                    if (!isEditing && !slugManuallyEdited) {
+                      setSlug(slugify(val));
+                    }
+                  }}
                   className="w-full px-4 py-2.5 rounded-2xl glass-panel-subtle border border-white/10 text-white text-sm focus:outline-none focus:border-[#f4a496]/60 transition-all font-sans"
                   placeholder="e.g. Noya Skincare"
                 />
@@ -331,7 +410,10 @@ export function ProjectEditorPage({ projectId }) {
                   <input
                     type="text"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => {
+                      setSlug(e.target.value);
+                      setSlugManuallyEdited(true);
+                    }}
                     className="w-full px-3.5 py-2 rounded-xl glass-panel-subtle border border-white/10 text-white text-xs font-mono"
                   />
                 </div>
@@ -495,7 +577,7 @@ export function ProjectEditorPage({ projectId }) {
               </label>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1 modal-scrollbar">
                 {categories.map((c) => {
-                  const isChecked = selectedCategories.includes(c.nameEn);
+                  const isChecked = isCategoryChecked(c);
                   return (
                     <label
                       key={c.id}
@@ -504,13 +586,7 @@ export function ProjectEditorPage({ projectId }) {
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedCategories([...selectedCategories, c.nameEn]);
-                          } else {
-                            setSelectedCategories(selectedCategories.filter((cat) => cat !== c.nameEn));
-                          }
-                        }}
+                        onChange={(e) => handleToggleCategory(c, e.target.checked)}
                         className="rounded border-white/20 bg-white/10 text-[#842b45] focus:ring-[#f4a496]"
                       />
                       <span className="font-light">{lang === 'ar' ? c.nameAr : c.nameEn}</span>

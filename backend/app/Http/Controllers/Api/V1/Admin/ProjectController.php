@@ -21,7 +21,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Project::query()
-            ->with(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
+            ->with(['translations', 'categories.translations', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         if ($request->boolean('with_trashed')) {
             $query->withTrashed();
@@ -90,10 +90,10 @@ class ProjectController extends Controller
 
         // If status is published, generate the published snapshot immediately
         if ($request->input('status') === 'published') {
-            app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
+            $project = app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
         }
 
-        $project->load(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
+        $project->load(['translations', 'categories.translations', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         return response()->json([
             'status' => 'success',
@@ -104,7 +104,7 @@ class ProjectController extends Controller
     public function show(int $id): JsonResponse
     {
         $project = Project::withTrashed()
-            ->with(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset'])
+            ->with(['translations', 'categories.translations', 'tools', 'coverMedia', 'media.mediaAsset'])
             ->find($id);
 
         if (! $project) {
@@ -176,7 +176,7 @@ class ProjectController extends Controller
             app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
         }
 
-        $project->load(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
+        $project->load(['translations', 'categories.translations', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         return response()->json([
             'status' => 'success',
@@ -356,7 +356,7 @@ class ProjectController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Project restored from trash.',
-            'data'    => ['project' => new ProjectResource($project->fresh(['translations', 'categories', 'tools', 'coverMedia.mediaAsset']))],
+            'data'    => ['project' => new ProjectResource($project->fresh(['translations', 'categories.translations', 'tools', 'coverMedia.mediaAsset']))],
         ]);
     }
 

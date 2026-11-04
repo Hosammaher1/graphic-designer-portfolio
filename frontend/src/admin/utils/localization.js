@@ -45,8 +45,16 @@ export function normalizeAdminProject(p, idx = 0) {
   const titleEn = resolveLocalized(p.title, 'en') || (typeof p.titleEn === 'string' ? p.titleEn : '') || 'Untitled Project';
   const titleAr = resolveLocalized(p.title, 'ar') || (typeof p.titleAr === 'string' ? p.titleAr : '') || titleEn;
 
-  const categoryEn = resolveLocalized(p.category, 'en') || (typeof p.categoryEn === 'string' ? p.categoryEn : '') || 'Branding';
-  const categoryAr = resolveLocalized(p.category, 'ar') || (typeof p.categoryAr === 'string' ? p.categoryAr : '') || categoryEn;
+  const firstCat = Array.isArray(p.categories) && p.categories[0] ? p.categories[0] : null;
+  const firstCatEn = typeof firstCat === 'object' && firstCat !== null
+    ? (firstCat.name_en || firstCat.nameEn || (typeof firstCat.name === 'object' ? firstCat.name?.en : null) || firstCat.slug)
+    : (typeof firstCat === 'string' ? firstCat : null);
+  const firstCatAr = typeof firstCat === 'object' && firstCat !== null
+    ? (firstCat.name_ar || firstCat.nameAr || (typeof firstCat.name === 'object' ? firstCat.name?.ar : null) || firstCat.slug)
+    : (typeof firstCat === 'string' ? firstCat : null);
+
+  const categoryEn = resolveLocalized(p.category, 'en') || (typeof p.categoryEn === 'string' ? p.categoryEn : '') || firstCatEn || 'Branding';
+  const categoryAr = resolveLocalized(p.category, 'ar') || (typeof p.categoryAr === 'string' ? p.categoryAr : '') || firstCatAr || categoryEn;
 
   const clientEn = resolveLocalized(p.client, 'en') || (typeof p.clientEn === 'string' ? p.clientEn : '') || 'Studio Client';
   const clientAr = resolveLocalized(p.client, 'ar') || (typeof p.clientAr === 'string' ? p.clientAr : '') || clientEn;

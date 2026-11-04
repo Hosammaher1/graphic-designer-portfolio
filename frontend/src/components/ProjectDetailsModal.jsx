@@ -330,11 +330,11 @@ export const ProjectDetailsModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-project-title"
-        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8 animate-in fade-in duration-300"
+        className="public-dialog fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8 animate-in fade-in duration-300"
       >
         {/* Dark Translucent Backdrop with Background Blur */}
         <div
-          className="fixed inset-0 bg-[#060408]/85 backdrop-blur-xl transition-opacity"
+          className="fixed inset-0 bg-[#060408]/85 backdrop-blur-xl transition-opacity public-modal-backdrop"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -342,17 +342,24 @@ export const ProjectDetailsModal = ({
         {/* Large Modal Container */}
         <div
           ref={modalRef}
-          className="relative z-10 w-full max-w-6xl h-[94vh] sm:h-[90vh] md:h-[88vh] rounded-2xl sm:rounded-3xl glass-panel border border-rose-300/25 shadow-[0_30px_90px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 bg-gradient-to-b from-[#160d1b]/95 via-[#110915]/95 to-[#0c0610]/95"
+          className="public-modal-panel relative z-10 w-full max-w-6xl h-[94vh] sm:h-[90vh] md:h-[88vh] rounded-2xl sm:rounded-3xl glass-panel border border-rose-300/25 shadow-[0_30px_90px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 bg-gradient-to-b from-[#160d1b]/95 via-[#110915]/95 to-[#0c0610]/95"
         >
           {/* Top Sticky Header Bar */}
-          <div className="flex items-center justify-between px-5 sm:px-8 py-3.5 border-b border-rose-300/15 bg-[#140b17]/85 backdrop-blur-md shrink-0 z-20">
+          <div className="public-modal-header flex items-center justify-between px-5 sm:px-8 py-3.5 border-b border-rose-300/15 bg-[#140b17]/85 backdrop-blur-md shrink-0 z-20">
             {/* Project Counter & Category */}
             <div className="flex items-center gap-3">
               <span className="text-xs font-mono font-bold text-rose-300 bg-rose-950/60 px-2.5 py-1 rounded-md border border-rose-300/20">
                 {String(currentIndex + 1).padStart(2, '0')} / {String(totalProjects).padStart(2, '0')}
               </span>
               <span className="text-xs font-mono tracking-wider text-neutral-300 hidden sm:inline uppercase">
-                {getLoc(project?.category)}
+                {Array.isArray(project?.categories) && project.categories.length > 0
+                  ? project.categories.map((c) =>
+                      typeof c === 'string'
+                        ? c
+                        : (lang === 'ar' ? (c.nameAr || c.name?.ar) : (c.nameEn || c.name?.en)) ||
+                          (typeof c.name === 'object' ? getLoc(c.name) : (c.name || c.slug))
+                    ).join(' · ')
+                  : getLoc(project?.category)}
               </span>
             </div>
 
