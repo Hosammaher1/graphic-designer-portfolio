@@ -351,7 +351,7 @@ export const AllProjectsScreen = ({
                   className="group relative rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-rose-300/40 shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col cursor-pointer"
                 >
                   {/* Artwork Showcase Box */}
-                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#160c18]">
+                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#160c18]" data-theme-surface="dark">
                     {project.image ? (
                       <img
                         src={project.image}

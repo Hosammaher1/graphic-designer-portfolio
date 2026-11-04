@@ -1,6 +1,35 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 13 Checkpoint — 2026-11-04 (P0: Project Creation Regression Resolution, Category Persistence & Strict Theme Isolation)
+## Current Antigravity Stage 14 Checkpoint — 2026-11-04 (Complete Public Light Mode Visual Audit & WCAG Contrast Remediation)
+
+- **Active Branch:** `fix/public-light-mode-visual-audit`
+- **Objective Completed:** Complete visual audit and precision remediation of the public visitor website under the approved Eclipse Light Mode theme, ensuring WCAG 2.1 AA and AAA contrast compliance across all sections, preserving dark artwork and media overlays, and maintaining 100% theme isolation for the Studio Admin Dashboard (`#09070c`).
+- **Issues Diagnosed & Resolved:**
+  1. *Artwork Overlay Inversion (`LM-01`, `LM-02`, `LM-11`):* Global text inversion in public light mode previously inverted `.text-white` over dark image gradients and carousel cards (active card in `SelectedWorkSection.jsx`, center card in `HeroSection.jsx`, and fullscreen Lightbox in `ProjectDetailsModal.jsx`), causing severe contrast failures (~1.1:1 - 1.77:1). Added `data-theme-surface="dark"` on dark overlay containers with explicit CSS rules preserving `#FFFFFF` typography over dark media.
+  2. *Peach & Light Rose Accent Legibility (`LM-03`, `LM-04`, `LM-05`, `LM-06`):* Accent highlights (`#f4a496`, `.text-rose-200`, `.text-rose-300`, signature SVG stroke, and Bézier curves) were designed for dark mode and fell to ~1.76:1 contrast against `#F6F1EB`. Re-mapped all non-overlay peach/rose accents to Primary Burgundy `#5C1628` (12.1:1 AAA contrast).
+  3. *Amber Highlight Contrast (`LM-05`):* `.text-amber-300` timeline nodes and badges re-mapped to Amber-700 `#b45309` (5.5:1 AA contrast).
+  4. *Navbar & Mobile Navigation (`LM-07`, `LM-08`):* Fixed language segmented control (`EN`/`AR`) active button contrast, mobile drawer panel styling (`#FFFFFF` background, `#E7D9D9` border, `#242027` links, `#5C1628` hover).
+  5. *All Projects Screen & Case Study Modal (`LM-09`, `LM-10`):* Styled active category filter pill with `#5C1628 text-white border-[#5C1628]`, card bodies as `#FFFFFF`, modal panel as `#FFFFFF` with `#E7D9D9` borders and `#F6F1EB` metadata strip.
+  6. *Theme Tokens & Consent Banner (`LM-12`):* Defined theme CSS variables (`--color-surface`, `--color-bg`, `--color-text`, `--color-border`, `--color-primary`) in `:root` and `:is(html.light, html[data-theme="light"])`.
+  7. *Strict Admin Isolation:* Admin Dashboard (`#admin-root`, `.admin-root`) computed background verified as `rgb(9, 7, 12)` (`#09070c`) with 0 light mode overrides.
+- **Verification Evidence:**
+  - **Automated Contrast Audit:** **0 elements** below the 4.5:1 minimum threshold across all public visitor pages.
+  - **Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)**.
+  - **Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Playwright E2E Suites:**
+    - `eclipse-theme-toggle.spec.js`: **8 passed (27.9s)** across Desktop Chromium & Mobile Chrome.
+    - `categories-persistence-and-light-mode.spec.js`: **6 passed** across Desktop Chromium & Mobile Chrome.
+  - **Frontend Production Client & SSR Builds:** Clean compile in 2.71s (client) and 505ms (SSR).
+- **Captured Visual Evidence Artifacts (`docs/screenshots/light-mode/`):**
+  - Full desktop page (`desktop-1440-light-fullpage.png`), sections 01-08 (`navbar`, `hero`, `selected-work`, `about`, `skills`, `journey`, `contact`, `footer`), all projects gallery (`desktop-1440-light-09-all-projects.png`), project case study modal (`desktop-1440-light-10-project-modal.png`), fullscreen lightbox viewer (`desktop-1440-light-11-lightbox.png`), Arabic RTL full page & hero (`desktop-1440-light-arabic-fullpage.png`, `desktop-1440-light-arabic-home.png`), tablet (`tablet-768-light-home.png`), mobile viewports (`mobile-390-light-hero.png`, `mobile-390-light-drawer.png`, `mobile-320-light-hero.png`), and admin dark isolation (`admin-dashboard-isolated-dark-desktop.png`).
+- **Deliverables Created:**
+  - `docs/PUBLIC_LIGHT_MODE_VISUAL_AUDIT.md`: Detailed defect-to-fix matrix, contrast tables, and screenshot links.
+  - `e2e/tests/contrast-metrics.json`: Complete contrast measurement dataset.
+  - `docs/PROGRESS.md`: Updated with Stage 14 report.
+
+---
+
+## Historical Antigravity Stage 13 Checkpoint — 2026-11-04 (P0: Project Creation Regression Resolution, Category Persistence & Strict Theme Isolation)
 
 - **Active Branch:** `fix/categories-persistence-and-light-mode`
 - **Objective Completed:** Complete resolution of P0 regression where new projects disappeared after publishing in Admin, fix category persistence across Admin and public visitor website, and enforce strict theme isolation between Admin (100% dark studio palette) and Public site (approved Eclipse Light Mode palette).

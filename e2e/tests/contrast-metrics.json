@@ -1,0 +1,1378 @@
+{
+  "header": [
+    {
+      "tag": "a",
+      "text": "Home",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Home",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Work",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Work",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "About",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "About",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Skills",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Skills",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Journey",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Journey",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Contact",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Contact",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "EN",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "AR",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Get in Touch",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Get in Touch",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    }
+  ],
+  "#hero": [
+    {
+      "tag": "p",
+      "text": "Master of Visual Systems",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h1",
+      "text": "GraphicDesigner",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Graphic",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Designer",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Turning ideas into meaningful visual experien",
+      "fg": "oklab(0.87 0 0 / 0.9)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 18.7,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "View My Work",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "View My Work",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "About Me",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "About Me",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "FEATURED CASE",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.6)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "Reproduction Brand Identity",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(35, 20, 32, 0.75)",
+      "ratio": 17.61,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "button",
+      "text": "Scroll to explore",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Scroll to explore",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    }
+  ],
+  "#selected-work": [
+    {
+      "tag": "h2",
+      "text": "SelectedWork",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Selected",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Work",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "A selection of recent projects that reflect m",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(90, 42, 36)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 10.44,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgba(126, 63, 54, 0.8)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Featured Case · 01/03",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.6)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "Reproduction Brand Identity",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Studio Client",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgba(22, 16, 26, 0.7)",
+      "ratio": 18.7,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "span",
+      "text": "flower",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.1)",
+      "ratio": 21,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Design",
+      "fg": "rgb(212, 208, 216)",
+      "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)",
+      "ratio": 13.81,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Brand",
+      "fg": "rgb(212, 208, 216)",
+      "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)",
+      "ratio": 13.81,
+      "surface": "dark-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(90, 42, 36)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 10.44,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgba(126, 63, 54, 0.8)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "NoyaSkincarePARIS · DUBAINoyaSkincareFace Ser",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(90, 42, 36)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 10.44,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgba(126, 63, 54, 0.8)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "NoyaSkincarePARIS · DUBAINoyaSkincareFace Ser",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(90, 42, 36)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 10.44,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgba(126, 63, 54, 0.8)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "NoyaSkincarePARIS · DUBAINoyaSkincareFace Ser",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Noya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Skincare",
+      "fg": "rgb(126, 63, 54)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Face Serum",
+      "fg": "rgb(90, 42, 36)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 10.44,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "50 ml",
+      "fg": "rgba(126, 63, 54, 0.8)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 7.05,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "View All Projects",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "View All Projects",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    }
+  ],
+  "#about-me": [
+    {
+      "tag": "span",
+      "text": "Mohammed Maher Aldaya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Graphic Designer | Visual Identity & Creative",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h2",
+      "text": "About Me",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "About",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Me",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 11.68,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "Mohammed Maher Aldaya",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Graphic Designer | Visual Identity & Creative",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 11.68,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "I turn complex brand concepts into cinematic,",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Brand Identity",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Visual Design",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Creative Content",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Digital Media",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "More About Me",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "More About Me",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    }
+  ],
+  "#skills-expertise": [
+    {
+      "tag": "h2",
+      "text": "Skills &Expertise",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Skills &",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Expertise",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "A rigorous fusion of design strategy, meticul",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Ai",
+      "fg": "rgb(255, 154, 0)",
+      "bg": "rgb(51, 0, 0)",
+      "ratio": 8.66,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Illustrator",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Ps",
+      "fg": "rgb(49, 168, 255)",
+      "bg": "rgb(0, 30, 54)",
+      "ratio": 6.6,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Photoshop",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Id",
+      "fg": "rgb(255, 51, 102)",
+      "bg": "rgb(43, 0, 23)",
+      "ratio": 5.31,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "InDesign",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Ae",
+      "fg": "rgb(153, 153, 255)",
+      "bg": "rgb(25, 0, 51)",
+      "ratio": 7.67,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "After Effects",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Pr",
+      "fg": "rgb(234, 119, 255)",
+      "bg": "rgb(34, 0, 51)",
+      "ratio": 7.69,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Premiere Pro",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Figma",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Blender",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "CapCut",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Notion",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Trello",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Brand Identity",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Logo, Visual System, Guidelines",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Visual Design",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Social Media, Print, Packaging",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Motion & Edit",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Video Editing, Motion Graphics",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Creative Thinking",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Turn ideas into visual stories",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Attention to Detail",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Pixel-perfect and consistent",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Problem Solving",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Design with purpose",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h4",
+      "text": "Continuous Growth",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Always learning and exploring",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    }
+  ],
+  "#creative-journey": [
+    {
+      "tag": "h2",
+      "text": "My Creative Journey",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "My Creative",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Journey",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 11.68,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "A timeline of my growth, learning, and key mi",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "View Full Journey",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "View Full Journey",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "2023",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "First Projects",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Started creating real-world design work, expl",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "2024",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "Freelance Experience",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Collaborated with diverse local and internati",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "2025",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "Skill Expansion",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Elevated practice to full 3D spatial renders,",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "2026+",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "h3",
+      "text": "What’s Next?",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 16.02,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Continuing to push visual boundaries, explori",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 5.11,
+      "surface": "light-surface"
+    }
+  ],
+  "#contact": [
+    {
+      "tag": "h2",
+      "text": "Let’s Create Together",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Let’s Create",
+      "fg": "rgb(36, 32, 39)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 14.27,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Together",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 11.68,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Have a project in mind or want to collaborate",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "label",
+      "text": "Your Name *",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "label",
+      "text": "Email Address *",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "label",
+      "text": "Subject / Project Scope",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "label",
+      "text": "Your Message *",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "Send Message",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Send Message",
+      "fg": "rgb(255, 255, 255)",
+      "bg": "rgb(92, 22, 40)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "STUDIO INBOXmohmmed.maher467@gmail.com",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "WHATSAPP DIRECT+972 59-238-2189",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "OFFICIAL INSTAGRAM@mohmmed_ma48",
+      "fg": "rgb(92, 22, 40)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 13.12,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Available for freelance & select projects",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    }
+  ],
+  "footer": [
+    {
+      "tag": "span",
+      "text": "Mohammed Maher Aldaya",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 6.26,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "p",
+      "text": "Graphic Designer | Visual Identity & Creative",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Home",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Work",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "About",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Skills",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Journey",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Contact",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Instagram",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "WhatsApp",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Behance",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "Dribbble",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "a",
+      "text": "LinkedIn",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "Back to Top",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Back to Top",
+      "fg": "rgb(95, 86, 96)",
+      "bg": "rgb(255, 255, 255)",
+      "ratio": 7.03,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "button",
+      "text": "Privacy Preferences",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    },
+    {
+      "tag": "span",
+      "text": "Privacy Preferences",
+      "fg": "rgb(117, 107, 115)",
+      "bg": "rgb(246, 241, 235)",
+      "ratio": 4.55,
+      "surface": "light-surface"
+    }
+  ]
+}

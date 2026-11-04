@@ -172,6 +172,7 @@ export const SelectedWorkSection = ({
               <div
                 ref={activeCardRef}
                 onClick={() => onOpenProject(currentProject.slug || currentProject.id)}
+                data-theme-surface="dark"
                 className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
               >
                 {/* Project Artwork or Image */}

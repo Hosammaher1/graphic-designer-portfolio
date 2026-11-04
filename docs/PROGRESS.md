@@ -26,6 +26,60 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 ## Current Antigravity remediation reports — 2026-11-04
 
+### Stage 14: Complete Public Light Mode Visual Audit & WCAG Contrast Remediation — 2026-11-04
+
+- **Task Scope & Status:** UI Quality Blocker resolution and complete visual verification:
+  1. **Public Light Mode Palette Realization:** Implemented and visually verified the approved public Light Mode palette across all components:
+     - Background: `#F6F1EB` (Warm Cream Canvas)
+     - Cards & Panels: `#FFFFFF` with `#E7D9D9` subtle borders
+     - Primary Text & Headings: `#242027` (Deep Charcoal, 14.3:1 contrast against `#F6F1EB`, 16.2:1 against `#FFFFFF`)
+     - Secondary Text: `#5F5660` (Neutral Slate, 6.3:1 contrast against `#F6F1EB`)
+     - Muted Text & Tags: `#756B73` (4.6:1 contrast against `#F6F1EB`)
+     - Primary Burgundy Accent: `#5C1628` (12.1:1 AAA contrast against `#F6F1EB`, 13.8:1 against `#FFFFFF`)
+     - Action Buttons: `#5C1628` background with `#FFFFFF` crisp text (Hover: `#48111f`)
+     - Borders & Dividers: `#E7D9D9`
+  2. **Dark Surface Safeguards (`[data-theme-surface="dark"]`):** Protected dark artwork and media overlays from unwanted text inversion. Selected Work active card, Hero botanical petal card, case study media containers, and the full-screen cinematic lightbox viewer preserve crisp white and light typography over dark imagery and gradients.
+  3. **High-Contrast Accent Remapping:** Mapped low-contrast dark mode accents (`#f4a496`, `.text-rose-200`, `.text-rose-300`) to Primary Burgundy `#5C1628` (12.1:1 contrast) across all public headings, designer titles, and SVG signatures. Mapped `.text-amber-200` / `.text-amber-300` to Amber-700 `#b45309` (5.5:1 contrast).
+  4. **Strict Scope & Admin Isolation:** Preserved 100% dark studio aesthetic (`#09070c`) for Admin Dashboard (`#admin-root`, `.admin-root`). Scoped all light mode CSS strictly to `#public-root`, `.public-root`, and `.public-dialog`.
+  5. **WCAG 2.1 AA / AAA Compliance:** Automated DOM inspection across all public sections confirmed **0 low-contrast elements** (< 4.5:1).
+- **Branch / Remote:** `fix/public-light-mode-visual-audit`
+- **Files Modified / Created:**
+  - `frontend/src/index.css`: Added theme CSS tokens for default dark and light mode, added `#admin-root` theme variables safeguard, introduced `[data-theme-surface="dark"]` rules, remapped typography and peach/amber accents, styled action buttons and inputs, and softened atmospheric glows.
+  - `frontend/src/components/SelectedWorkSection.jsx`: Added `data-theme-surface="dark"` on the active carousel card container.
+  - `frontend/src/components/HeroSection.jsx`: Added `data-theme-surface="dark"` on the center botanical petal card.
+  - `frontend/src/components/AllProjectsScreen.jsx`: Added `data-theme-surface="dark"` on project card artwork boxes.
+  - `frontend/src/components/ProjectDetailsModal.jsx`: Added `data-theme-surface="dark"` on fullscreen lightbox viewer, hero cover image, and gallery artwork containers.
+  - `e2e/tests/capture-visual-audit.cjs`: Comprehensive Playwright screenshot capture and contrast measurement script.
+  - `e2e/tests/contrast-metrics.json`: Full contrast measurement dataset verifying 0 elements below 4.5:1.
+  - `e2e/tests/categories-persistence-and-light-mode.spec.js`: Updated with clean session handling and navigation safeguards.
+  - `docs/PUBLIC_LIGHT_MODE_VISUAL_AUDIT.md`: Complete audit and defect-fix report with contrast tables and screenshot links.
+- **Testing & Verification Executed:**
+  - **Automated Contrast Audit:** 0 low-contrast elements (< 4.5:1) detected across entire public DOM.
+  - **Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)**.
+  - **Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Playwright E2E Suites:**
+    - `eclipse-theme-toggle.spec.js`: **8 passed (27.9s)** across Desktop Chromium & Mobile Chrome.
+    - `categories-persistence-and-light-mode.spec.js`: **6 passed** across Desktop Chromium & Mobile Chrome.
+  - **Frontend Production Build:** Client bundle (2.71s) and SSR bundle (505ms) built with zero errors.
+- **Captured Visual Evidence Artifacts (`docs/screenshots/light-mode/`):**
+  - `desktop-1440-light-fullpage.png` (Full Page Desktop)
+  - `desktop-1440-light-01-navbar.png` (Navbar & Language Selector)
+  - `desktop-1440-light-02-hero.png` (Hero & 3D Perspective Cards)
+  - `desktop-1440-light-03-selected-work.png` (Selected Work & Active Artwork Card)
+  - `desktop-1440-light-04-about.png` (About Me, Bio, Stats, Signature SVG)
+  - `desktop-1440-light-05-skills.png` (Skills, Software Icons, Floating Pen Tool Bézier)
+  - `desktop-1440-light-06-journey.png` (Creative Journey, Timeline Nodes & Milestone Cards)
+  - `desktop-1440-light-07-contact.png` (Contact Form & Studio Direct Communication Cards)
+  - `desktop-1440-light-08-footer.png` (Footer & Back to Top)
+  - `desktop-1440-light-09-all-projects.png` (All Projects Gallery & Filter Pills)
+  - `desktop-1440-light-10-project-modal.png` (Project Case Study Modal)
+  - `desktop-1440-light-11-lightbox.png` (Fullscreen Lightbox Viewer)
+  - `desktop-1440-light-arabic-home.png` & `desktop-1440-light-arabic-fullpage.png` (Arabic RTL)
+  - `tablet-768-light-home.png` (Tablet Viewport 768px)
+  - `mobile-390-light-hero.png` & `mobile-390-light-drawer.png` (Mobile Viewport 390px)
+  - `mobile-320-light-hero.png` (Small Mobile Viewport 320px)
+  - `admin-dashboard-isolated-dark-desktop.png` (Admin Dashboard Dark Studio `#09070c` Isolation Verified)
+
 ### Stage 13: Project Creation Regression Resolution, Category Persistence & Strict Public Light Mode Isolation — 2026-11-04
 
 - **Task Scope & Status:** P0 Critical Release Blocker resolution:

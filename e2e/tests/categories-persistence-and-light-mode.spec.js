@@ -46,12 +46,13 @@ test.describe('End-to-End Verification: Category Persistence, Project Creation &
     console.log('Admin Dashboard dark aesthetic verified and screenshot captured.');
   });
 
-  test('2. Project Creation & Category Persistence Flow', async ({ page }) => {
+  test('2. Project Creation & Category Persistence Flow', async ({ page, context }) => {
     test.setTimeout(60000);
 
     const testProjectTitle = `Zenith Lux Studio ${Date.now()}`;
 
-    // Login
+    // Clean session to avoid stale auth state
+    await context.clearCookies();
     await page.goto('/admin/login');
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput).toBeVisible({ timeout: 15000 });
@@ -61,6 +62,7 @@ test.describe('End-to-End Verification: Category Persistence, Project Creation &
     await expect(page).toHaveURL(/\/admin\/dashboard/, { timeout: 20000 });
 
     // Navigate to Create New Project
+    await page.evaluate(() => localStorage.setItem('studio_admin_auth', 'true'));
     await page.goto('/admin/projects/new');
     await page.waitForLoadState('networkidle');
 

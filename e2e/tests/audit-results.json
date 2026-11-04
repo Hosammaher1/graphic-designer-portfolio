@@ -1,0 +1,115 @@
+{
+  "total": 176,
+  "defectCount": 9,
+  "defects": [
+    {
+      "section": "header",
+      "element": "<button> \"EN\"",
+      "classes": "px-2.5 py-1 rounded-full transition-all text-[11px] font-semibold bg-white/15 te",
+      "textColor": "rgb(36, 32, 39)",
+      "bgColor": "oklab(0.999994 0.0000455678 0.0000200868 / 0.15)",
+      "bgSource": "BUTTON.px-2.5.py-1",
+      "contrast": "1.31",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 11
+    },
+    {
+      "section": "header",
+      "element": "<button> \"AR\"",
+      "classes": "px-2.5 py-1 rounded-full transition-all text-[11px] font-semibold text-neutral-4",
+      "textColor": "rgb(110, 100, 117)",
+      "bgColor": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)",
+      "bgSource": "DIV.flex.items-center",
+      "contrast": "3.74",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 11
+    },
+    {
+      "section": "selected-work",
+      "element": "<span> \"Branding\"",
+      "classes": "px-3 py-1 rounded-full text-xs text-neutral-200 bg-white/10 backdrop-blur-md bor",
+      "textColor": "rgb(59, 53, 64)",
+      "bgColor": "oklab(0.999994 0.0000455678 0.0000200868 / 0.1)",
+      "bgSource": "SPAN.px-3.py-1",
+      "contrast": "1.77",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 12
+    },
+    {
+      "section": "selected-work",
+      "element": "<span> \"Design\"",
+      "classes": "px-3 py-1 rounded-full text-xs text-neutral-400 bg-white/5 backdrop-blur-md bord",
+      "textColor": "rgb(110, 100, 117)",
+      "bgColor": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)",
+      "bgSource": "SPAN.px-3.py-1",
+      "contrast": "3.74",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 12
+    },
+    {
+      "section": "selected-work",
+      "element": "<span> \"Brand\"",
+      "classes": "px-3 py-1 rounded-full text-xs text-neutral-400 bg-white/5 backdrop-blur-md bord",
+      "textColor": "rgb(110, 100, 117)",
+      "bgColor": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)",
+      "bgSource": "SPAN.px-3.py-1",
+      "contrast": "3.74",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 12
+    },
+    {
+      "section": "about-me",
+      "element": "<span> \"Me\"",
+      "classes": "text-[#f4a496] italic font-serif",
+      "textColor": "rgb(244, 164, 150)",
+      "bgColor": "rgb(246, 241, 235)",
+      "bgSource": "SECTION.relative.pt-24",
+      "contrast": "1.76",
+      "required": 3,
+      "isLargeText": true,
+      "fontSize": 60
+    },
+    {
+      "section": "about-me",
+      "element": "<p> \"Graphic Designer | Visual Identity & Creative\"",
+      "classes": "text-xs sm:text-sm font-mono tracking-wider text-[#f4a496] font-medium uppercase",
+      "textColor": "rgb(244, 164, 150)",
+      "bgColor": "rgb(246, 241, 235)",
+      "bgSource": "SECTION.relative.pt-24",
+      "contrast": "1.76",
+      "required": 4.5,
+      "isLargeText": false,
+      "fontSize": 14
+    },
+    {
+      "section": "creative-journey",
+      "element": "<span> \"Journey\"",
+      "classes": "text-[#f4a496] italic font-serif",
+      "textColor": "rgb(244, 164, 150)",
+      "bgColor": "rgb(246, 241, 235)",
+      "bgSource": "SECTION.relative.pt-24",
+      "contrast": "1.76",
+      "required": 3,
+      "isLargeText": true,
+      "fontSize": 60
+    },
+    {
+      "section": "contact",
+      "element": "<span> \"Together\"",
+      "classes": "text-[#f4a496] italic font-serif",
+      "textColor": "rgb(244, 164, 150)",
+      "bgColor": "rgb(246, 241, 235)",
+      "bgSource": "SECTION.relative.py-24",
+      "contrast": "1.76",
+      "required": 3,
+      "isLargeText": true,
+      "fontSize": 60
+    }
+  ],
+  "svgIssues": []
+}

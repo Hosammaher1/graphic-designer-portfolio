@@ -7,6 +7,32 @@
     --font-display: 'Outfit', sans-serif;
     --font-cinzel: 'Cinzel', serif;
     --font-arabic: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+
+    /* Theme Tokens - Default Dark Studio */
+    --color-surface: #18101a;
+    --color-surface-hover: #231420;
+    --color-bg: #09070c;
+    --color-text: #f5f5f5;
+    --color-text-muted: #a39ca8;
+    --color-border: rgba(244, 164, 150, 0.15);
+    --color-primary: #e2827e;
+    --color-primary-hover: #f4a496;
+    --color-primary-light: rgba(226, 130, 126, 0.15);
+    --color-focus: #e2827e;
+  }
+
+  :is(html.light, html[data-theme="light"]) {
+    /* Theme Tokens - Approved Eclipse Light Mode */
+    --color-surface: #FFFFFF;
+    --color-surface-hover: #F6F1EB;
+    --color-bg: #F6F1EB;
+    --color-text: #242027;
+    --color-text-muted: #5F5660;
+    --color-border: #E7D9D9;
+    --color-primary: #5C1628;
+    --color-primary-hover: #48111f;
+    --color-primary-light: #F6F1EB;
+    --color-focus: #5C1628;
   }
 
   [dir="rtl"] {
@@ -88,6 +114,16 @@
    ========================================================================== */
 #admin-root,
 .admin-root {
+  --color-surface: #18101a !important;
+  --color-surface-hover: #231420 !important;
+  --color-bg: #09070c !important;
+  --color-text: #f5f5f5 !important;
+  --color-text-muted: #a39ca8 !important;
+  --color-border: rgba(244, 164, 150, 0.15) !important;
+  --color-primary: #e2827e !important;
+  --color-primary-hover: #f4a496 !important;
+  --color-primary-light: rgba(226, 130, 126, 0.15) !important;
+  --color-focus: #e2827e !important;
   background-color: #09070c !important;
   color: #f5f5f5 !important;
   color-scheme: dark !important;
@@ -154,15 +190,17 @@
 
 /* ==========================================================================
    Approved Public Visitor Eclipse Light Mode Palette
-   Strictly Scoped to #public-root and .public-dialog
+   Strictly Scoped to #public-root, .public-root, and .public-dialog
    Background: #F6F1EB
    Cards: #FFFFFF
    Primary text: #242027
+   Secondary text: #5F5660
+   Muted text: #756B73
    Accent/buttons: #5C1628
    Borders: #E7D9D9
    ========================================================================== */
 
-/* Body & Roots in Light Mode */
+/* Body & Canvas Roots in Light Mode */
 :is(html.light, html[data-theme="light"]) body:has(#public-root),
 :is(html.light, html[data-theme="light"]) #public-root,
 :is(html.light, html[data-theme="light"]) .public-root {
@@ -180,140 +218,319 @@
   background-color: #F6F1EB !important;
 }
 
-/* Navbar */
+/* --------------------------------------------------------------------------
+   Artwork & Media Dark Surface Safeguards
+   Elements marked with [data-theme-surface="dark"] keep light text over dark artwork
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"],
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] {
+  color-scheme: dark !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] h1,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] h2,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] h3,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] h4,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] p,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] span,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-white,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-neutral-100,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-neutral-200,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-neutral-300,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .text-white,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .text-neutral-200,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .text-rose-200,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .text-rose-300 {
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-neutral-400,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .text-neutral-400 {
+  color: #d4d0d8 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-rose-200,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .text-rose-300 {
+  color: #fca5a5 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Navbar & Navigation
+   -------------------------------------------------------------------------- */
 :is(html.light, html[data-theme="light"]) #public-root header {
   border-color: #E7D9D9 !important;
 }
 
 :is(html.light, html[data-theme="light"]) #public-root header .bg-\[\#09070c\]\/85,
 :is(html.light, html[data-theme="light"]) #public-root header.is-scrolled {
-  background-color: rgba(246, 241, 235, 0.92) !important;
+  background-color: rgba(246, 241, 235, 0.94) !important;
   border-color: #E7D9D9 !important;
   box-shadow: 0 4px 20px -2px rgba(92, 22, 40, 0.06) !important;
 }
 
-/* Glass Panels -> Crisp White Cards with #E7D9D9 borders */
-:is(html.light, html[data-theme="light"]) #public-root .glass-panel,
-:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel {
+:is(html.light, html[data-theme="light"]) #public-root header nav a {
+  color: #5F5660 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header nav a:hover {
+  color: #242027 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header nav a.font-semibold {
+  color: #5C1628 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header nav a span.bg-gradient-to-r {
+  background: #5C1628 !important;
+}
+
+/* EN / AR Segmented Control */
+:is(html.light, html[data-theme="light"]) #public-root header .bg-white\/5.border-white\/10 {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header .bg-white\/15,
+:is(html.light, html[data-theme="light"]) #public-root header button.bg-white\/15 {
+  background-color: #5C1628 !important;
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header .bg-white\/15 *,
+:is(html.light, html[data-theme="light"]) #public-root header button.bg-white\/15 * {
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header button:not(.bg-white\/15) {
+  color: #5F5660;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header button:not(.bg-white\/15):hover {
+  color: #242027;
+}
+
+/* Mobile Hamburger & Drawer Menu */
+:is(html.light, html[data-theme="light"]) #public-root header button.lg\:hidden {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #242027 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header .lg\:hidden.glass-panel {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  box-shadow: 0 10px 30px rgba(92, 22, 40, 0.08) !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header .lg\:hidden.glass-panel a {
+  color: #242027 !important;
+  border-color: #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root header .lg\:hidden.glass-panel a:hover {
+  color: #5C1628 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Glass Panels -> Crisp White Cards with #E7D9D9 borders
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .glass-panel,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .glass-panel-subtle,
+:is(html.light, html[data-theme="light"]) #public-root [data-theme-surface="dark"] .glass-panel-active,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .glass-panel,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .glass-panel-subtle,
+:is(html.light, html[data-theme="light"]) .public-dialog [data-theme-surface="dark"] .glass-panel-active {
+  background: rgba(22, 16, 26, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]),
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]) {
   background: #FFFFFF !important;
   border: 1px solid #E7D9D9 !important;
   box-shadow: 0 4px 24px -2px rgba(92, 22, 40, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .glass-panel-subtle,
-:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-subtle {
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel-subtle:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]),
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-subtle:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]) {
   background: #FFFFFF !important;
   border: 1px solid #E7D9D9 !important;
   box-shadow: 0 2px 8px -1px rgba(92, 22, 40, 0.04) !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .glass-panel-active,
-:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-active {
+:is(html.light, html[data-theme="light"]) #public-root .glass-panel-active:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]),
+:is(html.light, html[data-theme="light"]) .public-dialog .glass-panel-active:not([data-theme-surface="dark"] *):not([data-theme-surface="dark"]) {
   background: #FFFFFF !important;
   border: 1px solid #5C1628 !important;
   box-shadow: 0 8px 30px -4px rgba(92, 22, 40, 0.12) !important;
 }
 
-/* Project Cards in AllProjectsScreen */
-:is(html.light, html[data-theme="light"]) #public-root .project-card-body {
-  background: #FFFFFF !important;
-  border-top: 1px solid #E7D9D9 !important;
-}
-
-/* Typography & Headings */
-:is(html.light, html[data-theme="light"]) #public-root h1,
-:is(html.light, html[data-theme="light"]) #public-root h2,
-:is(html.light, html[data-theme="light"]) #public-root h3,
-:is(html.light, html[data-theme="light"]) #public-root h4,
-:is(html.light, html[data-theme="light"]) #public-root h5,
-:is(html.light, html[data-theme="light"]) #public-root h6,
-:is(html.light, html[data-theme="light"]) .public-dialog h1,
-:is(html.light, html[data-theme="light"]) .public-dialog h2,
-:is(html.light, html[data-theme="light"]) .public-dialog h3 {
+/* --------------------------------------------------------------------------
+   Typography & Color Scales Outside Dark Surfaces
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root h1:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root h2:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root h3:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root h4:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root h5:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root h6:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog h1:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog h2:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog h3:not([data-theme-surface="dark"] *) {
   color: #242027 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-white,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-white {
+:is(html.light, html[data-theme="light"]) #public-root .text-white:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *):not(button.bg-white):not(a.bg-white):not(button.bg-white\/15 *):not(button.bg-white\/15),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-white:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *):not(button.bg-white):not(a.bg-white) {
   color: #242027 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-neutral-100,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-100 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-100:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-100:not([data-theme-surface="dark"] *):not(button.bg-white *) {
   color: #242027 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-neutral-200,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-200 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-200:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-200:not([data-theme-surface="dark"] *):not(button.bg-white *) {
   color: #3b3540 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-neutral-300,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300 {
-  color: #524a57 !important;
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *) {
+  color: #5F5660 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-neutral-400,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-400 {
-  color: #6e6475 !important;
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-400:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-400:not([data-theme-surface="dark"] *):not(button.bg-white *) {
+  color: #756B73 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root .text-neutral-500,
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-500 {
+:is(html.light, html[data-theme="light"]) #public-root .text-neutral-500:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-500:not([data-theme-surface="dark"] *):not(button.bg-white *) {
   color: #8a8094 !important;
 }
 
-/* Primary Accent & Action Buttons */
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white,
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white,
-:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900,
-:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white {
+/* Peach & Rose Accents Inversion (Light mode contrast: 12.1:1 AAA) */
+:is(html.light, html[data-theme="light"]) #public-root .text-\[\#f4a496\]:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-rose-200:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-rose-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-rose-400:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-\[\#f4a496\]:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-rose-200:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-rose-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-rose-400:not([data-theme-surface="dark"] *) {
+  color: #5C1628 !important;
+}
+
+/* Amber Accents Inversion (Light mode contrast: 5.5:1 AA) */
+:is(html.light, html[data-theme="light"]) #public-root .text-amber-200:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-amber-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-amber-200:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .text-amber-300:not([data-theme-surface="dark"] *) {
+  color: #b45309 !important;
+}
+
+/* SVG Stroke / Fill Inversions for Signature and Bezier handles */
+:is(html.light, html[data-theme="light"]) #public-root svg.text-\[\#f4a496\],
+:is(html.light, html[data-theme="light"]) #public-root svg path[stroke="#f4a496"] {
+  stroke: #5C1628 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root svg circle[fill="#f4a496"] {
+  fill: #5C1628 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Primary & Secondary Action Buttons
+   -------------------------------------------------------------------------- */
+/* Primary Buttons (Pills like "View Selected Work", "Get in Touch", etc.) */
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white:not([data-theme-surface="dark"] *) {
   background-color: #5C1628 !important;
-  color: #F6F1EB !important;
+  color: #FFFFFF !important;
   box-shadow: 0 4px 14px -1px rgba(92, 22, 40, 0.3) !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white:hover,
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white:hover,
-:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900:hover,
-:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white:hover {
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white:not([data-theme-surface="dark"] *) *,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white:not([data-theme-surface="dark"] *) *,
+:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900:not([data-theme-surface="dark"] *) *,
+:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white:not([data-theme-surface="dark"] *) * {
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) #public-root .bg-white.text-neutral-900:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) .public-dialog button.bg-white:not([data-theme-surface="dark"] *):hover {
   background-color: #48111f !important;
   color: #FFFFFF !important;
 }
 
-/* Secondary Action Buttons */
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5,
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5,
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10,
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10 {
+/* Secondary Buttons */
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10:not([data-theme-surface="dark"] *) {
   background-color: #FFFFFF !important;
   border-color: #E7D9D9 !important;
   color: #5C1628 !important;
 }
 
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5:hover,
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5:hover,
-:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10:hover,
-:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10:hover {
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/5:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/5:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) #public-root button.bg-white\/10:not([data-theme-surface="dark"] *):hover,
+:is(html.light, html[data-theme="light"]) #public-root a.bg-white\/10:not([data-theme-surface="dark"] *):hover {
   background-color: #F6F1EB !important;
+  border-color: #5C1628 !important;
+  color: #5C1628 !important;
+}
+
+/* Circle Action Buttons in Cards */
+:is(html.light, html[data-theme="light"]) #public-root .project-card-body .w-9.h-9.rounded-full,
+:is(html.light, html[data-theme="light"]) #public-root .w-8.h-8.rounded-full.bg-white\/5 {
+  background-color: #F6F1EB !important;
+  color: #5C1628 !important;
+  border: 1px solid #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .group:hover .project-card-body .w-9.h-9.rounded-full,
+:is(html.light, html[data-theme="light"]) #public-root .group:hover .w-8.h-8.rounded-full.bg-white\/5 {
+  background-color: #5C1628 !important;
+  color: #FFFFFF !important;
   border-color: #5C1628 !important;
 }
 
-/* Borders */
-:is(html.light, html[data-theme="light"]) #public-root .border-white\/5,
-:is(html.light, html[data-theme="light"]) #public-root .border-white\/10,
-:is(html.light, html[data-theme="light"]) #public-root .border-white\/15,
-:is(html.light, html[data-theme="light"]) #public-root .border-white\/20,
-:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/10,
-:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/20,
-:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/5,
-:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/10,
-:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/10,
-:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/20 {
+:is(html.light, html[data-theme="light"]) #public-root .group:hover .project-card-body .w-9.h-9.rounded-full *,
+:is(html.light, html[data-theme="light"]) #public-root .group:hover .w-8.h-8.rounded-full.bg-white\/5 * {
+  color: #FFFFFF !important;
+}
+
+/* --------------------------------------------------------------------------
+   Borders
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/5:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/10:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/15:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-white\/20:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/10:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/15:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/20:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/25:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .border-rose-300\/30:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/5:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .border-white\/10:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/10:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/15:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) .public-dialog .border-rose-300\/20:not([data-theme-surface="dark"] *) {
   border-color: #E7D9D9 !important;
 }
 
-/* Inputs, Textareas, and Selects in Public Pages */
+/* --------------------------------------------------------------------------
+   Inputs, Textareas, Selects & Labels
+   -------------------------------------------------------------------------- */
 :is(html.light, html[data-theme="light"]) #public-root input,
 :is(html.light, html[data-theme="light"]) #public-root textarea,
 :is(html.light, html[data-theme="light"]) #public-root select {
@@ -324,33 +541,111 @@
 
 :is(html.light, html[data-theme="light"]) #public-root input::placeholder,
 :is(html.light, html[data-theme="light"]) #public-root textarea::placeholder {
-  color: #8a8094 !important;
+  color: #756B73 !important;
 }
 
 :is(html.light, html[data-theme="light"]) #public-root label {
-  color: #524a57 !important;
+  color: #5F5660 !important;
+  font-weight: 600 !important;
 }
 
-/* Public Modal / Dialog */
+:is(html.light, html[data-theme="light"]) #public-root select option {
+  background-color: #FFFFFF !important;
+  color: #242027 !important;
+}
+
+/* --------------------------------------------------------------------------
+   AllProjectsScreen Specific Styles
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root .project-card-body {
+  background: #FFFFFF !important;
+  border-top: 1px solid #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .gallery-enter button.bg-gradient-to-r {
+  background: #5C1628 !important;
+  border-color: #5C1628 !important;
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .gallery-enter button.bg-gradient-to-r span {
+  color: #FFFFFF !important;
+}
+
+/* --------------------------------------------------------------------------
+   ProjectDetailsModal Specific Styles
+   -------------------------------------------------------------------------- */
 :is(html.light, html[data-theme="light"]) .public-dialog {
   background-color: rgba(36, 32, 39, 0.7) !important;
 }
 
 :is(html.light, html[data-theme="light"]) .public-modal-panel {
-  background-color: #F6F1EB !important;
+  background: #FFFFFF !important;
   color: #242027 !important;
   border-color: #E7D9D9 !important;
+  box-shadow: 0 30px 90px rgba(92, 22, 40, 0.12) !important;
 }
 
 :is(html.light, html[data-theme="light"]) .public-modal-header {
-  background-color: rgba(246, 241, 235, 0.95) !important;
+  background-color: rgba(246, 241, 235, 0.98) !important;
   border-color: #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) .public-modal-header .bg-rose-950\/60 {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #5C1628 !important;
+}
+
+:is(html.light, html[data-theme="light"]) .public-modal-header button.bg-rose-950\/60 {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #5C1628 !important;
+}
+
+:is(html.light, html[data-theme="light"]) .public-modal-header button.bg-rose-950\/60:hover {
+  background-color: #5C1628 !important;
+  border-color: #5C1628 !important;
+  color: #FFFFFF !important;
+}
+
+:is(html.light, html[data-theme="light"]) .public-modal-panel .bg-gradient-to-b {
+  background: #FFFFFF !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Section 3D Perspective Cards
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#1b121c\],
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#170e19\] {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#1b121c\] > div,
+:is(html.light, html[data-theme="light"]) #public-root .bg-\[\#170e19\] > div {
+  background: linear-gradient(135deg, rgba(246, 241, 235, 0.9), rgba(255, 255, 255, 0.95)) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Footer & Other Sections
+   -------------------------------------------------------------------------- */
+:is(html.light, html[data-theme="light"]) #public-root footer .bg-white\/5 {
+  background-color: #FFFFFF !important;
+  border-color: #E7D9D9 !important;
+  color: #242027 !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root footer .bg-white\/5:hover {
+  background-color: #F6F1EB !important;
+  border-color: #5C1628 !important;
 }
 
 /* Atmospheric Glows Softened in Light Mode */
 :is(html.light, html[data-theme="light"]) #public-root .blur-\[140px\],
 :is(html.light, html[data-theme="light"]) #public-root .blur-\[150px\],
-:is(html.light, html[data-theme="light"]) #public-root .blur-\[160px\] {
+:is(html.light, html[data-theme="light"]) #public-root .blur-\[160px\],
+:is(html.light, html[data-theme="light"]) #public-root .blur-\[170px\] {
   opacity: 0.1 !important;
 }
 
@@ -362,7 +657,7 @@
 /* Selection */
 :is(html.light, html[data-theme="light"]) #public-root ::selection,
 :is(html.light, html[data-theme="light"]) .public-dialog ::selection {
-  background-color: rgba(92, 22, 40, 0.2);
+  background-color: rgba(92, 22, 40, 0.18);
   color: #5C1628;
 }
 

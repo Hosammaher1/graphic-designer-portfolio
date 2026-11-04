@@ -164,6 +164,7 @@ export const HeroSection = ({
               {/* Center Prominent Card with Botanical Petal Graphic */}
               <div
                 onClick={handleCardClick}
+                data-theme-surface="dark"
                 className="relative z-20 w-[84%] sm:w-[86%] h-[92%] rounded-3xl glass-panel-active border border-rose-300/30 shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-5 sm:p-6 flex flex-col justify-between overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-500"
               >
                 {/* Botanical Petal Floral Artwork */}

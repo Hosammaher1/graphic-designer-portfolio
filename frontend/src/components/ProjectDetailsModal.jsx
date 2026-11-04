@@ -223,6 +223,7 @@ export const ProjectDetailsModal = ({
           role="dialog"
           aria-modal="true"
           aria-label="Image Lightbox Viewer"
+          data-theme-surface="dark"
           className="fixed inset-0 z-[100] flex flex-col items-center justify-between p-3 sm:p-6 bg-[#040206]/95 backdrop-blur-2xl animate-in fade-in duration-200"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -462,6 +463,7 @@ export const ProjectDetailsModal = ({
             {/* 2. CINEMATIC HERO COVER IMAGE (Clickable to Lightbox) */}
             <div
               onClick={() => setSelectedLightboxIndex(0)}
+              data-theme-surface="dark"
               className="group relative w-full h-80 sm:h-[460px] md:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer"
             >
               <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" priority={true} />
@@ -642,6 +644,7 @@ export const ProjectDetailsModal = ({
                     >
                       {/* Image Canvas */}
                       <div
+                        data-theme-surface="dark"
                         className={`relative w-full overflow-hidden bg-[#160c18] ${
                           isFull
                             ? 'h-80 sm:h-96 md:h-[460px]'
