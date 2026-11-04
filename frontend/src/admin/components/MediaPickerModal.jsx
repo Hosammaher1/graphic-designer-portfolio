@@ -45,7 +45,10 @@ export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Me
 
   const handleConfirm = () => {
     if (selectedItem) {
-      onSelect(selectedItem);
+      onSelect({
+        ...selectedItem,
+        mediaAssetId: selectedItem.mediaAssetId || (Number.isInteger(Number(selectedItem.id)) ? Number(selectedItem.id) : null),
+      });
       onClose();
     }
   };
@@ -106,39 +109,61 @@ export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Me
             <p className="text-[11px] font-mono uppercase tracking-widest text-[#f4a496]/80 mb-3">
               {lang === 'ar' ? 'الوسائط المتاحة' : 'Available Media Assets'}
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {media.map((item) => {
-                const isSelected = selectedItem?.id === item.id;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => setSelectedItem(item)}
-                    className={`relative group rounded-2xl overflow-hidden border cursor-pointer transition-all aspect-video glass-panel-subtle ${
-                      isSelected
-                        ? 'border-[#f4a496] ring-2 ring-[#f4a496]/50 shadow-xl shadow-[#842b45]/30'
-                        : 'border-white/10 hover:border-[#f4a496]/40'
-                    }`}
-                  >
-                    <img
-                      src={item.url}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+            {media.length === 0 ? (
+              <div className="p-8 rounded-2xl glass-panel border border-dashed border-[#f4a496]/20 text-center space-y-2">
+                <ImageIcon className="w-8 h-8 mx-auto text-[#f4a496]/40" />
+                <p className="text-xs text-neutral-300 font-medium">
+                  {lang === 'ar' ? 'لا توجد وسائط مرفوعة بعد' : 'No media assets available yet'}
+                </p>
+                <p className="text-[11px] text-neutral-500 font-light">
+                  {lang === 'ar' ? 'قم برفع صورة جديدة باستخدام منطقة الرفع أعلاه' : 'Upload an image above to add it to the media library'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {media.map((item) => {
+                  const isSelected = selectedItem?.id === item.id;
+                  const displayUrl = item.url || item.original_url;
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedItem(item)}
+                      className={`relative group rounded-2xl overflow-hidden border cursor-pointer transition-all aspect-video glass-panel-subtle ${
+                        isSelected
+                          ? 'border-[#f4a496] ring-2 ring-[#f4a496]/50 shadow-xl shadow-[#842b45]/30'
+                          : 'border-white/10 hover:border-[#f4a496]/40'
+                      }`}
+                    >
+                      {displayUrl ? (
+                        <img
+                          src={displayUrl}
+                          alt={item.name || 'Media Asset'}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-black/40 text-neutral-500">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
 
-                    <div className="absolute bottom-1.5 left-2 right-2 text-[10px] text-neutral-200 truncate font-light">
-                      {item.name}
-                    </div>
-
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#f4a496] text-neutral-900 flex items-center justify-center shadow font-bold">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <div className="absolute bottom-1.5 left-2 right-2 text-[10px] text-neutral-200 truncate font-light">
+                        {item.name || `Asset #${item.id}`}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#f4a496] text-neutral-900 flex items-center justify-center shadow font-bold">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

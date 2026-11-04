@@ -98,27 +98,46 @@ class FakeMediaStorage implements MediaStorageInterface
 
     public function getDeliveryUrl(string $providerId, array $transformations = []): string
     {
+        $base = '';
         if (str_starts_with($providerId, 'http://') || str_starts_with($providerId, 'https://')) {
-            return $providerId;
+            $base = $providerId;
+        } elseif (str_starts_with($providerId, 'local/')) {
+            $base = '/storage/' . substr($providerId, 6);
+        } elseif (str_starts_with($providerId, '/storage/')) {
+            $base = $providerId;
+        } elseif (str_starts_with($providerId, 'media/')) {
+            $base = '/storage/' . $providerId;
+        } else {
+            $base = '/storage/media/' . ltrim($providerId, '/');
         }
 
-        if (str_starts_with($providerId, 'local/')) {
-            $providerId = substr($providerId, 6);
+        $query = [];
+        if (! empty($transformations['width'])) {
+            $query[] = 'w_' . (int) $transformations['width'];
+        }
+        if (! empty($transformations['quality'])) {
+            $query[] = 'q_' . $transformations['quality'];
+        }
+        foreach ($transformations as $k => $v) {
+            if ($k !== 'width' && $k !== 'quality') {
+                $query[] = urlencode($k) . '=' . urlencode((string) $v);
+            }
         }
 
-        if (str_starts_with($providerId, '/storage/')) {
-            return $providerId;
+        if (! empty($query)) {
+            $separator = str_contains($base, '?') ? '&' : '?';
+            return $base . $separator . implode('&', $query);
         }
 
-        if (str_starts_with($providerId, 'media/')) {
-            return '/storage/' . $providerId;
-        }
-
-        return '/storage/media/' . ltrim($providerId, '/');
+        return $base;
     }
 
     public function getWatermarkedUrl(string $providerId, string $watermarkText = ''): string
     {
-        return $this->getDeliveryUrl($providerId);
+        $deliveryUrl = $this->getDeliveryUrl($providerId);
+        $text = rawurlencode($watermarkText ?: 'Mohammed Maher');
+        $separator = str_contains($deliveryUrl, '?') ? '&' : '?';
+
+        return $deliveryUrl . $separator . 'watermark=1&text=' . $text;
     }
 }

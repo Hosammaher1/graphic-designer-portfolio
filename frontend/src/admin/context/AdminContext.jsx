@@ -424,15 +424,15 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             clientAr: p.client || '',
             descEn: enTrans.description || enTrans.summary || '',
             descAr: arTrans.description || arTrans.summary || '',
-            coverMediaId: p.cover_media_id || p.coverMedia?.id || null,
-            coverImage: p.cover_url || p.coverMedia?.url || '',
+            coverMediaId: p.cover_media_id || p.cover_media?.id || p.coverMedia?.id || null,
+            coverImage: p.cover_url || p.cover_media?.url || p.coverMedia?.url || (p.cover_media?.file_name ? `/storage/media/${p.cover_media.file_name}` : '') || '',
             views: p.view_count || 0,
             updatedAt: p.updated_at ? p.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
             tools: (p.tools || []).map((t) => t.name || t.slug).join(', ') || 'Illustrator, Photoshop',
             gallery: Array.isArray(p.media) ? p.media.map((m) => ({
               id: m.id,
               mediaAssetId: m.media_asset_id || m.id,
-              url: m.display_url || m.url,
+              url: m.display_url || m.url || (m.media_asset ? (m.media_asset.original_url || `/storage/media/${m.media_asset.file_name}`) : ''),
               captionEn: m.caption_en || '',
               captionAr: m.caption_ar || '',
               isCover: Boolean(m.is_cover),
@@ -454,13 +454,14 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     if (res.ok && res.data?.data?.assets?.data) {
       const mapped = res.data.data.assets.data.map((m) => ({
         id: String(m.id),
-        name: m.original_filename || m.filename,
-        url: m.url,
+        mediaAssetId: Number(m.id),
+        name: m.file_name || m.original_filename || m.filename || `asset-${m.id}`,
+        url: m.original_url || m.url || (m.file_name ? `/storage/media/${m.file_name}` : ''),
         type: m.mime_type || 'image/png',
-        size: m.human_readable_size || `${Math.round((m.file_size_bytes || 0) / 1024)} KB`,
+        size: m.human_readable_size || `${Math.round((m.bytes || m.file_size_bytes || 0) / 1024)} KB`,
         dimensions: m.width && m.height ? `${m.width} × ${m.height}` : '2560 × 1440',
-        altEn: m.alt_en || m.original_filename,
-        altAr: m.alt_ar || m.original_filename,
+        altEn: m.alt_en || m.file_name || '',
+        altAr: m.alt_ar || m.file_name || '',
         category: 'Uploads',
         uploadedOn: m.created_at ? m.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
       }));
@@ -734,20 +735,31 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       const rawCoverMediaId = newProj.coverMediaId || newProj.cover_media_id;
       const parsedCoverId = rawCoverMediaId && /^\d+$/.test(String(rawCoverMediaId)) ? parseInt(rawCoverMediaId, 10) : null;
 
-      const mediaItems = Array.isArray(newProj.gallery)
-        ? newProj.gallery
-            .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
-            .map((g, idx) => {
-              const assetId = g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10);
-              return {
-                media_asset_id: assetId,
-                caption_en: g.captionEn || '',
-                caption_ar: g.captionAr || '',
-                is_cover: parsedCoverId ? assetId === parsedCoverId : idx === 0,
-                sort_order: idx + 1,
-              };
-            })
-        : undefined;
+      let mediaItems = [];
+      if (Array.isArray(newProj.gallery)) {
+        mediaItems = newProj.gallery
+          .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
+          .map((g, idx) => {
+            const assetId = g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10);
+            return {
+              media_asset_id: assetId,
+              caption_en: g.captionEn || '',
+              caption_ar: g.captionAr || '',
+              is_cover: parsedCoverId ? assetId === parsedCoverId : idx === 0,
+              sort_order: idx + 1,
+            };
+          });
+      }
+
+      if (parsedCoverId && !mediaItems.some((m) => m.media_asset_id === parsedCoverId)) {
+        mediaItems.unshift({
+          media_asset_id: parsedCoverId,
+          caption_en: 'Cover Image',
+          caption_ar: 'صورة الغلاف',
+          is_cover: true,
+          sort_order: 0,
+        });
+      }
 
       const payload = {
         slug,
@@ -756,7 +768,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         year: parseInt(newProj.year, 10) || new Date().getFullYear(),
         client: newProj.clientEn || newProj.client || '',
         cover_media_id: parsedCoverId,
-        media_items: mediaItems && mediaItems.length > 0 ? mediaItems : undefined,
+        media_items: mediaItems.length > 0 ? mediaItems : undefined,
         category_ids: matchedCategoryIds.length > 0 ? matchedCategoryIds : undefined,
         translations: [
           {
@@ -855,8 +867,9 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           cover_media_id: rawCoverMediaId !== undefined ? parsedCoverId : undefined,
         };
 
+        let mediaItems = [];
         if (Array.isArray(updatedFields.gallery)) {
-          payload.media_items = updatedFields.gallery
+          mediaItems = updatedFields.gallery
             .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
             .map((g, idx) => {
               const assetId = g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10);
@@ -868,6 +881,20 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
                 sort_order: idx + 1,
               };
             });
+        }
+
+        if (parsedCoverId && !mediaItems.some((m) => m.media_asset_id === parsedCoverId)) {
+          mediaItems.unshift({
+            media_asset_id: parsedCoverId,
+            caption_en: 'Cover Image',
+            caption_ar: 'صورة الغلاف',
+            is_cover: true,
+            sort_order: 0,
+          });
+        }
+
+        if (mediaItems.length > 0) {
+          payload.media_items = mediaItems;
         }
 
         if (updatedFields.titleEn || updatedFields.titleAr) {
@@ -1074,7 +1101,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           const asset = res.data.data.asset;
           const newItem = {
             id: String(asset.id),
-            mediaAssetId: asset.id,
+            mediaAssetId: Number(asset.id),
             name: asset.file_name || asset.original_filename || file.name,
             url: asset.original_url || asset.url || `/storage/media/${asset.file_name}`,
             type: asset.mime_type || file.type || 'image/png',
@@ -1085,31 +1112,19 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             category: 'Uploads',
             uploadedOn: new Date().toISOString().split('T')[0],
           };
-          setMedia((prev) => [newItem, ...prev]);
+          setMedia((prev) => [newItem, ...prev.filter((item) => String(item.id) !== String(newItem.id))]);
           addToast(lang === 'ar' ? 'تم رفع الأصل بنجاح إلى مكتبة الوسائط' : 'Asset uploaded successfully to Media Library', 'success');
           return newItem;
+        } else {
+          const errMsg = res.data?.message || (res.data?.errors ? Object.values(res.data.errors).flat().join(', ') : 'Upload failed');
+          addToast(lang === 'ar' ? `فشل رفع الملف: ${errMsg}` : `Upload failed: ${errMsg}`, 'error');
+          return null;
         }
       } catch (e) {
-        console.warn('Real upload failed, using local asset fallback', e);
+        console.error('Upload exception:', e);
+        addToast(lang === 'ar' ? 'فشل الاتصال بالخادم أثناء رفع الملف' : 'Server connection failed during upload', 'error');
+        return null;
       }
-
-      // Local asset fallback
-      const localUrl = typeof URL !== 'undefined' && URL.createObjectURL ? URL.createObjectURL(file) : '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png';
-      const fallbackItem = {
-        id: `med-${Date.now()}`,
-        name: file.name,
-        url: localUrl,
-        type: file.type || 'image/png',
-        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        dimensions: '2560 × 1440',
-        altEn: altText || file.name.replace(/\.[^/.]+$/, ''),
-        altAr: altText || file.name.replace(/\.[^/.]+$/, ''),
-        category: 'Uploads',
-        uploadedOn: new Date().toISOString().split('T')[0],
-      };
-      setMedia((prev) => [fallbackItem, ...prev]);
-      addToast(lang === 'ar' ? 'تم حفظ الأصل محلياً' : 'Asset saved to local library', 'info');
-      return fallbackItem;
     },
     [addToast, lang]
   );

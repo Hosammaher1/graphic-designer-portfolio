@@ -1,6 +1,41 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 11 Checkpoint — 2026-11-04 (Critical: Project Images Flow From Admin Upload to Public Website Display)
+## Current Antigravity Stage 12 Checkpoint — 2026-11-04 (Critical Release Blockers: Real Media Upload & React SSR Hydration Isolation)
+
+- **Active Branch:** `fix/project-images-public-flow` (commit to be merged to `dev`)
+- **Objective Completed:** End-to-end resolution of two critical release blockers:
+  1. **Issue 1:** Real image upload and project media selection broken in Studio Admin (empty thumbnail boxes, unpersisted cover/gallery).
+  2. **Issue 2:** React SSR hydration mismatch in Studio Admin on `/admin/projects...`.
+  3. **Issue 3:** Interaction analysis: hydration failure caused full React remount, wiping out in-flight modal state and file inputs.
+- **Root Causes Diagnosed & Fixed:**
+  1. *Thumbnail Mismatch:* `fetchMedia()` in `AdminContext.jsx` mapped `url: m.url` and `name: m.original_filename`. Backend model returns `original_url` and `file_name`. Corrected mapping to `original_url || url` and `file_name`, resolving empty thumbnail boxes.
+  2. *Fake Blob URL Elimination:* Removed silent fallback in `uploadMediaFile()` that generated local in-memory blob URLs (`med-Date.now()`). Now properly validates real HTTP 201 backend responses with integer `mediaAssetId`.
+  3. *Numeric ID & Cover Relation:* Ensured `handleMediaSelected` retains integer `mediaAssetId`, and `updateProject` automatically includes `cover_media_id` in `media_items` payload.
+  4. *SSR Hydration Isolation:* In `entry-client.jsx`, admin routes (`/admin/*`) use `createRoot` directly for client-only mounting, while public routes strictly preserve `hydrateRoot`. Eliminated the React 19 hydration mismatch error completely without `suppressHydrationWarning`.
+- **Verification Evidence:**
+  - **Playwright E2E Suite (`e2e/tests/release-blockers-verification.spec.js`):**
+    - Desktop Chromium: **PASSED (19.2s)**.
+    - Mobile Chrome: **PASSED (48.3s)**.
+    - Zero console hydration errors recorded: `expect(hydrationErrors).toEqual([])`.
+    - Real upload of 1.34MB PNG `logo.png` succeeded (Asset ID 17/18).
+    - Project 9 updated via API and MySQL reflects `cover_media_id: 17/18`.
+    - Public website (`/en/` and `/ar/`) displays the real cover image.
+  - **Full Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Full Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)**.
+  - **Frontend Production Client & SSR Builds:** Clean compile in 2.50s (client) and 471ms (SSR).
+- **Captured Visual Proof Artifacts:**
+  - `screenshots/release-blocker-media-picker-modal.png`: Verified Media Picker rendering real thumbnails with zero empty boxes.
+  - `screenshots/release-blocker-project-editor-cover-selected.png`: Verified Project Editor displaying the newly uploaded cover image.
+  - `screenshots/release-blocker-public-homepage-cover.png`: Verified public Selected Work section displaying Project 9's real cover image.
+  - `screenshots/release-blocker-public-project-modal.png`: Verified public Project Details Modal rendering Project 9's real image.
+- **Database & Cleanliness State:**
+  - Zero mock images or hardcoded placeholders.
+  - Project ID 9 is active, published, and displays its real uploaded cover image.
+  - User ID 2 (`mohmmed.maher467@gmail.com`) is intact and active.
+
+---
+
+## Historical Antigravity Stage 11 Checkpoint — 2026-11-04 (Critical: Project Images Flow From Admin Upload to Public Website Display)
 
 - **Active Branch:** `fix/project-images-public-flow` (branched from `feat/admin-dashboard-real-data`)
 - **Objective Completed:** Diagnosed and fixed the critical release-blocking bug where project images uploaded in the Studio Admin Dashboard did not appear on the public visitor-facing website. Implemented complete end-to-end integration across all layers: `Admin Upload → Laravel API → Media Storage → MySQL Relationships → Public API → React Public Website`.

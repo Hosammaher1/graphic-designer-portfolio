@@ -136,8 +136,9 @@ export function ProjectEditorPage({ projectId }) {
 
   const handleMediaSelected = (mediaItem) => {
     const numericAssetId = mediaItem.mediaAssetId || (Number.isInteger(Number(mediaItem.id)) ? Number(mediaItem.id) : null);
+    const resolvedUrl = mediaItem.url || mediaItem.original_url || '';
     if (mediaPickerTarget === 'cover') {
-      setCoverImage(mediaItem.url);
+      setCoverImage(resolvedUrl);
       setCoverMediaId(numericAssetId);
     } else {
       setGallery((prev) => [
@@ -145,7 +146,7 @@ export function ProjectEditorPage({ projectId }) {
         {
           id: `g-${Date.now()}-${prev.length}`,
           mediaAssetId: numericAssetId,
-          url: mediaItem.url,
+          url: resolvedUrl,
           captionEn: mediaItem.altEn || mediaItem.name || '',
           captionAr: mediaItem.altAr || mediaItem.name || '',
         },

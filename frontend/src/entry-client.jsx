@@ -7,7 +7,13 @@ import { initWebVitals } from './utils/webVitals.js';
 
 const container = document.getElementById('root');
 if (container) {
-  if (container.hasChildNodes() && container.innerHTML.trim().length > 0) {
+  const isAdminRoute = typeof window !== 'undefined' && (
+    window.location.pathname.startsWith('/admin') ||
+    window.location.hash.startsWith('#/admin') ||
+    window.location.hash.startsWith('#admin')
+  );
+
+  if (!isAdminRoute && container.hasChildNodes() && container.innerHTML.trim().length > 0) {
     hydrateRoot(container, <App />);
   } else {
     createRoot(container).render(<App />);

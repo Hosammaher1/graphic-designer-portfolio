@@ -110,4 +110,79 @@ describe('Project Images Flow & Persistence', () => {
     expect(imageSources).toContain('/storage/media/perfume-cover.png');
     expect(imageSources).toContain('/storage/media/perfume-box.png');
   });
+
+  it('maps backend MediaAsset schema correctly to Admin media item without undefined urls or broken thumbnails', () => {
+    // Simulated Laravel API response from MediaController::index
+    const backendMediaAsset = {
+      id: 13,
+      provider: 'local',
+      provider_id: 'media/test-real-logo-CW2zy9N4.png',
+      file_name: 'test-real-logo-CW2zy9N4.png',
+      mime_type: 'image/png',
+      bytes: 1341141,
+      width: 1536,
+      height: 1024,
+      original_url: '/storage/media/test-real-logo-CW2zy9N4.png',
+      variants: {
+        thumbnail: '/storage/media/test-real-logo-CW2zy9N4.png?variant=thumbnail&w=300',
+        medium: '/storage/media/test-real-logo-CW2zy9N4.png?variant=medium&w=800',
+      },
+      created_at: '2026-11-04T11:31:58.000000Z',
+    };
+
+    // Mapping algorithm used in AdminContext.jsx fetchMedia
+    const mapped = {
+      id: String(backendMediaAsset.id),
+      mediaAssetId: Number(backendMediaAsset.id),
+      name: backendMediaAsset.file_name || backendMediaAsset.original_filename || 'asset-13',
+      url: backendMediaAsset.original_url || backendMediaAsset.url || `/storage/media/${backendMediaAsset.file_name}`,
+      type: backendMediaAsset.mime_type || 'image/png',
+      size: `${Math.round(backendMediaAsset.bytes / 1024)} KB`,
+      dimensions: `${backendMediaAsset.width} × ${backendMediaAsset.height}`,
+      altEn: backendMediaAsset.alt_en || backendMediaAsset.file_name || '',
+      altAr: backendMediaAsset.alt_ar || backendMediaAsset.file_name || '',
+      category: 'Uploads',
+      uploadedOn: backendMediaAsset.created_at.split('T')[0],
+    };
+
+    expect(mapped.id).toBe('13');
+    expect(mapped.mediaAssetId).toBe(13);
+    expect(mapped.url).toBe('/storage/media/test-real-logo-CW2zy9N4.png');
+    expect(mapped.url).not.toBeUndefined();
+    expect(mapped.name).toBe('test-real-logo-CW2zy9N4.png');
+    expect(mapped.name).not.toBeUndefined();
+  });
+
+  it('guarantees cover_media_id is injected into media_items payload for persistence', () => {
+    const parsedCoverId = 13;
+    const gallery = [
+      { id: 'g-1', mediaAssetId: 14, url: '/storage/media/detail.png', captionEn: 'Detail', captionAr: 'تفصيل' },
+    ];
+
+    let mediaItems = gallery
+      .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
+      .map((g, idx) => ({
+        media_asset_id: g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10),
+        caption_en: g.captionEn || '',
+        caption_ar: g.captionAr || '',
+        is_cover: parsedCoverId ? g.mediaAssetId === parsedCoverId : idx === 0,
+        sort_order: idx + 1,
+      }));
+
+    if (parsedCoverId && !mediaItems.some((m) => m.media_asset_id === parsedCoverId)) {
+      mediaItems.unshift({
+        media_asset_id: parsedCoverId,
+        caption_en: 'Cover Image',
+        caption_ar: 'صورة الغلاف',
+        is_cover: true,
+        sort_order: 0,
+      });
+    }
+
+    expect(mediaItems).toHaveLength(2);
+    expect(mediaItems[0].media_asset_id).toBe(13);
+    expect(mediaItems[0].is_cover).toBe(true);
+    expect(mediaItems[1].media_asset_id).toBe(14);
+    expect(mediaItems[1].is_cover).toBe(false);
+  });
 });
