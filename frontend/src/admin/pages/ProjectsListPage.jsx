@@ -234,7 +234,7 @@ export function ProjectsListPage() {
                     <td className="py-4 px-4 sm:px-6">
                       <div className="flex items-center gap-3.5">
                         <img
-                          src={p.coverImage || p.image}
+                          src={p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png'}
                           alt={p.titleEn || 'Project thumbnail'}
                           className="w-12 h-12 rounded-2xl object-cover border border-[#f4a496]/20 flex-shrink-0"
                         />
@@ -327,7 +327,7 @@ export function ProjectsListPage() {
               {/* Card Image */}
               <div className="relative aspect-video overflow-hidden">
                 <img
-                  src={p.coverImage || p.image}
+                  src={p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png'}
                   alt={p.titleEn || 'Project cover'}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

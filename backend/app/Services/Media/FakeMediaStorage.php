@@ -51,12 +51,19 @@ class FakeMediaStorage implements MediaStorageInterface
         $extension = $file->getClientOriginalExtension() ?: 'jpg';
         $safeName = Str::slug($originalName) . '-' . Str::random(8) . '.' . strtolower($extension);
 
-        $providerId = 'local/' . Str::uuid();
+        $providerId = 'media/' . $safeName;
 
-        // 5. Store file in local fake storage
-        Storage::disk('media_test')->putFileAs('uploads', $file, $safeName);
+        // 5. Store file in local storage (support both public disk and test fake)
+        $diskName = app()->runningUnitTests() && config()->has('filesystems.disks.media_test') ? 'media_test' : 'public';
+        $disk = Storage::disk($diskName);
 
-        $baseUrl = config('app.url', 'http://localhost') . '/storage/media/' . $safeName;
+        $subPath = $diskName === 'media_test' ? 'uploads' : 'media';
+        $stored = $disk->putFileAs($subPath, $file, $safeName);
+        if (! $stored) {
+            $disk->put($subPath . '/' . $safeName, file_get_contents($file->getRealPath()));
+        }
+
+        $baseUrl = '/storage/media/' . $safeName;
 
         return [
             'provider'      => 'local',
@@ -79,27 +86,39 @@ class FakeMediaStorage implements MediaStorageInterface
 
     public function delete(string $providerId): bool
     {
+        $clean = str_starts_with($providerId, 'local/') ? substr($providerId, 6) : $providerId;
+        $diskName = app()->runningUnitTests() && config()->has('filesystems.disks.media_test') ? 'media_test' : 'public';
+        $disk = Storage::disk($diskName);
+        $subPath = $diskName === 'media_test' ? 'uploads/' : 'media/';
+        $cleanPath = str_starts_with($clean, 'media/') ? substr($clean, 6) : (str_starts_with($clean, 'uploads/') ? substr($clean, 8) : $clean);
+        $disk->delete($subPath . $cleanPath);
+
         return true;
     }
 
     public function getDeliveryUrl(string $providerId, array $transformations = []): string
     {
-        $params = [];
-        if (! empty($transformations['width'])) {
-            $params[] = 'w_' . $transformations['width'];
+        if (str_starts_with($providerId, 'http://') || str_starts_with($providerId, 'https://')) {
+            return $providerId;
         }
-        if (! empty($transformations['quality'])) {
-            $params[] = 'q_' . $transformations['quality'];
-        }
-        $query = ! empty($params) ? '?' . implode('&', $params) : '';
 
-        return "http://localhost/media/{$providerId}{$query}";
+        if (str_starts_with($providerId, 'local/')) {
+            $providerId = substr($providerId, 6);
+        }
+
+        if (str_starts_with($providerId, '/storage/')) {
+            return $providerId;
+        }
+
+        if (str_starts_with($providerId, 'media/')) {
+            return '/storage/' . $providerId;
+        }
+
+        return '/storage/media/' . ltrim($providerId, '/');
     }
 
     public function getWatermarkedUrl(string $providerId, string $watermarkText = ''): string
     {
-        $text = urlencode($watermarkText ?: 'Mohammed Maher');
-
-        return "http://localhost/media/{$providerId}?watermark={$text}";
+        return $this->getDeliveryUrl($providerId);
     }
 }

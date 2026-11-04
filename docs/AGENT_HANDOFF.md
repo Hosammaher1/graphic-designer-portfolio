@@ -1,6 +1,35 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 10 Checkpoint — 2026-11-04 (Admin Dashboard Real Data & Demo Data Elimination)
+## Current Antigravity Stage 11 Checkpoint — 2026-11-04 (Critical: Project Images Flow From Admin Upload to Public Website Display)
+
+- **Active Branch:** `fix/project-images-public-flow` (branched from `feat/admin-dashboard-real-data`)
+- **Objective Completed:** Diagnosed and fixed the critical release-blocking bug where project images uploaded in the Studio Admin Dashboard did not appear on the public visitor-facing website. Implemented complete end-to-end integration across all layers: `Admin Upload → Laravel API → Media Storage → MySQL Relationships → Public API → React Public Website`.
+- **Root Causes Diagnosed & Fixed:**
+  1. `FakeMediaStorage` in Laravel referenced unconfigured disk `media_test`, throwing `InvalidArgumentException` during image upload. Added `media_test` to `config/filesystems.php` and configured `Storage::disk('public')` for local uploads (`storage/app/public/media/`).
+  2. `AdminContext.jsx` `uploadMediaFile` previously caught failed uploads and created temporary browser in-memory blob URLs (`blob:...`). Now returns real persistent `/storage/media/{filename}` and `mediaAssetId: asset.id`.
+  3. `ProjectEditorPage.jsx` and `AdminContext.jsx` (`addProject` and `updateProject`) tracked cover image purely as a URL string and omitted `cover_media_id`. Gallery images were never linked. Added `cover_media_id` tracking and `media_items` array payload.
+  4. `ProjectPublishingService::publish()` had null cover and empty media array in `published_snapshot`. Now resolves real `display_url` for cover media and all project media items.
+  5. Windows symlink restrictions prevented `storage:link` creation. Added static file serving route in `routes/web.php` for `/storage/{path}` with CORS headers.
+  6. Frontend `navigateAdmin` closure bug caused redirection back to `/admin/login` after initial login before re-rendering. Removed stale `isAuthenticated` closure check.
+- **Verification Evidence:**
+  - **Playwright Full End-to-End Suite (`e2e/tests/project-images-public-flow.spec.js`):**
+    - Desktop Chromium: **PASSED (47.1s)**.
+    - Mobile Chrome (Pixel 5 emulation): **PASSED (51.6s)**.
+  - **Laravel Backend PHPUnit Suite (`ProjectImageFlowTest.php`, `MediaUploadApiTest.php`, `ProjectMediaOrderingTest.php`):** **15 passed, 62 assertions (100%)**.
+  - **Vitest Frontend Unit Suite (`tests/project-images-flow.test.jsx`):** **3 passed (100%)**.
+  - **Frontend Production Build (`npm run build`):** Clean compile in 2.54s (client) and 479ms (SSR).
+- **Captured Visual Proof Artifacts:**
+  - `screenshots/e2e-project-public-cover-desktop.png` (781 kB): Desktop Selected Work carousel displaying real cover image from `/storage/media/`.
+  - `screenshots/e2e-project-public-modal-gallery-desktop.png` (171 kB): Desktop Project Details Modal displaying real cover and gallery images from `/storage/media/`.
+  - `screenshots/e2e-project-public-cover-mobile.png` (329 kB): Mobile Selected Work card displaying real cover image.
+- **Database & Cleanliness State:**
+  - Zero mock images or hardcoded placeholders.
+  - Test runner user (`e2e-runner@portfolio.test`), test project (`e2e-luxury-atelier`), and uploaded test media assets were cleanly purged in `afterAll`.
+  - Real database records (Project ID 9, User ID 2 `mohmmed.maher467@gmail.com`) strictly preserved.
+
+---
+
+## Historical Antigravity Stage 10 Checkpoint — 2026-11-04 (Admin Dashboard Real Data & Demo Data Elimination)
 
 - **Active Branch:** `feat/admin-dashboard-real-data` (branched from `fix/admin-login-connection-and-sanctum`)
 - **Objective Completed:** End-to-end audit and complete removal of all mock, hardcoded, simulated, and placeholder business data across the entire Admin Dashboard (Overview Dashboard, Analytics, Categories, Trash, Media, and Layout Shell), replacing them with verified Laravel REST API and MySQL-backed data.

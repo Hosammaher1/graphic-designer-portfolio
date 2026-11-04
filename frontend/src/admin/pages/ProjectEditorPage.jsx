@@ -47,7 +47,8 @@ export function ProjectEditorPage({ projectId }) {
   const [tools, setTools] = useState('Illustrator, Photoshop, Figma');
   const [descEn, setDescEn] = useState('');
   const [descAr, setDescAr] = useState('');
-  const [coverImage, setCoverImage] = useState('/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png');
+  const [coverImage, setCoverImage] = useState('');
+  const [coverMediaId, setCoverMediaId] = useState(null);
   const [featured, setFeatured] = useState(false);
   const [status, setStatus] = useState('published');
   const [gallery, setGallery] = useState([]);
@@ -86,38 +87,29 @@ export function ProjectEditorPage({ projectId }) {
       );
       setDescEn(dEn);
       setDescAr(dAr);
-      setCoverImage(existingProject.coverImage || existingProject.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png');
+      setCoverImage(existingProject.coverImage || existingProject.image || existingProject.cover_url || '');
+      setCoverMediaId(existingProject.coverMediaId || existingProject.cover_media_id || (existingProject.coverMedia?.id ? existingProject.coverMedia.id : null));
       setFeatured(!!existingProject.featured);
       setStatus(existingProject.status || 'published');
+      const rawGallery = existingProject.gallery || existingProject.media || [];
       setGallery(
-        Array.isArray(existingProject.gallery) && existingProject.gallery.length > 0
-          ? existingProject.gallery.map((g, gIdx) => ({
+        Array.isArray(rawGallery) && rawGallery.length > 0
+          ? rawGallery.map((g, gIdx) => ({
               id: g.id || `g-${gIdx + 1}`,
-              url: g.url || existingProject.coverImage || existingProject.image,
-              captionEn: resolveLocalized(g.captionEn || g.caption, 'en'),
-              captionAr: resolveLocalized(g.captionAr || g.caption, 'ar'),
+              mediaAssetId: g.mediaAssetId || g.media_asset_id || (Number.isInteger(Number(g.id)) ? Number(g.id) : null),
+              url: g.url || g.display_url || existingProject.coverImage || existingProject.image || '',
+              captionEn: resolveLocalized(g.captionEn || g.caption || g.caption_en, 'en') || '',
+              captionAr: resolveLocalized(g.captionAr || g.caption || g.caption_ar, 'ar') || '',
             }))
-          : [
-              {
-                id: 'g-1',
-                url: existingProject.coverImage || existingProject.image,
-                captionEn: 'Main Presentation',
-                captionAr: 'العرض الرئيسي',
-              },
-            ]
+          : []
       );
       setSeoTitle(existingProject.seoTitle || tEn);
       setSeoDesc(existingProject.seoDesc || dEn);
     } else {
-      // New project default gallery
-      setGallery([
-        {
-          id: 'g-1',
-          url: '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
-          captionEn: 'Packaging & Bottle Design',
-          captionAr: 'تصميم التغليف والعبوات',
-        },
-      ]);
+      // New project defaults
+      setCoverImage('');
+      setCoverMediaId(null);
+      setGallery([]);
     }
   }, [existingProject]);
 
@@ -143,16 +135,19 @@ export function ProjectEditorPage({ projectId }) {
   };
 
   const handleMediaSelected = (mediaItem) => {
+    const numericAssetId = mediaItem.mediaAssetId || (Number.isInteger(Number(mediaItem.id)) ? Number(mediaItem.id) : null);
     if (mediaPickerTarget === 'cover') {
       setCoverImage(mediaItem.url);
+      setCoverMediaId(numericAssetId);
     } else {
       setGallery((prev) => [
         ...prev,
         {
-          id: `g-${Date.now()}`,
+          id: `g-${Date.now()}-${prev.length}`,
+          mediaAssetId: numericAssetId,
           url: mediaItem.url,
-          captionEn: mediaItem.altEn || mediaItem.name,
-          captionAr: mediaItem.altAr || mediaItem.name,
+          captionEn: mediaItem.altEn || mediaItem.name || '',
+          captionAr: mediaItem.altAr || mediaItem.name || '',
         },
       ]);
     }
@@ -176,6 +171,8 @@ export function ProjectEditorPage({ projectId }) {
       },
       coverImage,
       image: coverImage,
+      coverMediaId,
+      cover_media_id: coverMediaId,
       featured,
       status: publishState,
       gallery,
@@ -413,8 +410,15 @@ export function ProjectEditorPage({ projectId }) {
               <label className="block text-xs font-medium text-neutral-300 font-light">
                 {t.editor.coverImage}
               </label>
-              <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/40">
-                <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+              <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/40 flex items-center justify-center">
+                {coverImage ? (
+                  <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center text-neutral-400 gap-1.5 p-4 text-center">
+                    <ImageIcon className="w-8 h-8 text-[#f4a496]/40" />
+                    <span className="text-[11px] font-light">{lang === 'ar' ? 'لم يتم اختيار صورة غلاف' : 'No cover image selected'}</span>
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -540,8 +544,21 @@ export function ProjectEditorPage({ projectId }) {
           </div>
 
           {/* Gallery Items List */}
-          <div className="space-y-3.5">
-            {gallery.map((item, idx) => (
+          {gallery.length === 0 ? (
+            <div className="p-8 rounded-3xl glass-panel border border-dashed border-[#f4a496]/20 text-center space-y-3">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-[#842b45]/20 border border-[#f4a496]/20 flex items-center justify-center text-[#f4a496]">
+                <ImageIcon className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-white">
+                {lang === 'ar' ? 'لا توجد صور في المعرض بعد' : 'No images in gallery yet'}
+              </p>
+              <p className="text-xs text-neutral-400 font-light">
+                {lang === 'ar' ? 'أضف صوراً إضافية لعرض تفاصيل المشروع' : 'Click "Add Image" above to upload or select project showcase images'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {gallery.map((item, idx) => (
               <div
                 key={item.id || idx}
                 className="p-4 sm:p-5 rounded-3xl glass-panel-subtle border border-[#f4a496]/15 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 group"
@@ -614,15 +631,10 @@ export function ProjectEditorPage({ projectId }) {
                 </div>
               </div>
             ))}
-
-            {gallery.length === 0 && (
-              <div className="p-8 text-center rounded-3xl glass-panel border border-dashed border-white/15">
-                <p className="text-xs text-neutral-400 font-light">No images added to gallery yet.</p>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    )}
 
       {/* TAB 3: SEO & METADATA */}
       {activeTab === 'seo' && (

@@ -62,18 +62,18 @@ export function normalizeAdminProject(p, idx = 0) {
     ? p.gallery.map((item, gIdx) => ({
         ...item,
         id: item.id || `g-${gIdx + 1}`,
-        url: item.url || p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
+        mediaAssetId: item.mediaAssetId || item.media_asset_id || (Number.isInteger(Number(item.id)) ? Number(item.id) : null),
+        url: item.url || item.display_url || p.coverImage || p.cover_url || p.image || '',
         captionEn: resolveLocalized(item.caption, 'en') || resolveLocalized(item.title, 'en') || item.captionEn || '',
         captionAr: resolveLocalized(item.caption, 'ar') || resolveLocalized(item.title, 'ar') || item.captionAr || '',
       }))
-    : [
-        {
-          id: 'g-1',
-          url: p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
-          captionEn: `${titleEn} Hero Showcase`,
-          captionAr: `عرض رئيسي لمشروع ${titleAr}`,
-        },
-      ];
+    : (Array.isArray(p.media) ? p.media.map((item, gIdx) => ({
+        id: item.id || `g-${gIdx + 1}`,
+        mediaAssetId: item.media_asset_id || item.id,
+        url: item.display_url || item.url || '',
+        captionEn: item.caption_en || '',
+        captionAr: item.caption_ar || '',
+      })) : []);
 
   return {
     ...p,
@@ -101,7 +101,8 @@ export function normalizeAdminProject(p, idx = 0) {
     categories: Array.isArray(p.categories) ? p.categories : [categoryEn],
     tools: Array.isArray(p.tools) ? p.tools : ['Adobe Illustrator', 'Adobe Photoshop', 'Figma'],
     year: p.year || '2025',
-    coverImage: p.coverImage || p.image || '/assets/aistudio/Selected_Work__Noya_Skincare_Portfolio_6434c76f.png',
+    coverMediaId: p.coverMediaId || p.cover_media_id || null,
+    coverImage: p.coverImage || p.cover_url || p.image || '',
     gallery,
     seoTitle: p.seoTitle || `${titleEn} — Brand Identity Case Study`,
     seoDesc: p.seoDesc || descEn || 'Creative graphic design showcase.',

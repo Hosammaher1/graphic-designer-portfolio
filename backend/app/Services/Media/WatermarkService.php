@@ -23,9 +23,11 @@ class WatermarkService
 
         if ($shouldWatermark) {
             $watermarkText = $options['watermark_text'] ?? config('portfolio.watermark_text', 'Mohammed Maher');
-            return $this->storage->getWatermarkedUrl($asset->provider_id, $watermarkText);
+            $url = $this->storage->getWatermarkedUrl($asset->provider_id, $watermarkText);
+            return $url ?: ($asset->original_url ?? '');
         }
 
-        return $this->storage->getDeliveryUrl($asset->provider_id, $options['transformations'] ?? []);
+        $url = $this->storage->getDeliveryUrl($asset->provider_id, $options['transformations'] ?? []);
+        return $url ?: ($asset->original_url ?? '');
     }
 }

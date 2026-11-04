@@ -374,6 +374,55 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
   - `admin-dashboard-analytics-desktop.png` (129 kB): Verified Analytics Intelligence page with real totals, zero multiplier calculations, and empty referral state.
   - `admin-dashboard-analytics-mobile.png` (78 kB): Verified responsive mobile Analytics layout.
 
+### Stage 11: Critical Fix — Project Images Flow From Admin Upload to Public Website (2026-11-04)
+
+- **Task Scope & Status:** Investigated and resolved the critical release-blocking bug where project images uploaded in the Studio Admin Dashboard did not appear on the public visitor-facing website. Implemented complete end-to-end integration: `Admin Upload → Laravel API → Media Storage → MySQL Relationships → Public API → React Public Website`.
+- **Branch / Commits / Remote:** `fix/project-images-public-flow` (branched from `feat/admin-dashboard-real-data`).
+- **Root Cause Analysis:**
+  1. **Flysystem Driver Missing:** `FakeMediaStorage` in backend hardcoded `Storage::disk('media_test')`, which was undefined in `config/filesystems.php`. In real runtime, `/api/v1/admin/media/upload` crashed with `InvalidArgumentException: Disk [media_test] does not have a configured driver`.
+  2. **Frontend Ephemeral Blob Fallback:** In `AdminContext.jsx`, when the upload API failed, `uploadMediaFile` caught the error and created a temporary in-memory blob URL (`URL.createObjectURL(file)`). This ephemeral blob URL could not be accessed across sessions, by unauthenticated visitors, or on mobile.
+  3. **Missing Foreign Keys & Unlinked Relationships:** `ProjectEditorPage.jsx` and `AdminContext.jsx` (`addProject` and `updateProject`) tracked `coverImage` purely as a URL string and omitted `cover_media_id`. Furthermore, gallery images were never sent as `media_items` or attached via `ProjectMediaController`, leaving `project_media` table completely empty in MySQL.
+  4. **Snapshot Empty Media:** `ProjectPublishingService::publish()` relied on `$project->coverMedia` and `$project->media`. Because neither was set in MySQL, `published_snapshot` recorded `'cover_url' => null` and `'media' => []`.
+  5. **No Route for Static Storage on Windows:** Windows permission restrictions often prevent creating symlinks (`storage:link`). Without a symlink, requests to `/storage/media/{filename}` 404'd because `routes/web.php` lacked a fallback file-serving route.
+  6. **Stale Closure in Admin Navigation:** In `AdminContext.jsx`, `navigateAdmin` captured `isAuthenticated` in its closure. Calling `navigateAdmin('/admin/dashboard')` immediately inside `login()` after `setIsAuthenticated(true)` evaluated `!isAuthenticated` as true and forced the target path back to `/admin/login`.
+- **Features & Architecture Implemented:**
+  - **Backend Filesystem & Storage Configuration:**
+    - Configured `media_test` disk in `backend/config/filesystems.php` pointing to `storage_path('app/public/media')` with `/storage/media` URL.
+    - Updated `FakeMediaStorage.php` to write files to Laravel's persistent `public` disk (`media/{safeName}`), returning standardized `/storage/media/{safeName}` delivery URLs.
+    - Fixed `WatermarkService.php` to guarantee fallback to `$asset->original_url` when delivery URL resolution is empty.
+  - **Direct Static File Serving & CORS:**
+    - Registered a fallback public file-serving route in `backend/routes/web.php` for `/storage/{path}` with `response()->file()`, `Cache-Control: public, max-age=31536000`, and `Access-Control-Allow-Origin: *`, ensuring unauthenticated visitors can fetch uploaded images directly across Windows, Linux, and proxy environments.
+  - **MySQL Models, Resources & Publishing:**
+    - Added `$appends = ['cover_url']` and `getCoverUrlAttribute()` to `Project.php` resolving live cover media with published snapshot fallback.
+    - Updated `ProjectResource.php` to expose `cover_url`, `cover_media`, and `media` (with captions and `display_url`).
+    - Added validation rules for `media_items` array in `StoreProjectRequest.php` and `UpdateProjectRequest.php`.
+    - Updated `ProjectController.php` (`store`, `update`, `show`, `index`) to eager load media relationships, atomically sync `media_items` into `project_media`, set `cover_media_id`, and immediately publish the complete snapshot.
+    - Updated `PublicProjectController.php` to fall back dynamically to `$project->cover_url` and `$project->media` when missing from snapshot.
+  - **Frontend Studio Admin & Context:**
+    - `ProjectEditorPage.jsx`: State management for `coverMediaId`, numeric asset ID tracking, and sending `cover_media_id` and gallery items.
+    - `AdminContext.jsx`: `uploadMediaFile` returns `mediaAssetId: asset.id` and uses `/storage/media/...` rather than blob URL. `addProject` and `updateProject` format and send `cover_media_id` and `media_items` payload. Removed stale `isAuthenticated` closure check in `navigateAdmin`.
+    - `localization.js`: Preserved `coverMediaId` and gallery `mediaAssetId` without inserting demo images.
+- **Verification Evidence:**
+  - **Backend Automated Feature Suite (`ProjectImageFlowTest.php`):** **3 passed, 26 assertions (100%)** testing local disk storage, project creation with cover and gallery, public API delivery, and unauthenticated file fetching.
+  - **Backend Media & Ordering Suites:**
+    - `MediaUploadApiTest.php`: **5 passed, 13 assertions (100%)**.
+    - `ProjectMediaOrderingTest.php`: **7 passed, 23 assertions (100%)**.
+    - Total backend regression: **15 passed, 62 assertions (100%)**.
+  - **Frontend Vitest Suite (`project-images-flow.test.jsx`):** **3 passed (100%)** testing artwork `<img>` resolution, modal rendering, and project normalization.
+  - **Playwright Full End-to-End Test (`project-images-public-flow.spec.js`):**
+    - Desktop Chromium: **PASSED (47.1s)**.
+    - Mobile Chrome (Pixel 5 emulation): **PASSED (51.6s)**.
+    - Verified entire pipeline: Sanctum login → Media upload → MySQL relationship persistence → Public Selected Work cover display → Project Details modal gallery display → Page reload persistence → Mobile responsive layout.
+  - **Production Builds (`npm run build`):** Clean compile in 2.54s (client) and 479ms (SSR).
+- **Captured Visual Artifacts:**
+  - `e2e-project-public-cover-desktop.png` (781 kB): Verified Desktop Selected Work carousel displaying real cover image from `/storage/media/`.
+  - `e2e-project-public-modal-gallery-desktop.png` (171 kB): Verified Desktop Project Details Modal displaying real cover and gallery images from `/storage/media/`.
+  - `e2e-project-public-cover-mobile.png` (329 kB): Verified responsive Mobile layout displaying real cover image.
+- **Database & Cleanliness State:**
+  - Zero mock images or hardcoded placeholders.
+  - Test runner user (`e2e-runner@portfolio.test`), test project (`e2e-luxury-atelier`), and uploaded test media assets were cleanly purged in `afterAll`.
+  - Real database records (Project ID 9, User ID 2 `mohmmed.maher467@gmail.com`) strictly preserved.
+
 ## Current-session canonical task reports
 
 These reports use canonical IDs. `IN_PROGRESS` means a tested local portion is PARTIAL; `BLOCKED` means required external or frozen-frontend evidence is unavailable. `DEFERRED` identifies the affected subportion. Historical reports below the register retain their original labels and are not additional canonical completions.

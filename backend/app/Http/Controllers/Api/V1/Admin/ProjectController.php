@@ -21,7 +21,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Project::query()
-            ->with(['translations', 'categories', 'tools']);
+            ->with(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         if ($request->boolean('with_trashed')) {
             $query->withTrashed();
@@ -70,12 +70,30 @@ class ProjectController extends Controller
             $project->tools()->sync($request->input('tool_ids'));
         }
 
+        // Attach gallery media items if provided
+        if ($request->has('media_items') && is_array($request->input('media_items'))) {
+            foreach ($request->input('media_items') as $idx => $item) {
+                $isCover = !empty($item['is_cover']) || ($project->cover_media_id && $project->cover_media_id == $item['media_asset_id']);
+                $project->media()->create([
+                    'media_asset_id' => $item['media_asset_id'],
+                    'caption_en'     => $item['caption_en'] ?? null,
+                    'caption_ar'     => $item['caption_ar'] ?? null,
+                    'is_cover'       => $isCover,
+                    'sort_order'     => $item['sort_order'] ?? ($idx + 1),
+                ]);
+
+                if ($isCover && ! $project->cover_media_id) {
+                    $project->update(['cover_media_id' => $item['media_asset_id']]);
+                }
+            }
+        }
+
         // If status is published, generate the published snapshot immediately
         if ($request->input('status') === 'published') {
             app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
         }
 
-        $project->load(['translations', 'categories', 'tools', 'coverMedia']);
+        $project->load(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         return response()->json([
             'status' => 'success',
@@ -86,7 +104,7 @@ class ProjectController extends Controller
     public function show(int $id): JsonResponse
     {
         $project = Project::withTrashed()
-            ->with(['translations', 'categories', 'tools', 'coverMedia'])
+            ->with(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset'])
             ->find($id);
 
         if (! $project) {
@@ -128,16 +146,37 @@ class ProjectController extends Controller
             $project->tools()->sync($request->input('tool_ids'));
         }
 
-        // Re-publish or unpublish if status was modified
+        // Sync gallery media items if provided
+        if ($request->has('media_items') && is_array($request->input('media_items'))) {
+            $project->media()->delete();
+            foreach ($request->input('media_items') as $idx => $item) {
+                $isCover = !empty($item['is_cover']) || ($project->cover_media_id && $project->cover_media_id == $item['media_asset_id']);
+                $project->media()->create([
+                    'media_asset_id' => $item['media_asset_id'],
+                    'caption_en'     => $item['caption_en'] ?? null,
+                    'caption_ar'     => $item['caption_ar'] ?? null,
+                    'is_cover'       => $isCover,
+                    'sort_order'     => $item['sort_order'] ?? ($idx + 1),
+                ]);
+
+                if ($isCover && ! $project->cover_media_id) {
+                    $project->update(['cover_media_id' => $item['media_asset_id']]);
+                }
+            }
+        }
+
+        // Re-publish or unpublish if status was modified, or refresh snapshot if published
         if ($request->has('status')) {
             if ($request->input('status') === 'published') {
                 app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
             } elseif ($request->input('status') === 'draft') {
                 app(\App\Services\Publishing\ProjectPublishingService::class)->unpublish($project);
             }
+        } elseif ($project->status === 'published') {
+            app(\App\Services\Publishing\ProjectPublishingService::class)->publish($project);
         }
 
-        $project->load(['translations', 'categories', 'tools', 'coverMedia']);
+        $project->load(['translations', 'categories', 'tools', 'coverMedia', 'media.mediaAsset']);
 
         return response()->json([
             'status' => 'success',

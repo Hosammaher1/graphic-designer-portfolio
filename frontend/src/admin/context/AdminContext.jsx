@@ -389,7 +389,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
   // Admin Navigation Helper
   const navigateAdmin = useCallback((path) => {
-    const targetPath = (!isAuthenticated && path !== '/admin/login') ? '/admin/login' : path;
+    const targetPath = path;
     if (typeof window !== 'undefined') {
       try {
         window.history.pushState({ route: targetPath }, '', targetPath);
@@ -399,7 +399,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     setCurrentRoute(targetPath);
-  }, [isAuthenticated]);
+  }, []);
 
   // Fetch real projects from Laravel API if available
   const fetchProjects = useCallback(async () => {
@@ -424,11 +424,20 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             clientAr: p.client || '',
             descEn: enTrans.description || enTrans.summary || '',
             descAr: arTrans.description || arTrans.summary || '',
+            coverMediaId: p.cover_media_id || p.coverMedia?.id || null,
             coverImage: p.cover_url || p.coverMedia?.url || '',
             views: p.view_count || 0,
             updatedAt: p.updated_at ? p.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
             tools: (p.tools || []).map((t) => t.name || t.slug).join(', ') || 'Illustrator, Photoshop',
-            gallery: p.gallery || [],
+            gallery: Array.isArray(p.media) ? p.media.map((m) => ({
+              id: m.id,
+              mediaAssetId: m.media_asset_id || m.id,
+              url: m.display_url || m.url,
+              captionEn: m.caption_en || '',
+              captionAr: m.caption_ar || '',
+              isCover: Boolean(m.is_cover),
+              sortOrder: m.sort_order || 0,
+            })) : (p.gallery || []),
           },
           idx
         );
@@ -722,13 +731,32 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         });
       }
 
+      const rawCoverMediaId = newProj.coverMediaId || newProj.cover_media_id;
+      const parsedCoverId = rawCoverMediaId && /^\d+$/.test(String(rawCoverMediaId)) ? parseInt(rawCoverMediaId, 10) : null;
+
+      const mediaItems = Array.isArray(newProj.gallery)
+        ? newProj.gallery
+            .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
+            .map((g, idx) => {
+              const assetId = g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10);
+              return {
+                media_asset_id: assetId,
+                caption_en: g.captionEn || '',
+                caption_ar: g.captionAr || '',
+                is_cover: parsedCoverId ? assetId === parsedCoverId : idx === 0,
+                sort_order: idx + 1,
+              };
+            })
+        : undefined;
+
       const payload = {
         slug,
         status: newProj.status || 'published',
         is_featured: Boolean(newProj.featured),
         year: parseInt(newProj.year, 10) || new Date().getFullYear(),
         client: newProj.clientEn || newProj.client || '',
-        cover_media_id: newProj.coverMediaId || null,
+        cover_media_id: parsedCoverId,
+        media_items: mediaItems && mediaItems.length > 0 ? mediaItems : undefined,
         category_ids: matchedCategoryIds.length > 0 ? matchedCategoryIds : undefined,
         translations: [
           {
@@ -815,13 +843,32 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
       // Async backend persistence if id is numeric
       if (/^\d+$/.test(String(id))) {
+        const rawCoverMediaId = updatedFields.coverMediaId !== undefined ? updatedFields.coverMediaId : updatedFields.cover_media_id;
+        const parsedCoverId = rawCoverMediaId && /^\d+$/.test(String(rawCoverMediaId)) ? parseInt(rawCoverMediaId, 10) : null;
+
         const payload = {
           slug: updatedFields.slug,
           status: updatedFields.status,
           is_featured: updatedFields.featured !== undefined ? Boolean(updatedFields.featured) : undefined,
           year: updatedFields.year ? parseInt(updatedFields.year, 10) : undefined,
           client: updatedFields.clientEn || updatedFields.client,
+          cover_media_id: rawCoverMediaId !== undefined ? parsedCoverId : undefined,
         };
+
+        if (Array.isArray(updatedFields.gallery)) {
+          payload.media_items = updatedFields.gallery
+            .filter((g) => g.mediaAssetId || /^\d+$/.test(String(g.id)))
+            .map((g, idx) => {
+              const assetId = g.mediaAssetId ? parseInt(g.mediaAssetId, 10) : parseInt(g.id, 10);
+              return {
+                media_asset_id: assetId,
+                caption_en: g.captionEn || '',
+                caption_ar: g.captionAr || '',
+                is_cover: parsedCoverId ? assetId === parsedCoverId : idx === 0,
+                sort_order: idx + 1,
+              };
+            });
+        }
 
         if (updatedFields.titleEn || updatedFields.titleAr) {
           payload.translations = [
@@ -844,6 +891,9 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
+
+        // Sync fresh project data with backend snapshot
+        fetchProjects();
       }
 
       setActivities((prev) => [
@@ -858,7 +908,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
       ]);
       addToast(lang === 'ar' ? 'تم تحديث المشروع بنجاح' : 'Project updated successfully', 'success');
     },
-    [addToast, lang]
+    [addToast, lang, fetchProjects]
   );
 
   const deleteProject = useCallback(
@@ -1024,10 +1074,11 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           const asset = res.data.data.asset;
           const newItem = {
             id: String(asset.id),
-            name: asset.original_filename || file.name,
-            url: asset.url || URL.createObjectURL(file),
+            mediaAssetId: asset.id,
+            name: asset.file_name || asset.original_filename || file.name,
+            url: asset.original_url || asset.url || `/storage/media/${asset.file_name}`,
             type: asset.mime_type || file.type || 'image/png',
-            size: `${((asset.file_size_bytes || file.size) / (1024 * 1024)).toFixed(1)} MB`,
+            size: `${((asset.bytes || asset.file_size_bytes || file.size) / (1024 * 1024)).toFixed(1)} MB`,
             dimensions: asset.width && asset.height ? `${asset.width} × ${asset.height}` : '2560 × 1440',
             altEn: asset.alt_en || altText || file.name,
             altAr: asset.alt_ar || altText || file.name,

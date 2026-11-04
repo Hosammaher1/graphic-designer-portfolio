@@ -73,7 +73,7 @@ class PublicProjectController extends Controller
                 'published_at' => $project->published_at?->toIso8601String(),
                 'title'        => $trans['title'] ?? '',
                 'summary'      => $trans['summary'] ?? '',
-                'cover_url'    => $snapshot['cover_url'] ?? null,
+                'cover_url'    => $snapshot['cover_url'] ?? $project->cover_url ?? null,
                 'categories'   => $snapshot['categories'] ?? [],
                 'tools'        => $snapshot['tools'] ?? [],
             ];
@@ -142,6 +142,20 @@ class PublicProjectController extends Controller
         $prevTrans = $prevProject ? ($prevProject->published_snapshot['translations'][$locale] ?? $prevProject->published_snapshot['translations']['ar'] ?? []) : [];
         $nextTrans = $nextProject ? ($nextProject->published_snapshot['translations'][$locale] ?? $nextProject->published_snapshot['translations']['ar'] ?? []) : [];
 
+        $coverUrl = $snapshot['cover_url'] ?? $project->cover_url ?? null;
+        $mediaList = !empty($snapshot['media']) ? $snapshot['media'] : $project->media->map(function ($pm) use ($project) {
+            $mediaUrl = $pm->mediaAsset ? app(\App\Services\Media\WatermarkService::class)->resolveDisplayUrl($pm->mediaAsset, $project) : null;
+            return [
+                'id'          => $pm->id,
+                'is_cover'    => (bool) $pm->is_cover,
+                'sort_order'  => (int) $pm->sort_order,
+                'caption_ar'  => $pm->caption_ar,
+                'caption_en'  => $pm->caption_en,
+                'display_url' => $mediaUrl,
+                'url'         => $mediaUrl,
+            ];
+        })->all();
+
         return response()->json([
             'status' => 'success',
             'data'   => [
@@ -157,10 +171,10 @@ class PublicProjectController extends Controller
                     'description'     => $trans['description'] ?? '',
                     'seo_title'       => $trans['seo_title'] ?? '',
                     'seo_description' => $trans['seo_description'] ?? '',
-                    'cover_url'       => $snapshot['cover_url'] ?? null,
+                    'cover_url'       => $coverUrl,
                     'categories'      => $snapshot['categories'] ?? [],
                     'tools'           => $snapshot['tools'] ?? [],
-                    'media'           => $snapshot['media'] ?? [],
+                    'media'           => $mediaList,
                     'layout_blocks'   => $snapshot['layout_blocks'] ?? [],
                     'prev_project'    => $prevProject ? [
                         'slug'  => $prevProject->slug,

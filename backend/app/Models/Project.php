@@ -37,6 +37,26 @@ class Project extends Model
         'layout_blocks' => 'array',
     ];
 
+    protected $appends = [
+        'cover_url',
+    ];
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        if ($this->relationLoaded('coverMedia') && $this->coverMedia) {
+            return app(\App\Services\Media\WatermarkService::class)->resolveDisplayUrl($this->coverMedia, $this);
+        }
+
+        if ($this->cover_media_id) {
+            $cover = $this->coverMedia;
+            if ($cover) {
+                return app(\App\Services\Media\WatermarkService::class)->resolveDisplayUrl($cover, $this);
+            }
+        }
+
+        return $this->published_snapshot['cover_url'] ?? null;
+    }
+
     protected static function booted(): void
     {
         static::saved(function () {

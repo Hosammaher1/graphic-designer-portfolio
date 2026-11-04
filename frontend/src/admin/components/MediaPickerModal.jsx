@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Upload, Check, Image as ImageIcon } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext.jsx';
 
 export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Media Asset' }) {
-  const { lang, media, addMedia, uploadMediaFile } = useAdmin();
+  const { lang, media, addMedia, uploadMediaFile, fetchMedia } = useAdmin();
   const [selectedItem, setSelectedItem] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEffect(() => {
+    if (isOpen && fetchMedia) {
+      fetchMedia();
+    }
+  }, [isOpen, fetchMedia]);
 
   if (!isOpen) return null;
 
@@ -81,7 +87,7 @@ export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Me
                 {lang === 'ar' ? 'انقر أو اسحب صورة جديدة للرفع الفوري' : 'Click or drop a new image to upload'}
               </p>
               <p className="text-[11px] text-neutral-400 font-light">
-                {lang === 'ar' ? 'محاكاة رفع فورية وتخزين في ذاكرة المتصفح' : 'Simulated instant upload & local preview'}
+                {lang === 'ar' ? 'رفع فوري وحفظ دائم في مكتبة وسائط الاستوديو' : 'Upload and persist directly to studio media library'}
               </p>
             </div>
 

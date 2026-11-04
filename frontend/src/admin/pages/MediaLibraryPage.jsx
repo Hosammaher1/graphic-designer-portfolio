@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Upload,
   Search,
@@ -15,7 +15,13 @@ import { useAdmin } from '../context/AdminContext.jsx';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
 
 export function MediaLibraryPage() {
-  const { lang, t, media, addMedia, uploadMediaFile, deleteMedia, addToast } = useAdmin();
+  const { lang, t, media, addMedia, uploadMediaFile, deleteMedia, addToast, fetchMedia } = useAdmin();
+
+  useEffect(() => {
+    if (fetchMedia) {
+      fetchMedia();
+    }
+  }, [fetchMedia]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('ALL');
