@@ -290,12 +290,6 @@
   color: inherit !important;
 }
 
-/* Active Section Indicator Underline: Solid Burgundy (#5C1628) */
-:is(html.light, html[data-theme="light"]) #public-root header nav a span.absolute,
-:is(html.light, html[data-theme="light"]) #public-root header nav a span[class*="bg-gradient-to-r"] {
-  background-color: #5C1628 !important;
-  background-image: none !important;
-}
 
 /* EN / AR Segmented Control */
 :is(html.light, html[data-theme="light"]) #public-root header .bg-white\/5.border-white\/10 {
