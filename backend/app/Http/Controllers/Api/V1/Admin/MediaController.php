@@ -26,6 +26,13 @@ class MediaController extends Controller
 
     public function upload(Request $request, MediaStorageInterface $storage, FileUploadSecurityService $securityService): JsonResponse
     {
+        if (app()->environment('production') && ! config('services.cloudinary.cloud_name')) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Production uploads are disabled until persistent external storage (Cloudinary Free) is configured. Please provide CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your environment settings.',
+            ], 503);
+        }
+
         $request->validate([
             'file' => [
                 'required',
@@ -55,6 +62,13 @@ class MediaController extends Controller
 
     public function uploadBatch(Request $request, MediaStorageInterface $storage, FileUploadSecurityService $securityService): JsonResponse
     {
+        if (app()->environment('production') && ! config('services.cloudinary.cloud_name')) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Production uploads are disabled until persistent external storage (Cloudinary Free) is configured. Please provide CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your environment settings.',
+            ], 503);
+        }
+
         $request->validate([
             'files'   => ['required', 'array', 'min:1', 'max:20'],
             'files.*' => [
