@@ -20,13 +20,43 @@ export default function HomePage({ locale = 'ar' }) {
   const isRtl = getDirection(locale) === 'rtl';
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const [featuredProjects, setFeaturedProjects] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [featuredProjects, setFeaturedProjects] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const cached = window.sessionStorage.getItem('studio_featured_projects_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [categories, setCategories] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const cached = window.sessionStorage.getItem('studio_categories_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const cached = window.sessionStorage.getItem('studio_featured_projects_cache');
+        if (cached && JSON.parse(cached).length > 0) return false;
+      } catch (e) {}
+    }
+    return true;
+  });
 
   useEffect(() => {
     let isMounted = true;
-    setLoading(true);
+    if (featuredProjects.length === 0) setLoading(true);
 
     Promise.allSettled([
       fetch(`/api/v1/projects?is_featured=1&locale=${locale}`).then((res) => (res.ok ? res.json() : null)),
@@ -36,13 +66,25 @@ export default function HomePage({ locale = 'ar' }) {
         if (!isMounted) return;
 
         if (projectsResult.status === 'fulfilled' && projectsResult.value?.data?.projects?.data) {
-          setFeaturedProjects(projectsResult.value.data.projects.data);
+          const pData = projectsResult.value.data.projects.data;
+          setFeaturedProjects(pData);
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            try {
+              window.sessionStorage.setItem('studio_featured_projects_cache', JSON.stringify(pData));
+            } catch (e) {}
+          }
         } else {
           setFeaturedProjects([]);
         }
 
         if (categoriesResult.status === 'fulfilled' && categoriesResult.value?.data?.categories) {
-          setCategories(categoriesResult.value.data.categories);
+          const cData = categoriesResult.value.data.categories;
+          setCategories(cData);
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            try {
+              window.sessionStorage.setItem('studio_categories_cache', JSON.stringify(cData));
+            } catch (e) {}
+          }
         } else {
           setCategories([]);
         }

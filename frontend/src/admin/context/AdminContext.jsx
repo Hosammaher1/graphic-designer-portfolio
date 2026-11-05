@@ -28,10 +28,12 @@ function getCookie(name) {
 async function requestApi(endpoint, options = {}) {
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const xsrfToken = getCookie('XSRF-TOKEN');
+  const authToken = safeGetItem('studio_admin_token');
   const defaultHeaders = {
     Accept: 'application/json',
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(xsrfToken ? { 'X-XSRF-TOKEN': xsrfToken } : {}),
+    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
   };
 
   try {
@@ -644,6 +646,9 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
 
         if (res.ok && res.data?.status === 'success') {
           const authedUser = res.data.data?.user || { email, name: email.split('@')[0] };
+          if (res.data.data?.token) {
+            safeSetItem('studio_admin_token', res.data.data.token);
+          }
           setUser(authedUser);
           setIsAuthenticated(true);
           safeSetItem('studio_admin_auth', 'true');
@@ -707,6 +712,7 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     setUser(null);
     setIsAuthenticated(false);
     safeSetItem('studio_admin_auth', 'false');
+    safeRemoveItem('studio_admin_token');
     addToast(lang === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Signed out successfully', 'info');
     navigateAdmin('/admin/login');
   }, [addToast, lang, navigateAdmin]);

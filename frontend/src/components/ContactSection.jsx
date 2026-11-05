@@ -42,6 +42,13 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    // Client-side Anti-Spam Honeypot: Drop bot submissions silently without calling the API
+    if (formState.website_url || formState.hp_fax || formState.website) {
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     const payload = {
       name: formState.name,
       email: formState.email,
@@ -137,7 +144,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
           <div className="lg:col-span-7">
             <div className="p-6 sm:p-10 rounded-3xl glass-panel border border-white/10 shadow-2xl">
               {isSubmitted ? (
-                <div className="py-10 flex flex-col items-center text-center animate-in fade-in duration-300">
+                <div role="alert" className="contact-success-state py-10 flex flex-col items-center text-center animate-in fade-in duration-300">
                   <div className="w-16 h-16 rounded-full bg-rose-500/20 border border-rose-300/30 flex items-center justify-center text-rose-300 mb-4">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
@@ -208,6 +215,8 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       </label>
                       <input
                         type="text"
+                        id="contact-name"
+                        name="name"
                         required
                         value={formState.name}
                         onChange={(e) => setFormState({ ...formState, name: e.target.value })}
@@ -222,6 +231,8 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       </label>
                       <input
                         type="email"
+                        id="contact-email"
+                        name="email"
                         required
                         value={formState.email}
                         onChange={(e) => setFormState({ ...formState, email: e.target.value })}
@@ -237,6 +248,8 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                     </label>
                     <input
                       type="text"
+                      id="contact-subject"
+                      name="subject"
                       value={formState.subject}
                       onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
                       placeholder={currentLang === 'ar' ? 'تصميم هوية بصرية كاملة وتغليف' : 'Full Brand Identity & Packaging Design'}
@@ -249,6 +262,8 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       {t.message} *
                     </label>
                     <textarea
+                      id="contact-message"
+                      name="message"
                       required
                       rows={5}
                       value={formState.message}

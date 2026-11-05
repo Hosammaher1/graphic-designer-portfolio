@@ -5,6 +5,15 @@
 
 const API_BASE = '/api/v1/admin/pages';
 
+function getAuthHeaders(extra = {}) {
+  const headers = { Accept: 'application/json', ...extra };
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const token = window.localStorage.getItem('studio_admin_token');
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 /**
  * Fetch active draft and current lock version for a page.
  */
@@ -12,9 +21,9 @@ export async function fetchPageDraft(slug) {
   try {
     const res = await fetch(`${API_BASE}/${encodeURIComponent(slug)}/draft`, {
       headers: {
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
-      credentials: 'same-origin',
+      credentials: 'include',
     });
 
     if (!res.ok) {
@@ -49,9 +58,9 @@ export async function savePageDraft(slug, payload) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
-      credentials: 'same-origin',
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
 
@@ -100,9 +109,9 @@ export async function generatePreviewUrl(slug) {
     const res = await fetch(`${API_BASE}/${encodeURIComponent(slug)}/preview-url`, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
-      credentials: 'same-origin',
+      credentials: 'include',
     });
 
     if (!res.ok) {
@@ -138,9 +147,9 @@ export async function fetchSecurePreview(slug, queryParams = '') {
 
     const res = await fetch(url, {
       headers: {
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
-      credentials: 'same-origin',
+      credentials: 'include',
     });
 
     if (!res.ok) {
@@ -175,9 +184,9 @@ export async function publishPage(slug) {
     const res = await fetch(`${API_BASE}/${encodeURIComponent(slug)}/publish`, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
-      credentials: 'same-origin',
+      credentials: 'include',
     });
 
     const data = await res.json().catch(() => ({}));
@@ -221,7 +230,7 @@ export async function fetchPublicPage(slug) {
   try {
     const res = await fetch(`/api/v1/pages/${encodeURIComponent(slug)}`, {
       headers: {
-        Accept: 'application/json',
+        ...getAuthHeaders(),
       },
     });
 

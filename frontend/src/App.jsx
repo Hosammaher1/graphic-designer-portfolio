@@ -36,8 +36,30 @@ export default function App({ initialUrl, initialLocale }) {
     return 'home';
   });
 
-  const [publishedProjects, setPublishedProjects] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [publishedProjects, setPublishedProjects] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const cached = window.sessionStorage.getItem('studio_published_projects_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [categories, setCategories] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const cached = window.sessionStorage.getItem('studio_categories_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
   const [siteSettings, setSiteSettings] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [detailedProject, setDetailedProject] = useState(null);
@@ -180,6 +202,11 @@ export default function App({ initialUrl, initialLocale }) {
 
           if (isMounted) {
             setPublishedProjects(normalizedApi);
+            if (typeof window !== 'undefined' && window.sessionStorage) {
+              try {
+                window.sessionStorage.setItem('studio_published_projects_cache', JSON.stringify(normalizedApi));
+              } catch (e) {}
+            }
           }
         }
 
@@ -188,6 +215,11 @@ export default function App({ initialUrl, initialLocale }) {
           const apiCats = catJson.data?.categories || (Array.isArray(catJson.data) ? catJson.data : []);
           if (isMounted) {
             setCategories(apiCats);
+            if (typeof window !== 'undefined' && window.sessionStorage) {
+              try {
+                window.sessionStorage.setItem('studio_categories_cache', JSON.stringify(apiCats));
+              } catch (e) {}
+            }
           }
         }
 

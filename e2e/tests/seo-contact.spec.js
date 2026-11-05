@@ -168,11 +168,17 @@ test.describe('Contact Form & Anti-Spam Defense', () => {
     const nameInput = page.locator('#contact-name, input[name="name"]');
     const emailInput = page.locator('#contact-email, input[name="email"]');
     const serviceSelect = page.locator('#contact-service, select[name="service"]');
+    const subjectInput = page.locator('#contact-subject, input[name="subject"]');
     const messageInput = page.locator('#contact-message, textarea[name="message"]');
 
     await nameInput.fill('سارة أحمد');
     await emailInput.fill('sara@example.com');
-    await serviceSelect.selectOption('branding');
+    if (await serviceSelect.count() > 0) {
+      await serviceSelect.selectOption('branding');
+    }
+    if (await subjectInput.count() > 0) {
+      await subjectInput.fill('تصميم هوية بصرية كاملة وتغليف');
+    }
     await messageInput.fill('مرحباً أستاذ محمد، نود التعاون لتطوير هوية بصرية جديدة لعلامتنا التجارية.');
 
     const submitBtn = page.getByRole('button', { name: /إرسال|send/i });
@@ -215,7 +221,14 @@ test.describe('Contact Form & Anti-Spam Defense', () => {
     // Fill legitimate fields
     await page.locator('#contact-name, input[name="name"]').fill('Spam Bot');
     await page.locator('#contact-email, input[name="email"]').fill('bot@spam.com');
-    await page.locator('#contact-service, select[name="service"]').selectOption('branding');
+    const spamService = page.locator('#contact-service, select[name="service"]');
+    if (await spamService.count() > 0) {
+      await spamService.selectOption('branding');
+    }
+    const spamSubject = page.locator('#contact-subject, input[name="subject"]');
+    if (await spamSubject.count() > 0) {
+      await spamSubject.fill('Spam Inquiry');
+    }
     await page.locator('#contact-message, textarea[name="message"]').fill('Spam text content here');
 
     const submitBtn = page.getByRole('button', { name: /إرسال|send/i });

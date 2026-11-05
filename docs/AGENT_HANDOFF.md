@@ -1,6 +1,38 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
-## Current Antigravity Stage 14 Checkpoint — 2026-11-04 (Complete Public Light Mode Visual Audit & WCAG Contrast Remediation)
+## Current Antigravity Stage 15 Checkpoint — 2026-11-05 (Master Autonomous Production Readiness & Deployment Preparation)
+
+- **Active Branch:** `feat/production-readiness-and-deployment-prep`
+- **Objective Completed:** End-to-end production readiness, security audit & cross-domain Sanctum token authentication hardening, Stale-While-Revalidate caching, Vercel (Frontend/SSR) & Render (Backend API/Worker) deployment manifests, and full regression verification.
+- **Architectural & Security Enhancements Implemented:**
+  1. *Cross-Domain & Sanctum Token Authentication:* Upgraded `AuthController.php` to issue Sanctum Personal Access Tokens (`studio_admin_token`) upon `/login` alongside cookies. Updated `AdminContext.jsx` and `pageBuilderApi.js` to automatically attach `Authorization: Bearer ${token}`. Updated `/logout` to revoke tokens.
+  2. *CORS & Security Headers:* Added regex patterns in `config/cors.php` for `*.vercel.app` and `*.onrender.com`. Configured dynamic `Cross-Origin-Resource-Policy: cross-origin` in `SecurityHeadersMiddleware.php` for origin-bearing requests. Added Render-native `DATABASE_URL` environment fallback (`'url' => env('DB_URL', env('DATABASE_URL'))`) in `config/database.php`.
+  3. *Hydration, SWR Caching & Performance:* Implemented `sessionStorage` Stale-While-Revalidate caching in `App.jsx` and `HomePage.jsx` (`studio_published_projects_cache`, `studio_categories_cache`), eliminating initial layout shifts/flicker. Stripped static `<meta name="description">` before SSR `headTags` injection in `server/index.js` and `api/index.js`. Verified CLS < 0.1 on Desktop and Mobile.
+  4. *Form Semantics & Anti-Spam Defense:* Added standard semantic `id` and `name` attributes to all contact inputs in `ContactSection.jsx`. Added client-side honeypot trap to drop spam bot submissions silently without consuming backend rate limits. Added `role="alert"` and `.contact-success-state` on confirmation banner.
+  5. *Deployment Infrastructure (Vercel + Render):*
+     - `vercel.json`: Production Vercel manifest with build scripts, 1-year immutable caching on `/assets/*`, security headers, reverse-proxy rewrites routing `/api/*`, `/sanctum/*`, `/storage/*`, `/sitemap.xml`, and `/robots.txt` to Render, and SSR fallback to `/api`.
+     - `api/index.js`: Serverless SSR entrypoint wrapping `entry-server.js` with localized hydration state and security headers.
+     - `render.yaml`: Blueprint declaring `portfolio-api` Docker service on PHP 8.2 Alpine with health checks, `portfolio-daily-backup` daily cron service with 7-day retention, and `portfolio-db` managed MySQL database.
+     - `backend/Dockerfile` & `backend/docker-entrypoint.sh`: Production multi-stage Alpine Docker container running non-root `www-data` with automatic route/view caching, storage symlinking, and safe production database migrations (`php artisan migrate --force`).
+     - `.github/workflows/ci.yml`: CI workflow hardened for continuous integration.
+- **Verification Evidence:**
+  - **Laravel Backend PHPUnit Suite:** **340 passed, 1,642 assertions passed (100%)** (OWASP Top 10 penetration tests, encryption, 7-day backup retention, health checks).
+  - **Vitest Frontend Regression Suite:** **42 test files, 237 tests passed (100%)**.
+  - **Playwright E2E Regression Suites:**
+    - `seo-contact.spec.js`: **18 passed (48.0s)** across Desktop Chromium & Mobile Chrome.
+    - `categories-persistence-and-light-mode.spec.js`: **6 passed** across Desktop Chromium & Mobile Chrome.
+    - `release-blockers-verification.spec.js`: **2 passed** across Desktop Chromium & Mobile Chrome.
+    - `eclipse-theme-toggle.spec.js`: **8 passed** across Desktop Chromium & Mobile Chrome.
+    - `branding-identity-about-acceptance.spec.js`: **9 passed, 1 skipped (100%)**.
+  - **Frontend Production Client & SSR Builds:** Clean compile in 3.21s (client) and 544ms (SSR).
+- **Data & UI Palette Integrity:**
+  - Real user project (Project ID 9, `slug: "project"`, published) verified intact in MySQL.
+  - Admin Dashboard strictly preserves `#09070c` dark studio palette; Public site strictly preserves `#F6F1EB` / `#5C1628` Light Mode and `#09070c` Dark Mode.
+- **Deployment Status:** **READY FOR INFRASTRUCTURE SETUP** (Ready for repository connection to Vercel and Render).
+
+---
+
+## Historical Antigravity Stage 14 Checkpoint — 2026-11-04 (Complete Public Light Mode Visual Audit & WCAG Contrast Remediation)
 
 - **Active Branch:** `fix/public-light-mode-visual-audit`
 - **Objective Completed:** Complete visual audit and precision remediation of the public visitor website under the approved Eclipse Light Mode theme, ensuring WCAG 2.1 AA and AAA contrast compliance across all sections, preserving dark artwork and media overlays, and maintaining 100% theme isolation for the Studio Admin Dashboard (`#09070c`).

@@ -42,7 +42,12 @@ class SecurityHeadersMiddleware
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
-        $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
+        $origin = $request->header('Origin');
+        if ($origin && $request->is('api/*')) {
+            $response->headers->set('Cross-Origin-Resource-Policy', 'cross-origin');
+        } else {
+            $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
+        }
 
         return $response;
     }

@@ -30,16 +30,20 @@ const mimeTypes = {
  * Task 08.01 / 08.03 & SSR Hardening.
  */
 export function getSecurityHeaders(isProduction = isProd) {
+  const backendUrl = process.env.BACKEND_URL || process.env.VITE_BACKEND_URL || '';
+  const extraConnect = backendUrl ? ` ${backendUrl}` : '';
+  const extraImg = backendUrl ? ` ${backendUrl}` : '';
+
   const cspDirectives = [
     "default-src 'self'",
     isProduction
       ? "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com"
       : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com",
+    `img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com${extraImg}`,
     "font-src 'self' https://fonts.gstatic.com data:",
     isProduction
-      ? "connect-src 'self' https://*.iconify.design"
+      ? `connect-src 'self' https://*.iconify.design${extraConnect}`
       : "connect-src 'self' http://localhost:* http://127.0.0.1:* https://*.iconify.design ws://localhost:* ws://127.0.0.1:*",
     "frame-ancestors 'none'",
     "form-action 'self'",
@@ -187,6 +191,7 @@ export async function createServer() {
       let responseHtml = template
         .replace(/<html[^>]*>/, `<html lang="${lang}" dir="${dir}">`)
         .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+        .replace(/<meta\s+name=["']description["'][^>]*>\s*/i, '')
         .replace('<!--ssr-outlet-->', appHtml);
 
       if (responseHtml.includes('<!--ssr-head-tags-->')) {

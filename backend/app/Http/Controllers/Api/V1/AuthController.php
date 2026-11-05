@@ -89,6 +89,9 @@ class AuthController extends Controller
 
         AuditLogger::log('auth.login.success', ['email' => $user->email], $user, $request);
 
+        // Generate personal access token for cross-domain / Bearer auth (e.g. Vercel + Render)
+        $token = $user->createToken('studio_admin_token')->plainTextToken;
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully authenticated.',
@@ -98,6 +101,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                 ],
+                'token' => $token,
             ],
         ], 200);
     }
@@ -117,6 +121,10 @@ class AuthController extends Controller
             ]);
 
             AuditLogger::log('auth.logout', ['email' => $user->email], $user, $request);
+
+            if (method_exists($user, 'currentAccessToken') && $user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
         }
 
         Auth::guard('web')->logout();

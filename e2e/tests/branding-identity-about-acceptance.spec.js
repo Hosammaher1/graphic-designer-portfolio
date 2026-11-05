@@ -64,7 +64,7 @@ test.describe('Branding, Identity & About Portrait Acceptance', () => {
     const topBadge = aboutSection.locator('div:has-text("Mohammed Maher Aldaya")').first();
     await expect(topBadge).toBeVisible();
 
-    const statsCard = aboutSection.locator('text=50+').first();
+    const statsCard = aboutSection.locator('[data-testid="about-stat-projects"]');
     await expect(statsCard).toBeVisible();
 
     // Capture desktop About Me screenshot

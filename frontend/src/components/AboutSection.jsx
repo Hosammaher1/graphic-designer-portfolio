@@ -142,7 +142,7 @@ export const AboutSection = ({ lang, settings }) => {
                 <div className="absolute bottom-4 inset-x-4 p-3.5 sm:p-4 rounded-2xl glass-panel-active border border-white/20 shadow-xl z-20 backdrop-blur-xl">
                   <div className="grid grid-cols-3 divide-x divide-white/10 text-center rtl:divide-x-reverse">
                     <div>
-                      <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
+                      <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums" data-testid="about-stat-projects">
                         {statProjectsCount}
                       </div>
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
