@@ -12,7 +12,7 @@ if [ -n "$APP_KEY" ]; then
 fi
 
 # Ensure storage symlink exists
-php artisan storage:link || true
+[ -L public/storage ] || php artisan storage:link || true
 
 # Run database migrations safely in production if DB is configured
 if [ -n "$DATABASE_URL" ] || [ -n "$DB_HOST" ]; then

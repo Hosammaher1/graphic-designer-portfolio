@@ -41,10 +41,11 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 # Copy full application codebase
 COPY . .
 
-# Set up storage and bootstrap/cache permissions
+# Set up storage and bootstrap/cache permissions and symlink
 RUN mkdir -p storage/app/public storage/app/backups storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && php artisan storage:link || true \
+    && chown -R www-data:www-data storage bootstrap/cache public \
+    && chmod -R 775 storage bootstrap/cache public
 
 # Production startup script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
