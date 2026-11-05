@@ -2,6 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist/client",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "frontend/dist/**"
+    }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -37,19 +42,19 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://portfolio-api.onrender.com/api/:path*"
+      "destination": "https://mohammed-portfolio-api.onrender.com/api/:path*"
     },
     {
       "source": "/sanctum/:path*",
-      "destination": "https://portfolio-api.onrender.com/sanctum/:path*"
+      "destination": "https://mohammed-portfolio-api.onrender.com/sanctum/:path*"
     },
     {
       "source": "/storage/:path*",
-      "destination": "https://portfolio-api.onrender.com/storage/:path*"
+      "destination": "https://mohammed-portfolio-api.onrender.com/storage/:path*"
     },
     {
       "source": "/sitemap.xml",
-      "destination": "https://portfolio-api.onrender.com/api/v1/sitemap.xml"
+      "destination": "https://mohammed-portfolio-api.onrender.com/api/v1/sitemap.xml"
     },
     {
       "source": "/robots.txt",

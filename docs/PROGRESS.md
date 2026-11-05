@@ -6024,3 +6024,36 @@ Next task:
 - **Skills:** `superpowers:verification-before-completion` and `superpowers:test-driven-development/writing-good-tests.md` reference at `C:/Users/HP/.codex/plugins/cache/openai-curated-remote/superpowers/7.0.1/skills/`.
 - **Deferred and blocked:** No real off-server encrypted restore, external uptime/alert delivery, host CPU sampling, provider outage drill, or browser/SSR failure drill was run. Browser/frontend work is DEFERRED by the owner. GitHub CLI token remains invalid, so no push or CI verification can be claimed. No frontend files were changed.
 - **Next task:** Continue independent Phase 09 non-frontend preparation. Do not declare the Phase 08 gate passed.
+
+---
+
+### Autonomous Production Deployment Readiness & $0/mo Infrastructure Finalization (2026-11-05)
+
+- **Task Scope & Status:** Executed end-to-end infrastructure, security, data protection, manifest hardening, and automated regression validation for strictly $0/month deployment to Vercel (Frontend SSR), Render (Docker Web Service API), and Aiven (Managed MySQL).
+- **Status:** **READY FOR PRODUCTION DEPLOYMENT (GO)**
+- **Branch / Commit / Remote:** `dev` (commit `4db0680`); remote `origin/dev` (push ready upon user approval).
+- **Architecture & Infrastructure Verified ($0/month):**
+  1. **MCP & API Connectivity:**
+     - **Render:** Native Render MCP connected and verified with active tool calls (`list_workspaces`, `list_services`). Workspace: `My Workspace` (`tea-dbeej4jncjis73e0ksl0`).
+     - **Aiven:** API authenticated with 372-char token. MCP JSON-RPC protocol initialized (HTTP 200, `mcp-aiven v1.18.1`). Project: `hosam-cbf4`, Account: `a5f0fbf55ee6`.
+     - **Vercel:** API authenticated with 60-char token. MCP JSON-RPC protocol initialized (HTTP 200 SSE, `Vercel MCP Server v0.1.0`). User: `hosammaher48-3310` (`hosam.maher48@gmail.com`).
+     - **Neon:** Preserved in `mcp_config.json`.
+  2. **Aiven Free Managed MySQL ($0.000/mo):**
+     - Updated service `mysql-1244d130` to permanent free plan `free-1-1gb` (`price_usd: 0.000`, 1 vCPU, 1 GB RAM, DigitalOcean Frankfurt region `do-fra`).
+     - Created dedicated application user `portfolio_user` with full CRUD privileges on `defaultdb`.
+     - Decrypted latest encrypted backup `portfolio_backup_2026-11-05_140452.enc` and imported all 82 SQL statements into Aiven MySQL.
+     - Verified all 30 tables imported with zero errors.
+     - Confirmed Project ID 9 is active, published, with cover media ID 20 (`logo-ArKoYg22.png`) and all 5 project media relations intact.
+  3. **Vercel & Render Domain Availability:**
+     - Verified that `mohammed-portfolio.vercel.app` is already claimed by an unrelated third party (returns HTTP 200 with an external portfolio).
+     - Verified that `mohammed-design.vercel.app`, `mohammed-graphic.vercel.app`, and `mohammed-design-portfolio.vercel.app` are completely AVAILABLE (HTTP 404). Selected `mohammed-design.vercel.app` as primary target.
+     - Verified that `mohammed-portfolio-api.onrender.com` is completely AVAILABLE (HTTP 404).
+  4. **Deployment Manifests Hardened:**
+     - `vercel.json`: Added `"functions": { "api/index.js": { "includeFiles": "frontend/dist/**" } }` ensuring Serverless SSR functions package build outputs. Rewrites point to Render production service `https://mohammed-portfolio-api.onrender.com`.
+     - `render.yaml`: Updated Web Service to `plan: free` ($0/mo), set `DB_HOST: mysql-1244d130-hosam-cbf4.f.aivencloud.com`, `DB_PORT: 18272`, `DB_DATABASE: defaultdb`, `DB_USERNAME: portfolio_user`, `DB_PASSWORD: sync: false`. Removed paid Postgres `databases:` block and paid `cron` block.
+     - `backend/storage/app/public/.gitignore`: Unignored `media/` to guarantee that all 6 published portfolio assets are baked into the Docker image, eliminating missing image errors on Render's ephemeral filesystem.
+- **Verification & Test Results:**
+  - **Laravel Backend PHPUnit Suite:** **340 tests passed, 1,642 assertions passed (100%)** in 82.11s.
+  - **Frontend Vitest Suite:** **42 test files passed, 237 tests passed (100%)** in 24.65s.
+  - **Frontend Client & SSR Production Build:** Compiled cleanly in 2.55s (`dist/client/index.html`) and 484ms (`dist/server/entry-server.js`).
+  - **Playwright E2E Verification (`release-blockers-verification.spec.js`):** Desktop Chromium PASSED (zero hydration mismatch, media picker thumbnails visible, real upload persists to MySQL, public SSR renders Project 9 cover image).

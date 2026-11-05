@@ -1,13 +1,13 @@
 services:
   # ────────────────────────────────────────────────────────────────
-  # Web Service: Laravel API Backend
+  # Web Service: Laravel API Backend (Strictly $0/month Free Tier)
   # ────────────────────────────────────────────────────────────────
   - type: web
-    name: portfolio-api
+    name: mohammed-portfolio-api
     runtime: docker
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
-    plan: starter
+    plan: free
     region: frankfurt
     autoDeploy: false
     healthCheckPath: /api/v1/health
@@ -21,19 +21,25 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
-        value: https://portfolio-api.onrender.com
+        value: https://mohammed-portfolio-api.onrender.com
       - key: LOG_CHANNEL
         value: daily
       - key: DB_CONNECTION
         value: mysql
-      - key: DATABASE_URL
-        fromDatabase:
-          name: portfolio-db
-          property: connectionString
+      - key: DB_HOST
+        value: mysql-1244d130-hosam-cbf4.f.aivencloud.com
+      - key: DB_PORT
+        value: "18272"
+      - key: DB_DATABASE
+        value: defaultdb
+      - key: DB_USERNAME
+        value: portfolio_user
+      - key: DB_PASSWORD
+        sync: false
       - key: SANCTUM_STATEFUL_DOMAINS
-        value: "portfolio.vercel.app,localhost:3000,localhost:5173"
+        value: "mohammed-design.vercel.app,mohammed-portfolio.vercel.app,localhost:3000,localhost:5173"
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://portfolio.vercel.app,http://localhost:3000"
+        value: "https://mohammed-design.vercel.app,https://mohammed-portfolio.vercel.app,http://localhost:3000"
       - key: SESSION_DRIVER
         value: database
       - key: SESSION_LIFETIME
@@ -43,48 +49,11 @@ services:
       - key: SESSION_SAME_SITE
         value: lax
       - key: FILESYSTEM_DISK
-        value: local
-      # Cloudinary credentials (configured in Render Dashboard or .env)
+        value: public
+      # Cloudinary credentials (optional runtime media fallback)
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-
-  # ────────────────────────────────────────────────────────────────
-  # Cron Job: Daily Encrypted Database Backup with 7-Day Retention
-  # ────────────────────────────────────────────────────────────────
-  - type: cron
-    name: portfolio-daily-backup
-    runtime: docker
-    dockerfilePath: backend/Dockerfile
-    dockerContext: backend
-    plan: starter
-    region: frankfurt
-    schedule: "0 2 * * *" # Daily at 02:00 UTC
-    command: php artisan backup:run --retention=7
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: DB_CONNECTION
-        value: mysql
-      - key: DATABASE_URL
-        fromDatabase:
-          name: portfolio-db
-          property: connectionString
-      - key: APP_KEY
-        fromService:
-          type: web
-          name: portfolio-api
-          envVarKey: APP_KEY
-
-databases:
-  # ────────────────────────────────────────────────────────────────
-  # Managed MySQL Database
-  # ────────────────────────────────────────────────────────────────
-  - name: portfolio-db
-    databaseName: portfolio_prod
-    user: portfolio_user
-    plan: starter
-    region: frankfurt

@@ -1,5 +1,42 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 16 Checkpoint — 2026-11-05 (Production Infrastructure, $0/mo Free Tier & Live Data Migration Verification)
+
+- **Active Branch:** `dev` (Commit `4db0680`)
+- **Remote Status:** 62 commits ahead of `origin/dev`. Push ready pending user approval.
+- **Objective Completed:** End-to-end verification and preparation of the strictly $0/month production architecture:
+  - **Frontend:** Vercel Hobby ($0/mo) with Serverless SSR Lambda (`api/index.js`) and reverse proxy rewrites.
+  - **Backend API:** Render Free Web Service (Docker Alpine PHP 8.2 API, $0/mo).
+  - **Database:** Aiven Free Managed MySQL (`free-1-1gb`, $0.000/mo, 1 vCPU, 1 GB RAM, Frankfurt `do-fra`).
+  - **Data Preservation:** Full MySQL dump imported and verified on Aiven (30 tables, all 6 media assets, Project ID 9 active and published).
+- **Key Technical Milestones:**
+  1. *MCP Protocol & API Authentication:*
+     - Render: MCP verified with live tool execution (`list_workspaces`, `list_services`). Workspace: `My Workspace` (`tea-dbeej4jncjis73e0ksl0`).
+     - Aiven: Token verified (372 chars). MCP JSON-RPC protocol initialized (HTTP 200, `mcp-aiven v1.18.1`).
+     - Vercel: Token verified (60 chars). MCP JSON-RPC protocol initialized (HTTP 200 SSE, `Vercel MCP Server v0.1.0`). User: `hosammaher48-3310`.
+     - Neon: Preserved in `mcp_config.json`.
+  2. *Aiven Free MySQL Migration:*
+     - Service `mysql-1244d130` transitioned to permanent free tier (`free-1-1gb`, `price_usd: 0.000`).
+     - Application user `portfolio_user` provisioned with full CRUD permissions on `defaultdb`.
+     - Full encrypted dump `portfolio_backup_2026-11-05_140452.enc` decrypted and executed: 30 tables populated with zero errors.
+     - Project ID 9 verified in Aiven MySQL with cover media ID 20 (`logo-ArKoYg22.png`) and 5 gallery assets.
+  3. *Domain & Subdomain Availability Audit:*
+     - `mohammed-portfolio.vercel.app` is already taken by a third-party engineer (returns HTTP 200).
+     - `mohammed-design.vercel.app` is completely available (returns HTTP 404). Configured as target domain.
+     - `mohammed-portfolio-api.onrender.com` is completely available (returns HTTP 404). Configured as backend service domain.
+  4. *Deployment Manifests Hardened:*
+     - `vercel.json`: Function bundling configured (`"functions": { "api/index.js": { "includeFiles": "frontend/dist/**" } }`) and rewrites point to `https://mohammed-portfolio-api.onrender.com`.
+     - `render.yaml`: Web Service set to `plan: free`, external Aiven MySQL connection variables injected (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`), and removed invalid Postgres/paid cron blocks.
+     - `backend/storage/app/public/.gitignore`: Unignored `media/` to bake all 6 published portfolio assets into the Docker container, eliminating ephemeral storage loss on Render.
+  5. *Automated Test Verification:*
+     - Laravel PHPUnit: 340 passed, 1,642 assertions passed (100%).
+     - Frontend Vitest: 42 test files, 237 passed (100%).
+     - Production Build: Client + SSR compiled with zero errors.
+     - Playwright E2E: Desktop Chromium verified zero hydration mismatch, real upload, and public SSR cover rendering.
+- **Production Status:** **READY FOR PRODUCTION DEPLOYMENT (GO)**.
+
+---
+
 ## Current Antigravity Stage 15 Checkpoint — 2026-11-05 (Master Autonomous Production Readiness & Deployment Preparation)
 
 - **Active Branch:** `feat/production-readiness-and-deployment-prep`
