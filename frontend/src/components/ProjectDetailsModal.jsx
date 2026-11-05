@@ -67,7 +67,7 @@ export const ProjectDetailsModal = ({
   }, [isOpen]);
 
   // Construct comprehensive image collection for current project
-  const coverSrc = project?.coverImage || project?.imageUrl || project?.image || null;
+  const coverSrc = project?.coverImage || project?.imageUrl || project?.image || project?.cover_url || null;
   const projectGallery = Array.isArray(project?.gallery) ? project.gallery : [];
   const normalizedGallery = projectGallery.map((item, idx) => {
     if (typeof item === 'string') {
@@ -365,9 +365,9 @@ export const ProjectDetailsModal = ({
             <div
               onClick={() => setSelectedLightboxIndex(0)}
               data-theme-surface="dark"
-              className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer bg-black/60 flex items-center justify-center p-2 sm:p-4"
+              className="group relative w-full rounded-2xl sm:rounded-3xl glass-panel border border-rose-300/20 shadow-2xl cursor-pointer bg-black/60 flex items-center justify-center p-2 sm:p-4"
             >
-              <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-auto max-h-[85vh] object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-700 ease-out" priority={true} />
+              <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-auto object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-700 ease-out" priority={true} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
               {/* Hover Lightbox Indicator Badge */}
@@ -539,25 +539,19 @@ export const ProjectDetailsModal = ({
                     <div
                       key={item.id || gIdx}
                       onClick={() => setSelectedLightboxIndex(globalIdx)}
-                      className={`group relative rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-rose-300/50 cursor-pointer shadow-xl transition-all duration-300 flex flex-col ${
+                      className={`group relative rounded-3xl glass-panel border border-white/10 hover:border-rose-300/50 cursor-pointer shadow-xl transition-all duration-300 flex flex-col ${
                         isFull ? 'md:col-span-2' : ''
                       }`}
                     >
                       {/* Image Canvas */}
                       <div
                         data-theme-surface="dark"
-                        className={`relative w-full overflow-hidden bg-[#160c18] flex items-center justify-center p-2 ${
-                          isFull
-                            ? 'h-80 sm:h-96 md:h-[460px]'
-                            : item.aspectRatio === 'portrait'
-                            ? 'h-96 sm:h-[420px]'
-                            : 'h-64 sm:h-80'
-                        }`}
+                        className="relative w-full bg-[#160c18] flex items-center justify-center p-2 sm:p-4 rounded-t-3xl"
                       >
                         <ProjectArtwork
                           id={item.artworkId}
                           src={itemSrc}
-                          className="w-full h-auto max-h-[75vh] object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-500 ease-out"
+                          className="w-full h-auto object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-500 ease-out"
                         />
 
                         {/* Top Badge: Type & Index */}

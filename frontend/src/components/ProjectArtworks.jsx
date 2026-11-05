@@ -3,12 +3,13 @@ import React from 'react';
 export const ProjectArtwork = ({ id, src, alt = '', className = '', priority = false }) => {
   const imageSource = src || (typeof id === 'string' && (id.startsWith('http://') || id.startsWith('https://') || id.startsWith('/') || id.startsWith('data:')) ? id : null);
   if (imageSource) {
+    const defaultClasses = `${!className.includes('h-') ? 'h-full ' : ''}${!className.includes('object-') ? 'object-cover ' : ''}${!className.includes('w-') ? 'w-full ' : ''}`;
     return (
       <img
         src={imageSource}
         alt={alt || 'Project artwork'}
         loading={priority ? 'eager' : 'lazy'}
-        className={`w-full h-full object-cover ${className}`}
+        className={`${defaultClasses}${className}`.trim()}
       />
     );
   }
