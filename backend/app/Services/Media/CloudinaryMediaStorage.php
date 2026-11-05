@@ -25,6 +25,24 @@ class CloudinaryMediaStorage implements MediaStorageInterface
     }
 
     /**
+     * Compute Cloudinary SHA1 signature for parameters.
+     * All parameters are sorted alphabetically by key and joined as key=value&...
+     * without URL-encoding, followed directly by the API secret.
+     */
+    public function computeSignature(array $params): string
+    {
+        ksort($params);
+        $toSign = [];
+        foreach ($params as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $toSign[] = "{$key}={$value}";
+            }
+        }
+
+        return sha1(implode('&', $toSign) . $this->apiSecret);
+    }
+
+    /**
      * Upload an asset to Cloudinary and return normalized metadata.
      * Authenticates with Cloudinary REST API using signed requests.
      */
@@ -66,9 +84,7 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             $paramsToSign['folder'] = (string) $options['folder'];
         }
 
-        ksort($paramsToSign);
-        $paramString = http_build_query($paramsToSign, '', '&', PHP_QUERY_RFC3986);
-        $signature = sha1($paramString . $this->apiSecret);
+        $signature = $this->computeSignature($paramsToSign);
 
         $endpoint = "https://api.cloudinary.com/v1_1/{$this->cloudName}/image/upload";
 
@@ -112,6 +128,7 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             Log::error('Cloudinary upload network failure.', [
                 'provider_id' => $providerId,
                 'error_type'  => get_class($e),
+                'error_msg'   => $e->getMessage(),
             ]);
             throw new \RuntimeException('Cloudinary media upload failed due to network connection error.');
         }
@@ -168,9 +185,7 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             'timestamp' => (string) $timestamp,
         ];
 
-        ksort($paramsToSign);
-        $paramString = http_build_query($paramsToSign, '', '&', PHP_QUERY_RFC3986);
-        $signature = sha1($paramString . $this->apiSecret);
+        $signature = $this->computeSignature($paramsToSign);
 
         $endpoint = "https://api.cloudinary.com/v1_1/{$this->cloudName}/image/destroy";
 
@@ -188,6 +203,7 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             Log::error('Cloudinary destroy network failure.', [
                 'provider_id' => $providerId,
                 'error_type'  => get_class($e),
+                'error_msg'   => $e->getMessage(),
             ]);
             return false;
         }

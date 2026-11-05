@@ -8,6 +8,7 @@ use App\Services\Media\MediaStorageInterface;
 use App\Services\Security\FileUploadSecurityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MediaController extends Controller
 {
@@ -50,6 +51,12 @@ class MediaController extends Controller
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'file' => [$e->getMessage()],
             ]);
+        } catch (\RuntimeException $e) {
+            Log::error('Media storage upload failure: ' . $e->getMessage());
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
         }
 
         $asset = MediaAsset::create($uploaded);
@@ -88,6 +95,12 @@ class MediaController extends Controller
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'files' => [$e->getMessage()],
                 ]);
+            } catch (\RuntimeException $e) {
+                Log::error('Media storage batch upload failure: ' . $e->getMessage());
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $e->getMessage(),
+                ], 422);
             }
             $createdAssets[] = MediaAsset::create($uploaded);
         }
