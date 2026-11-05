@@ -26,6 +26,48 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 ## Current Antigravity remediation reports — 2026-11-05
 
+### Stage 17: Autonomous Production Deployment ($0/month Architecture) — Live & Verified — 2026-11-05
+
+- **Task Scope & Status:** Production deployment, zero-cost architecture verification, live reverse-proxy routing, and dynamic data preservation:
+  1. **Strictly $0/Month Production Architecture:**
+     - **Frontend & SSR:** Vercel Hobby ($0/mo) at `https://mohammed-design.vercel.app`.
+     - **Backend API:** Render Free Web Service ($0/mo) at `https://mohammed-portfolio-api.onrender.com`.
+     - **Managed Database:** Aiven Free MySQL (`mysql-1244d130`, plan `free-1-1gb`, $0.000/mo, 1 vCPU, 1 GB RAM, Frankfurt `do-fra`).
+     - **Total Monthly Cost:** Strictly $0.00/month across all infrastructure components.
+  2. **Live Routing & Reverse-Proxy Verification:**
+     - Reverse proxy configured in `vercel.json`: `/api/*`, `/sanctum/*`, and `/storage/*` seamlessly proxy from `https://mohammed-design.vercel.app` to Render backend with full headers and cookie passing.
+     - Live Health Check: `GET https://mohammed-design.vercel.app/api/v1/health` returned HTTP 200 `{"status":"ok", "services":{"api":"healthy","db":"healthy","cache":"healthy","storage":"healthy"}}`.
+     - Dynamic Projects API: `GET https://mohammed-design.vercel.app/api/v1/projects` returned HTTP 200 with 8 published projects from Aiven MySQL.
+  3. **SSR Engine & Bilingual Rendering:**
+     - Arabic Homepage: `GET https://mohammed-design.vercel.app/ar/` returned HTTP 200 with 83KB pre-rendered semantic HTML, `<html lang="ar" dir="rtl">`, SEO tags, and hydration bootstrap.
+     - English Homepage: `GET https://mohammed-design.vercel.app/en/` returned HTTP 200 with 80KB pre-rendered semantic HTML, `<html lang="en" dir="ltr">`, and OpenGraph metadata.
+     - Bundled GSAP into SSR build (`ssr: { noExternal: ['gsap'] }`), eliminating Node ESM CommonJS named export syntax errors.
+  4. **Data Preservation & Upload Safety Gate:**
+     - Confirmed real user project (Project ID 9, `slug: "project"`, published) intact with cover image ID 20 and 5 media variants.
+     - Enforced production upload gate in `MediaController.php`: Uploads return HTTP 503 until persistent external storage credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) are provided, preventing uploads to Render's ephemeral disk.
+- **Branch / Remote:** `dev` (Commit `0117979`, remote `origin/dev`)
+- **Files Modified / Created:**
+  - `package.json`: Root ESM module declaration for Vercel Serverless Function compatibility.
+  - `.vercelignore`: Deployment bundle optimizer excluding backend, heavy media, and node_modules.
+  - `frontend/vite.config.js`: Added `ssr: { noExternal: ['gsap'] }` to inline GSAP and ScrollTrigger during SSR builds.
+  - `api/index.js`: Vercel Serverless SSR handler supporting `<!--ssr-outlet-->`, localized head tags, and graceful fallback.
+  - `backend/app/Http/Controllers/Api/V1/Admin/MediaController.php`: Hardened upload methods with production persistent storage gate.
+- **Live Verification Executed:**
+  - `GET https://mohammed-portfolio-api.onrender.com/api/v1/health`: HTTP 200 OK (all services healthy).
+  - `GET https://mohammed-portfolio-api.onrender.com/api/v1/projects/project`: HTTP 200 OK (Project ID 9 details).
+  - `GET https://mohammed-design.vercel.app/api/v1/health`: HTTP 200 OK (Vercel proxy to Render).
+  - `GET https://mohammed-design.vercel.app/api/v1/projects`: HTTP 200 OK (Vercel proxy to Render DB).
+  - `GET https://mohammed-design.vercel.app/ar/`: HTTP 200 OK (83,134 bytes SSR HTML).
+  - `GET https://mohammed-design.vercel.app/en/`: HTTP 200 OK (80,708 bytes SSR HTML).
+  - `GET https://mohammed-design.vercel.app/logo/logo.png`: HTTP 200 OK (Vercel Edge CDN static delivery).
+- **Issues Encountered & Resolved:**
+  - *Vercel CLI Payload Timeout:* Resolved by introducing `.vercelignore` to exclude backend PHP files, tests, and local builds, reducing deploy size from 500+ MB to 2.4 MB.
+  - *Missing devDependencies on Vercel:* Resolved by setting project `installCommand: "cd frontend && npm install --include=dev"`.
+  - *GSAP ScrollTrigger Named Export SyntaxError:* Resolved by configuring Vite SSR `noExternal: ['gsap']` to bundle GSAP into `entry-server.js`.
+  - *SSR Placeholder Replacement:* Updated `api/index.js` to match Vite's `<!--ssr-outlet-->` template marker.
+  - *Vercel SSO Deployment Protection:* Disabled `ssoProtection` via Vercel REST API so the portfolio is publicly accessible.
+  - *Ephemeral Storage Protection:* Added production upload gate in `MediaController.php` returning HTTP 503 until Cloudinary credentials are provided.
+
 ### Stage 15: Master Autonomous Production Readiness & Deployment Preparation (Vercel + Render + CI/CD) — 2026-11-05
 
 - **Task Scope & Status:** Production readiness audit, security hardening, cross-domain Sanctum token authentication, Stale-While-Revalidate caching, Vercel (Frontend/SSR) & Render (Backend API/Worker) deployment manifests, and full regression verification:

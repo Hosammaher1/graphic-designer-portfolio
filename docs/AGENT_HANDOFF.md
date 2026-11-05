@@ -1,5 +1,27 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 17 Checkpoint — 2026-11-05 (Production Deployment Complete — $0/mo Architecture Live & Verified)
+
+- **Active Branch:** `dev` (Commit `0117979`, synchronized with `origin/dev`)
+- **Live Production Endpoints:**
+  - **Frontend & SSR:** [https://mohammed-design.vercel.app](https://mohammed-design.vercel.app)
+  - **Arabic Homepage:** [https://mohammed-design.vercel.app/ar/](https://mohammed-design.vercel.app/ar/)
+  - **English Homepage:** [https://mohammed-design.vercel.app/en/](https://mohammed-design.vercel.app/en/)
+  - **Backend API:** [https://mohammed-portfolio-api.onrender.com](https://mohammed-portfolio-api.onrender.com)
+  - **Live API Health Check:** [https://mohammed-design.vercel.app/api/v1/health](https://mohammed-design.vercel.app/api/v1/health) -> `{"status":"ok","services":{"api":"healthy","db":"healthy","cache":"healthy","storage":"healthy"}}`
+  - **Live Projects Endpoint:** [https://mohammed-design.vercel.app/api/v1/projects](https://mohammed-design.vercel.app/api/v1/projects) (Project ID 9 active and published)
+- **Zero-Cost Verification:**
+  - Frontend: Vercel Hobby ($0/mo)
+  - Backend API: Render Free Web Service ($0/mo)
+  - Database: Aiven Free Managed MySQL (`free-1-1gb`, $0.000/mo)
+  - Total Monthly Cost: Strictly $0.00/month
+- **Production Upload Safety Gate:**
+  - `MediaController.php` production upload methods (`upload`, `uploadBatch`) return HTTP 503 until persistent external storage credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) are configured, protecting against ephemeral disk writes on Render.
+- **Data Preservation:**
+  - Real user project (Project ID 9, `slug: "project"`, published) verified intact in Aiven MySQL with all categories, media links, and metadata.
+
+---
+
 ## Current Antigravity Stage 16 Checkpoint — 2026-11-05 (Production Infrastructure, $0/mo Free Tier & Live Data Migration Verification)
 
 - **Active Branch:** `dev` (Commit `4db0680`)
