@@ -16,6 +16,9 @@ const backendTarget = process.env.VITE_BACKEND_URL || process.env.BACKEND_URL ||
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  ssr: {
+    noExternal: ['gsap'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

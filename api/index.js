@@ -6,7 +6,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-const isProd = process.env.NODE_ENV === 'production';
 const clientDist = path.resolve(rootDir, 'frontend/dist/client');
 const serverDist = path.resolve(rootDir, 'frontend/dist/server');
 
@@ -95,32 +94,45 @@ export default async function handler(req, res) {
     }
 
     let appHtml = '';
-    let headMarkup = '<title>Mohammed Maher | Creative Visual Designer</title>';
+    let title = 'Mohammed Maher | Creative Visual Designer';
+    let headTags = '';
     let lang = cleanUrl.startsWith('/en') ? 'en' : 'ar';
     let dir = lang === 'ar' ? 'rtl' : 'ltr';
 
     if (render) {
       try {
-        const rendered = await render(url);
+        const rendered = await render(cleanUrl);
         appHtml = rendered.html || '';
         lang = rendered.lang || lang;
         dir = rendered.dir || dir;
-        headMarkup = rendered.head || `<title>${rendered.title || 'Mohammed Maher'}</title>`;
+        title = rendered.title || title;
+        if (rendered.metadata && typeof rendered.metadata.renderHeadTags === 'function') {
+          headTags = rendered.metadata.renderHeadTags();
+        } else if (rendered.head) {
+          headTags = rendered.head;
+        }
       } catch (renderError) {
         console.error('[Vercel SSR Render Failure]:', renderError.message);
       }
     }
 
-    let responseHtml = template || '<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>';
+    let responseHtml = template || '<!DOCTYPE html><html><head></head><body><div id="root"><!--ssr-outlet--></div></body></html>';
 
     // Inject lang, dir, head and appHtml
     responseHtml = responseHtml.replace(/<html[^>]*>/, `<html lang="${lang}" dir="${dir}">`);
+    responseHtml = responseHtml.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
     responseHtml = responseHtml.replace(/<meta\s+name=["']description["'][^>]*>\s*/i, '');
-    if (headMarkup && responseHtml.includes('</head>')) {
-      responseHtml = responseHtml.replace('</head>', `  ${headMarkup}\n</head>`);
-    }
-    if (responseHtml.includes('<div id="root"></div>')) {
+
+    if (responseHtml.includes('<!--ssr-outlet-->')) {
+      responseHtml = responseHtml.replace('<!--ssr-outlet-->', appHtml);
+    } else if (responseHtml.includes('<div id="root"></div>')) {
       responseHtml = responseHtml.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
+    }
+
+    if (responseHtml.includes('<!--ssr-head-tags-->')) {
+      responseHtml = responseHtml.replace('<!--ssr-head-tags-->', headTags);
+    } else if (headTags && responseHtml.includes('</head>')) {
+      responseHtml = responseHtml.replace('</head>', `    ${headTags}\n  </head>`);
     }
 
     // Inject initial bootstrap state for client hydration
