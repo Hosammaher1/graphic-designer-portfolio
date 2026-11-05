@@ -277,14 +277,34 @@ export function MediaLibraryPage() {
             </div>
 
             {/* Preview image */}
-            <div
-              onClick={() => setIsFullscreenOpen(true)}
-              className="relative min-h-[180px] max-h-[340px] rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/60 flex items-center justify-center p-2 cursor-pointer group"
-              title={lang === 'ar' ? 'انقر للمعاينة والتكبير' : 'Click to preview fullscreen & zoom'}
-            >
-              <img src={selectedItem.url || selectedItem.original_url} alt={selectedItem.name} className="max-w-full max-h-[320px] w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform" />
-              <div className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <Maximize2 className="w-3.5 h-3.5" />
+            <div className="space-y-3">
+              {/* Full Original Preview */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400">
+                  <span className="text-emerald-400">{lang === 'ar' ? 'العمل الأصلي الكامل' : 'Full Original Asset'}</span>
+                  <span>object-fit: contain</span>
+                </div>
+                <div
+                  onClick={() => setIsFullscreenOpen(true)}
+                  className="relative min-h-[160px] max-h-[260px] rounded-2xl overflow-hidden border border-white/10 bg-black/70 flex items-center justify-center p-2 cursor-pointer group"
+                  title={lang === 'ar' ? 'انقر للمعاينة بحجم الشاشة الكامل والتكبير' : 'Click to preview fullscreen with zoom'}
+                >
+                  <img src={selectedItem.url || selectedItem.original_url} alt={selectedItem.name} className="max-w-full max-h-[240px] w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform" />
+                  <div className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Cover Card Simulation */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400">
+                  <span className="text-[#f4a496]">{lang === 'ar' ? 'محاكاة غلاف البطاقة' : 'Card Cover Simulation'}</span>
+                  <span>object-fit: cover</span>
+                </div>
+                <div className="relative aspect-video rounded-xl overflow-hidden border border-[#f4a496]/25 bg-black/40 shadow-inner">
+                  <img src={selectedItem.url || selectedItem.original_url} alt={selectedItem.name} className="w-full h-full object-cover object-center" />
+                </div>
               </div>
             </div>
 

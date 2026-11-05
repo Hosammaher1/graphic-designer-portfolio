@@ -281,13 +281,11 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
               aria-label={`View full cover for ${project.title}`}
               onKeyDown={(e) => e.key === 'Enter' && setActiveImageIndex(0)}
             >
-              <ResponsiveImage
+              <img
                 src={project.cover_url}
                 alt={project.title}
-                objectFit="contain"
-                priority={true}
                 className="project-cover-image"
-                sizes="(max-width: 1024px) 100vw, 1200px"
+                loading="eager"
               />
             </div>
           </Container>

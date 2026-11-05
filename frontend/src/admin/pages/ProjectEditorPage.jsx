@@ -493,11 +493,33 @@ export function ProjectEditorPage({ projectId }) {
               <label className="block text-xs font-medium text-neutral-300 font-light">
                 {t.editor.coverImage}
               </label>
-              <div className="relative min-h-[180px] max-h-[360px] rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/60 flex items-center justify-center p-2">
+              <div className="space-y-3">
                 {coverImage ? (
-                  <img src={coverImage} alt="Cover preview" className="max-w-full max-h-[340px] w-auto h-auto object-contain rounded-lg" />
+                  <>
+                    {/* 1. Cropped Cover Card Preview */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                        <span className="text-[#f4a496] font-medium">{lang === 'ar' ? 'معاينة الغلاف (عرض البطاقة المقتص)' : 'Cover Preview (Card Crop)'}</span>
+                        <span className="text-[10px] text-neutral-400">object-fit: cover</span>
+                      </div>
+                      <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#f4a496]/30 bg-black/40 shadow-inner">
+                        <img src={coverImage} alt="Cover crop preview" className="w-full h-full object-cover object-center" />
+                      </div>
+                    </div>
+
+                    {/* 2. Full Complete Original Artwork */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                        <span className="text-emerald-400 font-medium">{lang === 'ar' ? 'العمل الفني الكامل (النسبة الأصلية كاملة)' : 'Complete Artwork (Full Aspect Ratio)'}</span>
+                        <span className="text-[10px] text-neutral-400">object-fit: contain</span>
+                      </div>
+                      <div className="relative min-h-[140px] max-h-[280px] w-full rounded-2xl overflow-hidden border border-white/10 bg-black/70 flex items-center justify-center p-2 shadow-inner">
+                        <img src={coverImage} alt="Full uncropped preview" className="max-w-full max-h-[260px] w-auto h-auto object-contain rounded-lg" />
+                      </div>
+                    </div>
+                  </>
                 ) : (
-                  <div className="flex flex-col items-center text-neutral-400 gap-1.5 p-4 text-center">
+                  <div className="relative min-h-[160px] rounded-2xl border border-dashed border-[#f4a496]/20 bg-black/40 flex flex-col items-center justify-center text-neutral-400 gap-1.5 p-6 text-center">
                     <ImageIcon className="w-8 h-8 text-[#f4a496]/40" />
                     <span className="text-[11px] font-light">{lang === 'ar' ? 'لم يتم اختيار صورة غلاف' : 'No cover image selected'}</span>
                   </div>

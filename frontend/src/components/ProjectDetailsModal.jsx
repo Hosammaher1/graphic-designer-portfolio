@@ -365,9 +365,9 @@ export const ProjectDetailsModal = ({
             <div
               onClick={() => setSelectedLightboxIndex(0)}
               data-theme-surface="dark"
-              className="group relative w-full min-h-[320px] max-h-[580px] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer bg-black/60 flex items-center justify-center p-2 sm:p-4"
+              className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer bg-black/60 flex items-center justify-center p-2 sm:p-4"
             >
-              <ProjectArtwork id={project.artworkId} src={coverSrc} className="relative z-10 max-w-full max-h-[560px] w-auto h-auto object-contain transform group-hover:scale-[1.02] transition-transform duration-700 ease-out" priority={true} />
+              <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-auto max-h-[85vh] object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-700 ease-out" priority={true} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
               {/* Hover Lightbox Indicator Badge */}
@@ -557,7 +557,7 @@ export const ProjectDetailsModal = ({
                         <ProjectArtwork
                           id={item.artworkId}
                           src={itemSrc}
-                          className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                          className="w-full h-auto max-h-[75vh] object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-500 ease-out"
                         />
 
                         {/* Top Badge: Type & Index */}
