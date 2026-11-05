@@ -256,7 +256,7 @@ export function FullscreenImageViewer({
       onTouchEnd={handleTouchEnd}
     >
       {/* 1. TOP BAR: Info, Counter & Primary Actions */}
-      <div className="relative z-30 flex items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
+      <div className="relative z-30 flex items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent shrink-0">
         {/* Counter Badge & Localized Title */}
         <div className="flex items-center gap-3">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-400/30 shadow-lg">
@@ -330,7 +330,7 @@ export function FullscreenImageViewer({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleDoubleClick}
-        className={`relative flex-1 w-full flex items-center justify-center overflow-hidden p-2 sm:p-6 ${
+        className={`relative flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden p-2 sm:p-6 ${
           scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
         }`}
       >
@@ -362,19 +362,19 @@ export function FullscreenImageViewer({
             transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
             transformOrigin: 'center center',
           }}
-          className="relative max-w-full max-h-full flex items-center justify-center"
+          className="relative w-full h-full max-w-full max-h-full flex items-center justify-center"
         >
           {imageSrc ? (
             <img
               src={imageSrc}
               alt={imageTitle}
-              className="max-w-[92vw] max-h-[82vh] w-auto h-auto object-contain rounded-xl shadow-2xl pointer-events-none select-none"
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl shadow-2xl pointer-events-none select-none"
               draggable={false}
             />
           ) : (
             <ProjectArtwork
               id={currentImage.artworkId || 'artwork'}
-              className="w-[85vw] h-[75vh] object-contain rounded-xl shadow-2xl"
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl shadow-2xl"
               priority={true}
             />
           )}
@@ -382,7 +382,7 @@ export function FullscreenImageViewer({
       </div>
 
       {/* 3. BOTTOM BAR: Localized Caption & Thumbnail Strip */}
-      <div className="relative z-30 flex flex-col items-center gap-2 p-3 sm:p-5 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+      <div className="relative z-30 flex flex-col items-center gap-2 p-3 sm:p-5 bg-gradient-to-t from-black/90 via-black/60 to-transparent shrink-0">
         {imageCaption && (
           <p className="text-xs sm:text-sm text-neutral-300 font-light text-center max-w-2xl px-4 line-clamp-2">
             {imageCaption}
