@@ -351,17 +351,17 @@ export const AllProjectsScreen = ({
                   className="group relative rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-rose-300/40 shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col cursor-pointer"
                 >
                   {/* Artwork Showcase Box */}
-                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#160c18]" data-theme-surface="dark">
+                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#160c18] flex items-center justify-center p-2" data-theme-surface="dark">
                     {project.image ? (
                       <img
                         src={project.image}
                         alt={resolveText(project.title, lang, '')}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       />
                     ) : (
                       <ProjectArtwork
                         id={project.artworkId || 'noya-skincare'}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       />
                     )}
 

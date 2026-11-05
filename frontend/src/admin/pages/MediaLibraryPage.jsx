@@ -10,9 +10,11 @@ import {
   ExternalLink,
   X,
   FileCheck,
+  Maximize2,
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext.jsx';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
+import { FullscreenImageViewer } from '../../components/FullscreenImageViewer.jsx';
 
 export function MediaLibraryPage() {
   const { lang, t, media, addMedia, uploadMediaFile, deleteMedia, addToast, fetchMedia } = useAdmin();
@@ -28,6 +30,7 @@ export function MediaLibraryPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [mediaToDelete, setMediaToDelete] = useState(null);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // Upload state
   const [uploading, setUploading] = useState(false);
@@ -218,7 +221,7 @@ export function MediaLibraryPage() {
                   <img
                     src={item.url || item.original_url}
                     alt={item.name || 'Media Asset'}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
@@ -274,8 +277,15 @@ export function MediaLibraryPage() {
             </div>
 
             {/* Preview image */}
-            <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/60">
-              <img src={selectedItem.url} alt={selectedItem.name} className="w-full h-full object-cover" />
+            <div
+              onClick={() => setIsFullscreenOpen(true)}
+              className="relative min-h-[180px] max-h-[340px] rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/60 flex items-center justify-center p-2 cursor-pointer group"
+              title={lang === 'ar' ? 'انقر للمعاينة والتكبير' : 'Click to preview fullscreen & zoom'}
+            >
+              <img src={selectedItem.url || selectedItem.original_url} alt={selectedItem.name} className="max-w-full max-h-[320px] w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform" />
+              <div className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                <Maximize2 className="w-3.5 h-3.5" />
+              </div>
             </div>
 
             {/* Info table */}

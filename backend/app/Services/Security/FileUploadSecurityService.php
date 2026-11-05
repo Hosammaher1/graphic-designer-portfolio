@@ -20,7 +20,7 @@ class FileUploadSecurityService
      * Permitted media extensions.
      */
     protected const ALLOWED_EXTENSIONS = [
-        'jpg', 'jpeg', 'png', 'webp',
+        'jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'svg',
     ];
 
     /**
@@ -30,16 +30,19 @@ class FileUploadSecurityService
         'image/jpeg',
         'image/png',
         'image/webp',
+        'image/avif',
+        'image/gif',
+        'image/svg+xml',
     ];
 
-    protected const MAX_IMAGE_DIMENSION = 8192;
+    protected const MAX_IMAGE_DIMENSION = 32768;
 
-    protected const MAX_IMAGE_PIXELS = 40000000;
+    protected const MAX_IMAGE_PIXELS = 150000000;
 
     /**
-     * Maximum file size in bytes (15 MB).
+     * Maximum file size in bytes (25 MB).
      */
-    protected const MAX_FILE_BYTES = 15728640;
+    protected const MAX_FILE_BYTES = 26214400;
 
     /**
      * Perform exhaustive multi-layer security validation on an uploaded file.
@@ -129,6 +132,10 @@ class FileUploadSecurityService
             'jpg', 'jpeg' => 'image/jpeg',
             'png' => 'image/png',
             'webp' => 'image/webp',
+            'avif' => 'image/avif',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            default => null,
         };
         if ($mime !== $expectedMime) {
             throw ValidationException::withMessages([
@@ -136,14 +143,16 @@ class FileUploadSecurityService
             ]);
         }
 
-        $dimensions = $filePath ? @getimagesize($filePath) : false;
-        $width = $dimensions[0] ?? 0;
-        $height = $dimensions[1] ?? 0;
-        if ($width <= 0 || $height <= 0 || $width > self::MAX_IMAGE_DIMENSION
-            || $height > self::MAX_IMAGE_DIMENSION || $width * $height > self::MAX_IMAGE_PIXELS) {
-            throw ValidationException::withMessages([
-                'file' => ['Invalid image dimensions or image exceeds the dimension limit.'],
-            ]);
+        if ($extension !== 'svg') {
+            $dimensions = $filePath ? @getimagesize($filePath) : false;
+            $width = $dimensions[0] ?? 0;
+            $height = $dimensions[1] ?? 0;
+            if ($width <= 0 || $height <= 0 || $width > self::MAX_IMAGE_DIMENSION
+                || $height > self::MAX_IMAGE_DIMENSION || $width * $height > self::MAX_IMAGE_PIXELS) {
+                throw ValidationException::withMessages([
+                    'file' => ['Invalid image dimensions or image exceeds the dimension limit.'],
+                ]);
+            }
         }
     }
 

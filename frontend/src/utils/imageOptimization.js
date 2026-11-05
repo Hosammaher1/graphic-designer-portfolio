@@ -42,7 +42,11 @@ export function buildCloudinaryUrl(url, options = {}) {
   if (blur) transforms.push(`e_blur:${blur}`);
 
   const transformString = transforms.join(',');
-  return url.replace('/upload/', `/upload/${transformString}/`);
+  if (!transformString) return url;
+
+  // Cleanly replace any existing transformation segment with the new clean parameters
+  const baseUrl = url.replace(/\/image\/upload\/(?:(?:[a-z]{1,3}_[a-z0-9_.:-]+,?)+\/)?/i, '/image/upload/');
+  return baseUrl.replace('/image/upload/', `/image/upload/${transformString}/`);
 }
 
 /**

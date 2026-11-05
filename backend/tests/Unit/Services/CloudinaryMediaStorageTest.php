@@ -109,10 +109,10 @@ class CloudinaryMediaStorageTest extends TestCase
     {
         Http::fake();
 
-        $file = UploadedFile::fake()->create('massive.jpg', 16000, 'image/jpeg'); // 16MB > 15MB
+        $file = UploadedFile::fake()->create('massive.jpg', 27000, 'image/jpeg'); // 27MB > 25MB
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('File exceeds maximum allowed size of 15MB.');
+        $this->expectExceptionMessage('File exceeds maximum allowed size of 25MB.');
 
         $this->storage->upload($file);
 

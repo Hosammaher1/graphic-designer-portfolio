@@ -9,12 +9,15 @@ use Illuminate\Support\Str;
 
 class CloudinaryMediaStorage implements MediaStorageInterface
 {
-    private const MAX_BYTES = 15728640; // 15MB
+    private const MAX_BYTES = 26214400; // 25MB
 
     private const ALLOWED_MIMES = [
         'image/jpeg',
         'image/png',
         'image/webp',
+        'image/avif',
+        'image/gif',
+        'image/svg+xml',
     ];
 
     public function __construct(
@@ -50,7 +53,7 @@ class CloudinaryMediaStorage implements MediaStorageInterface
     {
         // 1. Pre-transfer validation
         if ($file->getSize() > self::MAX_BYTES) {
-            throw new \InvalidArgumentException('File exceeds maximum allowed size of 15MB.');
+            throw new \InvalidArgumentException('File exceeds maximum allowed size of 25MB.');
         }
 
         $mime = $file->getMimeType();
@@ -161,10 +164,11 @@ class CloudinaryMediaStorage implements MediaStorageInterface
             'height'        => $actualHeight,
             'original_url'  => $secureUrl,
             'variants'      => [
-                'thumbnail' => "{$baseUrl}/c_fill,w_300,h_300,q_auto,f_auto/{$providerId}",
-                'medium'    => "{$baseUrl}/c_limit,w_800,q_auto,f_auto/{$providerId}",
-                'full'      => "{$baseUrl}/c_limit,w_1920,q_auto,f_auto/{$providerId}",
+                'thumbnail' => "{$baseUrl}/c_limit,w_400,h_400,q_auto,f_auto/{$providerId}",
+                'medium'    => "{$baseUrl}/c_limit,w_1200,q_auto,f_auto/{$providerId}",
+                'full'      => "{$baseUrl}/c_limit,w_2560,q_auto,f_auto/{$providerId}",
                 'webp'      => "{$baseUrl}/f_webp,q_auto/{$providerId}",
+                'optimized' => "{$baseUrl}/q_auto,f_auto/{$providerId}",
             ],
             'has_watermark' => false,
         ];

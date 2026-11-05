@@ -128,7 +128,7 @@ export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Me
                     <div
                       key={item.id}
                       onClick={() => setSelectedItem(item)}
-                      className={`relative group rounded-2xl overflow-hidden border cursor-pointer transition-all aspect-video glass-panel-subtle ${
+                      className={`relative group rounded-2xl overflow-hidden border cursor-pointer transition-all aspect-video glass-panel-subtle flex items-center justify-center bg-black/60 ${
                         isSelected
                           ? 'border-[#f4a496] ring-2 ring-[#f4a496]/50 shadow-xl shadow-[#842b45]/30'
                           : 'border-white/10 hover:border-[#f4a496]/40'
@@ -138,7 +138,7 @@ export function MediaPickerModal({ isOpen, onClose, onSelect, title = 'Select Me
                         <img
                           src={displayUrl}
                           alt={item.name || 'Media Asset'}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="max-w-full max-h-full w-auto h-auto object-contain p-1 group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}

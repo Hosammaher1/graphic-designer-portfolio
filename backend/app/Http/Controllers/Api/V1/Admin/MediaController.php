@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class MediaController extends Controller
 {
-    private const ALLOWED_MIMES = 'jpeg,png,jpg,webp,avif,svg,pdf';
-    private const MAX_KILOBYTES = 15360; // 15MB
+    private const ALLOWED_MIMES = 'jpeg,png,jpg,webp,avif,svg,gif,pdf';
+    private const MAX_KILOBYTES = 25600; // 25MB
 
     public function index(): JsonResponse
     {

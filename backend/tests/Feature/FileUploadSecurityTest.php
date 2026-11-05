@@ -177,10 +177,10 @@ SVG;
     public function test_rejects_image_with_dimensions_above_safe_limit(): void
     {
         $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
-        $widePng = substr_replace($png, pack('N', 8193), 16, 4);
+        $widePng = substr_replace($png, pack('N', 32769), 16, 4);
         $path = tempnam(sys_get_temp_dir(), 'wide_png_');
         file_put_contents($path, $widePng);
-        $this->assertSame(8193, getimagesize($path)[0]);
+        $this->assertSame(32769, getimagesize($path)[0]);
 
         $file = new UploadedFile($path, 'wide.png', 'image/png', null, true);
 

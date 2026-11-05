@@ -23,5 +23,5 @@ fi
 # Determine port (Render provides $PORT)
 PORT="${PORT:-8000}"
 
-echo "==> Starting web server on port ${PORT}..."
-exec php artisan serve --host=0.0.0.0 --port="${PORT}"
+echo "==> Starting web server on port ${PORT} with 50M upload limits..."
+exec php -d upload_max_filesize=50M -d post_max_size=50M -d memory_limit=256M -d max_execution_time=120 artisan serve --host=0.0.0.0 --port="${PORT}"

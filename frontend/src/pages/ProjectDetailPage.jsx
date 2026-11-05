@@ -21,6 +21,7 @@ import {
   ResponsiveImage,
 } from '../components/ui';
 import { DocumentRenderer } from '../page-builder/BlockRenderer.jsx';
+import { FullscreenImageViewer } from '../components/FullscreenImageViewer.jsx';
 import { useConsent } from '../context/ConsentContext.jsx';
 
 export default function ProjectDetailPage({ locale = 'ar' }) {
@@ -283,7 +284,7 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
               <ResponsiveImage
                 src={project.cover_url}
                 alt={project.title}
-                aspectRatio="16/9"
+                objectFit="contain"
                 priority={true}
                 className="project-cover-image"
                 sizes="(max-width: 1024px) 100vw, 1200px"
@@ -444,84 +445,14 @@ export default function ProjectDetailPage({ locale = 'ar' }) {
         </Container>
       </footer>
 
-      {/* Lightbox Image Viewer Modal */}
-      {activeImageIndex !== null && galleryItems[activeImageIndex] && (
-        <div
-          className="lightbox-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image viewer"
-        >
-          <div
-            className="lightbox-backdrop"
-            onClick={() => setActiveImageIndex(null)}
-            aria-hidden="true"
-          />
-
-          <div className="lightbox-dialog">
-            {/* Header / Controls */}
-            <div className="lightbox-header">
-              <span className="lightbox-counter">
-                {t('lightbox.imageCount', locale)
-                  .replace('{current}', activeImageIndex + 1)
-                  .replace('{total}', galleryItems.length)}
-              </span>
-              <button
-                type="button"
-                className="lightbox-close-btn"
-                aria-label={t('lightbox.close', locale)}
-                onClick={() => setActiveImageIndex(null)}
-              >
-                <X size={24} aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Media Display */}
-            <div className="lightbox-body">
-              {galleryItems.length > 1 && (
-                <button
-                  type="button"
-                  className="lightbox-nav-btn prev"
-                  aria-label={t('lightbox.prev', locale)}
-                  onClick={() =>
-                    setActiveImageIndex(
-                      (activeImageIndex - 1 + galleryItems.length) % galleryItems.length
-                    )
-                  }
-                >
-                  <BackIcon size={28} aria-hidden="true" />
-                </button>
-              )}
-
-              <div className="lightbox-image-wrap">
-                <img
-                  src={galleryItems[activeImageIndex].url}
-                  alt={galleryItems[activeImageIndex].title}
-                  className="lightbox-img"
-                />
-                {galleryItems[activeImageIndex].title && (
-                  <p className="lightbox-caption">
-                    {galleryItems[activeImageIndex].title}
-                  </p>
-                )}
-              </div>
-
-              {galleryItems.length > 1 && (
-                <button
-                  type="button"
-                  className="lightbox-nav-btn next"
-                  aria-label={t('lightbox.next', locale)}
-                  onClick={() =>
-                    setActiveImageIndex((activeImageIndex + 1) % galleryItems.length)
-                  }
-                >
-                  <NextIcon size={28} aria-hidden="true" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Fullscreen Interactive Image Viewer with Zoom & Navigation */}
+      <FullscreenImageViewer
+        isOpen={activeImageIndex !== null}
+        onClose={() => setActiveImageIndex(null)}
+        images={galleryItems}
+        initialIndex={activeImageIndex ?? 0}
+        lang={locale}
+      />
     </article>
   );
 }

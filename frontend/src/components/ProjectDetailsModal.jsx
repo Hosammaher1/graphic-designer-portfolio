@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { translations, projectsData, resolveText } from '../data/portfolioData';
 import { ProjectArtwork } from './ProjectArtworks';
+import { FullscreenImageViewer } from './FullscreenImageViewer';
 import {
   X,
   ChevronLeft,
@@ -215,114 +216,14 @@ export const ProjectDetailsModal = ({
 
   return (
     <>
-      {/* ------------------------------------------------------------------- */}
-      {/* FULL-SCREEN INTERACTIVE LIGHTBOX OVERLAY (Priority z-[100])         */}
-      {/* ------------------------------------------------------------------- */}
-      {selectedLightboxIndex !== null && allImages[selectedLightboxIndex] && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image Lightbox Viewer"
-          data-theme-surface="dark"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-between p-3 sm:p-6 bg-[#040206]/95 backdrop-blur-2xl animate-in fade-in duration-200"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Top Bar: Counter, Title & Close */}
-          <div className="w-full max-w-7xl flex items-center justify-between py-3 px-2 sm:px-4 z-20">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono font-bold text-rose-300 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-300/30">
-                {String(selectedLightboxIndex + 1).padStart(2, '0')} /{' '}
-                {String(allImages.length).padStart(2, '0')}
-              </span>
-              <div className="text-left rtl:text-right hidden sm:block">
-                <span className="text-xs sm:text-sm font-serif text-white font-medium block">
-                  {getLoc(allImages[selectedLightboxIndex]?.title)}
-                </span>
-                <span className="text-[10px] text-neutral-400 font-light block">
-                  {getLoc(project?.title)} · {getLoc(project?.category)}
-                </span>
-              </div>
-            </div>
-
-            {/* Lightbox Navigation Buttons & Close */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() =>
-                  setSelectedLightboxIndex((prev) =>
-                    prev !== null
-                      ? prev === 0
-                        ? allImages.length - 1
-                        : prev - 1
-                      : 0
-                  )
-                }
-                aria-label="Previous image"
-                className="p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-              >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180" />
-              </button>
-
-              <button
-                onClick={() =>
-                  setSelectedLightboxIndex((prev) =>
-                    prev !== null ? (prev + 1) % allImages.length : 0
-                  )
-                }
-                aria-label="Next image"
-                className="p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-              >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180" />
-              </button>
-
-              <button
-                onClick={() => setSelectedLightboxIndex(null)}
-                aria-label={t.closeLightbox}
-                className="p-2 sm:p-2.5 rounded-full bg-rose-950/80 hover:bg-rose-900 border border-rose-300/30 text-rose-200 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ml-2"
-              >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Central Full-Resolution Showcase Area */}
-          <div className="relative flex-1 w-full max-w-6xl flex items-center justify-center my-auto p-2 sm:p-6 overflow-hidden">
-            <div className="relative w-full h-[65vh] sm:h-[75vh] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
-              <ProjectArtwork
-                id={allImages[selectedLightboxIndex]?.artworkId}
-                src={allImages[selectedLightboxIndex]?.src}
-                className="w-full h-full object-contain"
-                priority={true}
-              />
-            </div>
-          </div>
-
-          {/* Bottom Bar: Bilingual Caption & Quick Thumbnail Strip */}
-          <div className="w-full max-w-5xl text-center py-2 z-20 space-y-3">
-            <p className="text-xs sm:text-sm text-neutral-300 font-light max-w-2xl mx-auto px-4 leading-relaxed">
-              {getLoc(allImages[selectedLightboxIndex]?.caption)}
-            </p>
-
-            {/* Quick mini-thumbnail selector */}
-            <div className="flex items-center justify-center gap-2 overflow-x-auto modal-scrollbar py-1 px-4">
-              {allImages.map((img, idx) => (
-                <button
-                  key={img.id}
-                  onClick={() => setSelectedLightboxIndex(idx)}
-                  className={`w-10 sm:w-12 h-8 sm:h-9 rounded-lg overflow-hidden shrink-0 transition-all border ${
-                    idx === selectedLightboxIndex
-                      ? 'border-rose-400 ring-2 ring-rose-400/50 scale-105'
-                      : 'border-white/15 opacity-50 hover:opacity-100'
-                  }`}
-                >
-                  <ProjectArtwork id={img.artworkId} src={img.src} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* FULLSCREEN INTERACTIVE IMAGE VIEWER WITH ZOOM & NAVIGATION */}
+      <FullscreenImageViewer
+        isOpen={selectedLightboxIndex !== null}
+        onClose={() => setSelectedLightboxIndex(null)}
+        images={allImages}
+        initialIndex={selectedLightboxIndex ?? 0}
+        lang={lang}
+      />
 
       {/* ------------------------------------------------------------------- */}
       {/* PRIMARY PROJECT DETAILS MODAL OVERLAY (85%–95% Viewport)            */}
@@ -464,9 +365,9 @@ export const ProjectDetailsModal = ({
             <div
               onClick={() => setSelectedLightboxIndex(0)}
               data-theme-surface="dark"
-              className="group relative w-full h-80 sm:h-[460px] md:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer"
+              className="group relative w-full min-h-[320px] max-h-[580px] rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-rose-300/20 shadow-2xl cursor-pointer bg-black/60 flex items-center justify-center p-2 sm:p-4"
             >
-              <ProjectArtwork id={project.artworkId} src={coverSrc} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" priority={true} />
+              <ProjectArtwork id={project.artworkId} src={coverSrc} className="relative z-10 max-w-full max-h-[560px] w-auto h-auto object-contain transform group-hover:scale-[1.02] transition-transform duration-700 ease-out" priority={true} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
               {/* Hover Lightbox Indicator Badge */}
@@ -645,7 +546,7 @@ export const ProjectDetailsModal = ({
                       {/* Image Canvas */}
                       <div
                         data-theme-surface="dark"
-                        className={`relative w-full overflow-hidden bg-[#160c18] ${
+                        className={`relative w-full overflow-hidden bg-[#160c18] flex items-center justify-center p-2 ${
                           isFull
                             ? 'h-80 sm:h-96 md:h-[460px]'
                             : item.aspectRatio === 'portrait'
@@ -656,7 +557,7 @@ export const ProjectDetailsModal = ({
                         <ProjectArtwork
                           id={item.artworkId}
                           src={itemSrc}
-                          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
+                          className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.03] transition-transform duration-500 ease-out"
                         />
 
                         {/* Top Badge: Type & Index */}

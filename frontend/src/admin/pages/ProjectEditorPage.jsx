@@ -493,9 +493,9 @@ export function ProjectEditorPage({ projectId }) {
               <label className="block text-xs font-medium text-neutral-300 font-light">
                 {t.editor.coverImage}
               </label>
-              <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/40 flex items-center justify-center">
+              <div className="relative min-h-[180px] max-h-[360px] rounded-2xl overflow-hidden border border-[#f4a496]/20 bg-black/60 flex items-center justify-center p-2">
                 {coverImage ? (
-                  <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                  <img src={coverImage} alt="Cover preview" className="max-w-full max-h-[340px] w-auto h-auto object-contain rounded-lg" />
                 ) : (
                   <div className="flex flex-col items-center text-neutral-400 gap-1.5 p-4 text-center">
                     <ImageIcon className="w-8 h-8 text-[#f4a496]/40" />
@@ -641,8 +641,8 @@ export function ProjectEditorPage({ projectId }) {
                 className="p-4 sm:p-5 rounded-3xl glass-panel-subtle border border-[#f4a496]/15 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 group"
               >
                 {/* Image Preview */}
-                <div className="relative w-full sm:w-36 aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-[#f4a496]/20 flex-shrink-0">
-                  <img src={item.url} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                <div className="relative w-full sm:w-36 aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-[#f4a496]/20 flex-shrink-0 bg-black/60 flex items-center justify-center p-1">
+                  <img src={item.url} alt={`Gallery ${idx + 1}`} className="max-w-full max-h-full w-auto h-auto object-contain" />
                   <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/80 text-[10px] text-[#fcdcd4] font-mono border border-white/10">
                     #{idx + 1}
                   </span>

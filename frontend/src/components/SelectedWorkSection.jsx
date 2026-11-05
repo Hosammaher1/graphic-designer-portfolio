@@ -160,9 +160,9 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[prevIndex]?.image ? (
-                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-cover" />
+                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-contain p-2" />
                   ) : (
-                    <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full" />
+                    <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-contain p-2" />
                   )}
                   <div className="absolute inset-0 bg-black/60" />
                 </div>
@@ -173,17 +173,17 @@ export const SelectedWorkSection = ({
                 ref={activeCardRef}
                 onClick={() => onOpenProject(currentProject.slug || currentProject.id)}
                 data-theme-surface="dark"
-                className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
+                className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group bg-black/60 flex items-center justify-center"
               >
                 {/* Project Artwork or Image */}
                 {currentProject.image ? (
                   <img
                     src={currentProject.image}
                     alt={resolveText(currentProject.title, lang, '')}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain p-3 sm:p-4 group-hover:scale-[1.02] transition-transform duration-700"
                   />
                 ) : (
-                  <ProjectArtwork id={currentProject.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
+                  <ProjectArtwork id={currentProject.artworkId || 'noya-skincare'} className="w-full h-full object-contain p-4" />
                 )}
 
                 {/* Subtle Contrast Gradient at bottom for text readability */}
@@ -259,9 +259,9 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[nextIndex]?.image ? (
-                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-cover" />
+                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-contain p-2" />
                   ) : (
-                    <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full" />
+                    <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-contain p-2" />
                   )}
                   <div className="absolute inset-0 bg-black/60" />
                 </div>
