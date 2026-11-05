@@ -26,6 +26,33 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 ## Current Antigravity remediation reports — 2026-11-05
 
+### Stage 18: Cloudinary Production Media Storage Integration & Signature Resolution — Live & Verified — 2026-11-05
+
+- **Task Scope & Status:** Resolved production media upload failure on Render, implemented Cloudinary signature generation compliant with official API specifications, added resilient error handling, deployed fix, and verified end-to-end persistent uploads:
+  1. **Cloudinary Signature Algorithm Repair:**
+     - Identified root cause in `backend/app/Services/Media/CloudinaryMediaStorage.php`: `http_build_query($paramsToSign, '', '&', PHP_QUERY_RFC3986)` escaped path separators in `public_id` values (converting `portfolio/<uuid>` into `portfolio%2F<uuid>`), causing Cloudinary to reject signatures with `HTTP 401 Unauthorized: {"error":{"message":"Invalid Signature ... String to sign - 'public_id=portfolio/...&timestamp=...'"}}`.
+     - Replaced `http_build_query` with custom `computeSignature(array $params)` method that alphabetically sorts parameter keys, formats each as raw `key=value`, joins them with `&`, and appends `api_secret` prior to SHA1 hashing.
+     - Applied `computeSignature()` across both `upload()` and `delete()` operations.
+  2. **Error Handling & Diagnostic Transparency:**
+     - Updated `backend/app/Http/Controllers/Api/V1/Admin/MediaController.php` to explicitly catch `\RuntimeException` thrown by storage providers during `upload()` and `uploadBatch()`.
+     - Logged exact error details and returned structured `HTTP 422` error responses (`{"message": "Media upload failed: ...", "status": "error"}`) instead of allowing uncaught exceptions to convert to opaque `HTTP 500` ("An internal server error occurred") in production (`APP_DEBUG=false`).
+     - Preserved the persistent storage gate (`config('services.cloudinary.cloud_name')`), guaranteeing that ephemeral local storage on Render is never used in production.
+  3. **Automated Testing & Deployment:**
+     - Executed unit tests (`CloudinaryMediaStorageTest.php`): 9 tests, 32 assertions passed (100%).
+     - Pushed fix to GitHub `dev` branch at commit `983f4ca`.
+     - Render auto-deployed commit `983f4ca` (deploy `dep-dbmedrafngtc73f4r3mg`), reaching `status: live`.
+  4. **Live Verification & Production Asset Persistence:**
+     - Automated test upload via Render API: HTTP 201 Created (Asset ID 23).
+     - Confirmed live user uploads from Admin UI:
+       * Asset ID 25: `home-section-fJOpDnWp.jpeg` (`provider: "cloudinary"`, URL `https://res.cloudinary.com/hzqyvyou/image/upload/v1793911648/portfolio/8e1b52ef-a126-4f40-9323-66a73f2ea81e.jpg`, HTTP 200 OK via Cloudflare / Cloudinary CDN).
+       * Asset ID 26: `b-r-a-n-d-g-u-i-d-e-l-i-n-e-s-01-byYDwOF0.jpg` (`provider: "cloudinary"`, URL `https://res.cloudinary.com/hzqyvyou/image/upload/v1793911669/portfolio/d59e04ed-920e-456f-9b1a-9cb071b5826c.jpg`, HTTP 200 OK via Cloudflare / Cloudinary CDN).
+     - Project ID 29 created and published with Cloudinary cover image URL (`https://res.cloudinary.com/hzqyvyou/image/upload/q_auto,f_auto/portfolio/d59e04ed-920e-456f-9b1a-9cb071b5826c`).
+     - Confirmed Aiven Managed MySQL data integrity: all 30 tables intact, existing Project ID 9 and original media records preserved.
+- **Branch / Remote:** `dev` (Commit `983f4ca`, remote `origin/dev`)
+- **Files Modified:**
+  - `backend/app/Services/Media/CloudinaryMediaStorage.php`
+  - `backend/app/Http/Controllers/Api/V1/Admin/MediaController.php`
+
 ### Stage 17: Autonomous Production Deployment ($0/month Architecture) — Live & Verified — 2026-11-05
 
 - **Task Scope & Status:** Production deployment, zero-cost architecture verification, live reverse-proxy routing, and dynamic data preservation:

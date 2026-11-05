@@ -1,5 +1,31 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 18 Checkpoint — 2026-11-05 (Cloudinary Production Media Storage Verified & Live)
+
+- **Active Branch:** `dev` (Commit `983f4ca`, synchronized with `origin/dev`)
+- **Live Production Endpoints:**
+  - **Frontend & SSR:** [https://mohammed-design.vercel.app](https://mohammed-design.vercel.app)
+  - **Arabic Homepage:** [https://mohammed-design.vercel.app/ar/](https://mohammed-design.vercel.app/ar/)
+  - **English Homepage:** [https://mohammed-design.vercel.app/en/](https://mohammed-design.vercel.app/en/)
+  - **Backend API:** [https://mohammed-portfolio-api.onrender.com](https://mohammed-portfolio-api.onrender.com)
+  - **Live API Health Check:** [https://mohammed-design.vercel.app/api/v1/health](https://mohammed-design.vercel.app/api/v1/health) -> `{"status":"ok","services":{"api":"healthy","db":"healthy","cache":"healthy","storage":"healthy"}}`
+  - **Live Projects Endpoint:** [https://mohammed-design.vercel.app/api/v1/projects](https://mohammed-design.vercel.app/api/v1/projects) (Projects 9 and 29 active and published)
+- **Zero-Cost Verification:**
+  - Frontend: Vercel Hobby ($0/mo)
+  - Backend API: Render Free Web Service ($0/mo)
+  - Database: Aiven Free Managed MySQL (`free-1-1gb`, $0.000/mo)
+  - Media Storage: Cloudinary Free Tier ($0/mo, 25GB storage/bandwidth)
+  - Total Monthly Cost: Strictly $0.00/month
+- **Persistent Media Storage Resolution:**
+  - Resolved Cloudinary signature URL-encoding bug in `CloudinaryMediaStorage.php` by implementing raw key-value sorting (`computeSignature()`).
+  - Improved `MediaController.php` with explicit runtime exception handling (HTTP 422) while preserving the persistent storage gate.
+  - Successfully verified live uploads: Asset ID 25 (`home-section-fJOpDnWp.jpeg`), Asset ID 26 (`b-r-a-n-d-g-u-i-d-e-l-i-n-e-s-01-byYDwOF0.jpg`), and Project ID 29 created with Cloudinary CDN cover.
+  - All uploaded media permanently stored in Cloudinary CDN and resilient across Render container restarts.
+- **Data Preservation:**
+  - Real user project (Project ID 9, `slug: "project"`, published) and all newly created projects verified intact in Aiven MySQL.
+
+---
+
 ## Current Antigravity Stage 17 Checkpoint — 2026-11-05 (Production Deployment Complete — $0/mo Architecture Live & Verified)
 
 - **Active Branch:** `dev` (Commit `0117979`, synchronized with `origin/dev`)
