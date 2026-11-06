@@ -167,6 +167,8 @@ export default function App({ initialUrl, initialLocale }) {
         setLang('en');
       } else if (pathname.startsWith('/ar')) {
         setLang('ar');
+      } else if (pathname === '/' || pathname === '') {
+        setLang('en');
       }
 
       if (pathname.startsWith('/admin') || hash.startsWith('#/admin') || hash === '#admin') {
@@ -398,7 +400,32 @@ export default function App({ initialUrl, initialLocale }) {
   }, [route]);
 
   const toggleLanguage = useCallback(() => {
-    setLang((prev) => (prev === 'en' ? 'ar' : 'en'));
+    setLang((prev) => {
+      const nextLang = prev === 'en' ? 'ar' : 'en';
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        let newPath = currentPath;
+        if (nextLang === 'ar') {
+          if (currentPath.startsWith('/en/')) {
+            newPath = currentPath.replace('/en/', '/ar/');
+          } else if (currentPath === '/en') {
+            newPath = '/ar/';
+          } else if (!currentPath.startsWith('/ar/')) {
+            newPath = '/ar' + (currentPath === '/' ? '/' : currentPath);
+          }
+        } else {
+          if (currentPath.startsWith('/ar/')) {
+            newPath = currentPath.replace('/ar/', '/en/');
+          } else if (currentPath === '/ar') {
+            newPath = '/en/';
+          } else if (!currentPath.startsWith('/en/')) {
+            newPath = currentPath === '/ar/' ? '/' : currentPath;
+          }
+        }
+        window.history.pushState({}, '', newPath + window.location.search + window.location.hash);
+      }
+      return nextLang;
+    });
   }, []);
 
   const openProjectModal = useCallback(async (projectId, collection) => {

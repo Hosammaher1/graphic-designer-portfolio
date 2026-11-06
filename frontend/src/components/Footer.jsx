@@ -4,9 +4,9 @@ import { ArrowUp, Shield } from 'lucide-react';
 import { useConsent } from '../context/ConsentContext.jsx';
 
 export const Footer = ({ lang, locale, settings }) => {
-  const currentLang = locale || lang || 'ar';
-  const t = (translations[currentLang] || translations.ar || translations.en).footer;
-  const nav = (translations[currentLang] || translations.ar || translations.en).nav;
+  const currentLang = locale || lang || 'en';
+  const t = (translations[currentLang] || translations.en || translations.ar).footer;
+  const nav = (translations[currentLang] || translations.en || translations.ar).nav;
 
   const designerName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] || settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] || (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
   const footerTagline = settings?.profile?.[currentLang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.tagline;

@@ -67,23 +67,24 @@ export default async function handler(req, res) {
     const cleanUrl = url.split('?')[0];
     const headers = getSecurityHeaders();
 
-    // Root alias or locale target (serve Arabic directly for root / to eliminate 302 redirect latency)
-    const effectiveUrl = (cleanUrl === '/' || cleanUrl === '') ? '/ar/' : cleanUrl;
-    const isEn = effectiveUrl.startsWith('/en');
-    const lang = isEn ? 'en' : 'ar';
-    const dir = isEn ? 'ltr' : 'rtl';
+    // Root alias or locale target (Default is strictly ENGLISH on root / and /en/)
+    const isRoot = cleanUrl === '/' || cleanUrl === '';
+    const effectiveUrl = isRoot ? '/en/' : cleanUrl;
+    const isAr = effectiveUrl.startsWith('/ar');
+    const lang = isAr ? 'ar' : 'en';
+    const dir = isAr ? 'rtl' : 'ltr';
 
-    // Instant Pre-rendered static delivery for frame-1 instant mobile response
-    if (effectiveUrl === '/ar/' || effectiveUrl === '/en/') {
-      const staticFilePath = isEn
-        ? path.resolve(clientDist, 'en/index.html')
-        : path.resolve(clientDist, 'ar/index.html');
-      const rootFallbackPath = path.resolve(clientDist, 'index.html');
-      const targetPath = fs.existsSync(staticFilePath) ? staticFilePath : rootFallbackPath;
+    // Instant Pre-rendered static delivery (0ms serverless response)
+    if (isRoot || effectiveUrl === '/en/' || effectiveUrl === '/ar/') {
+      const targetPath = isAr
+        ? path.resolve(clientDist, 'ar/index.html')
+        : (isRoot ? path.resolve(clientDist, 'index.html') : path.resolve(clientDist, 'en/index.html'));
+      const fallbackPath = path.resolve(clientDist, 'index.html');
+      const chosenPath = fs.existsSync(targetPath) ? targetPath : fallbackPath;
 
-      if (fs.existsSync(targetPath)) {
+      if (fs.existsSync(chosenPath)) {
         try {
-          const staticHtml = fs.readFileSync(targetPath, 'utf-8');
+          const staticHtml = fs.readFileSync(chosenPath, 'utf-8');
           if (staticHtml.length > 5000 && !staticHtml.includes('<!--ssr-outlet-->')) {
             res.writeHead(200, {
               'Content-Type': 'text/html; charset=utf-8',

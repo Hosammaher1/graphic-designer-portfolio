@@ -6192,3 +6192,48 @@ Next task:
     - Project cards maintain exact `object-fit: cover` and centered alignment.
     - Project details modal opens seamlessly on mobile, displaying full original uncropped artwork with `object-fit: contain` (e.g. 4167x4167 rendered 314x314).
     - Screenshots captured: `mobile-after-perf-optimization.png` and `mobile-modal-verified.png`.
+
+
+---
+
+### Stage 26: Mobile 20s Reload Black Screen & Scroll Visibility Fix (2026-11-06)
+
+- **Task Scope & Status:** Resolved critical mobile black-screen issues reported on real devices:
+  1. 20-second black screen on mobile reload before the Home section appeared.
+  2. Remaining sections (About, Skills, Journey) remaining pure black when scrolling down.
+- **Status:** **DONE & DEPLOYED TO PRODUCTION**
+- **Branch / Commit / Remote:** `fix/mobile-black-screen-and-scroll-visibility` (commit `94e5e99`), merged into `dev`, pushed to `origin/dev`.
+- **Production Deployment:** Vercel deployment `dpl_6h5yvFiw43XSsSwcdT11e8TDQ2ZE` (`READY`) serving `https://mohammed-design.vercel.app/`.
+- **Root Causes Diagnosed:**
+  - **Problem 1 (20s reload black screen):** Vercel served the static `frontend/dist/client/index.html` on the root route `/` before executing serverless rewrites. Vite's default output was an empty shell containing `<div id="root"><!--ssr-outlet--></div>`. On reload, mobile browsers displayed the empty black `bg-[#09070c]` body while waiting 15–20 seconds to download, parse, and execute all JavaScript bundles on mobile CPUs.
+  - **Problem 2 (Remaining sections black on scroll):** GSAP's `gsap.fromTo` in `AboutSection` (`.about-reveal`), `SkillsSection` (`.skill-stagger`), and `JourneySection` (`.milestone-card`) set inline `opacity: 0, y: 30` on all section content wrappers. Under mobile touch momentum scrolling and dynamic address bar resizing, ScrollTrigger failed or delayed triggering, trapping all content at `opacity: 0` against the black background.
+- **Key Implementations:**
+  1. **Build-Time SSG Prerendering (`frontend/scripts/prerender.js`):** Integrated into `npm run build`. Pre-renders full SSR HTML (95 KB) into `dist/client/index.html`, `dist/client/ar/index.html`, and `dist/client/en/index.html`. Frame-1 HTML now contains the entire page content with zero serverless cold-start wait.
+  2. **Instant Pre-rendered Delivery (`api/index.js`):** Serves pre-rendered static HTML in 1–2ms and handles root `/` directly without an extra 302 redirect hop.
+  3. **CSS Visibility Safeguard (`global.css` & `index.css`):**
+     ```css
+     @media (max-width: 1023px) {
+       .about-reveal, .skill-stagger, .milestone-card, .hero-stagger, .reveal-hidden, .reveal-wrap {
+         opacity: 1 !important;
+         transform: none !important;
+         visibility: visible !important;
+         transition: none !important;
+       }
+     }
+     ```
+  4. **Mobile JS Animation Bypass & Desktop Soft Animation:**
+     - `AboutSection`, `SkillsSection`, `JourneySection`, and `HeroSection` check `window.innerWidth < 1024 || 'ontouchstart' in window` and skip scroll-triggered opacity hiding on mobile.
+     - On desktop, animations start from `opacity: 0.7` instead of `0`, ensuring content is never invisible if ScrollTrigger is delayed.
+- **Automated Verification Evidence (Playwright iPhone 12, Throttled 4G):**
+  - **Repeated Mobile Reloads (3 runs):**
+    - Run #1: Commit 4,416ms | Frame 1: `h1Visible: true, h1Opacity: "1"` | 500ms: `pOpacity: "1"` -> Black Screen: **NONE**
+    - Run #2: Commit 4,531ms | Frame 1: `h1Visible: true, h1Opacity: "1"` | 500ms: `pOpacity: "1"` -> Black Screen: **NONE**
+    - Run #3: Commit 1,310ms | Frame 1: `h1Visible: true, h1Opacity: "1"` | 500ms: `pOpacity: "1"` -> Black Screen: **NONE**
+  - **All Sections Visibility on Scroll:**
+    - Hero Section (`#hero`): **PASSED (100% VISIBLE)** — H1 opacity 1, .hero-stagger opacity 1. Screenshot: `mobile-verified-hero.png`.
+    - Selected Work (`#selected-work`): **PASSED (100% VISIBLE)** — H2 opacity 1, card surface opacity 0.998. Screenshot: `mobile-verified-selected-work.png`.
+    - About Me (`#about-me`): **PASSED (100% VISIBLE)** — .about-reveal opacity 1, H2 opacity 1. Screenshot: `mobile-verified-about-me.png`.
+    - Skills & Expertise (`#skills-expertise`): **PASSED (100% VISIBLE)** — .skill-stagger opacity 1, all icons opacity 1. Screenshot: `mobile-verified-skills-expertise.png`.
+    - Creative Journey (`#creative-journey`): **PASSED (100% VISIBLE)** — .milestone-card opacity 1. Screenshot: `mobile-verified-creative-journey.png`.
+    - Contact Section (`#contact`): **PASSED (100% VISIBLE)** — Form opacity 1, H2 opacity 1. Screenshot: `mobile-verified-contact.png`.
+    - Footer (`footer`): **PASSED (100% VISIBLE)** — Text & logo opacity 1. Screenshot: `mobile-verified-footer.png`.

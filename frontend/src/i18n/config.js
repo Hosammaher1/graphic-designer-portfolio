@@ -1,8 +1,8 @@
 import ar from './ar.json';
 import en from './en.json';
 
-export const supportedLocales = ['ar', 'en'];
-export const defaultLocale = 'ar';
+export const supportedLocales = ['en', 'ar'];
+export const defaultLocale = 'en';
 
 export const localeDirections = {
   ar: 'rtl',
@@ -29,7 +29,7 @@ export function getLocaleFromPath(pathname = '') {
  * Get direction for a given locale.
  */
 export function getDirection(locale) {
-  return localeDirections[locale] || 'rtl';
+  return localeDirections[locale] || 'ltr';
 }
 
 /**

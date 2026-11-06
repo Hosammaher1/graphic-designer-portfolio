@@ -25,36 +25,11 @@ async function prerender() {
 
   const { render } = await import(pathToFileURL(serverEntryPath).href);
 
-  // 1. Pre-render Arabic homepage (default for root / and /ar/)
-  console.log('[Prerender] Rendering /ar/...');
-  const arRender = await render('/ar/');
-  let arHtml = template;
-  arHtml = arHtml.replace(/<html[^>]*>/, `<html lang="ar" dir="rtl" class="dark scroll-smooth">`);
-  arHtml = arHtml.replace(/<title>.*?<\/title>/, `<title>${arRender.title}</title>`);
-  if (arRender.html) {
-    arHtml = arHtml.replace('<!--ssr-outlet-->', arRender.html);
-  }
-  if (arRender.head) {
-    arHtml = arHtml.replace('<!--ssr-head-tags-->', arRender.head);
-  }
-  const arBootstrap = `<script id="__INITIAL_DATA__" type="application/json">${JSON.stringify({ locale: 'ar', dir: 'rtl' })}</script>`;
-  arHtml = arHtml.replace('</body>', `  ${arBootstrap}\n  </body>`);
-
-  // Overwrite dist/client/index.html so Vercel static root / serves the full rendered HTML
-  fs.writeFileSync(templatePath, arHtml, 'utf-8');
-  console.log('[Prerender] Successfully generated dist/client/index.html (Length:', arHtml.length, 'bytes)');
-
-  // Also write dist/client/ar/index.html
-  const arDir = path.resolve(clientDist, 'ar');
-  if (!fs.existsSync(arDir)) fs.mkdirSync(arDir, { recursive: true });
-  fs.writeFileSync(path.resolve(arDir, 'index.html'), arHtml, 'utf-8');
-  console.log('[Prerender] Successfully generated dist/client/ar/index.html');
-
-  // 2. Pre-render English homepage (/en/)
-  console.log('[Prerender] Rendering /en/...');
+  // 1. Pre-render ENGLISH homepage (STRICT DEFAULT for root / and /en/)
+  console.log('[Prerender] Rendering /en/ (Default English)...');
   const enRender = await render('/en/');
   let enHtml = template;
-  enHtml = enHtml.replace(/<html[^>]*>/, `<html lang="en" dir="ltr" class="dark scroll-smooth">`);
+  enHtml = enHtml.replace(/<html[^>]*>/, '<html lang="en" dir="ltr" class="dark scroll-smooth">');
   enHtml = enHtml.replace(/<title>.*?<\/title>/, `<title>${enRender.title}</title>`);
   if (enRender.html) {
     enHtml = enHtml.replace('<!--ssr-outlet-->', enRender.html);
@@ -65,10 +40,35 @@ async function prerender() {
   const enBootstrap = `<script id="__INITIAL_DATA__" type="application/json">${JSON.stringify({ locale: 'en', dir: 'ltr' })}</script>`;
   enHtml = enHtml.replace('</body>', `  ${enBootstrap}\n  </body>`);
 
+  // Write root dist/client/index.html as ENGLISH (Never serve Arabic on root /)
+  fs.writeFileSync(templatePath, enHtml, 'utf-8');
+  console.log('[Prerender] Successfully generated dist/client/index.html (English Default, Length:', enHtml.length, 'bytes)');
+
+  // Also write dist/client/en/index.html
   const enDir = path.resolve(clientDist, 'en');
   if (!fs.existsSync(enDir)) fs.mkdirSync(enDir, { recursive: true });
   fs.writeFileSync(path.resolve(enDir, 'index.html'), enHtml, 'utf-8');
-  console.log('[Prerender] Successfully generated dist/client/en/index.html (Length:', enHtml.length, 'bytes)');
+  console.log('[Prerender] Successfully generated dist/client/en/index.html');
+
+  // 2. Pre-render ARABIC homepage (for /ar/)
+  console.log('[Prerender] Rendering /ar/ (Arabic)...');
+  const arRender = await render('/ar/');
+  let arHtml = template;
+  arHtml = arHtml.replace(/<html[^>]*>/, '<html lang="ar" dir="rtl" class="dark scroll-smooth">');
+  arHtml = arHtml.replace(/<title>.*?<\/title>/, `<title>${arRender.title}</title>`);
+  if (arRender.html) {
+    arHtml = arHtml.replace('<!--ssr-outlet-->', arRender.html);
+  }
+  if (arRender.head) {
+    arHtml = arHtml.replace('<!--ssr-head-tags-->', arRender.head);
+  }
+  const arBootstrap = `<script id="__INITIAL_DATA__" type="application/json">${JSON.stringify({ locale: 'ar', dir: 'rtl' })}</script>`;
+  arHtml = arHtml.replace('</body>', `  ${arBootstrap}\n  </body>`);
+
+  const arDir = path.resolve(clientDist, 'ar');
+  if (!fs.existsSync(arDir)) fs.mkdirSync(arDir, { recursive: true });
+  fs.writeFileSync(path.resolve(arDir, 'index.html'), arHtml, 'utf-8');
+  console.log('[Prerender] Successfully generated dist/client/ar/index.html (Length:', arHtml.length, 'bytes)');
 }
 
 prerender().catch(err => {
