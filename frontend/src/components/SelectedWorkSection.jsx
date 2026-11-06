@@ -160,12 +160,7 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[prevIndex]?.image ? (
-                    <>
-                      <img src={projects[prevIndex].image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none" />
-                      <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
-                        <img src={projects[prevIndex].image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" />
-                      </div>
-                    </>
+                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-cover object-center" />
                   ) : (
                     <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -182,23 +177,11 @@ export const SelectedWorkSection = ({
               >
                 {/* Project Artwork or Image */}
                 {currentProject.image ? (
-                  <>
-                    {/* Atmospheric color-matched blur fill behind logo (prevents empty space) */}
-                    <img
-                      src={currentProject.image}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-35 scale-110 pointer-events-none"
-                    />
-                    {/* Foreground uncropped logo filling available space */}
-                    <div className="relative z-10 w-full h-full flex items-center justify-center p-6 sm:p-8 pb-28 sm:pb-32">
-                      <img
-                        src={currentProject.image}
-                        alt={resolveText(currentProject.title, lang, '')}
-                        className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] group-hover:scale-[1.02] transition-transform duration-700 ease-out"
-                      />
-                    </div>
-                  </>
+                  <img
+                    src={currentProject.image}
+                    alt={resolveText(currentProject.title, lang, '')}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  />
                 ) : (
                   <ProjectArtwork id={currentProject.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                 )}
@@ -276,12 +259,7 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[nextIndex]?.image ? (
-                    <>
-                      <img src={projects[nextIndex].image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none" />
-                      <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
-                        <img src={projects[nextIndex].image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" />
-                      </div>
-                    </>
+                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-cover object-center" />
                   ) : (
                     <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -326,12 +304,7 @@ export const SelectedWorkSection = ({
                         }`}
                       >
                         {item.image ? (
-                          <>
-                            <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none" />
-                            <div className="relative z-10 w-full h-full flex items-center justify-center p-2 pb-5">
-                              <img src={item.image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain" />
-                            </div>
-                          </>
+                          <img src={item.image} alt="" className="w-full h-full object-cover object-center" />
                         ) : (
                           <ProjectArtwork id={item.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
                         )}
