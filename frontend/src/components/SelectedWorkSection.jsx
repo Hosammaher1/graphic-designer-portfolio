@@ -151,16 +151,21 @@ export const SelectedWorkSection = ({
         ) : (
           <>
             {/* Carousel Center Stage: Active Centered Card with Flanking Peeks */}
-            <div className="relative w-full flex items-center justify-center min-h-[550px] sm:min-h-[610px] my-4">
+            <div className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4">
               
               {/* Left Flanking Peek Card */}
               {total > 1 && (
                 <div
                   onClick={handlePrev}
-                  className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[470px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
+                  className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[prevIndex]?.image ? (
-                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-cover object-center" />
+                    <>
+                      <img src={projects[prevIndex].image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none" />
+                      <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
+                        <img src={projects[prevIndex].image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" />
+                      </div>
+                    </>
                   ) : (
                     <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -173,15 +178,27 @@ export const SelectedWorkSection = ({
                 ref={activeCardRef}
                 onClick={() => onOpenProject(currentProject.slug || currentProject.id)}
                 data-theme-surface="dark"
-                className="relative w-full max-w-4xl h-[550px] sm:h-[610px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
+                className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] cursor-pointer group"
               >
                 {/* Project Artwork or Image */}
                 {currentProject.image ? (
-                  <img
-                    src={currentProject.image}
-                    alt={resolveText(currentProject.title, lang, '')}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                  />
+                  <>
+                    {/* Atmospheric color-matched blur fill behind logo (prevents empty space) */}
+                    <img
+                      src={currentProject.image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-35 scale-110 pointer-events-none"
+                    />
+                    {/* Foreground uncropped logo filling available space */}
+                    <div className="relative z-10 w-full h-full flex items-center justify-center p-6 sm:p-8 pb-28 sm:pb-32">
+                      <img
+                        src={currentProject.image}
+                        alt={resolveText(currentProject.title, lang, '')}
+                        className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <ProjectArtwork id={currentProject.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                 )}
@@ -256,10 +273,15 @@ export const SelectedWorkSection = ({
               {total > 1 && (
                 <div
                   onClick={handleNext}
-                  className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[470px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
+                  className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[nextIndex]?.image ? (
-                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-cover object-center" />
+                    <>
+                      <img src={projects[nextIndex].image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none" />
+                      <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
+                        <img src={projects[nextIndex].image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" />
+                      </div>
+                    </>
                   ) : (
                     <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -297,14 +319,19 @@ export const SelectedWorkSection = ({
                       <button
                         key={item.id}
                         onClick={() => setActiveIndex(idx)}
-                        className={`group relative h-24 sm:h-[135px] rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
+                        className={`group relative h-20 sm:h-28 rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
                           isActive
                             ? 'border-2 border-rose-300 shadow-[0_0_20px_rgba(244,164,150,0.5)] scale-105 z-10'
                             : 'border border-white/10 opacity-60 hover:opacity-100 hover:scale-[1.02]'
                         }`}
                       >
                         {item.image ? (
-                          <img src={item.image} alt="" className="w-full h-full object-cover" />
+                          <>
+                            <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none" />
+                            <div className="relative z-10 w-full h-full flex items-center justify-center p-2 pb-5">
+                              <img src={item.image} alt="" className="max-w-full max-h-full w-auto h-auto object-contain" />
+                            </div>
+                          </>
                         ) : (
                           <ProjectArtwork id={item.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
                         )}
