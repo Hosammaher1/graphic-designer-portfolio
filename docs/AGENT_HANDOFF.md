@@ -1,5 +1,24 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 27 Checkpoint — 2026-11-06 (Multi-Locale Architecture Correction — Strict English Default on `/` and `/en/`, Arabic on `/ar/` Verified & Live)
+
+- **Active Branch:** `dev` (Commit `62213c4`, synchronized with `origin/dev`)
+- **Live Production Endpoints:**
+  - **Default English Homepage (`/`):** [https://mohammed-design.vercel.app](https://mohammed-design.vercel.app) (HTTP 200, English SSR, LTR, Zero Arabic on root)
+  - **Explicit English Homepage (`/en/`):** [https://mohammed-design.vercel.app/en/](https://mohammed-design.vercel.app/en/) (HTTP 200, English SSR, LTR)
+  - **Explicit Arabic Homepage (`/ar/`):** [https://mohammed-design.vercel.app/ar/](https://mohammed-design.vercel.app/ar/) (HTTP 200, Arabic SSR, RTL)
+  - **Backend API:** [https://mohammed-portfolio-api.onrender.com](https://mohammed-portfolio-api.onrender.com)
+- **Locale Architecture & Performance Resolutions:**
+  1. *Root URL (`/`):* Pre-rendered and served as strictly **English** with `<html lang="en" dir="ltr">`, English typography, and zero Arabic text.
+  2. *Explicit Routes (`/en/` and `/ar/`):* Pre-rendered and served in their respective languages with proper `lang`, `dir`, and SEO canonicals.
+  3. *Language Switcher:* Seamlessly transitions between English and Arabic, synchronously toggling `dir="ltr"` / `dir="rtl"`, and updating browser history via `window.history.pushState()`.
+  4. *Mobile Black Screen & Scroll Visibility Fixes Preserved:* SSG pre-rendered frame-1 HTML, `@media (max-width: 1023px)` CSS safeguard enforcing `opacity: 1 !important`, and mobile GSAP bypass prevent any black screen or hidden elements on scroll.
+- **Verification Evidence:**
+  - All three URLs verified on production with Playwright on iPhone 12. Frame 1 and hydrated states confirmed.
+  - Screenshots: `locale-root-default-english.png`, `locale-explicit-english-en.png`, `locale-explicit-arabic-ar.png`, `switcher-switched-to-arabic.png`, `switcher-switched-to-english.png`.
+
+---
+
 ## Current Antigravity Stage 25 Checkpoint — 2026-11-06 (Mobile 60s Page Reload Freeze & Loading Performance Optimization Verified & Live)
 
 - **Active Branch:** `dev` (Commit `c9f41e7`, synchronized with `origin/dev`)

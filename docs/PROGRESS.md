@@ -6237,3 +6237,47 @@ Next task:
     - Creative Journey (`#creative-journey`): **PASSED (100% VISIBLE)** — .milestone-card opacity 1. Screenshot: `mobile-verified-creative-journey.png`.
     - Contact Section (`#contact`): **PASSED (100% VISIBLE)** — Form opacity 1, H2 opacity 1. Screenshot: `mobile-verified-contact.png`.
     - Footer (`footer`): **PASSED (100% VISIBLE)** — Text & logo opacity 1. Screenshot: `mobile-verified-footer.png`.
+
+
+---
+
+### Stage 27: Multi-Locale Architecture Correction — Strict English Default on `/` and `/en/`, Arabic on `/ar/` (2026-11-06)
+
+- **Task Scope & Status:** Corrected default language architecture across SSR, SSG pre-rendering, static file serving, and client hydration:
+  - `/` → English homepage by default (LTR). Never serves Arabic HTML from root.
+  - `/en/` → Explicit English homepage (LTR).
+  - `/ar/` → Explicit Arabic homepage (RTL).
+  - Language switcher seamlessly switches between EN and AR and updates browser history.
+  - Mobile black-screen and scroll visibility safeguards preserved.
+- **Status:** **DONE & DEPLOYED TO PRODUCTION**
+- **Branch / Commit / Remote:** `fix/default-english-locale` (commit `62213c4`), merged into `dev`, pushed to `origin/dev`.
+- **Production Deployment:** Vercel deployment `dpl_CC5kHmG2BRQ1uFWpB81CsVW8spp2` (`READY`) serving `https://mohammed-design.vercel.app/`.
+- **Key Implementations:**
+  1. **SSG Pre-rendering Pipeline (`frontend/scripts/prerender.js`):**
+     - Root `dist/client/index.html`: Pre-rendered as **English** with `<html lang="en" dir="ltr">`, English headings ("Graphic Designer", "Visual Identity"), and `__INITIAL_DATA__ = {"locale":"en","dir":"ltr"}`.
+     - `dist/client/en/index.html`: Pre-rendered as English.
+     - `dist/client/ar/index.html`: Pre-rendered as Arabic with `<html lang="ar" dir="rtl">`.
+  2. **Vercel Serverless Function (`api/index.js`):**
+     - When `cleanUrl === '/' || cleanUrl === ''`: Sets `effectiveUrl = '/en/'`, `lang = 'en'`, `dir = 'ltr'`. Serves English pre-rendered HTML in 1–2ms without 302 redirect.
+     - When `cleanUrl === '/ar/'`: Serves Arabic pre-rendered HTML with `lang = 'ar'`, `dir = 'rtl'`.
+  3. **I18n Configuration (`frontend/src/i18n/config.js`):**
+     - Set `supportedLocales = ['en', 'ar']` and `defaultLocale = 'en'`.
+     - `getDirection()` defaults to `'ltr'`.
+  4. **Client Hydration State (`frontend/src/App.jsx`):**
+     - `lang` state strictly defaults to `'en'`. If on `/ar`, initializes to `'ar'`.
+     - `toggleLanguage()` pushes updated pathname (`/ar/` or `/en/`) to browser history via `window.history.pushState()`.
+     - `handleRouteSync()` popstate listener sets `'en'` on `/` and `/en/`, and `'ar'` on `/ar/`.
+  5. **Footer Fallback (`frontend/src/components/Footer.jsx`):**
+     - Default locale fallback set to `'en'`.
+- **Automated Verification Evidence (Playwright Mobile iPhone 12 against Production):**
+  - **Raw HTTP SSR / Pre-render Verification:**
+    - Root `/`: HTTP 200, length 95,409 bytes, `hasEnHtml: true`, `hasEnKicker: true`, `hasArKicker: false`, title: `"Mohammed — Graphic & Brand Identity Designer"`. (Zero Arabic on root!).
+    - `/en/`: HTTP 200, length 95,409 bytes, `hasEnHtml: true`, `hasEnKicker: true`, `hasArKicker: false`, title: `"Mohammed — Graphic & Brand Identity Designer"`.
+    - `/ar/`: HTTP 200, length 95,071 bytes, `hasArHtml: true`, `hasArKicker: true`, title: `"محمد — مصمم جرافيك وهويات بصرية"`.
+  - **Browser Mobile Hydration Verification:**
+    - `[Root-Default-English]`: Frame 1: `htmlLang: "en"`, `htmlDir: "ltr"`, `h1Text: "GraphicDesigner"`, `h1Visible: true`. Hydrated: `h1Text: "GraphicDesigner"`, `pText: "Hello, I’m a"`. **PASSED**.
+    - `[Explicit-English-En]`: Frame 1: `htmlLang: "en"`, `htmlDir: "ltr"`, `h1Text: "GraphicDesigner"`, `h1Visible: true`. Hydrated: `h1Text: "GraphicDesigner"`. **PASSED**.
+    - `[Explicit-Arabic-Ar]`: Frame 1: `htmlLang: "ar"`, `htmlDir: "rtl"`, `h1Text: "مصممجرافيك"`, `h1Visible: true`. Hydrated: `h1Text: "مصممجرافيك"`. **PASSED**.
+  - **Interactive Language Switcher:**
+    - Click `AR`: Document updates to `lang="ar" dir="rtl"`, URL to `/ar/`, H1 to `"مصممجرافيك"`. Screenshot: `switcher-switched-to-arabic.png`.
+    - Click `EN`: Document updates to `lang="en" dir="ltr"`, URL to `/en/`, H1 to `"GraphicDesigner"`. Screenshot: `switcher-switched-to-english.png`.
