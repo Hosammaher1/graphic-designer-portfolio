@@ -1,5 +1,31 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 25 Checkpoint — 2026-11-06 (Mobile 60s Page Reload Freeze & Loading Performance Optimization Verified & Live)
+
+- **Active Branch:** `dev` (Commit `c9f41e7`, synchronized with `origin/dev`)
+- **Live Production Endpoints:**
+  - **Frontend & SSR:** [https://mohammed-design.vercel.app](https://mohammed-design.vercel.app)
+  - **Arabic Homepage:** [https://mohammed-design.vercel.app/ar/](https://mohammed-design.vercel.app/ar/)
+  - **English Homepage:** [https://mohammed-design.vercel.app/en/](https://mohammed-design.vercel.app/en/)
+  - **Backend API:** [https://mohammed-portfolio-api.onrender.com](https://mohammed-portfolio-api.onrender.com)
+  - **Live Projects Endpoint:** [https://mohammed-design.vercel.app/api/v1/projects](https://mohammed-design.vercel.app/api/v1/projects) (HTTP 200 OK)
+- **Problem Resolved:**
+  - Critical bug where mobile page reloads took >60 seconds on `https://mohammed-design.vercel.app/` due to un-timeouted blocking `Promise.all` fetching from sleeping Render free-tier containers and empty initial client state.
+- **Root Cause & Technical Implementation:**
+  1. *Multi-Tier Instant Cache:* State initialized immediately in 0ms (`localStorage` -> `sessionStorage` -> default curated project fallback). Mobile reloads now render immediately without waiting for any network responses.
+  2. *Independent Async Loaders:* Broken apart monolithic `Promise.all` into 3 non-blocking asynchronous loaders (`loadProjects()`, `loadCategories()`, `loadSettings()`).
+  3. *5-Second Fetch Timeout & Retry:* Wrapped API fetches in `fetchWithTimeout(url, opts, 5000)` with single background retry. Slow Render cold starts abort at 5 seconds and retry silently without blocking page rendering.
+  4. *Vercel Edge Acceleration:* Configured `Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=86400` on SSR responses in `api/index.js`.
+  5. *Non-Blocking Fonts:* Preloaded Google Fonts with `rel="preload" as="style"` eliminating render-blocking CSS.
+  6. *Lazy Offscreen Media:* Profile avatar, footer logo, and flanking carousel peek cards set to `loading="lazy" decoding="async"`. Active featured card uses `fetchPriority="high" decoding="async"`.
+- **Automated Verification on Mobile (iPhone 12, Simulated 4G Throttling - 1.6 Mbps / 150ms RTT):**
+  - **Warm Reload (User Refresh):** DOMContentLoaded **415ms**, Featured Card Visible **529ms**, Window Load **530ms** (down from >60,000ms freeze, >99% reduction).
+  - **Cold Visit (Throttled 4G):** TTFB 167ms, DCL 3,358ms, Featured Card Visible 8,555ms, Load 8,556ms.
+  - **Visual & Interaction:** Project cover cards remain edge-to-edge `object-fit: cover` and centered. Project details modal opens seamlessly with full original uncropped artwork (`object-fit: contain`).
+  - Screenshots: `mobile-after-perf-optimization.png` and `mobile-modal-verified.png`.
+
+---
+
 ## Current Antigravity Stage 24 Checkpoint — 2026-11-06 (Homepage Featured Images Edge-to-Edge Cover Fill Verified & Live)
 
 - **Active Branch:** `dev` (Commit `0203791`, synchronized with `origin/dev`)

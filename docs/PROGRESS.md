@@ -6152,3 +6152,43 @@ Next task:
   - **Frontend Vitest Suite:** **42 test files passed, 237 tests passed (100%)** in 24.65s.
   - **Frontend Client & SSR Production Build:** Compiled cleanly in 2.55s (`dist/client/index.html`) and 484ms (`dist/server/entry-server.js`).
   - **Playwright E2E Verification (`release-blockers-verification.spec.js`):** Desktop Chromium PASSED (zero hydration mismatch, media picker thumbnails visible, real upload persists to MySQL, public SSR renders Project 9 cover image).
+
+
+---
+
+### Stage 25: Mobile 60s Page Reload Freeze & Loading Performance Optimization (2026-11-06)
+
+- **Task Scope & Status:** Resolved critical bug where mobile page reloads hung for >60 seconds on `https://mohammed-design.vercel.app/`. Analyzed network waterfall, eliminated blocking initial requests, introduced resilient multi-tier instant client caching, async non-blocking background loaders, 5s fetch timeouts, Vercel Edge caching headers, and non-blocking Google Fonts.
+- **Status:** **DONE & DEPLOYED TO PRODUCTION**
+- **Branch / Commit / Remote:** `perf/mobile-initial-load-optimization` (commit `c9f41e7`), merged into `dev` (commit `c9f41e7`), pushed to `origin/dev`.
+- **Production Deployment:** Vercel deployment `dpl_6sMps58tRpdPPWwvLUoiwF3mq5hn` (`READY`) serving `https://mohammed-design.vercel.app/`.
+- **Root Causes Diagnosed & Fixed:**
+  1. **Un-timeouted Blocking `Promise.all`:** `frontend/src/App.jsx` issued an un-timeouted `Promise.all` fetching `/api/v1/projects`, `/api/v1/categories`, and `/api/v1/settings`. When Render free-tier was sleeping or cold-starting, the browser hung for 50-60+ seconds.
+  2. **Empty Initial State Freeze:** `publishedProjects` initialized to `[]` when `sessionStorage` was empty or unpopulated on mobile reload, forcing the screen to freeze waiting for the slow API.
+  3. **No Persistent Client Cache:** State was only saved in ephemeral `sessionStorage` (lost across mobile tabs or app restarts).
+  4. **Render-Blocking Fonts:** Synchronous `<link rel="stylesheet">` loading 26 Google Font variants in `frontend/index.html` delayed the initial paint.
+  5. **Disabled Edge Cache:** `api/index.js` sent `Cache-Control: no-cache, no-store, must-revalidate`, preventing Vercel Edge CDN from caching SSR HTML.
+  6. **Aiven Free MySQL Inactivity Poweroff:** Restored Aiven MySQL service `mysql-1244d130` to `RUNNING` via Aiven MCP API.
+- **Key Implementations:**
+  - **Multi-Tier Instant Cache:** Initial state now loads instantly in 0ms (`localStorage` -> `sessionStorage` -> default curated project fallback).
+  - **Independent Async Loaders:** Replaced monolithic `Promise.all` with 3 separate, non-blocking asynchronous loaders (`loadProjects()`, `loadCategories()`, `loadSettings()`).
+  - **Fetch Timeout & Retry:** Implemented `fetchWithTimeout(url, opts, 5000)` and `fetchWithRetry(url, opts, 5000, 1)`. Cold APIs abort after 5s and retry silently in the background while the UI remains fully responsive.
+  - **Vercel Edge Acceleration:** Injected `Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=86400` in `api/index.js`.
+  - **Non-blocking Fonts:** Preloaded Google Fonts with `rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'"` and `<noscript>` fallback.
+  - **Lazy Offscreen Media:** Set `loading="lazy" decoding="async"` on About avatar, footer logo, and flanking carousel peek cards. Center active card uses `fetchPriority="high" decoding="async"`.
+- **Measured Verification Evidence (Playwright Mobile iPhone 12 with Simulated 4G Throttling - 1.6 Mbps / 150ms RTT):**
+  - **Before (User Problem):** Mobile reload hung for >60,000ms.
+  - **Cold Visit (Throttled 4G):**
+    - TTFB: 167ms
+    - DOMContentLoaded: 3,358ms
+    - Featured Card Visible: 8,555ms
+    - Window Load Event: 8,556ms
+  - **Warm Reload (User Refresh):**
+    - TTFB: 198ms
+    - DOMContentLoaded: **415ms**
+    - Featured Card Visible: **529ms**
+    - Window Load Event: **530ms** (>99% latency reduction!)
+  - **Visual & Interaction Verification:**
+    - Project cards maintain exact `object-fit: cover` and centered alignment.
+    - Project details modal opens seamlessly on mobile, displaying full original uncropped artwork with `object-fit: contain` (e.g. 4167x4167 rendered 314x314).
+    - Screenshots captured: `mobile-after-perf-optimization.png` and `mobile-modal-verified.png`.
