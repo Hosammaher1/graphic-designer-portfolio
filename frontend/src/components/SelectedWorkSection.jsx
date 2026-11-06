@@ -160,7 +160,7 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[prevIndex]?.image ? (
-                    <img src={projects[prevIndex].image} alt="" className="w-full h-full object-cover object-center" />
+                    <img src={projects[prevIndex].image} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover object-center" />
                   ) : (
                     <ProjectArtwork id={projects[prevIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -180,6 +180,8 @@ export const SelectedWorkSection = ({
                   <img
                     src={currentProject.image}
                     alt={resolveText(currentProject.title, lang, '')}
+                    fetchPriority="high"
+                    decoding="async"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
@@ -259,7 +261,7 @@ export const SelectedWorkSection = ({
                   className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 hover:opacity-50 transition-all duration-500 transform scale-90 cursor-pointer pointer-events-auto border border-white/10 shadow-2xl"
                 >
                   {projects[nextIndex]?.image ? (
-                    <img src={projects[nextIndex].image} alt="" className="w-full h-full object-cover object-center" />
+                    <img src={projects[nextIndex].image} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover object-center" />
                   ) : (
                     <ProjectArtwork id={projects[nextIndex]?.artworkId || 'noya-skincare'} className="w-full h-full object-cover object-center" />
                   )}
@@ -304,7 +306,7 @@ export const SelectedWorkSection = ({
                         }`}
                       >
                         {item.image ? (
-                          <img src={item.image} alt="" className="w-full h-full object-cover object-center" />
+                          <img src={item.image} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover object-center" />
                         ) : (
                           <ProjectArtwork id={item.artworkId || 'noya-skincare'} className="w-full h-full object-cover" />
                         )}

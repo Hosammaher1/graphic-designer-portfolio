@@ -1,5 +1,37 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { projectsData, getAllPublishedProjects } from './data/portfolioData';
+import { projectsData, getAllPublishedProjects, categoriesData } from './data/portfolioData';
+
+/**
+ * Resilient fetch helper with strict AbortSignal timeout.
+ * Prevents slow cold-start backend requests from hanging mobile reloads.
+ */
+async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (err) {
+    clearTimeout(timer);
+    throw err;
+  }
+}
+
+/**
+ * Resilient fetch with single retry on transient network timeout.
+ */
+async function fetchWithRetry(url, options = {}, timeoutMs = 5000, maxRetries = 1) {
+  try {
+    return await fetchWithTimeout(url, options, timeoutMs);
+  } catch (err) {
+    if (maxRetries > 0) {
+      await new Promise((r) => setTimeout(r, 1200));
+      return await fetchWithTimeout(url, options, timeoutMs);
+    }
+    throw err;
+  }
+}
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { SelectedWorkSection } from './components/SelectedWorkSection';
@@ -36,31 +68,55 @@ export default function App({ initialUrl, initialLocale }) {
     return 'home';
   });
 
+  // Multi-tier instant cache: localStorage -> sessionStorage -> curated fallback
+  // Guarantees zero blank/empty screen on mobile page reload (0ms frame-1 render)
   const [publishedProjects, setPublishedProjects] = useState(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
+    if (typeof window !== 'undefined') {
       try {
-        const cached = window.sessionStorage.getItem('studio_published_projects_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
+        const local = window.localStorage.getItem('studio_published_projects_cache');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+        const session = window.sessionStorage.getItem('studio_published_projects_cache');
+        if (session) {
+          const parsed = JSON.parse(session);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         }
       } catch (e) {}
     }
-    return [];
+    return getAllPublishedProjects();
   });
+
   const [categories, setCategories] = useState(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
+    if (typeof window !== 'undefined') {
       try {
-        const cached = window.sessionStorage.getItem('studio_categories_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
+        const local = window.localStorage.getItem('studio_categories_cache');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+        const session = window.sessionStorage.getItem('studio_categories_cache');
+        if (session) {
+          const parsed = JSON.parse(session);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         }
       } catch (e) {}
     }
-    return [];
+    return categoriesData;
   });
-  const [siteSettings, setSiteSettings] = useState(null);
+
+  const [siteSettings, setSiteSettings] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const local = window.localStorage.getItem('studio_settings_cache');
+        if (local) return JSON.parse(local);
+        const session = window.sessionStorage.getItem('studio_settings_cache');
+        if (session) return JSON.parse(session);
+      } catch (e) {}
+    }
+    return null;
+  });
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [detailedProject, setDetailedProject] = useState(null);
   const [modalCollection, setModalCollection] = useState(undefined);
@@ -145,97 +201,125 @@ export default function App({ initialUrl, initialLocale }) {
     if (typeof window === 'undefined') return;
 
     let isMounted = true;
-    async function loadBackendData() {
+    // Independent, non-blocking asynchronous loaders with timeout and retry
+    async function loadProjects() {
       try {
-        const [projRes, catRes, setRes] = await Promise.all([
-          fetch(`/api/v1/projects?locale=${lang}`, { headers: { Accept: 'application/json' } }),
-          fetch(`/api/v1/categories?locale=${lang}`, { headers: { Accept: 'application/json' } }),
-          fetch(`/api/v1/settings?locale=${lang}`, { headers: { Accept: 'application/json' } }),
-        ]);
-
-        if (projRes.ok) {
+        const projRes = await fetchWithRetry(
+          `/api/v1/projects?locale=${lang}`,
+          { headers: { Accept: 'application/json' } },
+          5000,
+          1
+        );
+        if (projRes && projRes.ok) {
           const json = await projRes.json();
           const apiProjects = json.data?.projects?.data || [];
-          const normalizedApi = apiProjects.map((p) => {
-            const titleEn = p.title || p.slug;
-            const titleAr = p.title || p.slug;
-            const summaryEn = p.summary || '';
-            const summaryAr = p.summary || '';
-            const rawCat = p.categories?.[0];
-            const catNameEn = typeof rawCat?.name === 'object' ? (rawCat.name?.en || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'Branding');
-            const catNameAr = typeof rawCat?.name === 'object' ? (rawCat.name?.ar || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'هوية بصرية');
-            const cover = p.cover_url || null;
-            return {
-              id: p.slug || String(p.id),
-              slug: p.slug,
-              title: { en: titleEn, ar: titleAr },
-              subtitle: { en: summaryEn, ar: summaryAr },
-              description: { en: p.description || summaryEn, ar: p.description || summaryAr },
-              category: { en: catNameEn, ar: catNameAr },
-              categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
-              categories: Array.isArray(p.categories) ? p.categories.map((c) => ({
-                id: c.id,
-                slug: c.slug,
-                name: typeof c.name === 'object' ? c.name : { en: c.name || c.slug, ar: c.name || c.slug },
-                nameEn: typeof c.name === 'object' ? (c.name.en || c.slug) : (c.name || c.slug),
-                nameAr: typeof c.name === 'object' ? (c.name.ar || c.slug) : (c.name || c.slug),
-              })) : [],
-              tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
-              tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
-              year: String(p.year || new Date().getFullYear()),
-              image: cover,
-              coverImage: cover,
-              client: { en: p.client || 'Studio Client', ar: p.client || 'عميل الاستوديو' },
-              featured: Boolean(p.is_featured),
-              publicationDate: p.published_at || String(p.year || ''),
-              gallery: Array.isArray(p.media) ? p.media.map((m, idx) => ({
-                id: m.id || `${p.slug}-media-${idx}`,
-                url: m.display_url || m.url,
-                src: m.display_url || m.url,
-                title: { en: m.caption_en || titleEn, ar: m.caption_ar || titleAr },
-                caption: { en: m.caption_en || summaryEn, ar: m.caption_ar || summaryAr },
-                type: m.is_cover ? 'cover' : 'gallery',
-              })) : [],
-              services: [{ en: 'Brand Identity', ar: 'الهوية البصرية' }, { en: 'Visual Design', ar: 'التصميم المرئي' }],
-            };
-          });
+          if (Array.isArray(apiProjects) && apiProjects.length > 0) {
+            const normalizedApi = apiProjects.map((p) => {
+              const titleEn = p.title || p.slug;
+              const titleAr = p.title || p.slug;
+              const summaryEn = p.summary || '';
+              const summaryAr = p.summary || '';
+              const rawCat = p.categories?.[0];
+              const catNameEn = typeof rawCat?.name === 'object' ? (rawCat.name?.en || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'Branding');
+              const catNameAr = typeof rawCat?.name === 'object' ? (rawCat.name?.ar || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'هوية بصرية');
+              const cover = p.cover_url || null;
+              return {
+                id: p.slug || String(p.id),
+                slug: p.slug,
+                title: { en: titleEn, ar: titleAr },
+                subtitle: { en: summaryEn, ar: summaryAr },
+                description: { en: p.description || summaryEn, ar: p.description || summaryAr },
+                category: { en: catNameEn, ar: catNameAr },
+                categoryIds: Array.isArray(p.categories) ? p.categories.map((c) => c.slug || String(c.id)) : [],
+                categories: Array.isArray(p.categories) ? p.categories.map((c) => ({
+                  id: c.id,
+                  slug: c.slug,
+                  name: typeof c.name === 'object' ? c.name : { en: c.name || c.slug, ar: c.name || c.slug },
+                  nameEn: typeof c.name === 'object' ? (c.name.en || c.slug) : (c.name || c.slug),
+                  nameAr: typeof c.name === 'object' ? (c.name.ar || c.slug) : (c.name || c.slug),
+                })) : [],
+                tags: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Design', 'Brand'],
+                tools: p.tools && p.tools.length > 0 ? p.tools.map((t) => t.name || t.slug) : ['Photoshop', 'Illustrator'],
+                year: String(p.year || new Date().getFullYear()),
+                image: cover,
+                coverImage: cover,
+                client: { en: p.client || 'Studio Client', ar: p.client || 'عميل الاستوديو' },
+                featured: Boolean(p.is_featured),
+                publicationDate: p.published_at || String(p.year || ''),
+                gallery: Array.isArray(p.media) ? p.media.map((m, idx) => ({
+                  id: m.id || `${p.slug}-media-${idx}`,
+                  url: m.display_url || m.url,
+                  src: m.display_url || m.url,
+                  title: { en: m.caption_en || titleEn, ar: m.caption_ar || titleAr },
+                  caption: { en: m.caption_en || summaryEn, ar: m.caption_ar || summaryAr },
+                  type: m.is_cover ? 'cover' : 'gallery',
+                })) : [],
+                services: [{ en: 'Brand Identity', ar: 'الهوية البصرية' }, { en: 'Visual Design', ar: 'التصميم المرئي' }],
+              };
+            });
 
-          if (isMounted) {
-            setPublishedProjects(normalizedApi);
-            if (typeof window !== 'undefined' && window.sessionStorage) {
+            if (isMounted) {
+              setPublishedProjects(normalizedApi);
               try {
+                window.localStorage.setItem('studio_published_projects_cache', JSON.stringify(normalizedApi));
                 window.sessionStorage.setItem('studio_published_projects_cache', JSON.stringify(normalizedApi));
               } catch (e) {}
             }
           }
         }
-
-        if (catRes.ok) {
-          const catJson = await catRes.json();
-          const apiCats = catJson.data?.categories || (Array.isArray(catJson.data) ? catJson.data : []);
-          if (isMounted) {
-            setCategories(apiCats);
-            if (typeof window !== 'undefined' && window.sessionStorage) {
-              try {
-                window.sessionStorage.setItem('studio_categories_cache', JSON.stringify(apiCats));
-              } catch (e) {}
-            }
-          }
-        }
-
-        if (setRes.ok) {
-          const setJson = await setRes.json();
-          const apiSettings = setJson.data?.settings || setJson.data || null;
-          if (isMounted) {
-            setSiteSettings(apiSettings);
-          }
-        }
       } catch (e) {
-        // Fallback safely to empty state without throwing runtime exceptions
+        // Gracefully preserve existing cached or fallback data
       }
     }
 
-    loadBackendData();
+    async function loadCategories() {
+      try {
+        const catRes = await fetchWithRetry(
+          `/api/v1/categories?locale=${lang}`,
+          { headers: { Accept: 'application/json' } },
+          5000,
+          1
+        );
+        if (catRes && catRes.ok) {
+          const catJson = await catRes.json();
+          const apiCats = catJson.data?.categories || (Array.isArray(catJson.data) ? catJson.data : []);
+          if (Array.isArray(apiCats) && apiCats.length > 0 && isMounted) {
+            setCategories(apiCats);
+            try {
+              window.localStorage.setItem('studio_categories_cache', JSON.stringify(apiCats));
+              window.sessionStorage.setItem('studio_categories_cache', JSON.stringify(apiCats));
+            } catch (e) {}
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function loadSettings() {
+      try {
+        const setRes = await fetchWithRetry(
+          `/api/v1/settings?locale=${lang}`,
+          { headers: { Accept: 'application/json' } },
+          5000,
+          1
+        );
+        if (setRes && setRes.ok) {
+          const setJson = await setRes.json();
+          const apiSettings = setJson.data?.settings || setJson.data || null;
+          if (apiSettings && isMounted) {
+            setSiteSettings(apiSettings);
+            try {
+              window.localStorage.setItem('studio_settings_cache', JSON.stringify(apiSettings));
+              window.sessionStorage.setItem('studio_settings_cache', JSON.stringify(apiSettings));
+            } catch (e) {}
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Fire all three non-blocking requests in parallel
+    loadProjects();
+    loadCategories();
+    loadSettings();
     return () => {
       isMounted = false;
     };

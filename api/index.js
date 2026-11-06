@@ -141,7 +141,7 @@ export default async function handler(req, res) {
 
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=86400',
       ...headers,
     });
     res.end(responseHtml);

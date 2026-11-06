@@ -118,7 +118,8 @@ export const AboutSection = ({ lang, settings }) => {
                     alt={designerFullName}
                     className="relative z-10 h-[76%] sm:h-[80%] w-auto max-w-[85%] sm:max-w-[88%] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-transform duration-700 hover:scale-[1.02]"
                     data-testid="about-profile-image"
-                    loading="eager"
+                    loading="lazy"
+                    decoding="async"
                   />
 
                   {/* Subtle bottom gradient vignette to ensure smooth merge */}

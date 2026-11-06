@@ -54,6 +54,8 @@ export const Footer = ({ lang, locale, settings }) => {
                 src="/logo/logo.png"
                 alt="MO"
                 className="h-7 sm:h-8 w-auto object-contain"
+                loading="lazy"
+                decoding="async"
                 data-testid="footer-brand-logo"
               />
               <span className="text-sm font-medium text-neutral-300">

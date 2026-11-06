@@ -11,14 +11,28 @@ if (typeof window !== 'undefined') {
 
 export const JourneySection = ({ lang }) => {
   const t = translations[lang].journey;
-  const [milestones, setMilestones] = useState(timelineData);
+  const [milestones, setMilestones] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const local = window.localStorage.getItem('studio_journey_cache');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return timelineData;
+  });
   const journeyRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
     async function loadDynamicJourney() {
       try {
-        const res = await fetch(`/api/v1/journey?locale=${lang}`);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(`/api/v1/journey?locale=${lang}`, { signal: controller.signal });
+        clearTimeout(timer);
         if (!res.ok) return;
         const data = await res.json();
         if (
@@ -28,9 +42,12 @@ export const JourneySection = ({ lang }) => {
           data.data.milestones.length > 0
         ) {
           setMilestones(data.data.milestones);
+          try {
+            window.localStorage.setItem('studio_journey_cache', JSON.stringify(data.data.milestones));
+          } catch (e) {}
         }
       } catch (e) {
-        // Fallback gracefully to timelineData
+        // Fallback gracefully to cached/default timelineData without hanging
       }
     }
     loadDynamicJourney();
