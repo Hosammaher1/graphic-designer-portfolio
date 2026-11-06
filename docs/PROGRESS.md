@@ -24,7 +24,33 @@ Use `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `REWORK_REQUIRED`, or `
 
 **Phase 08 mapping correction (2026-11-02):** The table below now uses the master plan's original task IDs and titles. Earlier reports and commits used different labels; they remain intact as historical records. [PHASE08_COMPLIANCE_AUDIT.md](PHASE08_COMPLIANCE_AUDIT.md) maps each one to the canonical acceptance criteria. A historical passing test is evidence for part of a task, not proof that the whole canonical task or phase gate passed. The totals count only rows currently marked `DONE`; the 11 Phase 04 `REWORK_REQUIRED` rows are excluded.
 
-## Current Antigravity remediation reports — 2026-11-05
+## Current Antigravity remediation reports — 2026-11-06
+
+### Stage 24: Homepage Featured Project Cards Edge-to-Edge Cover Fill — Live & Verified — 2026-11-06
+
+- **Task Scope & Status:** Updated the featured project image display on the homepage (`SelectedWorkSection.jsx`) so each image completely fills its card container edge-to-edge without padding, blur backgrounds, or letterbox gaps, while strictly preserving fixed card dimensions:
+  1. **Edge-to-Edge Single `<img>` Fill:**
+     - Removed atmospheric blurred background duplicates and padded containment wrappers from the center card, flanking peek cards, and interactive thumbnails in `frontend/src/components/SelectedWorkSection.jsx`.
+     - Center active card image: `<img src={currentProject.image} alt={...} className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" />`.
+     - Flanking peek cards and interactive thumbnails: updated to direct `w-full h-full object-cover object-center` presentation.
+  2. **Preserved Dimensions:**
+     - Kept exact card dimensions: center card `w-full max-w-4xl h-[460px] sm:h-[510px]` (`896px × 510px` desktop, `361px × 460px` mobile), flanking cards `h-[390px]`, and container `min-h-[460px] sm:min-h-[520px]`.
+     - Kept all other pages and components (project details modal, fullscreen lightbox viewer, portfolio catalog, admin dashboard) completely intact.
+  3. **Aiven MySQL & Render API Auto-Recovery:**
+     - Detected Aiven MySQL free-tier service `mysql-1244d130` had entered `POWEROFF` after period of inactivity.
+     - Powered on the service via Aiven MCP API (`aiven_service_update`), monitored VM boot, base backup restoration, and binlog synchronization until status reached `RUNNING`.
+     - Confirmed Render web service container auto-migrated and reconnected, successfully serving `GET /api/v1/projects` with HTTP 200 OK.
+  4. **Playwright E2E Visual Verification:**
+     - Desktop (1440x900): Card is `896px × 510px`, image is `894px × 508px`, computed styles: `objectFit: "cover"`, `objectPosition: "50% 50%"`, completely fills card width and height (diff <= 2px border tolerance). Captured `desktop-homepage-selected-work-cover-fill.png`.
+     - Mobile (393x851): Card is `361px × 460px`, image is `359px × 458px`, computed styles: `objectFit: "cover"`, `objectPosition: "50% 50%"`, completely fills card width and height. Captured `mobile-homepage-selected-work-cover-fill.png`.
+     - Full test suite passed with 100% assertions met.
+- **Branch / Commit:** `feat/homepage-featured-images-cover-fill` (Commit `0203791`), merged to `dev` and pushed to `origin/dev`.
+- **Live Deployment:** Vercel production deployment `dpl_Dfd5u1Sidu5zPeequjv88Qiz9wrJ` (`READY`, `https://mohammed-design.vercel.app`).
+- **Files Modified:**
+  - `frontend/src/components/SelectedWorkSection.jsx`
+  - `docs/PROGRESS.md`
+  - `docs/AGENT_HANDOFF.md`
+
 
 ### Stage 18: Cloudinary Production Media Storage Integration & Signature Resolution — Live & Verified — 2026-11-05
 
