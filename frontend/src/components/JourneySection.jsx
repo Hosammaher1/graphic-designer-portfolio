@@ -79,13 +79,13 @@ export const JourneySection = ({ lang }) => {
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
+    const isMobile = window.innerWidth < 1024 || ('ontouchstart' in window);
+    if (prefersReduced || isMobile) return;
 
     const ctx = gsap.context(() => {
-      // Progressive reveal for milestone cards as they enter with ScrollTrigger
       gsap.fromTo(
         '.milestone-card',
-        { opacity: 0, y: 30 },
+        { opacity: 0.7, y: 15 },
         {
           opacity: 1,
           y: 0,

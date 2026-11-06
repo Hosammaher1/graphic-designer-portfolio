@@ -2199,3 +2199,29 @@ html, body {
   transition: none !important;
   animation: none !important;
 }
+
+/* ==========================================================================
+   Mobile Visibility & Animation Safeguard (Zero Black Screen Guarantee)
+   ========================================================================== */
+.about-reveal,
+.skill-stagger,
+.milestone-card,
+.hero-stagger {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 1023px) {
+  .about-reveal,
+  .skill-stagger,
+  .milestone-card,
+  .hero-stagger,
+  .reveal-hidden,
+  .reveal-hidden.reveal-up,
+  .reveal-wrap {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    transition: none !important;
+  }
+}

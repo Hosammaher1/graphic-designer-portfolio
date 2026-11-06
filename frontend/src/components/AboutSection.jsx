@@ -40,12 +40,13 @@ export const AboutSection = ({ lang, settings }) => {
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
+    const isMobile = window.innerWidth < 1024 || ('ontouchstart' in window);
+    if (prefersReduced || isMobile) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.about-reveal',
-        { opacity: 0, y: 30 },
+        { opacity: 0.7, y: 15 },
         {
           opacity: 1,
           y: 0,

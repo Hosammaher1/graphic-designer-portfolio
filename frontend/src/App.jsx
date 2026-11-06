@@ -52,8 +52,15 @@ export default function App({ initialUrl, initialLocale }) {
       const pathname = window.location.pathname;
       if (pathname.startsWith('/ar')) return 'ar';
       if (pathname.startsWith('/en')) return 'en';
+      try {
+        const initDataEl = document.getElementById('__INITIAL_DATA__');
+        if (initDataEl) {
+          const initData = JSON.parse(initDataEl.textContent);
+          if (initData?.locale) return initData.locale;
+        }
+      } catch (e) {}
     }
-    return 'en';
+    return 'ar';
   });
 
   // Route state: 'home' | 'work' | 'admin'

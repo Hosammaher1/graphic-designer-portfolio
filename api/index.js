@@ -67,14 +67,36 @@ export default async function handler(req, res) {
     const cleanUrl = url.split('?')[0];
     const headers = getSecurityHeaders();
 
-    // Root redirect to default locale /ar/
-    if (cleanUrl === '/' || cleanUrl === '') {
-      res.writeHead(302, {
-        Location: '/ar/',
-        ...headers,
-      });
-      res.end();
-      return;
+    // Root alias or locale target (serve Arabic directly for root / to eliminate 302 redirect latency)
+    const effectiveUrl = (cleanUrl === '/' || cleanUrl === '') ? '/ar/' : cleanUrl;
+    const isEn = effectiveUrl.startsWith('/en');
+    const lang = isEn ? 'en' : 'ar';
+    const dir = isEn ? 'ltr' : 'rtl';
+
+    // Instant Pre-rendered static delivery for frame-1 instant mobile response
+    if (effectiveUrl === '/ar/' || effectiveUrl === '/en/') {
+      const staticFilePath = isEn
+        ? path.resolve(clientDist, 'en/index.html')
+        : path.resolve(clientDist, 'ar/index.html');
+      const rootFallbackPath = path.resolve(clientDist, 'index.html');
+      const targetPath = fs.existsSync(staticFilePath) ? staticFilePath : rootFallbackPath;
+
+      if (fs.existsSync(targetPath)) {
+        try {
+          const staticHtml = fs.readFileSync(targetPath, 'utf-8');
+          if (staticHtml.length > 5000 && !staticHtml.includes('<!--ssr-outlet-->')) {
+            res.writeHead(200, {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=86400',
+              ...headers,
+            });
+            res.end(staticHtml);
+            return;
+          }
+        } catch (readErr) {
+          console.warn('[Vercel SSR] Static read failed, falling back to dynamic render:', readErr.message);
+        }
+      }
     }
 
     // SSR rendering for public or admin routes
@@ -96,12 +118,10 @@ export default async function handler(req, res) {
     let appHtml = '';
     let title = 'Mohammed Maher | Creative Visual Designer';
     let headTags = '';
-    let lang = cleanUrl.startsWith('/en') ? 'en' : 'ar';
-    let dir = lang === 'ar' ? 'rtl' : 'ltr';
-
+    
     if (render) {
       try {
-        const rendered = await render(cleanUrl);
+        const rendered = await render(effectiveUrl);
         appHtml = rendered.html || '';
         lang = rendered.lang || lang;
         dir = rendered.dir || dir;
