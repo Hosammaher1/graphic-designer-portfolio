@@ -1,7 +1,7 @@
 # Portfolio Agent Instructions
 
 ## Project Scope
-Read `Graphic_Designer_Portfolio_Plan_v1_1.md`, `docs/PLAN_AUDIT.md`, `docs/AGENT_HANDOFF.md`, `docs/DECISIONS.md`, and `docs/PROGRESS.md` before continuing development.
+Read `Graphic_Designer_Portfolio_Plan_v1_1.md`, `docs/PROJECT_GUIDE.md`, and `docs/MAINTENANCE.md` before continuing development.
 
 The approved plan contains 108 tasks across 10 phases, including the approved Hybrid Single-Page Experience Redesign (Phase 10: Tasks 10.01–10.11). Execute all remaining tasks sequentially, starting from the first genuinely incomplete task. Never repeat completed work.
 
@@ -36,7 +36,7 @@ The approved public architecture is:
 - Never report tests as passed unless actually executed successfully.
 
 ## Progress Documentation
-After EVERY completed task, update `docs/PROGRESS.md` using the same detailed format as Task 02.08.
+After EVERY completed task, update `docs/MAINTENANCE.md` with task details and verification evidence.
 
 Include:
 - Task ID, title, and status
@@ -47,7 +47,7 @@ Include:
 - Browser verification and visual motion observed
 - Issues encountered and fixes applied
 
-Keep `docs/AGENT_HANDOFF.md` updated with the latest checkpoint.
+Keep `docs/MAINTENANCE.md` updated with the latest checkpoint.
 
 ## Security
 - Never commit secrets, tokens, or `.env` files.

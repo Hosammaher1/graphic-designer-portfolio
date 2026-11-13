@@ -76,7 +76,7 @@ To guarantee stability, safety, and reproducible builds, all development adheres
 
 ## Getting Started
 
-Please refer to [`docs/LOCAL_SETUP.md`](docs/LOCAL_SETUP.md) for step-by-step developer setup instructions.
+Please refer to [`docs/PROJECT_GUIDE.md`](docs/PROJECT_GUIDE.md) for step-by-step developer setup and architecture instructions.
 
 ### Prerequisites
 
@@ -106,10 +106,7 @@ npm.cmd --version
 
 ## Project Documentation Index
 
-- [Approved Master Plan](Graphic_Designer_Portfolio_Plan_v1_1.md): Canonical product scope across 9 phases and 97 tasks.
-- [Agent Handoff & Bounds](AGENTS.md): Execution boundary and owner directives.
-- [Architecture Blueprint](docs/ARCHITECTURE.md): System topology, immutable snapshots, hydration strategy, and domain entities.
-- [Architecture Decision Records](docs/DECISIONS.md): Recorded decisions on branching, publishing, testing DB, and privacy.
-- [Local Setup Guide](docs/LOCAL_SETUP.md): Comprehensive developer workstation setup instructions.
-- [Plan Audit](docs/PLAN_AUDIT.md): Risk audit and required execution gates.
-- [Implementation Progress](docs/PROGRESS.md): Live task register tracking status, tests, and commits.
+- [Approved Master Plan](Graphic_Designer_Portfolio_Plan_v1_1.md): Canonical product scope and task matrix.
+- [Agent Handoff & Bounds](AGENTS.md): Autonomous execution boundaries and engineering directives.
+- [Project Architecture & Developer Guide](docs/PROJECT_GUIDE.md): System topology, frontend/backend architecture, environment setup, and ADRs.
+- [Operations & Maintenance Manual](docs/MAINTENANCE.md): Automated testing, health probes, runbooks, and critical engineering safeguards.
