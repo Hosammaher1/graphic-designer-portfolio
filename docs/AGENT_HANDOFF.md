@@ -1,5 +1,20 @@
 # Agent Handoff — Checkpoint at Hybrid Redesign Replanning
 
+## Current Antigravity Stage 28 Checkpoint — 2026-11-13 (Accessibility, SEO & Performance Audit Remediation Completed)
+
+- **Active Branch:** `dev` (Commit `effbfc8`, synchronized with `origin/dev`, feature branch `fix/accessibility-seo-perf` pushed to `origin/fix/accessibility-seo-perf`)
+- **Audit Issues Resolved:**
+  1. *[High] AXE-color-contrast:* WCAG AAA contrast achieved in light mode for all muted and metadata text (`#48404a` on `#F6F1EB` gives > 7.5:1, well above 4.5:1 AA requirement).
+  2. *[Medium] SEO-ROBOTS-HTML:* Plain-text `robots.txt` served with `Content-Type: text/plain; charset=utf-8`.
+  3. *[Medium] GEO-DISCOVERY-HTML:* Plain-text `llms.txt` and `llms-full.txt` served with `Content-Type: text/plain; charset=utf-8`.
+  4. *[Medium] AXE-heading-order:* Fixed heading order in `HeroSection.jsx` (`h1` → `h2`) and `SkillsSection.jsx` (`h2` → `h3`). Sequential progression without skips.
+  5. *[Medium] LH-unused-javascript:* Split and lazy-loaded `AdminApp` via dynamic import, saving > 275 kB of unused JavaScript from the public bundle.
+  6. *[Low] SEO-SITEMAP-ENTRIES:* Valid canonical production `sitemap.xml` with HTTPS origin, multi-locale links, valid dates, and zero localhost entries.
+  7. *[Low] AXE-empty-heading:* Fixed empty heading in `ContactSection.jsx` by adding default fallback titles and updating translation dictionaries.
+- **Verification Status:** Client, SSR, and SSG pre-render builds succeeded cleanly. Ready for production deployment approval.
+
+---
+
 ## Current Antigravity Stage 27 Checkpoint — 2026-11-06 (Multi-Locale Architecture Correction — Strict English Default on `/` and `/en/`, Arabic on `/ar/` Verified & Live)
 
 - **Active Branch:** `dev` (Commit `62213c4`, synchronized with `origin/dev`)

@@ -6281,3 +6281,26 @@ Next task:
   - **Interactive Language Switcher:**
     - Click `AR`: Document updates to `lang="ar" dir="rtl"`, URL to `/ar/`, H1 to `"مصممجرافيك"`. Screenshot: `switcher-switched-to-arabic.png`.
     - Click `EN`: Document updates to `lang="en" dir="ltr"`, URL to `/en/`, H1 to `"GraphicDesigner"`. Screenshot: `switcher-switched-to-english.png`.
+
+
+---
+
+### Stage 28: Accessibility, SEO & Performance Audit Remediation (2026-11-13)
+
+- **Task Scope & Status:** Resolved all 7 issues identified in the evidence-based website repair audit:
+  1. **[High] AXE-color-contrast:** Overrode muted text and small metadata elements in light mode to `#48404a` (contrast > 7.5:1 on `#F6F1EB` and > 8.5:1 on `#FFFFFF`, exceeding WCAG AA 4.5:1 and meeting WCAG AAA 7.0:1).
+  2. **[Medium] SEO-ROBOTS-HTML:** Created `frontend/public/robots.txt` and explicit static text delivery in `api/index.js` with `Content-Type: text/plain; charset=utf-8`.
+  3. **[Medium] GEO-DISCOVERY-HTML:** Created `frontend/public/llms.txt` and `frontend/public/llms-full.txt` served as plain text with `Content-Type: text/plain; charset=utf-8`.
+  4. **[Medium] AXE-heading-order:** Corrected heading hierarchy skips:
+     - In `HeroSection.jsx`: Changed perspective card heading from `h3` to `h2` (`h1` → `h2`).
+     - In `SkillsSection.jsx`: Changed expertise cards and principles headings from `h4` to `h3` (`h2` → `h3`).
+  5. **[Medium] LH-unused-javascript:** Split the heavy `AdminApp` code via dynamic `React.lazy()` with `<React.Suspense>` in `App.jsx`. Reduced public bundle size by > 275 kB (initial `index.js` chunk reduced from 549 kB to 273 kB).
+  6. **[Low] SEO-SITEMAP-ENTRIES:** Generated static `frontend/public/sitemap.xml` containing valid canonical production URLs (`https://mohammed-design.vercel.app`), multi-locale alternates (`en`, `ar`, `x-default`), valid `lastmod` dates, all 9 projects, and eliminated Render proxy that returned `localhost:3000`.
+  7. **[Low] AXE-empty-heading:** Added missing `directTitle` and `directDesc` translations in `portfolioData.js` and added fallback defaults in `ContactSection.jsx` ensuring `<h3 class="... text-xl">Direct Contact</h3>` is never empty.
+- **Status:** **DONE & MERGED INTO DEV** (Awaiting user approval for production deployment)
+- **Branch / Commit / Remote:** `fix/accessibility-seo-perf` (commit `effbfc8`), merged into `dev`, pushed to `origin/dev` and `origin/fix/accessibility-seo-perf`.
+- **Verification Results:**
+  - Build: Succeeded cleanly (`vite build` + SSR bundle + SSG prerendering).
+  - Chunk splitting: `index-BFzLmQV5.js` (273.54 kB), `AdminApp-U3ytxnLM.js` (278.19 kB, deferred).
+  - Headings Audit: 28 headings verified in pre-rendered output with zero empty headings and 100% compliant sequential hierarchy (`h1` → `h2` → `h3`).
+  - Route Test: `/robots.txt` (200, text/plain), `/llms.txt` (200, text/plain), `/llms-full.txt` (200, text/plain), `/sitemap.xml` (200, application/xml).
