@@ -625,7 +625,7 @@ export default function App({ initialUrl, initialLocale }) {
             isLoadingSettings={isLoadingSettings}
             settingsError={settingsError}
             onRetrySettings={loadSettings}
-            featuredProject={Array.isArray(publishedProjects) ? (publishedProjects.find((p) => p.featured) || (publishedProjects.length > 0 ? publishedProjects[0] : null)) : null}
+            featuredProject={Array.isArray(publishedProjects) ? (publishedProjects.find((p) => p.featured) || null) : null}
             isLoadingProjects={isLoadingProjects}
             onOpenProject={(id) => openProjectModal(id)}
           />

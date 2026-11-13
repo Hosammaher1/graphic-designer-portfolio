@@ -20,17 +20,11 @@ export const SelectedWorkSection = ({
   const t = translations[lang].work;
 
   const isProjectsLoaded = Array.isArray(passedProjects);
-  // Respect explicitly selected featured projects defined in Admin Dashboard
-  const explicitlyFeatured = isProjectsLoaded
+  // Display ONLY published projects marked as featured in the Admin Dashboard.
+  // Never automatically substitute all projects; if none are marked featured, show an empty state.
+  const projects = isProjectsLoaded
     ? passedProjects.filter((p) => Boolean(p.featured))
     : [];
-
-  // When featured projects are explicitly defined in the dashboard, display them in dashboard order.
-  // Never automatically substitute the latest three projects.
-  // If no projects are marked as featured, respect all published projects in dashboard order.
-  const projects = explicitlyFeatured.length > 0
-    ? explicitlyFeatured
-    : (isProjectsLoaded ? passedProjects : []);
   const total = projects.length;
   const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
 
