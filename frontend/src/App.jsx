@@ -60,7 +60,7 @@ export default function App({ initialUrl, initialLocale }) {
         }
       } catch (e) {}
     }
-    return 'ar';
+    return 'en';
   });
 
   // Route state: 'home' | 'work' | 'admin'

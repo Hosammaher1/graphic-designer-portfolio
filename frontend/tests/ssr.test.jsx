@@ -1,8 +1,14 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render as renderServer } from '../src/entry-server.jsx';
 import { getSecurityHeaders } from '../server/index.js';
+
+// Polyfill persistent requestAnimationFrame on Node global to prevent trailing ScrollTrigger _sync timeout error
+if (typeof global !== 'undefined') {
+  global.requestAnimationFrame = global.requestAnimationFrame || ((cb) => setTimeout(cb, 16));
+  global.cancelAnimationFrame = global.cancelAnimationFrame || ((id) => clearTimeout(id));
+}
 
 describe('Server-Side Rendering (SSR)', () => {
   it('RED/GREEN: renders Arabic route with title and semantic HTML before client JS', () => {

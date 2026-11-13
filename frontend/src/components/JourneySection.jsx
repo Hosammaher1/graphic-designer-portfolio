@@ -45,9 +45,8 @@ export const JourneySection = ({
   };
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.innerWidth < 1024 || ('ontouchstart' in window);
-    if (prefersReduced || isMobile) return;
+    const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(

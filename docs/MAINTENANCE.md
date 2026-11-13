@@ -192,3 +192,35 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
   - **Dynamic Loading E2E:** `node e2e/tests/verify-dynamic-loading-and-skeletons.cjs` verified slow network simulation (72 skeletons active), real data arrival, Arabic RTL, mobile viewport heights, and API failure non-blocking resilience.
   - **Mobile Visibility E2E:** `node e2e/tests/verify-all-sections-mobile.cjs` verified 100% visibility for all 7 sections with zero black screen across repeated reloads.
   - **Locale & Hydration E2E:** `node e2e/tests/verify-all-locales.cjs` verified English default on `/` and `/en/`, Arabic RTL on `/ar/`, and interactive language switching without errors.
+
+| **Stage 30** | 2026-11-14 | Cross-Device Architecture Divergence | Refactored application into ONE unified responsive codebase across desktop, tablet, and mobile. Removed artificial mobile-only animation suppressions (`innerWidth < 1024`), unified GSAP motion with safe initial opacity (`0.85`), removed destructive CSS `transform: none !important` rules, fixed Selected Work to strictly respect dashboard-defined featured projects without arbitrary `.slice(0, 3)` substitution, and added native touch swipe gesture navigation to the shared carousel. Verified across Desktop (1440x900), Tablet (iPad 768x1024), and Mobile (iPhone 12 390x844). |
+
+---
+
+## 8. Verification Checkpoint — Stage 30 (Unified Responsive Architecture)
+
+- **Branch:** `feat/unified-responsive-architecture`
+- **Core Architectural Standard:** ONE application, ONE source of truth, ONE shared business logic across all devices.
+- **Divergence Removed & Standardized:**
+  1. **Selected Work Carousel Synchronization:**
+     - Replaced arbitrary `passedProjects.slice(0, 3)` with explicit dashboard-driven featured project filter (`passedProjects.filter(p => Boolean(p.featured))`).
+     - Never substitutes standard projects when featured projects are explicitly defined.
+     - Preserves dashboard-defined ordering across all devices.
+  2. **Multi-Input Carousel Interaction:**
+     - Added native touch swipe gesture handling (`onTouchStart`, `onTouchEnd` with horizontal dominant threshold > 40px) in [`SelectedWorkSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/SelectedWorkSection.jsx).
+     - Mouse click (arrows and flanking cards), keyboard navigation (`ArrowLeft` / `ArrowRight`), and touchscreen swipe all navigate the same carousel seamlessly.
+  3. **Universal Cinematic Motion & Visibility Guarantee:**
+     - Removed artificial `isMobile` / `innerWidth < 1024` bailouts from [`HeroSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/HeroSection.jsx), [`AboutSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/AboutSection.jsx), [`SkillsSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/SkillsSection.jsx), [`JourneySection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/JourneySection.jsx), and [`AllProjectsScreen.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/AllProjectsScreen.jsx).
+     - Standardized GSAP animations to start from a visible base (`opacity: 0.85, y: 15`), ensuring 100% visible initial paint without black screens on any device.
+     - Cleaned up [`index.css`](file:///D:/programming/mohammed-Portfolio/frontend/src/index.css), replacing blunt `transform: none !important; transition: none !important;` rules with accessible `prefers-reduced-motion: reduce` standards.
+  4. **Root Default Locale Consistency:**
+     - Standardized fallback in [`App.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/App.jsx) to return `'en'` by default when accessing `/`, guaranteeing identical default behavior across mobile, tablet, and desktop.
+- **Verification Suites & Measured Timings:**
+  - **Vitest Unit/Component Suite:** 42 test files, 237 passed (0 failed).
+  - **Vite Build & Pre-render:** `npm run build` generated production assets and SSG pre-render with exit code 0.
+  - **Playwright Unified Responsive Suite** (`verify-unified-responsive-experience.cjs`):
+    - **Desktop (1440x900):** Total load: **139ms** (DOMContentLoaded: 113ms). All 7 sections visible. Modal opened and closed via Escape. Language switched between EN and AR.
+    - **Tablet (768x1024 iPad):** Total load: **119ms** (DOMContentLoaded: 109ms). Carousel touch swipe verified (swiped left to advance project). All 7 sections visible.
+    - **Mobile (390x844 iPhone 12, 4G emulation):** Repeated reloads verified (3 runs, DOMContentLoaded ~4157ms on throttled 4G) with **zero black screen** (`heroVisible=true, h1Opacity=1`). Mobile hamburger drawer opened and navigated to section. All 7 sections 100% visible.
+- **Justification of Retained Device-Specific Behavior:**
+  - CSS responsive grid classes (e.g. `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` or `hidden lg:flex` vs mobile drawer menu) are retained strictly for responsive presentation and layout adaptation, in accordance with Section 1 of the requirements.

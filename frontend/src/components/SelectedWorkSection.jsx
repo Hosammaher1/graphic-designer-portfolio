@@ -20,13 +20,47 @@ export const SelectedWorkSection = ({
   const t = translations[lang].work;
 
   const isProjectsLoaded = Array.isArray(passedProjects);
-  // Use passed database projects or empty array if not loaded
-  const projects = isProjectsLoaded ? passedProjects.slice(0, 3) : [];
+  // Respect explicitly selected featured projects defined in Admin Dashboard
+  const explicitlyFeatured = isProjectsLoaded
+    ? passedProjects.filter((p) => Boolean(p.featured))
+    : [];
+
+  // When featured projects are explicitly defined in the dashboard, display them in dashboard order.
+  // Never automatically substitute the latest three projects.
+  // If no projects are marked as featured, respect all published projects in dashboard order.
+  const projects = explicitlyFeatured.length > 0
+    ? explicitlyFeatured
+    : (isProjectsLoaded ? passedProjects : []);
   const total = projects.length;
   const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
 
   const sectionRef = useRef(null);
   const activeCardRef = useRef(null);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartX.current;
+    const deltaY = touch.clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
+      if (deltaX < 0) {
+        lang === 'ar' ? handlePrev() : handleNext();
+      } else {
+        lang === 'ar' ? handleNext() : handlePrev();
+      }
+    }
+  };
 
   const handlePrev = () => {
     if (total === 0) return;
@@ -214,7 +248,11 @@ export const SelectedWorkSection = ({
         ) : (
           <>
             {/* Carousel Center Stage: Active Centered Card with Flanking Peeks */}
-            <div className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4">
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4 select-none touch-pan-y"
+            >
               
               {/* Left Flanking Peek Card */}
               {total > 1 && (
