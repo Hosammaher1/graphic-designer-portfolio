@@ -67,6 +67,31 @@ export default async function handler(req, res) {
     const cleanUrl = url.split('?')[0];
     const headers = getSecurityHeaders();
 
+    // Explicit static file fallback for SEO/discovery text and XML endpoints
+    if (cleanUrl === '/robots.txt' || cleanUrl === '/llms.txt' || cleanUrl === '/llms-full.txt') {
+      const targetPath = path.resolve(clientDist, cleanUrl.slice(1));
+      if (fs.existsSync(targetPath)) {
+        res.writeHead(200, {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600',
+        });
+        res.end(fs.readFileSync(targetPath, 'utf-8'));
+        return;
+      }
+    }
+
+    if (cleanUrl === '/sitemap.xml') {
+      const targetPath = path.resolve(clientDist, 'sitemap.xml');
+      if (fs.existsSync(targetPath)) {
+        res.writeHead(200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600',
+        });
+        res.end(fs.readFileSync(targetPath, 'utf-8'));
+        return;
+      }
+    }
+
     // Root alias or locale target (Default is strictly ENGLISH on root / and /en/)
     const isRoot = cleanUrl === '/' || cleanUrl === '';
     const effectiveUrl = isRoot ? '/en/' : cleanUrl;

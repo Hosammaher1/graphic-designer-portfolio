@@ -290,10 +290,10 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
           <div className="lg:col-span-5 space-y-6 text-left rtl:text-right">
             <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-white/10">
               <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2">
-                {t.directTitle}
+                {t.directTitle || (currentLang === 'ar' ? 'معلومات التواصل المباشر' : 'Direct Contact')}
               </h3>
               <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed mb-6">
-                {t.directDesc}
+                {t.directDesc || (currentLang === 'ar' ? 'تفضل بالتواصل معي عبر البريد الإلكتروني أو واتساب لمناقشة المشاريع وفرص التعاون.' : 'Feel free to reach out directly via email or WhatsApp to discuss projects and collaboration.')}
               </p>
 
               <div className="space-y-3">

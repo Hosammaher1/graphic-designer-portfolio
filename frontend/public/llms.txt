@@ -1,0 +1,29 @@
+# Mohammed Maher – Creative Visual Designer Portfolio
+
+## Site
+- URL: https://mohammed-design.vercel.app/
+- Languages: English (default), Arabic (RTL)
+- Theme: Dark studio / Light mode toggle
+
+## About
+Mohammed Maher is a creative visual designer specialising in brand identity, digital design, print design, and motion graphics. The portfolio showcases selected client work, case studies, and design philosophy.
+
+## Content Structure
+- **Homepage** (`/`): Hero, Selected Work (3 featured projects), About, Skills & Expertise, Creative Journey, Contact
+- **All Projects** (`/projects`): Full filterable project gallery
+- **Project Detail** (`/:locale/projects/:slug`): Per-project case-study page
+- **Admin** (`/admin`): Content management dashboard (not public)
+
+## Key Sections
+- **Selected Work**: Curated subset of published brand identity and design projects
+- **Skills & Expertise**: Software proficiency (Figma, Photoshop, Illustrator, etc.) and design principles
+- **Creative Journey**: Career milestones and growth timeline
+- **Contact**: Email contact form
+
+## Technical
+- Frontend: React 19 + Vite 6, server-side rendered via Vercel
+- Backend API: Laravel (PHP) on Render
+- Images: Cloudinary CDN
+
+## Contact
+For inquiries, use the contact form at https://mohammed-design.vercel.app/#contact

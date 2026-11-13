@@ -53,14 +53,6 @@
       "destination": "https://mohammed-portfolio-api.onrender.com/storage/:path*"
     },
     {
-      "source": "/sitemap.xml",
-      "destination": "https://mohammed-portfolio-api.onrender.com/api/v1/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
       "source": "/(.*)",
       "destination": "/api"
     }

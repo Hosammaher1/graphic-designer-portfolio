@@ -1,0 +1,58 @@
+# Mohammed Maher – Creative Visual Designer Portfolio (Full Reference)
+
+## Site Identity
+- **Name**: Mohammed Maher | Creative Visual Designer
+- **URL**: https://mohammed-design.vercel.app/
+- **Primary Language**: English (default on `/` and `/en/`)
+- **Secondary Language**: Arabic RTL (available on `/ar/`)
+
+## Purpose
+Personal portfolio website showcasing professional design work, creative philosophy, skills, and career journey. Aimed at potential clients, recruiters, and collaborators in the design industry.
+
+## Homepage Sections (scroll-driven single page)
+
+### Hero
+Full-screen introductory section with designer name, tagline, and call-to-action buttons linking to Selected Work and Contact.
+
+### Selected Work
+Three featured projects displayed as large immersive cards with project images, titles, categories, and links to full case studies.
+
+### About
+Personal biography, design approach, and portrait image. Covers design philosophy: intentional, human-centered, detail-oriented work.
+
+### Skills & Expertise
+- **Software proficiency**: Figma, Adobe Photoshop, Adobe Illustrator, Adobe InDesign, Adobe After Effects, Adobe Premiere Pro, Cinema 4D, Procreate, Canva, Notion
+- **Expertise areas**: Brand Identity & Strategy, Digital & UI Design, Print & Publication Design, Motion & Video, Illustration, Photography
+- **Design Principles**: Purpose-Driven, Detail-Obsessed, Culturally Aware, Collaborative
+
+### Creative Journey
+Timeline of career milestones: education, early work, client projects, and growth moments.
+
+### Contact
+Contact form for inquiries. Fields: name, email, subject, message.
+
+## Project Gallery
+Full filterable gallery of all published projects. Filterable by category. Each project has:
+- Title and slug
+- Featured image
+- Category tags
+- Full artwork gallery
+- Description and case study
+
+## Technical Architecture
+- **Frontend**: React 19.0.0, Vite 6, TailwindCSS v4, GSAP with ScrollTrigger
+- **Rendering**: Server-Side Rendered (SSR) with pre-rendered static HTML for English and Arabic
+- **Backend**: Laravel 11 (PHP 8.3), MySQL via Aiven, deployed on Render
+- **CDN**: Cloudinary for all project images
+- **Deployment**: Vercel (frontend), Render (API backend)
+- **i18n**: English (en) default, Arabic (ar) with full RTL layout
+
+## SEO
+- Sitemap: https://mohammed-design.vercel.app/sitemap.xml
+- Robots: https://mohammed-design.vercel.app/robots.txt
+- Canonical URLs: https://mohammed-design.vercel.app/ (English), https://mohammed-design.vercel.app/ar/ (Arabic)
+- Meta: Unique title/description per locale and per project page
+
+## Contact & Social
+- Contact form: https://mohammed-design.vercel.app/#contact
+- Portfolio admin: Private (not publicly accessible)

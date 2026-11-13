@@ -42,7 +42,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { ProjectDetailsModal } from './components/ProjectDetailsModal';
 import { AllProjectsScreen } from './components/AllProjectsScreen';
-import AdminApp from './admin/AdminApp';
+const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
 export default function App({ initialUrl, initialLocale }) {
   // Locale state: default to 'en' with bilingual 'ar' support
@@ -511,7 +511,11 @@ export default function App({ initialUrl, initialLocale }) {
     : baseActive;
 
   if (route === 'admin') {
-    return <AdminApp />;
+    return (
+      <React.Suspense fallback={<div style={{ background: '#09070c', minHeight: '100vh' }} />}>
+        <AdminApp />
+      </React.Suspense>
+    );
   }
 
   return (

@@ -406,18 +406,24 @@
 :is(html.light, html[data-theme="light"]) #public-root #hero p,
 :is(html.light, html[data-theme="light"]) #public-root .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
 :is(html.light, html[data-theme="light"]) #public-root .text-neutral-300\/90:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *) {
-  color: #5F5660 !important;
-}
-
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-300:not([data-theme-surface="dark"] *):not(button.bg-white *),
 :is(html.light, html[data-theme="light"]) #public-root .text-neutral-400:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
-:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-400:not([data-theme-surface="dark"] *):not(button.bg-white *) {
-  color: #756B73 !important;
-}
-
+:is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-400:not([data-theme-surface="dark"] *):not(button.bg-white *),
 :is(html.light, html[data-theme="light"]) #public-root .text-neutral-500:not([data-theme-surface="dark"] *):not(button.bg-white *):not(a.bg-white *),
 :is(html.light, html[data-theme="light"]) .public-dialog .text-neutral-500:not([data-theme-surface="dark"] *):not(button.bg-white *) {
-  color: #8a8094 !important;
+  color: #48404a !important; /* WCAG AAA (>7.5:1 on #F6F1EB, >8.5:1 on #FFFFFF) */
+}
+
+/* Explicit high-specificity overrides for small kicker & metadata elements */
+:is(html.light, html[data-theme="light"]) #public-root .line-clamp-2.text-neutral-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .line-clamp-2.text-neutral-400:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-\[10px\].text-neutral-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .text-\[10px\].text-neutral-400:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .sm\:text-xs.text-neutral-300:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .sm\:text-xs.text-neutral-400:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .tracking-wider.text-neutral-400:not([data-theme-surface="dark"] *),
+:is(html.light, html[data-theme="light"]) #public-root .font-mono.text-neutral-400:not([data-theme-surface="dark"] *) {
+  color: #48404a !important;
 }
 
 /* Peach & Rose Accents Inversion (Light mode contrast: 12.1:1 AAA) */

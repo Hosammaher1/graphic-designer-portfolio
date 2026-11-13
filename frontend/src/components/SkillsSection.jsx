@@ -281,9 +281,9 @@ export const SkillsSection = ({ lang, settings }) => {
                     {card.icon}
                   </div>
                   <div className="text-left rtl:text-right">
-                    <h4 className="text-sm sm:text-base font-semibold text-white group-hover:text-rose-200 transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-rose-200 transition-colors">
                       {card.title}
-                    </h4>
+                    </h3>
                     <p className="text-xs text-neutral-400 mt-0.5">
                       {card.desc}
                     </p>
@@ -308,9 +308,9 @@ export const SkillsSection = ({ lang, settings }) => {
                   {pr.icon}
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white">
+                  <h3 className="text-sm font-semibold text-white">
                     {pr.title}
-                  </h4>
+                  </h3>
                   <p className="text-xs text-neutral-400 font-light mt-0.5 leading-snug">
                     {pr.desc}
                   </p>

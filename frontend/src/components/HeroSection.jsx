@@ -213,9 +213,9 @@ export const HeroSection = ({
                 {/* Card Bottom: Project / Tagline + Circle Arrow Button */}
                 <div className="relative z-10 flex items-end justify-between gap-3 pt-6 border-t border-rose-300/15">
                   <div>
-                    <h3 className="font-serif text-lg sm:text-xl font-medium text-white italic tracking-wide leading-tight">
+                    <h2 className="font-serif text-lg sm:text-xl font-medium text-white italic tracking-wide leading-tight">
                       {cardTitle}
-                    </h3>
+                    </h2>
                   </div>
 
                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-lg">
