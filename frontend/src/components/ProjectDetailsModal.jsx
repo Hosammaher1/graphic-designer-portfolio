@@ -42,7 +42,7 @@ export const ProjectDetailsModal = ({
   const touchEndX = useRef(null);
 
   const t = translations[lang].modal;
-  const activeList = projectCollection && projectCollection.length > 0 ? projectCollection : projectsData;
+  const activeList = Array.isArray(projectCollection) && projectCollection.length > 0 ? projectCollection : (project ? [project] : []);
 
   const getLoc = (val) => resolveText(val, lang, '');
 
@@ -105,15 +105,17 @@ export const ProjectDetailsModal = ({
       ]
     : [];
 
-  const rawIndex = project ? activeList.findIndex((p) => p.id === project.id) : 0;
+  const rawIndex = project ? activeList.findIndex((p) => p && p.id === project.id) : -1;
   const currentIndex = rawIndex >= 0 ? rawIndex : 0;
   const totalProjects = activeList.length;
 
   const getPrevProj = useCallback(() => {
+    if (totalProjects === 0) return null;
     return currentIndex > 0 ? activeList[currentIndex - 1] : activeList[totalProjects - 1];
   }, [currentIndex, activeList, totalProjects]);
 
   const getNextProj = useCallback(() => {
+    if (totalProjects === 0) return null;
     return currentIndex < totalProjects - 1 ? activeList[currentIndex + 1] : activeList[0];
   }, [currentIndex, activeList, totalProjects]);
 
@@ -154,9 +156,11 @@ export const ProjectDetailsModal = ({
       if (e.key === 'Escape') {
         onClose();
       } else if (e.key === 'ArrowLeft') {
-        lang === 'ar' ? onNavigateProject(getNextProj().id) : onNavigateProject(prevProject.id);
+        const target = lang === 'ar' ? getNextProj() : prevProject;
+        if (target && target.id) onNavigateProject(target.id);
       } else if (e.key === 'ArrowRight') {
-        lang === 'ar' ? onNavigateProject(prevProject.id) : onNavigateProject(nextProject.id);
+        const target = lang === 'ar' ? prevProject : nextProject;
+        if (target && target.id) onNavigateProject(target.id);
       }
     };
 
@@ -170,9 +174,10 @@ export const ProjectDetailsModal = ({
     lang,
     onClose,
     onNavigateProject,
-    prevProject.id,
-    nextProject.id,
+    prevProject?.id,
+    nextProject?.id,
     getNextProj,
+    getPrevProj,
   ]);
 
   // Touch Swipe for Mobile Lightbox

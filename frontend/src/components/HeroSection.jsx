@@ -2,20 +2,35 @@ import React, { useRef, useEffect } from 'react';
 import { translations, resolveText } from '../data/portfolioData';
 import { WaveTransition } from './WaveTransition';
 import { ArrowUpRight, ChevronDown } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 
 export const HeroSection = ({
   lang,
   onOpenProject,
   settings,
+  isLoadingSettings = false,
+  settingsError = null,
+  onRetrySettings,
   featuredProject,
+  isLoadingProjects = false,
 }) => {
   const t = translations[lang].hero;
+  const isSettingsLoaded = Boolean(settings);
+  const heroSettings = settings?.hero || {};
 
-  const kicker = settings?.hero?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
-  const titleLine1 = settings?.hero?.[lang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleLine1;
-  const titleLine2 = settings?.hero?.[lang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleLine2;
-  const description = settings?.hero?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+  const kicker = isSettingsLoaded
+    ? (lang === 'ar' ? heroSettings.kickerAr : heroSettings.kickerEn) ?? ''
+    : '';
+  const titleLine1 = isSettingsLoaded
+    ? (lang === 'ar' ? heroSettings.titleStartAr : heroSettings.titleStartEn) ?? ''
+    : '';
+  const titleLine2 = isSettingsLoaded
+    ? (lang === 'ar' ? heroSettings.titleAccentAr : heroSettings.titleAccentEn) ?? ''
+    : '';
+  const description = isSettingsLoaded
+    ? (lang === 'ar' ? heroSettings.descAr : heroSettings.descEn) ?? ''
+    : '';
 
   const hasFeatured = Boolean(featuredProject);
   const cardKicker = hasFeatured
@@ -23,7 +38,7 @@ export const HeroSection = ({
     : (lang === 'ar' ? 'استوديو التصميم' : 'STUDIO ARCHIVE');
   const cardTitle = hasFeatured
     ? resolveText(featuredProject.title, lang, 'Studio Case')
-    : (settings?.profile?.[lang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.featuredCardTitle);
+    : (settings?.profile?.[lang === 'ar' ? 'taglineAr' : 'taglineEn'] || '');
 
   const handleCardClick = () => {
     if (hasFeatured && (featuredProject.slug || featuredProject.id)) {
@@ -103,24 +118,66 @@ export const HeroSection = ({
           
           {/* Left Column: Typographic Hierarchy */}
           <div className="lg:col-span-6 flex flex-col items-start text-left rtl:text-right">
-            {/* Kicker: "Hello, I'm a" */}
-            <p className="hero-stagger text-base sm:text-lg text-neutral-300 font-light mb-3">
-              {kicker}
-            </p>
+            {/* Kicker: e.g. "Hello, I'm a" */}
+            {!isSettingsLoaded ? (
+              <div className="mb-3">
+                <Skeleton className="w-28 sm:w-36 h-5 rounded-md" />
+              </div>
+            ) : (
+              kicker ? (
+                <p className="hero-stagger text-base sm:text-lg text-neutral-300 font-light mb-3">
+                  {kicker}
+                </p>
+              ) : null
+            )}
 
             {/* Large Serif Display Headline */}
-            <h1
-              ref={titleRef}
-              className="hero-stagger font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal tracking-tight text-white leading-[1.05] mb-6"
-            >
-              <span className="block">{titleLine1}</span>
-              <span className="block italic">{titleLine2}</span>
-            </h1>
+            {!isSettingsLoaded ? (
+              <h1 className="space-y-3 mb-6 w-full" aria-busy="true">
+                <Skeleton className="w-4/5 sm:w-3/4 h-12 sm:h-16 lg:h-20 rounded-xl" />
+                <Skeleton className="w-3/5 sm:w-1/2 h-12 sm:h-16 lg:h-20 rounded-xl" />
+              </h1>
+            ) : (
+              (titleLine1 || titleLine2) ? (
+                <h1
+                  ref={titleRef}
+                  className="hero-stagger font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal tracking-tight text-white leading-[1.05] mb-6"
+                >
+                  {titleLine1 && <span className="block">{titleLine1}</span>}
+                  {titleLine2 && <span className="block italic">{titleLine2}</span>}
+                </h1>
+              ) : null
+            )}
 
-            {/* Subtitle */}
-            <p className="hero-stagger text-base sm:text-lg text-neutral-300/90 leading-relaxed max-w-lg mb-8 font-light">
-              {description}
-            </p>
+            {/* Subtitle / Description */}
+            {!isSettingsLoaded ? (
+              <div className="space-y-2 max-w-lg mb-8 w-full" aria-busy="true">
+                <Skeleton className="w-full h-4 rounded" />
+                <Skeleton className="w-5/6 h-4 rounded" />
+                <Skeleton className="w-2/3 h-4 rounded" />
+              </div>
+            ) : (
+              description ? (
+                <p className="hero-stagger text-base sm:text-lg text-neutral-300/90 leading-relaxed max-w-lg mb-8 font-light">
+                  {description}
+                </p>
+              ) : null
+            )}
+
+            {/* Subtle localized retry prompt if settings request failed */}
+            {settingsError && !isSettingsLoaded && (
+              <div className="flex items-center gap-2 mb-4 text-xs text-rose-300/80">
+                <span>{lang === 'ar' ? 'تعذر تحميل المحتوى الديناميكي' : 'Unable to load dynamic content'}</span>
+                {onRetrySettings && (
+                  <button
+                    onClick={onRetrySettings}
+                    className="underline hover:text-white transition-colors cursor-pointer"
+                  >
+                    {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Pill Action Buttons */}
             <div className="hero-stagger flex flex-wrap items-center gap-4">
@@ -128,7 +185,7 @@ export const HeroSection = ({
                 onClick={scrollToWork}
                 className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded-full text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                <span>{t.viewWork}</span>
+                <span>{isSettingsLoaded ? (lang === 'ar' ? heroSettings.viewWorkAr || t.viewWork : heroSettings.viewWorkEn || t.viewWork) : t.viewWork}</span>
                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform rtl:rotate-180" />
               </button>
 
@@ -136,7 +193,7 @@ export const HeroSection = ({
                 onClick={scrollToAbout}
                 className="inline-flex items-center justify-center px-6 sm:px-7 py-3.5 rounded-full text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
               >
-                <span>{t.aboutMe}</span>
+                <span>{isSettingsLoaded ? (lang === 'ar' ? heroSettings.aboutMeAr || t.aboutMe : heroSettings.aboutMeEn || t.aboutMe) : t.aboutMe}</span>
               </button>
             </div>
           </div>
@@ -205,17 +262,27 @@ export const HeroSection = ({
 
                 {/* Card Top Pill Badge */}
                 <div className="relative z-10 flex items-center justify-between">
-                  <span className="text-[10px] sm:text-xs font-mono tracking-widest text-rose-200/90 uppercase px-3 py-1 rounded-full glass-panel-subtle border border-rose-300/20">
-                    {cardKicker}
-                  </span>
+                  {isLoadingProjects && !hasFeatured ? (
+                    <Skeleton className="w-24 sm:w-28 h-5 rounded-full" />
+                  ) : (
+                    <span className="text-[10px] sm:text-xs font-mono tracking-widest text-rose-200/90 uppercase px-3 py-1 rounded-full glass-panel-subtle border border-rose-300/20">
+                      {cardKicker}
+                    </span>
+                  )}
                 </div>
 
                 {/* Card Bottom: Project / Tagline + Circle Arrow Button */}
                 <div className="relative z-10 flex items-end justify-between gap-3 pt-6 border-t border-rose-300/15">
                   <div>
-                    <h2 className="font-serif text-lg sm:text-xl font-medium text-white italic tracking-wide leading-tight">
-                      {cardTitle}
-                    </h2>
+                    {isLoadingProjects && !hasFeatured && !cardTitle ? (
+                      <Skeleton className="w-36 sm:w-48 h-6 sm:h-7 rounded-lg" />
+                    ) : (
+                      cardTitle ? (
+                        <h2 className="font-serif text-lg sm:text-xl font-medium text-white italic tracking-wide leading-tight">
+                          {cardTitle}
+                        </h2>
+                      ) : null
+                    )}
                   </div>
 
                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-lg">

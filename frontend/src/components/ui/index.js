@@ -17,3 +17,4 @@ export { Flex, Stack } from './Flex.jsx';
 export { SkipToContent } from './SkipToContent.jsx';
 export { Reveal } from './Reveal.jsx';
 export { default as ResponsiveImage } from './ResponsiveImage.jsx';
+export { Skeleton, TextSkeleton } from './Skeleton.jsx';

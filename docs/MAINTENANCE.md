@@ -12,8 +12,8 @@ The frontend uses **Vitest** configured in [`frontend/vitest.config.js`](file://
 cd frontend
 npm run test -- --run
 ```
-- **Coverage:** Tests design system primitives, modals, language switchers, anti-spam validation, theme toggling, and data formatting.
-- **Expected Results:** 236 passing tests covering all core UI components.
+- **Coverage:** Tests design system primitives, modals, language switchers, anti-spam validation, theme toggling, data formatting, skeletons, SSR pre-rendering, and accessibility landmarks.
+- **Expected Results:** 42 test suites, 237 passing tests covering all core UI components.
 
 ### 1.2 Backend PHPUnit Tests
 The backend test suite is configured in [`backend/phpunit.xml`](file:///D:/programming/mohammed-Portfolio/backend/phpunit.xml) and targets an isolated database (`portfolio_testing`):
@@ -28,13 +28,14 @@ php artisan test
   - `php artisan test --filter=MediaUploadTest` (verifies MIME sniffing and size bounds)
 
 ### 1.3 Playwright End-to-End Suites
-Configured in [`e2e/playwright.config.js`](file:///D:/programming/mohammed-Portfolio/e2e/playwright.config.js) across Desktop Chromium and Mobile Chrome (Pixel 5):
+Configured in [`e2e/playwright.config.js`](file:///D:/programming/mohammed-Portfolio/e2e/playwright.config.js) across Desktop Chromium and Mobile Chrome (Pixel 5 / iPhone 12):
 ```bash
 cd e2e
 npx playwright test
 ```
-- **Targeted Mobile Verification Scripts:**
-  - `node e2e/tests/verify-all-sections-mobile.cjs`: Verifies that all 7 sections (`#hero`, `#selected-work`, `#about-me`, `#skills-expertise`, `#creative-journey`, `#contact`, `footer`) are 100% visible on scroll on mobile viewports.
+- **Targeted Verification Scripts:**
+  - `node e2e/tests/verify-dynamic-loading-and-skeletons.cjs`: Tests slow 3G/4G network simulation (1000ms delay), verifies that 72+ elegant skeleton/shimmer placeholders appear during initial loading, confirms zero hardcoded demo text/stats ("50+", "20+", "5+"), verifies smooth data replacement upon arrival, validates Arabic RTL, tests all 6 mobile sections, and verifies non-blocking localized error recovery on API 500 failure.
+  - `node e2e/tests/verify-all-sections-mobile.cjs`: Verifies that all 7 sections (`#hero`, `#selected-work`, `#about-me`, `#skills-expertise`, `#creative-journey`, `#contact`, `footer`) are 100% visible on scroll on mobile viewports across repeated reloads with zero black screen.
   - `node e2e/tests/verify-all-locales.cjs`: Verifies HTTP status, DOM attributes (`lang`, `dir`), and interactive language switching across `/`, `/en/`, and `/ar/`.
 
 ---
@@ -148,7 +149,7 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
 - Always follow the **Expand / Contract** database migration model:
   - Phase 1 (Expand): Add nullable columns, new tables, or optional foreign keys.
   - Phase 2 (Contract): Drop deprecated columns only after all application code stops reading them.
-- **Never** execute `php artisan migrate:fresh` on production or staging environments.
+  - **Never** execute `php artisan migrate:fresh` on production or staging environments.
 - To roll back the last migration batch safely:
   ```bash
   cd backend
@@ -165,3 +166,29 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
 | **Stage 26** | 2026-11-06 | Mobile Black Screen | Implemented build-time SSG pre-rendering (`scripts/prerender.js`), added CSS `@media (max-width: 1023px)` safeguard forcing `opacity: 1 !important`, and added mobile GSAP bypass so ScrollTrigger never hides elements on touch devices. |
 | **Stage 27** | 2026-11-06 | Multi-Locale Default Routing | Corrected default language architecture across SSR, SSG, and hydration: `/` and `/en/` serve English LTR by default, while `/ar/` serves Arabic RTL. Language switcher dynamically updates history state and document attributes. |
 | **Stage 28** | 2026-11-13 | Accessibility & SEO Remediation | Fixed light mode contrast (overrode muted text to `#48404a` for WCAG AAA > 7.5:1), served `/robots.txt` and `/llms.txt` as plain text, corrected heading order (`h1` → `h2` → `h3`), eliminated empty headings, generated canonical production `sitemap.xml`, and reduced public JS bundle size by > 275 kB via lazy-loaded `AdminApp`. |
+| **Stage 29** | 2026-11-13 | Dynamic Loading & Skeleton Sync | Eliminated all hardcoded demo text, fake stats ("50+", "20+", "5+"), and placeholder projects. Established Admin Dashboard as single source of truth for all content. Implemented GPU-accelerated skeleton/shimmer loaders matching exact real geometry, synchronized SSR/client hydration without React #418 mismatches, and added localized non-blocking retry states. |
+
+---
+
+## 7. Verification Checkpoint — Stage 29 (Dynamic Loading & Skeletons)
+
+- **Branch:** `feat/dynamic-content-skeletons-and-dashboard-sync`
+- **Features Implemented:**
+  1. `frontend/src/components/ui/Skeleton.jsx`: Added reusable `Skeleton` and `TextSkeleton` components with GPU-accelerated `.skeleton-shimmer` shimmer animation.
+  2. `frontend/src/index.css`: Added `@keyframes skeleton-shimmer` and styling tokens for both Dark Studio and Eclipse Light modes.
+  3. `frontend/src/App.jsx`: Initialized dynamic data states (`publishedProjects`, `categories`, `siteSettings`, `journeyMilestones`) to `null` with `isLoading* = true`. Added safe hydration cache restoration inside a client-side `useEffect` to ensure 100% matching SSR hydration without React error #418 while retaining 0ms warm reload.
+  4. Skeletons integrated across all dynamic sections:
+     - `HeroSection.jsx`: Display headline `<h1>`, kicker, description, and featured 3D card.
+     - `AboutSection.jsx`: Profile title/badge, cover portrait, 3 stat counters (projects, clients, years), bio, and designer identity.
+     - `SelectedWorkSection.jsx`: 3-card carousel skeletons (left peek, active centered card, right peek).
+     - `SkillsSection.jsx`: Section headers, kicker, and descriptions.
+     - `JourneySection.jsx`: 4 alternating timeline card skeletons with center node dots.
+     - `ContactSection.jsx`: Clickable email, WhatsApp, Instagram cards and availability badge.
+     - `AllProjectsScreen.jsx`: 6-card grid and category filter pills.
+  5. Localized non-blocking error handling: Component-level retry buttons (`onRetrySettings`, `onRetryProjects`, `onRetryJourney`) on API errors without blocking or blacking out the screen.
+- **Verification Suites Executed:**
+  - **Vitest Unit/Component Suite:** 42 test files, 237 passed (0 failed).
+  - **Vite Build & Pre-render:** `npm run build` generated `dist/client/en/index.html` (76,399 bytes) and `dist/client/ar/index.html` (76,295 bytes) with `skeleton-shimmer` and zero hardcoded demo numbers or fake projects.
+  - **Dynamic Loading E2E:** `node e2e/tests/verify-dynamic-loading-and-skeletons.cjs` verified slow network simulation (72 skeletons active), real data arrival, Arabic RTL, mobile viewport heights, and API failure non-blocking resilience.
+  - **Mobile Visibility E2E:** `node e2e/tests/verify-all-sections-mobile.cjs` verified 100% visibility for all 7 sections with zero black screen across repeated reloads.
+  - **Locale & Hydration E2E:** `node e2e/tests/verify-all-locales.cjs` verified English default on `/` and `/en/`, Arabic RTL on `/ar/`, and interactive language switching without errors.

@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { translations, timelineData } from '../data/portfolioData';
-import { GraduationCap, Laptop, Briefcase, Award, Rocket, Sparkles, Star, ArrowUpRight } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { translations, resolveText } from '../data/portfolioData';
+import { GraduationCap, Laptop, Briefcase, Award, Rocket, Sparkles, Star, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { WaveTransition } from './WaveTransition';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,52 +10,18 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const JourneySection = ({ lang }) => {
+export const JourneySection = ({
+  lang,
+  milestones: passedMilestones,
+  isLoadingJourney = false,
+  journeyError = null,
+  onRetryJourney,
+}) => {
   const t = translations[lang].journey;
-  const [milestones, setMilestones] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const local = window.localStorage.getItem('studio_journey_cache');
-        if (local) {
-          const parsed = JSON.parse(local);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (e) {}
-    }
-    return timelineData;
-  });
-  const journeyRef = useRef(null);
+  const isJourneyLoaded = Array.isArray(passedMilestones);
+  const milestones = isJourneyLoaded ? passedMilestones : [];
 
-  useEffect(() => {
-    let isMounted = true;
-    async function loadDynamicJourney() {
-      try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 5000);
-        const res = await fetch(`/api/v1/journey?locale=${lang}`, { signal: controller.signal });
-        clearTimeout(timer);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (
-          isMounted &&
-          data?.status === 'success' &&
-          Array.isArray(data?.data?.milestones) &&
-          data.data.milestones.length > 0
-        ) {
-          setMilestones(data.data.milestones);
-          try {
-            window.localStorage.setItem('studio_journey_cache', JSON.stringify(data.data.milestones));
-          } catch (e) {}
-        }
-      } catch (e) {
-        // Fallback gracefully to cached/default timelineData without hanging
-      }
-    }
-    loadDynamicJourney();
-    return () => {
-      isMounted = false;
-    };
-  }, [lang]);
+  const journeyRef = useRef(null);
 
   const getMilestoneIcon = (iconName) => {
     switch (iconName) {
@@ -102,7 +69,7 @@ export const JourneySection = ({ lang }) => {
     }, journeyRef);
 
     return () => ctx.revert();
-  }, [lang]);
+  }, [lang, milestones.length]);
 
   return (
     <section
@@ -129,7 +96,6 @@ export const JourneySection = ({ lang }) => {
       <div className="absolute bottom-12 -left-10 sm:left-4 w-40 sm:w-52 h-40 sm:h-52 opacity-35 pointer-events-none">
         <div className="relative w-full h-full flex items-center justify-center">
           <div className="w-28 sm:w-36 h-28 sm:h-36 rounded-full bg-neutral-900 border-4 border-neutral-700 shadow-2xl flex items-center justify-center p-3">
-            {/* Dark Coffee & Milk Foam Rosette */}
             <div className="w-full h-full rounded-full bg-gradient-to-br from-[#3b2318] via-[#24150d] to-[#140b07] flex items-center justify-center shadow-inner relative overflow-hidden">
               <div className="w-10 sm:w-14 h-10 sm:h-14 rounded-full border-2 border-amber-200/50 flex items-center justify-center">
                 <div className="w-4 h-4 bg-amber-100/40 rounded-full" />
@@ -181,98 +147,164 @@ export const JourneySection = ({ lang }) => {
           {/* Vertical Glowing Center Line */}
           <div className="absolute left-8 md:left-1/2 top-4 bottom-4 -translate-x-1/2 w-[1.5px] bg-gradient-to-b from-rose-300/40 via-amber-200/30 to-amber-500/50" />
 
-          <div className="space-y-10 sm:space-y-12">
-            {milestones.map((item, idx) => {
-              const isEven = idx % 2 === 0; // 0 (2022) is on right, 1 (2023) is on left...
-              // In the reference:
-              // 2022 (Right)
-              // 2023 (Left)
-              // 2024 (Right)
-              // 2025 (Left)
-              // 2026+ (Right)
-
-              const isRightSide = idx === 0 || idx === 2 || idx === 4;
-
-              return (
-                <div
-                  key={idx}
-                  className={`milestone-card relative flex flex-col md:flex-row items-start md:items-center ${
-                    isRightSide ? 'md:flex-row' : 'md:flex-row-reverse'
-                  }`}
-                >
-                  {/* Center Node & Year Label */}
-                  <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
-                    {/* Year text badge placed adjacent to the node */}
-                    <span
-                      className={`hidden md:block absolute text-xs sm:text-sm font-mono font-semibold tracking-wider ${
-                        isRightSide
-                          ? '-left-16 text-right'
-                          : '-right-16 text-left'
-                      } ${item.highlighted ? 'text-amber-300 font-bold' : 'text-neutral-300'}`}
-                    >
-                      {item.year}
-                    </span>
-
-                    {/* Illuminated Node Dot */}
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 transition-all ${
-                        item.highlighted
-                          ? 'bg-amber-400 border-amber-200 ring-4 ring-amber-500/30'
-                          : 'bg-white border-rose-300 ring-2 ring-rose-400/20'
-                      }`}
-                    />
-                  </div>
-
-                  {/* Empty opposite column on desktop */}
-                  <div className="hidden md:block md:w-1/2" />
-
-                  {/* Milestone Glassmorphism Card */}
+          {/* Skeletons when loading */}
+          {!isJourneyLoaded ? (
+            <div className="space-y-10 sm:space-y-12" aria-busy="true">
+              {Array.from({ length: 4 }).map((_, idx) => {
+                const isRightSide = idx === 0 || idx === 2;
+                return (
                   <div
-                    className={`w-full pl-16 md:pl-0 md:w-1/2 ${
-                      isRightSide
-                        ? 'md:pl-12 rtl:md:pl-0 rtl:md:pr-12'
-                        : 'md:pr-12 rtl:md:pr-0 rtl:md:pl-12'
+                    key={idx}
+                    className={`milestone-card relative flex flex-col md:flex-row items-start md:items-center ${
+                      isRightSide ? 'md:flex-row' : 'md:flex-row-reverse'
                     }`}
                   >
+                    {/* Center Node & Year Label Skeleton */}
+                    <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+                      <span
+                        className={`hidden md:block absolute ${
+                          isRightSide ? '-left-16 text-right' : '-right-16 text-left'
+                        }`}
+                      >
+                        <Skeleton className="w-12 h-4 rounded" />
+                      </span>
+                      <div className="w-4 h-4 rounded-full border-2 bg-white/20 border-rose-300/40 ring-2 ring-rose-400/20" />
+                    </div>
+
+                    <div className="hidden md:block md:w-1/2" />
+
+                    {/* Milestone Skeleton Card */}
                     <div
-                      className={`p-5 sm:p-6 rounded-3xl transition-all duration-300 shadow-xl group text-left rtl:text-right ${
-                        item.highlighted
-                          ? 'glass-panel-active border-2 border-amber-400/50 shadow-[0_10px_35px_rgba(245,158,11,0.25)]'
-                          : 'glass-panel border border-white/10 hover:border-rose-300/30'
+                      className={`w-full pl-16 md:pl-0 md:w-1/2 ${
+                        isRightSide
+                          ? 'md:pl-12 rtl:md:pl-0 rtl:md:pr-12'
+                          : 'md:pr-12 rtl:md:pr-0 rtl:md:pl-12'
                       }`}
                     >
-                      {/* Mobile Year Badge */}
-                      <span className="md:hidden inline-block text-xs font-mono font-bold text-amber-300 mb-2">
-                        {item.year}
-                      </span>
-
-                      <div className="flex items-start gap-4">
-                        <div
-                          className={`p-3 rounded-2xl shrink-0 ${
-                            item.highlighted
-                              ? 'bg-amber-500/20 text-amber-200 border border-amber-300/30'
-                              : 'bg-white/5 text-neutral-200 border border-white/10'
-                          }`}
-                        >
-                          {getMilestoneIcon(item.iconName || item.icon_name || item.icon)}
+                      <div className="p-5 sm:p-6 rounded-3xl glass-panel border border-white/10 skeleton-shimmer">
+                        <div className="md:hidden mb-2">
+                          <Skeleton className="w-12 h-4 rounded" />
                         </div>
-
-                        <div>
-                          <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-rose-200 transition-colors">
-                            {item.activeRole || (typeof item.role === 'object' ? item.role?.[lang] : item.role) || item.role_en || ''}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1 leading-relaxed">
-                            {item.activeDescription || (typeof item.description === 'object' ? item.description?.[lang] : item.description) || item.description_en || ''}
-                          </p>
+                        <div className="flex items-start gap-4">
+                          <Skeleton className="w-11 h-11 rounded-2xl shrink-0" />
+                          <div className="space-y-2 w-full">
+                            <Skeleton className="w-40 sm:w-48 h-5 rounded" />
+                            <Skeleton className="w-full h-3.5 rounded" />
+                            <Skeleton className="w-3/4 h-3.5 rounded" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          ) : journeyError && milestones.length === 0 ? (
+            /* Localized retry state */
+            <div className="relative w-full max-w-md mx-auto my-10 p-6 rounded-3xl glass-panel border border-rose-400/20 text-center">
+              <AlertCircle className="w-6 h-6 text-rose-300 mx-auto mb-2" />
+              <p className="text-xs text-neutral-300 mb-3">
+                {lang === 'ar' ? 'تعذر تحميل محطات المسيرة' : 'Unable to load journey milestones'}
+              </p>
+              {onRetryJourney && (
+                <button
+                  onClick={onRetryJourney}
+                  className="px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors cursor-pointer"
+                >
+                  {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                </button>
+              )}
+            </div>
+          ) : milestones.length === 0 ? (
+            /* Empty state when 0 milestones configured */
+            <div className="relative max-w-md mx-auto my-8 p-6 rounded-2xl glass-panel border border-white/10 text-center text-xs text-neutral-400">
+              {lang === 'ar' ? 'يجري تحديث محطات المسيرة الإبداعية.' : 'Creative journey timeline is currently being curated.'}
+            </div>
+          ) : (
+            <div className="space-y-10 sm:space-y-12">
+              {milestones.map((item, idx) => {
+                const isRightSide = idx === 0 || idx === 2 || idx === 4 || idx % 2 === 0;
 
-                </div>
-              );
-            })}
-          </div>
+                return (
+                  <div
+                    key={item.id || idx}
+                    className={`milestone-card relative flex flex-col md:flex-row items-start md:items-center ${
+                      isRightSide ? 'md:flex-row' : 'md:flex-row-reverse'
+                    }`}
+                  >
+                    {/* Center Node & Year Label */}
+                    <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+                      <span
+                        className={`hidden md:block absolute text-xs sm:text-sm font-mono font-semibold tracking-wider ${
+                          isRightSide
+                            ? '-left-16 text-right'
+                            : '-right-16 text-left'
+                        } ${item.highlighted ? 'text-amber-300 font-bold' : 'text-neutral-300'}`}
+                      >
+                        {item.year}
+                      </span>
+
+                      {/* Illuminated Node Dot */}
+                      <div
+                        className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          item.highlighted
+                            ? 'bg-amber-400 border-amber-200 ring-4 ring-amber-500/30'
+                            : 'bg-white border-rose-300 ring-2 ring-rose-400/20'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Empty opposite column on desktop */}
+                    <div className="hidden md:block md:w-1/2" />
+
+                    {/* Milestone Glassmorphism Card */}
+                    <div
+                      className={`w-full pl-16 md:pl-0 md:w-1/2 ${
+                        isRightSide
+                          ? 'md:pl-12 rtl:md:pl-0 rtl:md:pr-12'
+                          : 'md:pr-12 rtl:md:pr-0 rtl:md:pl-12'
+                      }`}
+                    >
+                      <div
+                        className={`p-5 sm:p-6 rounded-3xl transition-all duration-300 shadow-xl group text-left rtl:text-right ${
+                          item.highlighted
+                            ? 'glass-panel-active border-2 border-amber-400/50 shadow-[0_10px_35px_rgba(245,158,11,0.25)]'
+                            : 'glass-panel border border-white/10 hover:border-rose-300/30'
+                        }`}
+                      >
+                        {/* Mobile Year Badge */}
+                        <span className="md:hidden inline-block text-xs font-mono font-bold text-amber-300 mb-2">
+                          {item.year}
+                        </span>
+
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={`p-3 rounded-2xl shrink-0 ${
+                              item.highlighted
+                                ? 'bg-amber-500/20 text-amber-200 border border-amber-300/30'
+                                : 'bg-white/5 text-neutral-200 border border-white/10'
+                            }`}
+                          >
+                            {getMilestoneIcon(item.iconName || item.icon_name || item.icon)}
+                          </div>
+
+                          <div>
+                            <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-rose-200 transition-colors">
+                              {item.activeRole || resolveText(item.role, lang, item.role_en || '')}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1 leading-relaxed">
+                              {item.activeDescription || resolveText(item.description, lang, item.description_en || '')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
         </div>
 

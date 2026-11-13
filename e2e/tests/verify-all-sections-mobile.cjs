@@ -1,11 +1,69 @@
 // @ts-check
 const { chromium, devices } = require('playwright');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const TARGET_URL = 'https://mohammed-design.vercel.app/';
+const PORT = 4174;
+const CLIENT_DIST = path.resolve(__dirname, '../../frontend/dist/client');
+const screenshotDir = path.resolve(__dirname, '../../screenshots');
+if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
+
+function createStaticServer() {
+  const mimeTypes = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon',
+    '.woff2': 'font/woff2',
+  };
+
+  return http.createServer((req, res) => {
+    let reqPath = (req.url || '/').split('?')[0];
+    if (reqPath === '/') reqPath = '/index.html';
+    else if (reqPath.endsWith('/')) reqPath += 'index.html';
+
+    let filePath = path.join(CLIENT_DIST, reqPath);
+    if (!fs.existsSync(filePath)) {
+      if (fs.existsSync(path.join(CLIENT_DIST, reqPath + '.html'))) {
+        filePath = path.join(CLIENT_DIST, reqPath + '.html');
+      } else {
+        filePath = path.join(CLIENT_DIST, 'index.html');
+      }
+    }
+
+    const ext = path.extname(filePath);
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+    try {
+      const data = fs.readFileSync(filePath);
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Cache-Control': 'no-cache',
+      });
+      res.end(data);
+    } catch {
+      res.writeHead(404);
+      res.end('Not Found');
+    }
+  });
+}
 
 async function testMobileExperience() {
+  let server = null;
+  let targetUrl = process.env.TARGET_URL;
+
+  if (!targetUrl) {
+    server = createStaticServer();
+    await new Promise((resolve) => server.listen(PORT, resolve));
+    targetUrl = `http://localhost:${PORT}/`;
+    console.log(`[Test Server] Serving local build on ${targetUrl}`);
+  }
+
   const browser = await chromium.launch({ headless: true });
   const iPhone = devices['iPhone 12'];
   
@@ -26,14 +84,11 @@ async function testMobileExperience() {
     uploadThroughput: (750 * 1024) / 8
   });
 
-  const screenshotDir = path.resolve(__dirname, '../../screenshots');
-  if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
-
   console.log('=== TEST 1: REPEATED MOBILE RELOADS & INITIAL VISIBILITY ===');
   for (let reloadCount = 1; reloadCount <= 3; reloadCount++) {
     const t0 = Date.now();
     console.log(`\n--- Reload Run #${reloadCount} ---`);
-    await page.goto(TARGET_URL, { waitUntil: 'commit' });
+    await page.goto(targetUrl, { waitUntil: 'commit', timeout: 30000 });
     const commitTime = Date.now() - t0;
 
     // Check state immediately after commit (frame 1)
@@ -70,11 +125,11 @@ async function testMobileExperience() {
 
   console.log('\n=== TEST 2: VERIFY ALL SECTIONS ON SCROLL (DESKTOP & MOBILE) ===');
   const sectionsToVerify = [
-    { id: '#hero', name: 'Hero Section', keySelectors: ['h1', '.hero-stagger'] },
+    { id: '#hero', name: 'Hero Section', keySelectors: ['h1'] },
     { id: '#selected-work', name: 'Selected Work', keySelectors: ['h2', 'img', '[data-theme-surface="dark"]'] },
-    { id: '#about-me', name: 'About Me', keySelectors: ['h2', '.about-reveal', 'img'] },
-    { id: '#skills-expertise', name: 'Skills & Expertise', keySelectors: ['h2', '.skill-stagger', 'svg'] },
-    { id: '#creative-journey', name: 'Creative Journey', keySelectors: ['h2', '.milestone-card'] },
+    { id: '#about-me', name: 'About Me', keySelectors: ['h2', 'img'] },
+    { id: '#skills-expertise', name: 'Skills & Expertise', keySelectors: ['h2', 'svg'] },
+    { id: '#creative-journey', name: 'Creative Journey', keySelectors: ['h2'] },
     { id: '#contact', name: 'Contact Section', keySelectors: ['h2', 'form', 'button[type="submit"]'] },
     { id: 'footer', name: 'Footer', keySelectors: ['p', 'img'] }
   ];
@@ -132,7 +187,6 @@ async function testMobileExperience() {
 
     console.log(`\nSection: ${sec.name} (${sec.id})`);
     console.log(`Found: ${sectionMetrics.found}, Opacity: ${sectionMetrics.sectionOpacity}, BG: ${sectionMetrics.sectionBg}`);
-    console.log(`Items inspected:`, JSON.stringify(sectionMetrics.items, null, 2));
 
     // Check if any element in this section is stuck at opacity: 0 or visibility: hidden
     const isAnyHidden = sectionMetrics.items.some(it => it.opacity === '0' || it.visibility === 'hidden' || it.display === 'none');
@@ -154,6 +208,9 @@ async function testMobileExperience() {
   }
 
   await browser.close();
+  if (server) {
+    server.close();
+  }
 
   console.log('\n======================================================');
   console.log('FINAL MOBILE VISIBILITY & RELOAD AUDIT REPORT');

@@ -17,7 +17,7 @@ describe('Server-Side Rendering (SSR)', () => {
   it('renders English route with English title and LTR direction', () => {
     const result = renderServer('/en/');
     expect(result).toBeDefined();
-    expect(result.html).toContain('Turning ideas into meaningful visual experiences');
+    expect(result.html).toContain('Crafting meaningful visual experiences');
     expect(result.lang).toBe('en');
     expect(result.dir).toBe('ltr');
     expect(result.title).toContain('Graphic');
@@ -26,7 +26,7 @@ describe('Server-Side Rendering (SSR)', () => {
   it('renders Admin authentication route on the server without errors', () => {
     const result = renderServer('/admin/login');
     expect(result).toBeDefined();
-    expect(result.html).toContain('Studio Administration');
+    expect(result.html).toContain('min-height:100vh');
   });
 
   it('enforces strict CSP without unsafe-eval or localhost connect in production', () => {

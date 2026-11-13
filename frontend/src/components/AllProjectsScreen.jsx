@@ -1,7 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
-  categoriesData,
-  getAllPublishedProjects,
   translations,
   resolveText,
 } from '../data/portfolioData';
@@ -13,9 +11,9 @@ import {
   SlidersHorizontal,
   X,
   Sparkles,
-  Layers,
-  Calendar,
+  AlertCircle,
 } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 
 export const AllProjectsScreen = ({
@@ -25,11 +23,17 @@ export const AllProjectsScreen = ({
   projects: passedProjects,
   categories: passedCategories,
   settings,
+  isLoadingProjects = false,
+  projectsError = null,
+  onRetryProjects,
+  isLoadingCategories = false,
 }) => {
   const t = translations[lang].allProjects;
+  const isProjectsLoaded = Array.isArray(passedProjects);
+
   const allProjects = useMemo(() => {
-    return Array.isArray(passedProjects) ? passedProjects : [];
-  }, [passedProjects]);
+    return isProjectsLoaded ? passedProjects : [];
+  }, [isProjectsLoaded, passedProjects]);
 
   // Categories list from database or default
   const categoriesData = useMemo(() => {
@@ -117,65 +121,33 @@ export const AllProjectsScreen = ({
 
     // 3. Sorting
     if (sortBy === 'newest') {
-      result.sort(
-        (a, b) =>
-          new Date(b.publicationDate || b.published_at || b.year).getTime() -
-          new Date(a.publicationDate || a.published_at || a.year).getTime()
-      );
+      result.sort((a, b) => {
+        const yA = parseInt(a.year || '0', 10);
+        const yB = parseInt(b.year || '0', 10);
+        return yB - yA;
+      });
     } else if (sortBy === 'oldest') {
-      result.sort(
-        (a, b) =>
-          new Date(a.publicationDate).getTime() -
-          new Date(b.publicationDate).getTime()
-      );
+      result.sort((a, b) => {
+        const yA = parseInt(a.year || '0', 10);
+        const yB = parseInt(b.year || '0', 10);
+        return yA - yB;
+      });
     } else if (sortBy === 'featured') {
       result.sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) return -1;
-        if (!a.isFeatured && b.isFeatured) return 1;
-        return (a.featuredOrder || 99) - (b.featuredOrder || 99);
+        const fA = a.featured ? 1 : 0;
+        const fB = b.featured ? 1 : 0;
+        return fB - fA;
       });
     }
 
     return result;
   }, [allProjects, selectedCategory, searchQuery, sortBy]);
 
-  // Reset pagination when category, search, or sort changes
-  useEffect(() => {
-    setVisibleCount(6);
-  }, [selectedCategory, searchQuery, sortBy]);
+  // Paginated visible projects
+  const visibleProjects = useMemo(() => {
+    return filteredProjects.slice(0, visibleCount);
+  }, [filteredProjects, visibleCount]);
 
-  // Entrance animation for screen
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.gallery-enter',
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }
-      );
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // Staggered reveal for grid cards on filter change
-  useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    if (gridRef.current) {
-      gsap.fromTo(
-        gridRef.current.children,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' }
-      );
-    }
-  }, [selectedCategory, searchQuery, sortBy, visibleCount]);
-
-  const visibleProjects = filteredProjects.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProjects.length;
 
   const handleLoadMore = () => {
@@ -186,57 +158,74 @@ export const AllProjectsScreen = ({
     setSelectedCategory('all');
     setSearchQuery('');
     setSortBy('newest');
+    setVisibleCount(6);
   };
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 1024 || ('ontouchstart' in window);
+    if (prefersReduced || isMobile) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.gallery-enter',
+        { opacity: 0.7, y: 15 },
+        { opacity: 1, y: 0, duration: 0.65, stagger: 0.08, ease: 'power2.out' }
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <div
       ref={containerRef}
-      className="min-h-screen pt-28 pb-24 bg-[#09070c] relative overflow-hidden"
+      className="min-h-screen bg-[#09070c] text-white pt-28 pb-24 px-4 sm:px-6 lg:px-8 selection:bg-rose-500/30 selection:text-rose-200"
     >
-      {/* Ambient background glows */}
-      <div className="absolute top-20 right-10 w-[700px] h-[550px] bg-rose-950/20 blur-[180px] pointer-events-none rounded-full" />
-      <div className="absolute top-1/2 left-10 w-[600px] h-[600px] bg-amber-950/15 blur-[170px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-rose-900/15 blur-[160px] pointer-events-none rounded-full" />
+      {/* Background Soft Glows */}
+      <div className="fixed top-1/4 left-1/3 w-[600px] h-[600px] bg-rose-950/15 blur-[180px] rounded-full pointer-events-none -z-0" />
+      <div className="fixed bottom-10 right-10 w-[500px] h-[500px] bg-[#290e1c]/20 blur-[160px] rounded-full pointer-events-none -z-0" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         
-        {/* Top Breadcrumb & Back Action */}
-        <div className="gallery-enter flex items-center justify-between gap-4 mb-8">
+        {/* Top Breadcrumb & Return to Homepage Button */}
+        <div className="gallery-enter mb-8 flex items-center justify-between">
           <button
             onClick={onBackToHome}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-neutral-300 hover:text-white glass-panel-subtle hover:border-rose-300/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 group"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-neutral-300 hover:text-white glass-panel hover:bg-white/10 border border-white/10 hover:border-white/25 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform rtl:rotate-180" />
             <span>{t.backToHome}</span>
           </button>
 
-          {/* Breadcrumb Eyebrow */}
-          <div className="text-xs font-mono text-rose-300/80 tracking-widest uppercase">
-            {t.breadcrumb}
+          {/* Counter pill */}
+          <div className="text-xs font-mono text-neutral-400">
+            {isProjectsLoaded && (
+              <span>
+                {filteredProjects.length} {t.projectsCountLabel || 'PROJECTS'}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Screen Editorial Header */}
+        {/* Hero Header */}
         <div className="gallery-enter max-w-3xl mb-12 text-left rtl:text-right">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono tracking-widest text-rose-200 glass-panel border border-rose-300/25 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-            <span>
-              {t.countBadge.replace('{count}', String(allProjects.length))}
-            </span>
+          <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
+            {t.kicker}
           </div>
-
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-4">
-            {t.title}
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.1] mb-4">
+            <span>{t.titleStart} </span>
+            <span className="text-[#f4a496] italic font-serif">{t.titleAccent}</span>
           </h1>
-          <p className="text-base sm:text-lg text-neutral-300/90 font-light leading-relaxed">
-            {t.subtitle}
+          <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
+            {t.description}
           </p>
         </div>
 
-        {/* Search & Sorting Bar */}
-        <div className="gallery-enter p-4 sm:p-5 rounded-3xl glass-panel border border-white/10 mb-8 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        {/* Filter Controls Bar: Search Input + Sorting */}
+        <div className="gallery-enter mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           
-          {/* Search Input Field */}
+          {/* Search Box */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-neutral-400 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
@@ -244,12 +233,12 @@ export const AllProjectsScreen = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full pl-11 pr-10 rtl:pl-10 rtl:pr-11 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition-all"
+              className="w-full pl-11 pr-10 rtl:pl-10 rtl:pr-11 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition-all font-sans"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-white"
+                className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-white cursor-pointer"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -284,41 +273,82 @@ export const AllProjectsScreen = ({
 
         </div>
 
-        {/* Horizontal Category Filter Pills (Scrollable on mobile) */}
+        {/* Horizontal Category Filter Pills */}
         <div className="gallery-enter mb-10 overflow-x-auto modal-scrollbar pb-2">
-          <div className="flex items-center gap-2 min-w-max">
-            {categoriesData.map((cat) => {
-              const isActive = selectedCategory === cat.id;
-              const count = categoryCounts[cat.id] || 0;
+          {!isProjectsLoaded || isLoadingCategories ? (
+            <div className="flex items-center gap-2 min-w-max" aria-busy="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="w-24 h-9 rounded-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 min-w-max">
+              {categoriesData.map((cat) => {
+                const isActive = selectedCategory === cat.id;
+                const count = categoryCounts[cat.id] || 0;
 
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 sm:px-5 py-2.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-rose-950/90 to-rose-900/90 text-white border border-rose-300/50 shadow-md shadow-rose-950/60 scale-105'
-                      : 'glass-panel-subtle text-neutral-300 hover:text-white hover:border-white/20'
-                  }`}
-                >
-                  <span>{resolveText(cat.name, lang, 'Category')}</span>
-                  <span
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer ${
                       isActive
-                        ? 'bg-rose-400/30 text-rose-200 font-bold'
-                        : 'bg-white/10 text-neutral-400'
+                        ? 'bg-gradient-to-r from-rose-950/90 to-rose-900/90 text-white border border-rose-300/50 shadow-md shadow-rose-950/60 scale-105'
+                        : 'glass-panel-subtle text-neutral-300 hover:text-white hover:border-white/20'
                     }`}
                   >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                    <span>{resolveText(cat.name, lang, 'Category')}</span>
+                    <span
+                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? 'bg-rose-400/30 text-rose-200 font-bold'
+                          : 'bg-white/10 text-neutral-400'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Gallery Grid or Empty State */}
-        {filteredProjects.length === 0 ? (
+        {/* Dynamic Gallery Grid: Skeleton -> Error -> Empty -> Grid */}
+        {!isProjectsLoaded ? (
+          /* 6-Card Grid Skeleton */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-14" aria-busy="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-3xl glass-panel border border-white/10 p-4 space-y-4 skeleton-shimmer">
+                <Skeleton className="w-full h-56 rounded-2xl" />
+                <div className="space-y-2">
+                  <Skeleton className="w-20 h-5 rounded-full" />
+                  <Skeleton className="w-48 h-6 rounded-md" />
+                  <Skeleton className="w-32 h-4 rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : projectsError && allProjects.length === 0 ? (
+          /* Localized Error & Retry */
+          <div className="py-16 flex flex-col items-center justify-center text-center p-8 rounded-3xl glass-panel border border-rose-400/20 max-w-lg mx-auto">
+            <AlertCircle className="w-8 h-8 text-rose-300 mb-3" />
+            <h3 className="font-serif text-xl font-bold text-white mb-2">
+              {lang === 'ar' ? 'تعذر تحميل قائمة المشاريع' : 'Unable to load projects'}
+            </h3>
+            <p className="text-xs text-neutral-400 max-w-md font-light leading-relaxed mb-6">
+              {lang === 'ar' ? 'حدث خطأ أثناء الاتصال بالخادم. يرجى إعادة المحاولة.' : 'Network error fetching project database. Please retry.'}
+            </p>
+            {onRetryProjects && (
+              <button
+                onClick={onRetryProjects}
+                className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md cursor-pointer"
+              >
+                {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+              </button>
+            )}
+          </div>
+        ) : filteredProjects.length === 0 ? (
           /* Empty State */
           <div className="py-20 flex flex-col items-center justify-center text-center p-8 rounded-3xl glass-panel border border-white/10">
             <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-300/20 flex items-center justify-center text-rose-300 mb-4">
@@ -332,7 +362,7 @@ export const AllProjectsScreen = ({
             </p>
             <button
               onClick={handleResetFilters}
-              className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md"
+              className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md cursor-pointer"
             >
               {t.resetFilters}
             </button>
@@ -357,6 +387,8 @@ export const AllProjectsScreen = ({
                         src={project.image}
                         alt={resolveText(project.title, lang, '')}
                         className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <ProjectArtwork
@@ -366,7 +398,7 @@ export const AllProjectsScreen = ({
                     )}
 
                     {/* Gradient Overlay for Text Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0e0711] via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0e0711] via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity pointer-events-none" />
 
                     {/* Featured Star / Badge */}
                     {(project.featured || project.isFeatured) && (
@@ -434,7 +466,7 @@ export const AllProjectsScreen = ({
               {hasMore ? (
                 <button
                   onClick={handleLoadMore}
-                  className="px-8 py-3.5 rounded-full text-xs sm:text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="px-8 py-3.5 rounded-full text-xs sm:text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                 >
                   {t.loadMore}
                 </button>

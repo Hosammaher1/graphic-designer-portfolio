@@ -2,13 +2,18 @@ import React from 'react';
 import { translations } from '../data/portfolioData';
 import { ArrowUp, Shield } from 'lucide-react';
 import { useConsent } from '../context/ConsentContext.jsx';
+import { Skeleton } from './ui/Skeleton';
 
 export const Footer = ({ lang, locale, settings }) => {
   const currentLang = locale || lang || 'en';
   const t = (translations[currentLang] || translations.en || translations.ar).footer;
   const nav = (translations[currentLang] || translations.en || translations.ar).nav;
 
-  const designerName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] || settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] || (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
+  const isSettingsLoaded = Boolean(settings);
+  const designerName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] ||
+    settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'nameEn'] ||
+    (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
+
   const footerTagline = settings?.profile?.[currentLang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.tagline;
 
   let openSettings = null;
@@ -98,43 +103,37 @@ export const Footer = ({ lang, locale, settings }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="hover:text-white transition-colors"
+                className="hover:text-rose-300 transition-colors cursor-pointer"
               >
                 {s.label}
               </a>
             ))}
           </div>
-
-          {/* Back to top button */}
-          <button
-            onClick={scrollToTop}
-            aria-label={t.backToTop}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium text-neutral-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer"
-          >
-            <span>{t.backToTop}</span>
-            <ArrowUp className="w-3.5 h-3.5 text-rose-300" />
-          </button>
         </div>
 
-        {/* Bottom copyright line */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400 text-center sm:text-left rtl:sm:text-right font-mono">
+        {/* Bottom Row */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 font-light text-center sm:text-left rtl:sm:text-right">
           <div>
-            © {new Date().getFullYear()} Graphic Designer Portfolio. {currentLang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+            © {new Date().getFullYear()} {designerName}. {t.rights}
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <button
-              type="button"
               onClick={handleOpenPrivacy}
-              className="text-xs text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1.5 focus:outline-none cursor-pointer"
-              aria-label={currentLang === 'ar' ? 'تفضيلات الخصوصية والكوكيز' : 'Privacy Preferences'}
+              className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 rounded cursor-pointer"
             >
               <Shield className="w-3.5 h-3.5" />
               <span>{currentLang === 'ar' ? 'تفضيلات الخصوصية' : 'Privacy Preferences'}</span>
             </button>
-            <div className="text-[11px] text-neutral-500">
-              Bilingual Design System · English & Arabic
-            </div>
+
+            <button
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 rounded cursor-pointer"
+              aria-label={t.backToTop}
+            >
+              <span>{t.backToTop}</span>
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>

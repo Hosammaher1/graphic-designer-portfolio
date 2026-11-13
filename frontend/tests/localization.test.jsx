@@ -16,17 +16,18 @@ describe('Localization Architecture & System', () => {
     expect(arKeys).toEqual(enKeys);
   });
 
-  it('translates keys with fallback to Arabic default', () => {
+  it('translates keys with fallback to English default', () => {
     expect(t('nav.home', 'ar')).toBe(arTranslations.nav.home);
     expect(t('nav.home', 'en')).toBe(enTranslations.nav.home);
-    // Fallback on invalid locale
-    expect(t('nav.home', 'fr')).toBe(arTranslations.nav.home);
+    // Fallback on invalid locale to default locale (en)
+    expect(t('nav.home', 'fr')).toBe(enTranslations.nav.home);
   });
 
   it('identifies locale correctly from URL path', () => {
     expect(getLocaleFromPath('/ar/projects')).toBe('ar');
     expect(getLocaleFromPath('/en/projects')).toBe('en');
-    expect(getLocaleFromPath('/random')).toBe('ar');
+    // Fallback for un-prefixed or unknown path is default locale (en)
+    expect(getLocaleFromPath('/random')).toBe('en');
   });
 
   it('renders LanguageSwitcher component with toggle link to opposite locale', () => {

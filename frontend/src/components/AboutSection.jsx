@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { translations } from '../data/portfolioData';
 import { Layers, Image, PenTool, Monitor, Sparkles, ArrowUpRight } from 'lucide-react';
 import { WaveTransition } from './WaveTransition';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,34 +10,48 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const AboutSection = ({ lang, settings }) => {
+export const AboutSection = ({
+  lang,
+  settings,
+  isLoadingSettings = false,
+  settingsError = null,
+  onRetrySettings,
+}) => {
   const currentLang = lang === 'ar' ? 'ar' : 'en';
   const t = translations[currentLang]?.about || translations.ar.about;
   const sectionRef = useRef(null);
 
-  const kicker = settings?.about?.[currentLang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
-  const titleStart = settings?.about?.[currentLang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
-  const titleAccent = settings?.about?.[currentLang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
+  const isSettingsLoaded = Boolean(settings);
+  const aboutSettings = settings?.about || {};
+  const profileSettings = settings?.profile || {};
 
-  const designerFullName = settings?.profile?.[currentLang === 'ar' ? 'fullNameAr' : 'fullNameEn'] ||
-    settings?.profile?.[currentLang === 'ar' ? 'nameAr' : 'name'] ||
-    (currentLang === 'ar' ? 'محمد ماهر الداية' : 'Mohammed Maher Aldaya');
+  const kicker = isSettingsLoaded
+    ? (currentLang === 'ar' ? aboutSettings.kickerAr : aboutSettings.kickerEn) ?? ''
+    : '';
+  const titleStart = isSettingsLoaded
+    ? (currentLang === 'ar' ? aboutSettings.titleStartAr : aboutSettings.titleStartEn) ?? ''
+    : '';
+  const titleAccent = isSettingsLoaded
+    ? (currentLang === 'ar' ? aboutSettings.titleAccentAr : aboutSettings.titleAccentEn) ?? ''
+    : '';
 
-  const designerTitle = settings?.profile?.[currentLang === 'ar' ? 'titleAr' : 'titleEn'] ||
-    (currentLang === 'ar' ? 'مصمم جرافيك | متخصص في الهوية البصرية والتصميم الإبداعي' : 'Graphic Designer | Visual Identity & Creative Design');
+  const designerFullName = isSettingsLoaded
+    ? (currentLang === 'ar' ? (profileSettings.fullNameAr || profileSettings.nameAr) : (profileSettings.fullNameEn || profileSettings.name)) ?? ''
+    : '';
 
-  const description = settings?.profile?.[currentLang === 'ar' ? 'bioAr' : 'bioEn'] ||
-    settings?.about?.[currentLang === 'ar' ? 'descAr' : 'descEn'] ||
-    t.description;
+  const designerTitle = isSettingsLoaded
+    ? (currentLang === 'ar' ? profileSettings.titleAr : profileSettings.titleEn) ?? ''
+    : '';
 
-  const profilePhoto = settings?.profile?.profilePhoto || settings?.profile?.avatarUrl || '/profile/mohammed-maher-profile.png';
+  const description = isSettingsLoaded
+    ? ((currentLang === 'ar' ? (profileSettings.bioAr || aboutSettings.descAr) : (profileSettings.bioEn || aboutSettings.descEn)) ?? '')
+    : '';
 
-  const statProjectsCount = settings?.about?.statProjects || '50+';
-  const statClientsCount = settings?.about?.statClients || '20+';
-  const statYearsCount = settings?.about?.statYears || '5+';
+  const profilePhoto = profileSettings.profilePhoto || profileSettings.avatarUrl || '/profile/mohammed-maher-profile.png';
 
-  const badgeTitle = settings?.profile?.[lang === 'ar' ? 'titleAr' : 'titleEn'] || t.badgeTitle;
-  const badgeSubtitle = settings?.profile?.[lang === 'ar' ? 'taglineAr' : 'taglineEn'] || t.badgeSubtitle;
+  const statProjectsCount = isSettingsLoaded ? (aboutSettings.statProjects ?? '') : null;
+  const statClientsCount = isSettingsLoaded ? (aboutSettings.statClients ?? '') : null;
+  const statYearsCount = isSettingsLoaded ? (aboutSettings.statYears ?? '') : null;
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -113,15 +128,19 @@ export const AboutSection = ({ lang, settings }) => {
                   <div className="absolute bottom-10 left-4 w-60 h-60 bg-rose-600/25 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute inset-0 bg-radial from-transparent via-[#140b17]/20 to-[#09070c]/70 pointer-events-none" />
 
-                  {/* Official Image - Bottom-aligned, centered horizontally, natural proportions */}
-                  <img
-                    src={profilePhoto}
-                    alt={designerFullName}
-                    className="relative z-10 h-[76%] sm:h-[80%] w-auto max-w-[85%] sm:max-w-[88%] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-transform duration-700 hover:scale-[1.02]"
-                    data-testid="about-profile-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {!isSettingsLoaded ? (
+                    <Skeleton className="w-full h-full rounded-3xl" />
+                  ) : (
+                    /* Official Image - Bottom-aligned, centered horizontally, natural proportions */
+                    <img
+                      src={profilePhoto}
+                      alt={designerFullName || 'Mohammed Maher Aldaya'}
+                      className="relative z-10 h-[76%] sm:h-[80%] w-auto max-w-[85%] sm:max-w-[88%] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)] transition-transform duration-700 hover:scale-[1.02]"
+                      data-testid="about-profile-image"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
 
                   {/* Subtle bottom gradient vignette to ensure smooth merge */}
                   <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#140b17] via-[#140b17]/40 to-transparent z-10 pointer-events-none" />
@@ -129,42 +148,63 @@ export const AboutSection = ({ lang, settings }) => {
 
                 {/* Top-Left Floating Glass Card: Graphic Designer */}
                 <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 p-3 rounded-2xl glass-panel-active border border-white/20 shadow-xl max-w-[220px] z-20 backdrop-blur-xl">
-                  <div className="flex items-center gap-1.5 text-amber-300 mb-1">
-                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-serif font-bold text-white truncate block">
-                      {designerFullName}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-neutral-300 font-sans tracking-wide leading-tight line-clamp-2">
-                    {designerTitle}
-                  </p>
+                  {!isSettingsLoaded ? (
+                    <div className="space-y-1.5 py-0.5" aria-busy="true">
+                      <Skeleton className="w-24 h-4 rounded" />
+                      <Skeleton className="w-32 h-3 rounded" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1.5 text-amber-300 mb-1">
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        <span className="text-xs font-serif font-bold text-white truncate block">
+                          {designerFullName}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-neutral-300 font-sans tracking-wide leading-tight line-clamp-2">
+                        {designerTitle}
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                {/* Bottom Overlay Glass Card: 50+ Projects | 20+ Clients | 5+ Years */}
+                {/* Bottom Overlay Glass Card: 3 Dynamic Stats */}
                 <div className="absolute bottom-4 inset-x-4 p-3.5 sm:p-4 rounded-2xl glass-panel-active border border-white/20 shadow-xl z-20 backdrop-blur-xl">
                   <div className="grid grid-cols-3 divide-x divide-white/10 text-center rtl:divide-x-reverse">
                     <div>
-                      <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums" data-testid="about-stat-projects">
-                        {statProjectsCount}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-12 h-6 mx-auto mb-1 rounded" />
+                      ) : (
+                        <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums" data-testid="about-stat-projects">
+                          {statProjectsCount}
+                        </div>
+                      )}
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statProjects}
                       </div>
                     </div>
 
                     <div>
-                      <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
-                        {statClientsCount}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-12 h-6 mx-auto mb-1 rounded" />
+                      ) : (
+                        <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
+                          {statClientsCount}
+                        </div>
+                      )}
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statClients}
                       </div>
                     </div>
 
                     <div>
-                      <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
-                        {statYearsCount}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-12 h-6 mx-auto mb-1 rounded" />
+                      ) : (
+                        <div className="text-lg sm:text-xl font-serif font-bold text-white tabular-nums">
+                          {statYearsCount}
+                        </div>
+                      )}
                       <div className="text-[10px] sm:text-xs text-neutral-300 font-light mt-0.5">
                         {t.statYears}
                       </div>
@@ -178,31 +218,78 @@ export const AboutSection = ({ lang, settings }) => {
 
           {/* Right Side: Heading, Description, 4 Cards, CTA & Signature (7 cols) */}
           <div className="about-reveal lg:col-span-7 text-left rtl:text-right">
-            {/* Kicker: "03 / About Me ——" */}
-            <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-3 tracking-wider">
-              {kicker}
-            </div>
+            {/* Kicker: e.g. "03 / About Me ——" */}
+            {!isSettingsLoaded ? (
+              <Skeleton className="w-32 h-4 mb-3 rounded" />
+            ) : (
+              kicker ? (
+                <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-3 tracking-wider">
+                  {kicker}
+                </div>
+              ) : null
+            )}
 
             {/* Title: "About Me" */}
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-3">
-              <span>{titleStart} </span>
-              <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
-            </h2>
+            {!isSettingsLoaded ? (
+              <Skeleton className="w-56 sm:w-72 h-10 sm:h-14 mb-3 rounded-lg" />
+            ) : (
+              (titleStart || titleAccent) ? (
+                <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-3">
+                  <span>{titleStart} </span>
+                  <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
+                </h2>
+              ) : null
+            )}
 
             {/* Prominent Designer Identity & Professional Title */}
-            <div className="mb-6 space-y-1">
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight" data-testid="about-designer-name">
-                {designerFullName}
-              </h3>
-              <p className="text-xs sm:text-sm font-mono tracking-wider text-[#f4a496] font-medium uppercase" data-testid="about-designer-title">
-                {designerTitle}
-              </p>
-            </div>
+            {!isSettingsLoaded ? (
+              <div className="mb-6 space-y-2" aria-busy="true">
+                <Skeleton className="w-64 h-8 rounded-md" />
+                <Skeleton className="w-72 sm:w-96 h-4 rounded-md" />
+              </div>
+            ) : (
+              (designerFullName || designerTitle) ? (
+                <div className="mb-6 space-y-1">
+                  {designerFullName && (
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight" data-testid="about-designer-name">
+                      {designerFullName}
+                    </h3>
+                  )}
+                  {designerTitle && (
+                    <p className="text-xs sm:text-sm font-mono tracking-wider text-[#f4a496] font-medium uppercase" data-testid="about-designer-title">
+                      {designerTitle}
+                    </p>
+                  )}
+                </div>
+              ) : null
+            )}
 
             {/* Description Paragraph */}
-            <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-8 max-w-2xl whitespace-pre-line" data-testid="about-designer-bio">
-              {description}
-            </p>
+            {!isSettingsLoaded ? (
+              <div className="space-y-2.5 mb-8 max-w-2xl" aria-busy="true">
+                <Skeleton className="w-full h-4 rounded" />
+                <Skeleton className="w-11/12 h-4 rounded" />
+                <Skeleton className="w-4/5 h-4 rounded" />
+              </div>
+            ) : (
+              description ? (
+                <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-8 max-w-2xl whitespace-pre-line" data-testid="about-designer-bio">
+                  {description}
+                </p>
+              ) : null
+            )}
+
+            {/* Subtle localized retry prompt if settings request failed */}
+            {settingsError && !isSettingsLoaded && (
+              <div className="flex items-center gap-2 mb-4 text-xs text-rose-300/80">
+                <span>{lang === 'ar' ? 'تعذر تحميل بيانات الملف الشخصي' : 'Unable to load profile data'}</span>
+                {onRetrySettings && (
+                  <button onClick={onRetrySettings} className="underline hover:text-white transition-colors cursor-pointer">
+                    {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Four Expertise Cards in a row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-10">

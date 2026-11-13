@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { translations, getFeaturedProjects, resolveText } from '../data/portfolioData';
+import { translations, resolveText } from '../data/portfolioData';
 import { ProjectArtwork } from './ProjectArtworks';
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 
 export const SelectedWorkSection = ({
@@ -10,14 +11,17 @@ export const SelectedWorkSection = ({
   onNavigateAllProjects,
   featuredMode = 'manual',
   projects: passedProjects,
+  isLoadingProjects = false,
+  projectsError = null,
+  onRetryProjects,
   settings,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const t = translations[lang].work;
-  // Use passed database projects or empty array if provided
-  const projects = Array.isArray(passedProjects)
-    ? passedProjects.slice(0, 3)
-    : [];
+
+  const isProjectsLoaded = Array.isArray(passedProjects);
+  // Use passed database projects or empty array if not loaded
+  const projects = isProjectsLoaded ? passedProjects.slice(0, 3) : [];
   const total = projects.length;
   const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
 
@@ -35,14 +39,14 @@ export const SelectedWorkSection = ({
   };
 
   useEffect(() => {
-    if (activeCardRef.current) {
+    if (activeCardRef.current && total > 0) {
       gsap.fromTo(
         activeCardRef.current,
         { scale: 0.97, opacity: 0.8 },
         { scale: 1, opacity: 1, duration: 0.45, ease: 'power2.out' }
       );
     }
-  }, [activeIndex]);
+  }, [activeIndex, total]);
 
   // Keyboard navigation when modal is not active
   useEffect(() => {
@@ -58,8 +62,8 @@ export const SelectedWorkSection = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lang, total]);
 
-  const prevIndex = activeIndex === 0 ? total - 1 : activeIndex - 1;
-  const nextIndex = activeIndex === total - 1 ? 0 : activeIndex + 1;
+  const prevIndex = total > 0 ? (activeIndex === 0 ? total - 1 : activeIndex - 1) : 0;
+  const nextIndex = total > 0 ? (activeIndex === total - 1 ? 0 : activeIndex + 1) : 0;
 
   return (
     <section
@@ -96,16 +100,18 @@ export const SelectedWorkSection = ({
             <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={handlePrev}
+                disabled={!isProjectsLoaded || total <= 1}
                 aria-label="Previous project"
-                className="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 text-white flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                className="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 disabled:opacity-40 border border-white/15 hover:border-white/30 text-white flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </button>
 
               <button
                 onClick={handleNext}
+                disabled={!isProjectsLoaded || total <= 1}
                 aria-label="Next project"
-                className="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 text-white flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                className="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 disabled:opacity-40 border border-white/15 hover:border-white/30 text-white flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer disabled:cursor-not-allowed"
               >
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />
               </button>
@@ -114,8 +120,65 @@ export const SelectedWorkSection = ({
 
         </div>
 
-        {total === 0 ? (
-          /* Luxury Empty State when database has 0 projects */
+        {/* Dynamic State Rendering: Skeleton -> Error -> Empty -> Carousel */}
+        {!isProjectsLoaded ? (
+          /* Elegant 3-Card Carousel Skeleton matching exact geometry */
+          <div className="relative w-full flex items-center justify-center min-h-[460px] sm:min-h-[520px] my-4" aria-busy="true">
+            {/* Left Flanking Peek Skeleton */}
+            <div className="hidden lg:block absolute left-[-10%] xl:left-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 transform scale-90 border border-white/10 shadow-2xl skeleton-shimmer" />
+
+            {/* Center Active Project Card Skeleton */}
+            <div
+              data-theme-surface="dark"
+              className="relative w-full max-w-4xl h-[460px] sm:h-[510px] rounded-3xl overflow-hidden glass-panel border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-6 sm:p-10 flex flex-col justify-between skeleton-shimmer"
+            >
+              {/* Top Badge Skeleton */}
+              <div className="relative z-10 flex items-center justify-between">
+                <Skeleton className="w-32 h-6 rounded-full" />
+              </div>
+
+              {/* Bottom Overlaid Project Info Skeleton */}
+              <div className="relative z-10 flex items-end justify-between gap-4">
+                <div className="space-y-3 w-full max-w-md">
+                  <Skeleton className="w-3/4 h-8 sm:h-10 rounded-lg" />
+                  <Skeleton className="w-1/2 h-5 rounded-md" />
+                  <div className="flex gap-2 pt-1">
+                    <Skeleton className="w-20 h-6 rounded-full" />
+                    <Skeleton className="w-20 h-6 rounded-full" />
+                  </div>
+                </div>
+                <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shrink-0" />
+              </div>
+            </div>
+
+            {/* Right Flanking Peek Skeleton */}
+            <div className="hidden lg:block absolute right-[-10%] xl:right-[-8%] w-[38%] h-[390px] rounded-3xl overflow-hidden opacity-30 transform scale-90 border border-white/10 shadow-2xl skeleton-shimmer" />
+          </div>
+        ) : projectsError && total === 0 ? (
+          /* Localized Retry State (Only in this section, never blacking out the page) */
+          <div className="relative w-full max-w-xl mx-auto my-12 p-8 sm:p-12 rounded-3xl glass-panel border border-rose-400/20 shadow-2xl text-center">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-300/30 flex items-center justify-center text-rose-300">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif text-xl sm:text-2xl font-normal text-white mb-2">
+              {lang === 'ar' ? 'تعذر تحميل معرض الأعمال' : 'Unable to load projects'}
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-400 font-light max-w-md mx-auto mb-6">
+              {lang === 'ar'
+                ? 'حدث انقطاع مؤقت أثناء الاتصال بالخادم. يمكنك المحاولة مجدداً.'
+                : 'A network timeout occurred while fetching portfolio projects. You can retry safely.'}
+            </p>
+            {onRetryProjects && (
+              <button
+                onClick={onRetryProjects}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-all shadow-lg cursor-pointer"
+              >
+                <span>{lang === 'ar' ? 'إعادة المحاولة الآن' : 'Retry Now'}</span>
+              </button>
+            )}
+          </div>
+        ) : total === 0 ? (
+          /* Luxury Empty State when database has 0 published projects */
           <div className="relative w-full max-w-xl mx-auto my-12 p-8 sm:p-12 rounded-3xl glass-panel-active border border-[#f4a496]/25 shadow-2xl shadow-black/85 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/5 border border-[#f4a496]/40 p-2 shadow-xl shadow-black/50 flex items-center justify-center">
               <img src="/logo/logo.png" alt="MO" className="w-full h-full object-contain" />
@@ -246,7 +309,7 @@ export const SelectedWorkSection = ({
                       onOpenProject(currentProject.slug || currentProject.id);
                     }}
                     aria-label="Open project case study"
-                    className="pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white hover:bg-neutral-100 text-neutral-900 flex items-center justify-center shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="pointer-events-auto w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white hover:bg-neutral-100 text-neutral-900 flex items-center justify-center shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                   >
                     <ArrowRight className="w-5 h-5 rtl:rotate-180 text-neutral-900" />
                   </button>
@@ -279,7 +342,7 @@ export const SelectedWorkSection = ({
                     key={idx}
                     onClick={() => setActiveIndex(idx)}
                     aria-label={`Go to slide ${idx + 1}`}
-                    className={`h-1.5 transition-all duration-300 rounded-full ${
+                    className={`h-1.5 transition-all duration-300 rounded-full cursor-pointer ${
                       idx === activeIndex
                         ? 'w-8 bg-white shadow-sm'
                         : 'w-2.5 bg-white/30 hover:bg-white/60'
@@ -299,7 +362,7 @@ export const SelectedWorkSection = ({
                       <button
                         key={item.id}
                         onClick={() => setActiveIndex(idx)}
-                        className={`group relative h-20 sm:h-28 rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
+                        className={`group relative h-20 sm:h-28 rounded-2xl overflow-hidden transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 cursor-pointer ${
                           isActive
                             ? 'border-2 border-rose-300 shadow-[0_0_20px_rgba(244,164,150,0.5)] scale-105 z-10'
                             : 'border border-white/10 opacity-60 hover:opacity-100 hover:scale-[1.02]'
@@ -314,7 +377,7 @@ export const SelectedWorkSection = ({
                           <div className="absolute inset-0 bg-rose-500/10 pointer-events-none" />
                         )}
                         <div className="absolute bottom-1.5 inset-x-1.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-mono text-neutral-200 truncate">
-                          {item.title?.[lang] || item.title?.en || item.title}
+                          {resolveText(item.title, lang, "")}
                         </div>
                       </button>
                     );
@@ -327,7 +390,7 @@ export const SelectedWorkSection = ({
             <div className="mt-14 flex items-center justify-center">
               <button
                 onClick={onNavigateAllProjects}
-                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
               >
                 <span>{t.viewAllProjects}</span>
                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform rtl:rotate-180" />

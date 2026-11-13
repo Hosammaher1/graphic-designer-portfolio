@@ -260,7 +260,8 @@ export function FullscreenImageViewer({
         {/* Counter Badge & Localized Title */}
         <div className="flex items-center gap-3">
           <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-400/30 shadow-lg">
-            {String(currentIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            <span className="sr-only">Image {currentIndex + 1} of {total}</span>
+            <span aria-hidden="true">{String(currentIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
           </span>
           <div className="text-left rtl:text-right hidden sm:block max-w-md">
             <h3 className="text-sm font-serif text-white font-medium truncate">

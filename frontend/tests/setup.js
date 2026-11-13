@@ -14,14 +14,26 @@ const rafPolyfill = (callback) => {
 };
 const cafPolyfill = (id) => clearTimeout(id);
 
-if (typeof globalThis !== 'undefined') {
-  globalThis.requestAnimationFrame = rafPolyfill;
-  globalThis.cancelAnimationFrame = cafPolyfill;
+for (const target of [globalThis, global]) {
+  if (typeof target !== 'undefined') {
+    try {
+      Object.defineProperty(target, 'requestAnimationFrame', {
+        value: rafPolyfill,
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(target, 'cancelAnimationFrame', {
+        value: cafPolyfill,
+        writable: true,
+        configurable: true,
+      });
+    } catch {
+      target.requestAnimationFrame = rafPolyfill;
+      target.cancelAnimationFrame = cafPolyfill;
+    }
+  }
 }
-if (typeof global !== 'undefined') {
-  global.requestAnimationFrame = rafPolyfill;
-  global.cancelAnimationFrame = cafPolyfill;
-}
+
 if (typeof window !== 'undefined') {
   window.requestAnimationFrame = rafPolyfill;
   window.cancelAnimationFrame = cafPolyfill;

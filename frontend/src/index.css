@@ -67,6 +67,57 @@
   box-shadow: 0 8px 32px -4px rgba(226, 130, 126, 0.15), 0 0 20px -2px rgba(132, 43, 69, 0.2);
 }
 
+
+/* --------------------------------------------------------------------------
+   Shimmer Skeletons (Dark Studio Default & Light Mode)
+   -------------------------------------------------------------------------- */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.skeleton-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.12) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  content: '';
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .skeleton-shimmer {
+  background-color: rgba(92, 22, 40, 0.07) !important;
+}
+
+:is(html.light, html[data-theme="light"]) #public-root .skeleton-shimmer::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(92, 22, 40, 0) 0%,
+    rgba(92, 22, 40, 0.04) 20%,
+    rgba(92, 22, 40, 0.08) 60%,
+    rgba(92, 22, 40, 0) 100%
+  );
+}
+
 /* Atmospheric Glows */
 .ambient-glow-peach {
   background: radial-gradient(circle at 50% 50%, rgba(244, 164, 150, 0.18) 0%, rgba(200, 90, 110, 0.08) 50%, transparent 70%);

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { translations } from '../data/portfolioData';
 import { Mail, CheckCircle2, Send, ArrowUpRight, AlertCircle, Instagram } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
 
 const WhatsAppIcon = ({ className = 'w-5 h-5' }) => (
   <svg viewBox="0 0 24 24" className={`${className} fill-current`} aria-hidden="true">
@@ -8,20 +9,41 @@ const WhatsAppIcon = ({ className = 'w-5 h-5' }) => (
   </svg>
 );
 
-export const ContactSection = ({ lang = 'ar', settings }) => {
+export const ContactSection = ({
+  lang = 'ar',
+  settings,
+  isLoadingSettings = false,
+  settingsError = null,
+  onRetrySettings,
+}) => {
   const currentLang = lang === 'en' ? 'en' : 'ar';
   const t = (translations[currentLang] || translations.ar || translations.en).contact;
 
-  const kicker = settings?.contact?.[currentLang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
-  const titleStart = settings?.contact?.[currentLang === 'ar' ? 'titleStartAr' : 'titleStartEn'] || t.titleStart;
-  const titleAccent = settings?.contact?.[currentLang === 'ar' ? 'titleAccentAr' : 'titleAccentEn'] || t.titleAccent;
-  const description = settings?.contact?.[currentLang === 'ar' ? 'descAr' : 'descEn'] || t.description;
-  const directEmail = settings?.contact?.directEmail || settings?.profile?.email || 'mohmmed.maher467@gmail.com';
-  const whatsappNumber = settings?.contact?.whatsappDisplay || settings?.profile?.whatsappDisplay || '+972 59-238-2189';
-  const whatsappUrl = settings?.contact?.whatsappUrl || settings?.profile?.whatsappUrl || 'https://wa.me/972592382189';
-  const instagramHandle = settings?.contact?.instagramHandle || settings?.profile?.instagramHandle || '@mohmmed_ma48';
-  const instagramUrl = settings?.contact?.instagramUrl || settings?.profile?.instagramUrl || 'https://www.instagram.com/mohmmed_ma48/';
-  const availableStatus = settings?.contact?.[currentLang === 'ar' ? 'availabilityAr' : 'availabilityEn'] || t.availableStatus;
+  const isSettingsLoaded = Boolean(settings);
+  const contactSettings = settings?.contact || {};
+  const profileSettings = settings?.profile || {};
+
+  const kicker = isSettingsLoaded
+    ? (currentLang === 'ar' ? contactSettings.kickerAr : contactSettings.kickerEn) ?? ''
+    : '';
+  const titleStart = isSettingsLoaded
+    ? (currentLang === 'ar' ? contactSettings.titleStartAr : contactSettings.titleStartEn) ?? ''
+    : '';
+  const titleAccent = isSettingsLoaded
+    ? (currentLang === 'ar' ? contactSettings.titleAccentAr : contactSettings.titleAccentEn) ?? ''
+    : '';
+  const description = isSettingsLoaded
+    ? (currentLang === 'ar' ? contactSettings.descAr : contactSettings.descEn) ?? ''
+    : '';
+
+  const directEmail = contactSettings.directEmail || profileSettings.email || '';
+  const whatsappNumber = contactSettings.whatsappDisplay || profileSettings.whatsappDisplay || '';
+  const whatsappUrl = contactSettings.whatsappUrl || profileSettings.whatsappUrl || '';
+  const instagramHandle = contactSettings.instagramHandle || profileSettings.instagramHandle || '';
+  const instagramUrl = contactSettings.instagramUrl || profileSettings.instagramUrl || '';
+  const availableStatus = isSettingsLoaded
+    ? (currentLang === 'ar' ? contactSettings.availabilityAr : contactSettings.availabilityEn) ?? ''
+    : '';
 
   const formLoadedAt = useRef(Date.now());
   const [formState, setFormState] = useState({
@@ -126,16 +148,54 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header: Kicker, Title, Subtitle */}
         <div className="max-w-2xl mb-14 text-left rtl:text-right">
-          <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
-            {kicker}
-          </div>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-4">
-            <span>{titleStart} </span>
-            <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
-          </h2>
-          <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            {description}
-          </p>
+          {!isSettingsLoaded ? (
+            <Skeleton className="w-32 h-4 mb-2 rounded" />
+          ) : (
+            kicker ? (
+              <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
+                {kicker}
+              </div>
+            ) : null
+          )}
+
+          {!isSettingsLoaded ? (
+            <div className="space-y-2 mb-4 w-full" aria-busy="true">
+              <Skeleton className="w-64 sm:w-80 h-10 sm:h-12 rounded-lg" />
+              <Skeleton className="w-48 sm:w-60 h-10 sm:h-12 rounded-lg" />
+            </div>
+          ) : (
+            (titleStart || titleAccent) ? (
+              <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-tight mb-4">
+                <span>{titleStart} </span>
+                <span className="text-[#f4a496] italic font-serif">{titleAccent}</span>
+              </h2>
+            ) : null
+          )}
+
+          {!isSettingsLoaded ? (
+            <div className="space-y-2 max-w-lg mb-4 w-full" aria-busy="true">
+              <Skeleton className="w-full h-4 rounded" />
+              <Skeleton className="w-4/5 h-4 rounded" />
+            </div>
+          ) : (
+            description ? (
+              <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
+                {description}
+              </p>
+            ) : null
+          )}
+
+          {/* Subtle localized retry prompt if settings request failed */}
+          {settingsError && !isSettingsLoaded && (
+            <div className="flex items-center gap-2 mb-4 text-xs text-rose-300/80">
+              <span>{lang === 'ar' ? 'تعذر تحميل الإعدادات' : 'Unable to load dynamic content'}</span>
+              {onRetrySettings && (
+                <button onClick={onRetrySettings} className="underline hover:text-white transition-colors cursor-pointer">
+                  {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Contact Grid: Form on Left (7 cols) + Direct Info on Right (5 cols) */}
@@ -157,12 +217,14 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       : 'شكراً لتواصلك. تم استلام رسالتك في بريد الاستوديو مباشرة وسأتواصل معك في أقرب وقت للمناقشة.'}
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-3">
-                    <a
-                      href={`mailto:${directEmail}?subject=Design%20Inquiry%20from%20Portfolio`}
-                      className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md"
-                    >
-                      {currentLang === 'en' ? 'Direct Email Client ↗' : 'فتح البريد الإلكتروني ↗'}
-                    </a>
+                    {directEmail && (
+                      <a
+                        href={`mailto:${directEmail}?subject=Design%20Inquiry%20from%20Portfolio`}
+                        className="px-6 py-2.5 rounded-full text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-100 transition-colors shadow-md"
+                      >
+                        {currentLang === 'en' ? 'Direct Email Client ↗' : 'فتح البريد الإلكتروني ↗'}
+                      </a>
+                    )}
                     <button
                       onClick={() => setIsSubmitted(false)}
                       className="px-6 py-2.5 rounded-full text-xs font-semibold text-white bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
@@ -210,7 +272,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
+                      <label htmlFor="contact-name" className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
                         {t.name} *
                       </label>
                       <input
@@ -226,7 +288,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
+                      <label htmlFor="contact-email" className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
                         {t.email} *
                       </label>
                       <input
@@ -243,7 +305,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
+                    <label htmlFor="contact-subject" className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
                       {currentLang === 'ar' ? 'الموضوع أو نوع المشروع' : 'Subject / Project Scope'}
                     </label>
                     <input
@@ -258,7 +320,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
+                    <label htmlFor="contact-message" className="block text-xs font-mono tracking-wider text-neutral-300 uppercase mb-2">
                       {t.message} *
                     </label>
                     <textarea
@@ -299,7 +361,7 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
               <div className="space-y-3">
                 {/* Email */}
                 <a
-                  href={`mailto:${directEmail}`}
+                  href={directEmail ? `mailto:${directEmail}` : '#'}
                   className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-300/30 transition-all cursor-pointer"
                   data-testid="contact-card-email"
                 >
@@ -311,17 +373,27 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       <div className="text-[11px] font-mono text-neutral-400">
                         {currentLang === 'ar' ? 'البريد المباشر' : 'STUDIO INBOX'}
                       </div>
-                      <div className="text-sm font-medium text-white group-hover:text-rose-200 transition-colors truncate">
-                        {directEmail}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-40 h-4 rounded mt-1" />
+                      ) : (
+                        directEmail ? (
+                          <span className="text-sm font-medium text-white group-hover:text-rose-200 transition-colors truncate block">
+                            {directEmail}
+                          </span>
+                        ) : null
+                      )}
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-rose-300 transition-colors shrink-0" />
+                  {directEmail && (
+                    <span aria-label="Send email">
+                      <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-rose-300 transition-colors shrink-0" />
+                    </span>
+                  )}
                 </a>
 
                 {/* WhatsApp */}
                 <a
-                  href={whatsappUrl}
+                  href={whatsappUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-300/30 transition-all cursor-pointer"
@@ -335,17 +407,27 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       <div className="text-[11px] font-mono text-neutral-400">
                         {currentLang === 'ar' ? 'واتساب المباشر' : 'WHATSAPP DIRECT'}
                       </div>
-                      <div className="text-sm font-medium text-white group-hover:text-emerald-200 transition-colors" dir="ltr">
-                        {whatsappNumber}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-32 h-4 rounded mt-1" />
+                      ) : (
+                        whatsappNumber ? (
+                          <span className="text-sm font-medium text-white group-hover:text-emerald-200 transition-colors block" dir="ltr">
+                            {whatsappNumber}
+                          </span>
+                        ) : null
+                      )}
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-emerald-300 transition-colors shrink-0" />
+                  {whatsappUrl && (
+                    <span aria-label="Open WhatsApp">
+                      <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-emerald-300 transition-colors shrink-0" />
+                    </span>
+                  )}
                 </a>
 
                 {/* Instagram */}
                 <a
-                  href={instagramUrl}
+                  href={instagramUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-300/30 transition-all cursor-pointer"
@@ -359,21 +441,39 @@ export const ContactSection = ({ lang = 'ar', settings }) => {
                       <div className="text-[11px] font-mono text-neutral-400">
                         {currentLang === 'ar' ? 'إنستغرام الرسمي' : 'OFFICIAL INSTAGRAM'}
                       </div>
-                      <div className="text-sm font-medium text-white group-hover:text-pink-200 transition-colors" dir="ltr">
-                        {instagramHandle}
-                      </div>
+                      {!isSettingsLoaded ? (
+                        <Skeleton className="w-28 h-4 rounded mt-1" />
+                      ) : (
+                        instagramHandle ? (
+                          <span className="text-sm font-medium text-white group-hover:text-pink-200 transition-colors truncate block" dir="ltr">
+                            {instagramHandle}
+                          </span>
+                        ) : null
+                      )}
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-pink-300 transition-colors shrink-0" />
+                  {instagramUrl && (
+                    <span aria-label="Open Instagram">
+                      <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-pink-300 transition-colors shrink-0" />
+                    </span>
+                  )}
                 </a>
               </div>
 
               {/* Availability Notice */}
               <div className="mt-6 pt-6 border-t border-white/5 flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-neutral-300 font-light">
-                  {availableStatus}
-                </span>
+                {!isSettingsLoaded ? (
+                  <Skeleton className="w-48 h-3 rounded" />
+                ) : (
+                  availableStatus ? (
+                    <>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs text-neutral-300 font-light">
+                        {availableStatus}
+                      </span>
+                    </>
+                  ) : null
+                )}
               </div>
             </div>
           </div>

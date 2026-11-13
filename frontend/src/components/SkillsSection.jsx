@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { WaveTransition } from './WaveTransition';
+import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -18,14 +19,31 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const SkillsSection = ({ lang, settings }) => {
+export const SkillsSection = ({
+  lang,
+  settings,
+  isLoadingSettings = false,
+  settingsError = null,
+  onRetrySettings,
+}) => {
   const t = translations[lang].skills;
   const sectionRef = useRef(null);
 
-  const kicker = settings?.skills?.[lang === 'ar' ? 'kickerAr' : 'kickerEn'] || t.kicker;
-  const titleLine1 = settings?.skills?.[lang === 'ar' ? 'titleLine1Ar' : 'titleLine1En'] || t.titleLine1;
-  const titleLine2 = settings?.skills?.[lang === 'ar' ? 'titleLine2Ar' : 'titleLine2En'] || t.titleLine2;
-  const description = settings?.skills?.[lang === 'ar' ? 'descAr' : 'descEn'] || t.description;
+  const isSettingsLoaded = Boolean(settings);
+  const skillSettings = settings?.skills || {};
+
+  const kicker = isSettingsLoaded
+    ? (lang === 'ar' ? skillSettings.kickerAr : skillSettings.kickerEn) ?? ''
+    : '';
+  const titleLine1 = isSettingsLoaded
+    ? (lang === 'ar' ? skillSettings.titleLine1Ar : skillSettings.titleLine1En) ?? ''
+    : '';
+  const titleLine2 = isSettingsLoaded
+    ? (lang === 'ar' ? skillSettings.titleLine2Ar : skillSettings.titleLine2En) ?? ''
+    : '';
+  const description = isSettingsLoaded
+    ? (lang === 'ar' ? skillSettings.descAr : skillSettings.descEn) ?? ''
+    : '';
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -191,16 +209,54 @@ export const SkillsSection = ({ lang, settings }) => {
         
         {/* Top Header: Kicker, Title, Subtitle */}
         <div className="skill-stagger max-w-2xl mb-12 sm:mb-16 text-left rtl:text-right">
-          <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
-            {kicker}
-          </div>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.1] mb-4">
-            <span className="block">{titleLine1}</span>
-            <span className="block">{titleLine2}</span>
-          </h2>
-          <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            {description}
-          </p>
+          {!isSettingsLoaded ? (
+            <Skeleton className="w-32 h-4 mb-2 rounded" />
+          ) : (
+            kicker ? (
+              <div className="text-xs sm:text-sm font-mono text-neutral-400 mb-2 tracking-wider">
+                {kicker}
+              </div>
+            ) : null
+          )}
+
+          {!isSettingsLoaded ? (
+            <div className="space-y-2 mb-4 w-full" aria-busy="true">
+              <Skeleton className="w-64 sm:w-80 h-10 sm:h-12 rounded-lg" />
+              <Skeleton className="w-48 sm:w-60 h-10 sm:h-12 rounded-lg" />
+            </div>
+          ) : (
+            (titleLine1 || titleLine2) ? (
+              <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.1] mb-4">
+                {titleLine1 && <span className="block">{titleLine1}</span>}
+                {titleLine2 && <span className="block">{titleLine2}</span>}
+              </h2>
+            ) : null
+          )}
+
+          {!isSettingsLoaded ? (
+            <div className="space-y-2 max-w-xl mb-4 w-full" aria-busy="true">
+              <Skeleton className="w-full h-4 rounded" />
+              <Skeleton className="w-4/5 h-4 rounded" />
+            </div>
+          ) : (
+            description ? (
+              <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
+                {description}
+              </p>
+            ) : null
+          )}
+
+          {/* Subtle localized retry prompt if settings request failed */}
+          {settingsError && !isSettingsLoaded && (
+            <div className="flex items-center gap-2 mb-4 text-xs text-rose-300/80">
+              <span>{lang === 'ar' ? 'تعذر تحميل الإعدادات' : 'Unable to load dynamic content'}</span>
+              {onRetrySettings && (
+                <button onClick={onRetrySettings} className="underline hover:text-white transition-colors cursor-pointer">
+                  {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Center Grid: Software 2x5 Grid + Floating Pen Tool + 3 Expertise Cards */}
