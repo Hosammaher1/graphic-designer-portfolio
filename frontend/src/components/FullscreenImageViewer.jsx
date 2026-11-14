@@ -227,11 +227,11 @@ export function FullscreenImageViewer({
 
   if (!isOpen || !currentImage) return null;
 
-  // Resolve display source
+  // Resolve display source: prioritize original high-resolution asset if present
   const imageSrc =
+    currentImage.original_url ||
     currentImage.url ||
     currentImage.src ||
-    currentImage.original_url ||
     currentImage.display_url ||
     null;
 

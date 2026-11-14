@@ -533,53 +533,53 @@ export const ProjectDetailsModal = ({
                 </div>
               </div>
 
-              {/* Asymmetric / Two-Column Responsive Gallery Grid */}
+              {/* Responsive Gallery Grid: Consistent, Equal-Sized Aligned Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 {projectGallery.map((item, gIdx) => {
                   const globalIdx = gIdx + 1; // 0 is cover
-                  const isFull = item.span === 'full';
                   const itemSrc = item.url || item.src || null;
 
                   return (
                     <div
                       key={item.id || gIdx}
                       onClick={() => setSelectedLightboxIndex(globalIdx)}
-                      className={`group relative rounded-3xl glass-panel border border-white/10 hover:border-rose-300/50 cursor-pointer shadow-xl transition-all duration-300 flex flex-col ${
-                        isFull ? 'md:col-span-2' : ''
-                      }`}
+                      className="group relative rounded-3xl glass-panel border border-white/10 hover:border-rose-300/50 cursor-pointer shadow-xl transition-all duration-300 flex flex-col h-full overflow-hidden"
                     >
-                      {/* Image Canvas */}
+                      {/* Image Canvas with Consistent Aspect Ratio */}
                       <div
                         data-theme-surface="dark"
-                        className="relative w-full bg-[#160c18] flex items-center justify-center p-2 sm:p-4 rounded-t-3xl"
+                        className="relative w-full aspect-[16/10] bg-[#160c18] overflow-hidden rounded-t-3xl shrink-0 flex items-center justify-center"
                       >
                         <ProjectArtwork
                           id={item.artworkId}
                           src={itemSrc}
-                          className="w-full h-auto object-contain mx-auto transform group-hover:scale-[1.01] transition-transform duration-500 ease-out"
+                          alt={getLoc(item.title) || getLoc(project?.title) || 'Gallery image'}
+                          className="w-full h-full object-cover mx-auto transform group-hover:scale-105 transition-transform duration-500 ease-out"
                         />
 
                         {/* Top Badge: Type & Index */}
-                        <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex items-center gap-2">
-                          <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-wider text-rose-200 glass-panel border border-rose-300/30 uppercase">
+                        <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex items-center gap-2 pointer-events-none z-10">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-wider text-rose-200 glass-panel border border-rose-300/30 uppercase shadow-md">
                             {String(globalIdx + 1).padStart(2, '0')} · {item.type || 'image'}
                           </span>
                         </div>
 
                         {/* Expand Icon Button on Hover */}
-                        <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-md">
                           <Maximize2 className="w-4 h-4" />
                         </div>
                       </div>
 
                       {/* Item Caption Box */}
-                      <div className="p-5 sm:p-6 bg-gradient-to-b from-[#140b17] to-[#0c050f] border-t border-white/5">
-                        <h4 className="font-serif text-lg font-bold text-white group-hover:text-rose-200 transition-colors">
+                      <div className="p-5 sm:p-6 bg-gradient-to-b from-[#140b17] to-[#0c050f] border-t border-white/5 flex-1 flex flex-col justify-start">
+                        <h4 className="font-serif text-lg font-bold text-white group-hover:text-rose-200 transition-colors line-clamp-1">
                           {getLoc(item.title)}
                         </h4>
-                        <p className="text-xs sm:text-sm text-neutral-300/80 font-light mt-1 leading-relaxed">
-                          {getLoc(item.caption)}
-                        </p>
+                        {item.caption && (
+                          <p className="text-xs sm:text-sm text-neutral-300/80 font-light mt-1.5 leading-relaxed line-clamp-2">
+                            {getLoc(item.caption)}
+                          </p>
+                        )}
                       </div>
                     </div>
                   );

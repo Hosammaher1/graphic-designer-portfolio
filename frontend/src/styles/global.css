@@ -1490,6 +1490,9 @@ button {
   border: 1px solid var(--color-border);
   background-color: var(--color-surface-elevated);
   transition: transform var(--motion-fast), box-shadow var(--motion-fast);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .gallery-thumbnail-card:hover {
@@ -1499,17 +1502,20 @@ button {
 
 .gallery-thumb-image-wrap {
   width: 100%;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
   background-color: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .gallery-thumb-image {
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   display: block;
   transition: transform var(--motion-fast);
 }
@@ -1523,6 +1529,7 @@ button {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
+  flex: 1;
 }
 
 /* Next / Prev Project Pagination Footer */
