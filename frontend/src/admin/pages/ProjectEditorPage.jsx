@@ -98,7 +98,7 @@ export function ProjectEditorPage({ projectId }) {
       setDescAr(dAr);
       setCoverImage(existingProject.coverImage || existingProject.image || existingProject.cover_url || '');
       setCoverMediaId(existingProject.coverMediaId || existingProject.cover_media_id || (existingProject.coverMedia?.id ? existingProject.coverMedia.id : null));
-      setFeatured(!!existingProject.featured);
+      setFeatured(Boolean(existingProject.featured ?? existingProject.is_featured ?? existingProject.isFeatured ?? false));
       setStatus(existingProject.status || 'published');
       const rawGallery = existingProject.gallery || existingProject.media || [];
       setGallery(

@@ -41,11 +41,13 @@ export const SelectedWorkSection = ({
   const t = translations[lang].work;
 
   const isProjectsLoaded = Array.isArray(passedProjects);
-  // Display ONLY published projects marked as featured in the Admin Dashboard, strictly preserving saved order.
+  // Display exactly 3 published projects selected as Featured in the Admin Dashboard, respecting their saved order.
+  // If fewer than 3 projects are featured, show only those selected. Never fall back to recent or all projects.
   const projects = isProjectsLoaded
     ? passedProjects
         .filter((p) => isProjectFeatured(p))
         .sort((a, b) => getProjectFeaturedOrder(a) - getProjectFeaturedOrder(b))
+        .slice(0, 3)
     : [];
   const total = projects.length;
   const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
