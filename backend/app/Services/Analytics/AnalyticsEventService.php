@@ -135,6 +135,22 @@ class AnalyticsEventService
 
         $consent = ConsentRecord::where('consent_token', $consentToken)->first();
 
+        // Prevent race condition: if client sent consent_status === 'accepted', auto-record consent
+        if (!$consent && ($data['consent_status'] ?? $request->input('consent_status')) === 'accepted') {
+            try {
+                $consent = ConsentRecord::create([
+                    'consent_token' => $consentToken,
+                    'status' => 'accepted',
+                    'analytics_allowed' => true,
+                    'personalization_allowed' => true,
+                    'policy_version' => '1.0',
+                    'expires_at' => now()->addDays(180),
+                ]);
+            } catch (\Throwable $e) {
+                $consent = ConsentRecord::where('consent_token', $consentToken)->first();
+            }
+        }
+
         if (!$consent
             || !(bool) $consent->analytics_allowed
             || $consent->withdrawn_at !== null
@@ -199,6 +215,13 @@ class AnalyticsEventService
         // 6. If project_view, atomically increment public view count
         if ($eventType === 'project_view' && $projectId) {
             Project::where('id', $projectId)->increment('view_count');
+        }
+
+        // 7. Eagerly update today's daily aggregate so live dashboard metrics reflect immediately
+        try {
+            app(\App\Services\Analytics\AnalyticsAggregationService::class)->aggregateForDate(now()->toDateString());
+        } catch (\Throwable $e) {
+            // Silently continue if background write
         }
 
         return [

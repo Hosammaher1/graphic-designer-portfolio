@@ -13,7 +13,7 @@ class AggregateDailyAnalyticsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'analytics:aggregate-daily {--date= : Specific date to aggregate (YYYY-MM-DD)} {--days=1 : Number of past days to aggregate}';
+    protected $signature = 'analytics:aggregate-daily {--date= : Specific date to aggregate (YYYY-MM-DD)} {--days=1 : Number of past days to aggregate} {--include-today : Also aggregate the current date}';
 
     /**
      * The console command description.
@@ -36,6 +36,9 @@ class AggregateDailyAnalyticsCommand extends Command
             $dates = [];
             for ($i = 1; $i <= $days; $i++) {
                 $dates[] = Carbon::yesterday()->subDays($i - 1)->toDateString();
+            }
+            if ($this->option('include-today')) {
+                array_unshift($dates, Carbon::today()->toDateString());
             }
         }
 

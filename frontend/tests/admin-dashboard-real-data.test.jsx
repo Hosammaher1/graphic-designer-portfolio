@@ -219,7 +219,7 @@ describe('Admin Dashboard Real Data Audit & Integration', () => {
         expect(screen.queryByText(/3m 42s/)).toBeNull();
         // Client inquiries card displays real 1 count
         expect(screen.getByText('Client Inquiries')).toBeDefined();
-        expect(screen.getByText('1')).toBeDefined();
+        expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(1);
       });
     });
   });

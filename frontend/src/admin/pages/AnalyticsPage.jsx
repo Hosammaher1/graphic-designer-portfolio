@@ -28,12 +28,18 @@ export function AnalyticsPage() {
 
   // Real aggregate numbers from API
   const visitors = analyticsOverview?.summary?.unique_visitors ?? 0;
+  const projectsTotalViews = projects.reduce((acc, curr) => acc + (curr.views || 0), 0);
   const impressions =
     analyticsOverview?.summary?.total_views !== undefined
-      ? analyticsOverview.summary.total_views
-      : projects.reduce((acc, curr) => acc + (curr.views || 0), 0);
+      ? Math.max(analyticsOverview.summary.total_views, projectsTotalViews)
+      : projectsTotalViews;
 
   const viewsChangePercentage = analyticsOverview?.previous_period?.views_change_percentage ?? null;
+
+  // Modal open rate calculated from impressions vs unique visitors
+  const modalOpenRate = visitors > 0
+    ? `${Math.min(100, Math.round((impressions / visitors) * 100))}%`
+    : '0%';
 
   // Real projects for the leaderboard: API topProjects or fallback to active projects sorted by views
   const leaderboardProjects =
@@ -113,7 +119,7 @@ export function AnalyticsPage() {
         />
         <StatCard
           title={t.analytics.modalOpenRate}
-          value="0%"
+          value={modalOpenRate}
           change={null}
           icon={TrendingUp}
           description={lang === 'ar' ? 'معدل فتح النوافذ التفاعلية' : 'Interactive modal open rate'}

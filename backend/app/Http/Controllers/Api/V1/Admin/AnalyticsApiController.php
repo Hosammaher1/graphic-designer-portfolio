@@ -69,11 +69,54 @@ class AnalyticsApiController extends Controller
     }
 
     /**
+     * Ensure daily summary rollups exist and today's live events are aggregated.
+     */
+    protected function ensureAggregated(string $start, string $end): void
+    {
+        try {
+            $service = app(\App\Services\Analytics\AnalyticsAggregationService::class);
+            $today = Carbon::today()->toDateString();
+
+            // 1. Always aggregate today so live visitor telemetry is immediately reflected
+            $service->aggregateForDate($today);
+
+            // 2. Discover any past dates within window that have raw events but no summary rollup
+            $datesWithEvents = AnalyticsEvent::whereBetween('created_at', [
+                Carbon::parse($start)->startOfDay(),
+                Carbon::parse($end)->endOfDay()
+            ])
+            ->where('is_bot', false)
+            ->selectRaw('DATE(created_at) as event_date')
+            ->groupBy('event_date')
+            ->pluck('event_date')
+            ->map(fn($d) => Carbon::parse($d)->toDateString())
+            ->all();
+
+            if (!empty($datesWithEvents)) {
+                $existingAggregatedDates = AnalyticsDailyAggregate::where('dimension_type', 'overview')
+                    ->where('dimension_value', 'total')
+                    ->whereIn('date', $datesWithEvents)
+                    ->pluck('date')
+                    ->map(fn($d) => Carbon::parse($d)->toDateString())
+                    ->all();
+
+                $missingDates = array_diff($datesWithEvents, $existingAggregatedDates);
+                foreach ($missingDates as $mDate) {
+                    $service->aggregateForDate($mDate);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Analytics automatic aggregation: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Get aggregate overview, daily trend, and prior window comparison.
      */
     public function overview(Request $request): JsonResponse
     {
         [$start, $end, $rangeKey, $daysCount, $prevStart, $prevEnd] = $this->resolveDateRange($request);
+        $this->ensureAggregated($start, $end);
 
         // Fetch current period overview rollups
         $records = AnalyticsDailyAggregate::where('dimension_type', 'overview')
@@ -100,8 +143,25 @@ class AnalyticsApiController extends Controller
             $cursor->addDay();
         }
 
-        $totalViews = array_sum(array_column($trend, 'total_views'));
-        $uniqueVisitors = array_sum(array_column($trend, 'unique_visitors'));
+        $distinctVisitors = AnalyticsEvent::whereBetween('created_at', [
+            Carbon::parse($start)->startOfDay(),
+            Carbon::parse($end)->endOfDay(),
+        ])
+            ->where('is_bot', false)
+            ->distinct('visitor_hash')
+            ->count('visitor_hash');
+
+        $totalRawViews = AnalyticsEvent::whereBetween('created_at', [
+            Carbon::parse($start)->startOfDay(),
+            Carbon::parse($end)->endOfDay(),
+        ])
+            ->where('is_bot', false)
+            ->count();
+
+        $totalViews = max((int) array_sum(array_column($trend, 'total_views')), (int) $totalRawViews);
+        $uniqueVisitors = $distinctVisitors > 0
+            ? (int) $distinctVisitors
+            : (int) array_sum(array_column($trend, 'unique_visitors'));
 
         // Fetch non-overlapping prior period rollups
         $prevRecords = AnalyticsDailyAggregate::where('dimension_type', 'overview')
@@ -145,6 +205,7 @@ class AnalyticsApiController extends Controller
     public function topProjects(Request $request): JsonResponse
     {
         [$start, $end, $rangeKey] = $this->resolveDateRange($request);
+        $this->ensureAggregated($start, $end);
 
         $limit = max(1, min(50, (int) $request->input('limit', 10)));
 
@@ -178,6 +239,35 @@ class AnalyticsApiController extends Controller
             }
         }
 
+        // If no daily aggregates recorded yet, fallback to published projects with views
+        if (empty($list)) {
+            $fallbackProjects = Project::where('is_published', true)
+                ->where('view_count', '>', 0)
+                ->orderByDesc('view_count')
+                ->take($limit)
+                ->get();
+
+            foreach ($fallbackProjects as $project) {
+                $snapshot = $project->published_snapshot ?? [];
+                $trans = $snapshot['translations']['ar'] ?? $snapshot['translations']['en'] ?? [];
+                $title = $trans['title'] ?? $project->slug;
+
+                $rawVisitors = AnalyticsEvent::where('project_id', $project->id)
+                    ->where('is_bot', false)
+                    ->distinct('visitor_hash')
+                    ->count('visitor_hash');
+
+                $list[] = [
+                    'id' => $project->id,
+                    'slug' => $project->slug,
+                    'title' => $title,
+                    'views' => (int) $project->view_count,
+                    'unique_visitors' => (int) $rawVisitors,
+                    'cover_url' => $snapshot['cover_url'] ?? null,
+                ];
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -195,6 +285,7 @@ class AnalyticsApiController extends Controller
     public function trafficSources(Request $request): JsonResponse
     {
         [$start, $end, $rangeKey] = $this->resolveDateRange($request);
+        $this->ensureAggregated($start, $end);
 
         $catStats = AnalyticsDailyAggregate::where('dimension_type', 'referrer_category')
             ->whereBetween('date', [$start, $end])
@@ -246,6 +337,7 @@ class AnalyticsApiController extends Controller
     public function devices(Request $request): JsonResponse
     {
         [$start, $end, $rangeKey] = $this->resolveDateRange($request);
+        $this->ensureAggregated($start, $end);
 
         $deviceStats = AnalyticsDailyAggregate::where('dimension_type', 'device')
             ->whereBetween('date', [$start, $end])

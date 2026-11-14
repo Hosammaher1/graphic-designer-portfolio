@@ -643,8 +643,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     fetchCategories();
     fetchMilestones();
     fetchSettings();
-    fetchAnalytics('30d');
     if (isAuthenticated) {
+      fetchAnalytics('30d');
       fetchMedia();
       fetchTrash();
       fetchActivities();
@@ -662,6 +662,14 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     fetchInquiries,
     fetchAnalytics,
   ]);
+
+  // Refresh analytics whenever navigating to dashboard or analytics views
+  useEffect(() => {
+    if (isAuthenticated && (currentRoute === '/admin/dashboard' || currentRoute === '/admin/analytics' || currentRoute === '/admin')) {
+      fetchAnalytics('30d');
+      fetchInquiries();
+    }
+  }, [currentRoute, isAuthenticated, fetchAnalytics, fetchInquiries]);
 
   // Authentication Actions
   const login = useCallback(
@@ -685,6 +693,11 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           setUser(authedUser);
           setIsAuthenticated(true);
           safeSetItem('studio_admin_auth', 'true');
+          fetchAnalytics('30d');
+          fetchInquiries();
+          fetchMedia();
+          fetchTrash();
+          fetchActivities();
           addToast(lang === 'ar' ? 'تم تسجيل الدخول بنجاح إلى لوحة الإدارة' : 'Signed in successfully to Studio Admin', 'success');
           navigateAdmin('/admin/dashboard');
           return { success: true, user: authedUser };

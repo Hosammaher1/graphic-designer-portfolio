@@ -21,6 +21,13 @@ class AnalyticsController extends Controller
      */
     public function recordEvent(Request $request): JsonResponse
     {
+        // Resolve project slug to integer id if string is provided
+        $projectId = $request->input('project_id');
+        if ($projectId !== null && !is_numeric($projectId)) {
+            $foundProj = \App\Models\Project::where('slug', (string) $projectId)->first();
+            $request->merge(['project_id' => $foundProj ? $foundProj->id : null]);
+        }
+
         $validated = $request->validate([
             'event_type' => ['nullable', 'string', 'in:page_view,project_view,custom'],
             'path' => ['required', 'string', 'max:255'],
@@ -28,6 +35,7 @@ class AnalyticsController extends Controller
             'referrer' => ['nullable', 'string', 'max:1000'],
             'locale' => ['nullable', 'string', 'in:ar,en'],
             'consent_token' => ['nullable', 'string', 'max:64'],
+            'consent_status' => ['nullable', 'string', 'in:accepted,customized,rejected,withdrawn'],
             'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 

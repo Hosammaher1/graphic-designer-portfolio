@@ -42,26 +42,13 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { ProjectDetailsModal } from './components/ProjectDetailsModal';
 import { AllProjectsScreen } from './components/AllProjectsScreen';
+import { ConsentProvider, useConsent } from './context/ConsentContext.jsx';
+import { ConsentBanner } from './components/ConsentBanner.jsx';
+import { ConsentModal } from './components/ConsentModal.jsx';
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
-export default function App({ initialUrl, initialLocale }) {
-  // Locale state: default to 'en' with bilingual 'ar' support
-  const [lang, setLang] = useState(() => {
-    if (initialLocale) return initialLocale;
-    if (typeof window !== 'undefined') {
-      const pathname = window.location.pathname;
-      if (pathname.startsWith('/ar')) return 'ar';
-      if (pathname.startsWith('/en')) return 'en';
-      try {
-        const initDataEl = document.getElementById('__INITIAL_DATA__');
-        if (initDataEl) {
-          const initData = JSON.parse(initDataEl.textContent);
-          if (initData?.locale) return initData.locale;
-        }
-      } catch (e) {}
-    }
-    return 'en';
-  });
+function AppContent({ initialUrl, initialLocale, lang, setLang }) {
+  const { consent, hasConsent } = useConsent();
 
   // Route state: 'home' | 'work' | 'admin'
   const [route, setRoute] = useState(() => {
@@ -629,10 +616,59 @@ export default function App({ initialUrl, initialLocale }) {
     });
   }, []);
 
+  // Dispatches genuine analytics page_view event when visitor has consented to analytics
+  const lastRecordedPathRef = useRef(null);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (route === 'admin') return;
+
+    if (hasConsent('analytics') && consent?.consentId) {
+      const currentPath = window.location.pathname || (route === 'work' ? `/${lang}/work` : `/${lang}/`);
+      if (lastRecordedPathRef.current === currentPath) return;
+      lastRecordedPathRef.current = currentPath;
+
+      fetch('/api/v1/analytics/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Consent-Token': consent.consentId,
+        },
+        body: JSON.stringify({
+          event_type: 'page_view',
+          path: currentPath,
+          locale: lang,
+          consent_token: consent.consentId,
+          consent_status: consent.status,
+          referrer: typeof document !== 'undefined' ? (document.referrer || '') : '',
+        }),
+      }).catch(() => {});
+    }
+  }, [route, lang, hasConsent, consent?.status, consent?.consentId]);
+
   const openProjectModal = useCallback(async (projectId, collection) => {
     setSelectedProjectId(projectId);
     setModalCollection(collection || publishedProjects);
     setIsModalOpen(true);
+
+    // Record privacy-respecting project view event when visitor consented to analytics
+    if (hasConsent('analytics') && consent?.consentId) {
+      fetch('/api/v1/analytics/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Consent-Token': consent.consentId,
+        },
+        body: JSON.stringify({
+          event_type: 'project_view',
+          path: `/${lang}/projects/${projectId}`,
+          project_id: projectId,
+          locale: lang,
+          consent_token: consent.consentId,
+          consent_status: consent.status,
+          referrer: typeof document !== 'undefined' ? (document.referrer || '') : '',
+        }),
+      }).catch(() => {});
+    }
 
     try {
       const res = await fetch(`/api/v1/projects/${projectId}?locale=${lang}`, {
@@ -828,6 +864,41 @@ export default function App({ initialUrl, initialLocale }) {
         onNavigateProject={navigateProjectModal}
         projectCollection={modalCollection || (Array.isArray(publishedProjects) ? publishedProjects : [])}
       />
+
+      {/* Section 9: Privacy Consent Banner & Preferences Modal */}
+      {route !== 'admin' && <ConsentBanner locale={lang} />}
+      {route !== 'admin' && <ConsentModal locale={lang} />}
     </div>
+  );
+}
+
+export default function App({ initialUrl, initialLocale }) {
+  // Locale state: default to 'en' with bilingual 'ar' support
+  const [lang, setLang] = useState(() => {
+    if (initialLocale) return initialLocale;
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      if (pathname.startsWith('/ar')) return 'ar';
+      if (pathname.startsWith('/en')) return 'en';
+      try {
+        const initDataEl = document.getElementById('__INITIAL_DATA__');
+        if (initDataEl) {
+          const initData = JSON.parse(initDataEl.textContent);
+          if (initData?.locale) return initData.locale;
+        }
+      } catch (e) {}
+    }
+    return 'en';
+  });
+
+  return (
+    <ConsentProvider locale={lang}>
+      <AppContent
+        initialUrl={initialUrl}
+        initialLocale={initialLocale}
+        lang={lang}
+        setLang={setLang}
+      />
+    </ConsentProvider>
   );
 }

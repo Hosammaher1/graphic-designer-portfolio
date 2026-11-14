@@ -14,5 +14,8 @@ Schedule::command('projects:purge-trash --days=30')->daily();
 // Daily encrypted database backup and 7-day retention
 Schedule::command('backup:run')->dailyAt('02:00');
 
+// Hourly analytics aggregation for recent events including today
+Schedule::command('analytics:aggregate-daily --days=2 --include-today')->hourly();
+
 // System uptime and resource threshold monitoring every 5 minutes
 Schedule::command('monitor:check --alert')->everyFiveMinutes();

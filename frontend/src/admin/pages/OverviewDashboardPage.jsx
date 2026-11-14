@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   FolderKanban,
   Eye,
@@ -23,17 +23,30 @@ export function OverviewDashboardPage() {
     navigateAdmin,
     analyticsOverview,
     inquiriesCount,
+    fetchAnalytics,
+    fetchInquiries,
   } = useAdmin();
+
+  // Fresh fetch on mount to ensure real dashboard metrics reflect immediately
+  useEffect(() => {
+    if (typeof fetchAnalytics === 'function') {
+      fetchAnalytics('30d');
+    }
+    if (typeof fetchInquiries === 'function') {
+      fetchInquiries();
+    }
+  }, [fetchAnalytics, fetchInquiries]);
 
   const totalCount = projects.length;
   const publishedCount = projects.filter((p) => p.status === 'published').length;
   const draftCount = projects.filter((p) => p.status === 'draft').length;
 
   // Real aggregate views from Laravel API or sum of actual project views
+  const projectsTotalViews = projects.reduce((acc, curr) => acc + (curr.views || 0), 0);
   const totalViews =
     analyticsOverview?.summary?.total_views !== undefined
-      ? analyticsOverview.summary.total_views
-      : projects.reduce((acc, curr) => acc + (curr.views || 0), 0);
+      ? Math.max(analyticsOverview.summary.total_views, projectsTotalViews)
+      : projectsTotalViews;
 
   const uniqueVisitors = analyticsOverview?.summary?.unique_visitors ?? 0;
   const viewsChangePercentage = analyticsOverview?.previous_period?.views_change_percentage ?? null;
