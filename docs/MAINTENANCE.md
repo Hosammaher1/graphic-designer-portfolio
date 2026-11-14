@@ -253,3 +253,27 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
   - **Vercel Production Deployment:** Deployment `dpl_E9pxVhoxA8S2Uxv6ufwogcG4ywGf` state `READY` on `https://mohammed-design.vercel.app`.
   - **Render Production Deployment:** Deployment `dep-dbs2nuei0phs73bv9uu0` state `live` on `https://mohammed-portfolio-api.onrender.com`.
   - **Live Verification:** HTTP 200 on `https://mohammed-design.vercel.app` (Selected Work rendered, "Curating New Works" placeholder gone). Proxy `/api/v1/projects` returns all three keys (`is_featured`, `featured`, `isFeatured`).
+
+
+---
+
+## 10. Verification Checkpoint — Stage 32 (Selected Work Capped to Exactly Top 3 Featured in Saved Order)
+
+- **Task Title:** Limit Homepage Selected Work to Exactly Top 3 Featured Projects in Saved Order
+- **Status:** Complete & Verified in Production
+- **Branch / Commit:** `dev` (Commit `c2790abb546f1237c2b6705ea01d02ad8486fc5c`, pushed to `origin/dev`)
+- **Key Implementation Details:**
+  1. [`SelectedWorkSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/SelectedWorkSection.jsx):
+     - Filtered `passedProjects` using `isProjectFeatured(p)` and sorted by `getProjectFeaturedOrder(a) - getProjectFeaturedOrder(b)`.
+     - Capped with `.slice(0, 3)` to display exactly 3 published projects selected as Featured in the Admin Dashboard, preserving their exact saved order.
+     - If fewer than 3 projects are featured, displays only those selected.
+     - Never falls back to recent or all projects.
+  2. [`AllProjectsScreen.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/AllProjectsScreen.jsx):
+     - Preserves full catalog display: all published projects (`passedProjects`) remain visible in the All Projects page (`/#/work` or `/work`) without truncation.
+  3. [`ProjectEditorPage.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/admin/pages/ProjectEditorPage.jsx):
+     - Normalized featured initialization to resolve `existingProject.featured ?? existingProject.is_featured ?? existingProject.isFeatured ?? false`.
+- **Verification & Deployment Results:**
+  - **Vitest Unit/Component Suite:** 42 test files, 237 passed (0 failed).
+  - **Vite Build & SSR Pre-render:** `npm run build` compiled client and server bundles with exit code 0.
+  - **Vercel Production Deployment:** Deployment `dpl_BRLmLXMajuNq6FtSu8KGNPyJYAMg` state `READY` on `https://mohammed-design.vercel.app`.
+  - **Render API:** Unaltered and operational at `https://mohammed-portfolio-api.onrender.com`.
