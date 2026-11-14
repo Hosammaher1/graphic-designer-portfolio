@@ -34,7 +34,7 @@ async function fetchWithRetry(url, options = {}, timeoutMs = 5000, maxRetries = 
 }
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { SelectedWorkSection } from './components/SelectedWorkSection';
+import { SelectedWorkSection, isProjectFeatured, getProjectFeaturedOrder } from './components/SelectedWorkSection';
 import { AboutSection } from './components/AboutSection';
 import { SkillsSection } from './components/SkillsSection';
 import { JourneySection } from './components/JourneySection';
@@ -96,13 +96,64 @@ export default function App({ initialUrl, initialLocale }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
+      let cachedProjects = null;
       const localProjects = window.localStorage.getItem('studio_published_projects_cache') || window.sessionStorage.getItem('studio_published_projects_cache');
       if (localProjects) {
         const parsed = JSON.parse(localProjects);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setPublishedProjects(parsed);
-          setIsLoadingProjects(false);
+          cachedProjects = parsed;
         }
+      }
+
+      // Merge dashboard-saved featured projects from studio_admin_projects_v2 or caches
+      const rawAdmin = window.localStorage.getItem('studio_admin_projects_v2') || window.localStorage.getItem('studio_admin_projects');
+      if (rawAdmin) {
+        const parsedAdmin = JSON.parse(rawAdmin);
+        if (Array.isArray(parsedAdmin) && parsedAdmin.length > 0) {
+          if (cachedProjects) {
+            cachedProjects = cachedProjects.map((p, idx) => {
+              const adminMatch = parsedAdmin.find((ap) => ap.slug === p.slug || String(ap.id) === String(p.id));
+              if (adminMatch) {
+                const isFeatured = isProjectFeatured(adminMatch) || isProjectFeatured(p);
+                return {
+                  ...p,
+                  featured: isFeatured,
+                  is_featured: isFeatured,
+                  isFeatured: isFeatured,
+                  featuredOrder: getProjectFeaturedOrder(adminMatch, p.featuredOrder ?? idx + 1),
+                };
+              }
+              return p;
+            });
+          }
+        }
+      }
+
+      const rawFeaturedCache = window.sessionStorage.getItem('studio_featured_projects_cache') || window.localStorage.getItem('studio_featured_projects_cache');
+      if (rawFeaturedCache && cachedProjects) {
+        try {
+          const parsedFeat = JSON.parse(rawFeaturedCache);
+          if (Array.isArray(parsedFeat) && parsedFeat.length > 0) {
+            cachedProjects = cachedProjects.map((p, idx) => {
+              const featMatch = parsedFeat.find((fp) => fp.slug === p.slug || String(fp.id) === String(p.id));
+              if (featMatch) {
+                return {
+                  ...p,
+                  featured: true,
+                  is_featured: true,
+                  isFeatured: true,
+                  featuredOrder: getProjectFeaturedOrder(featMatch, p.featuredOrder ?? idx + 1),
+                };
+              }
+              return p;
+            });
+          }
+        } catch (e) {}
+      }
+
+      if (cachedProjects) {
+        setPublishedProjects(cachedProjects);
+        setIsLoadingProjects(false);
       }
 
       const localCats = window.localStorage.getItem('studio_categories_cache') || window.sessionStorage.getItem('studio_categories_cache');
@@ -163,6 +214,46 @@ export default function App({ initialUrl, initialLocale }) {
       const slug = match[1];
       openProjectModal(slug);
     }
+  }, []);
+
+  // Sync live project updates from Admin Dashboard
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleProjectsSync = () => {
+      try {
+        const rawAdmin = window.localStorage.getItem('studio_admin_projects_v2');
+        if (rawAdmin) {
+          const parsed = JSON.parse(rawAdmin);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPublishedProjects((prev) => {
+              if (!Array.isArray(prev)) return prev;
+              return prev.map((p, idx) => {
+                const match = parsed.find((ap) => ap.slug === p.slug || String(ap.id) === String(p.id));
+                if (match) {
+                  const isFeatured = isProjectFeatured(match);
+                  return {
+                    ...p,
+                    featured: isFeatured,
+                    is_featured: isFeatured,
+                    isFeatured: isFeatured,
+                    featuredOrder: getProjectFeaturedOrder(match, p.featuredOrder ?? idx + 1),
+                  };
+                }
+                return p;
+              });
+            });
+          }
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('storage', handleProjectsSync);
+    window.addEventListener('studio:projects-updated', handleProjectsSync);
+    return () => {
+      window.removeEventListener('storage', handleProjectsSync);
+      window.removeEventListener('studio:projects-updated', handleProjectsSync);
+    };
   }, []);
 
   // Sync route with browser back/forward buttons (popstate) and hash changes
@@ -229,7 +320,42 @@ export default function App({ initialUrl, initialLocale }) {
       if (projRes && projRes.ok) {
         const json = await projRes.json();
         const apiProjects = json.data?.projects?.data ?? (Array.isArray(json.data) ? json.data : []);
-        const normalizedApi = (Array.isArray(apiProjects) ? apiProjects : []).map((p) => {
+
+        // Read dashboard-saved featured projects to preserve user curation & exact order
+        let adminProjectsMap = {};
+        try {
+          if (typeof window !== 'undefined') {
+            const rawAdmin = window.localStorage?.getItem('studio_admin_projects_v2') || window.localStorage?.getItem('studio_admin_projects');
+            if (rawAdmin) {
+              const parsedAdmin = JSON.parse(rawAdmin);
+              if (Array.isArray(parsedAdmin)) {
+                parsedAdmin.forEach((ap, aIdx) => {
+                  const keySlug = ap.slug;
+                  const keyId = String(ap.id);
+                  if (keySlug) adminProjectsMap[keySlug] = { ...ap, _idx: aIdx };
+                  if (keyId) adminProjectsMap[keyId] = { ...ap, _idx: aIdx };
+                });
+              }
+            }
+
+            const rawFeatured = window.sessionStorage?.getItem('studio_featured_projects_cache') || window.localStorage?.getItem('studio_featured_projects_cache');
+            if (rawFeatured) {
+              const parsedFeatured = JSON.parse(rawFeatured);
+              if (Array.isArray(parsedFeatured)) {
+                parsedFeatured.forEach((fp, fIdx) => {
+                  const keySlug = fp.slug;
+                  const keyId = String(fp.id);
+                  const existing = adminProjectsMap[keySlug] || adminProjectsMap[keyId] || {};
+                  const entry = { ...existing, ...fp, featured: true, is_featured: true, isFeatured: true, _idx: existing._idx ?? fIdx };
+                  if (keySlug) adminProjectsMap[keySlug] = entry;
+                  if (keyId) adminProjectsMap[keyId] = entry;
+                });
+              }
+            }
+          }
+        } catch (e) {}
+
+        const normalizedApi = (Array.isArray(apiProjects) ? apiProjects : []).map((p, idx) => {
           const titleEn = p.title || p.slug;
           const titleAr = p.title || p.slug;
           const summaryEn = p.summary || '';
@@ -238,6 +364,13 @@ export default function App({ initialUrl, initialLocale }) {
           const catNameEn = typeof rawCat?.name === 'object' ? (rawCat.name?.en || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'Branding');
           const catNameAr = typeof rawCat?.name === 'object' ? (rawCat.name?.ar || rawCat.slug) : (rawCat?.name || rawCat?.slug || 'هوية بصرية');
           const cover = p.cover_url || null;
+
+          const adminMatch = adminProjectsMap[p.slug] || adminProjectsMap[String(p.id)];
+          const isFeatured = Boolean(
+            isProjectFeatured(p) || (adminMatch && isProjectFeatured(adminMatch))
+          );
+          const featuredOrder = adminMatch ? getProjectFeaturedOrder(adminMatch, adminMatch._idx + 1) : getProjectFeaturedOrder(p, idx + 1);
+
           return {
             id: p.slug || String(p.id),
             slug: p.slug,
@@ -259,10 +392,13 @@ export default function App({ initialUrl, initialLocale }) {
             image: cover,
             coverImage: cover,
             client: { en: p.client || 'Studio Client', ar: p.client || 'عميل الاستوديو' },
-            featured: Boolean(p.is_featured),
+            featured: isFeatured,
+            is_featured: isFeatured,
+            isFeatured: isFeatured,
+            featuredOrder,
             publicationDate: p.published_at || String(p.year || ''),
-            gallery: Array.isArray(p.media) ? p.media.map((m, idx) => ({
-              id: m.id || `${p.slug}-media-${idx}`,
+            gallery: Array.isArray(p.media) ? p.media.map((m, mIdx) => ({
+              id: m.id || `${p.slug}-media-${mIdx}`,
               url: m.display_url || m.url,
               src: m.display_url || m.url,
               title: { en: m.caption_en || titleEn, ar: m.caption_ar || titleAr },
@@ -625,7 +761,7 @@ export default function App({ initialUrl, initialLocale }) {
             isLoadingSettings={isLoadingSettings}
             settingsError={settingsError}
             onRetrySettings={loadSettings}
-            featuredProject={Array.isArray(publishedProjects) ? (publishedProjects.find((p) => p.featured) || null) : null}
+            featuredProject={Array.isArray(publishedProjects) ? (publishedProjects.find((p) => isProjectFeatured(p)) || null) : null}
             isLoadingProjects={isLoadingProjects}
             onOpenProject={(id) => openProjectModal(id)}
           />

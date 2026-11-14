@@ -64,13 +64,16 @@ class PublicProjectController extends Controller
         $transformed = $paginated->getCollection()->map(function ($project) use ($locale) {
             $snapshot = $project->published_snapshot ?? [];
             $trans = $snapshot['translations'][$locale] ?? $snapshot['translations']['ar'] ?? [];
+            $isFeatured = (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false));
 
             return [
                 'id'           => $project->id,
                 'slug'         => $project->slug,
                 'year'         => $project->year,
                 'client'       => $project->client,
-                'is_featured'  => (bool) $project->is_featured,
+                'is_featured'  => $isFeatured,
+                'featured'     => $isFeatured,
+                'isFeatured'   => $isFeatured,
                 'published_at' => $project->published_at?->toIso8601String(),
                 'title'        => $trans['title'] ?? '',
                 'summary'      => $trans['summary'] ?? '',
@@ -173,6 +176,9 @@ class PublicProjectController extends Controller
                     'slug'            => $project->slug,
                     'year'            => $project->year,
                     'client'          => $project->client,
+                    'is_featured'     => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
+                    'featured'        => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
+                    'isFeatured'      => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
                     'view_count'      => $project->view_count,
                     'published_at'    => $project->published_at?->toIso8601String(),
                     'title'           => $trans['title'] ?? '',

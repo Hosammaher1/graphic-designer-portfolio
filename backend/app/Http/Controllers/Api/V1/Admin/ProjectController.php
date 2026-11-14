@@ -117,9 +117,16 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update(UpdateProjectRequest $request, int $id): JsonResponse
+    public function update(UpdateProjectRequest $request, string|int $id): JsonResponse
     {
-        $project = Project::withTrashed()->find($id);
+        $project = Project::withTrashed()
+            ->where(function ($q) use ($id) {
+                if (is_numeric($id)) {
+                    $q->where('id', (int) $id);
+                }
+                $q->orWhere('slug', (string) $id);
+            })
+            ->first();
 
         if (! $project) {
             return response()->json(['status' => 'error', 'message' => 'Project not found.'], 404);

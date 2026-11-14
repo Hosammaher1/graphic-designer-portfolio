@@ -8,6 +8,7 @@ import {
   INITIAL_STUDIO_SETTINGS,
 } from '../data/adminData.js';
 import { resolveLocalized, normalizeAdminProject, formatAuditActivity, formatRelativeTime } from '../utils/localization.js';
+import { isProjectFeatured, getProjectFeaturedOrder } from '../../components/SelectedWorkSection.jsx';
 
 const isDemoAuthEnabled =
   typeof import.meta !== 'undefined' &&
@@ -407,12 +408,36 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   const fetchProjects = useCallback(async () => {
     const res = await requestApi('/api/v1/admin/projects');
     if (res.ok && res.data?.data?.projects?.data) {
+      let localMap = {};
+      try {
+        const rawLocal = safeGetItem('studio_admin_projects_v2');
+        if (rawLocal) {
+          const parsed = JSON.parse(rawLocal);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((lp, lIdx) => {
+              const k1 = lp.slug;
+              const k2 = String(lp.id);
+              if (k1) localMap[k1] = { ...lp, _idx: lIdx };
+              if (k2) localMap[k2] = { ...lp, _idx: lIdx };
+            });
+          }
+        }
+      } catch (e) {}
+
       const mapped = res.data.data.projects.data.map((p, idx) => {
         const enTrans = p.translations?.find((t) => t.locale === 'en') || {};
         const arTrans = p.translations?.find((t) => t.locale === 'ar') || {};
         const cat = p.categories?.[0];
         const catEn = cat?.name_en || cat?.name?.en || cat?.slug || 'Branding';
         const catAr = cat?.name_ar || cat?.name?.ar || cat?.slug || 'هوية بصرية';
+        const localMatch = localMap[p.slug] || localMap[String(p.id)];
+        const isFeatured = Boolean(
+          p.is_featured === true || p.is_featured === 1 || p.is_featured === '1' ||
+          p.featured === true || p.isFeatured === true ||
+          (localMatch && isProjectFeatured(localMatch))
+        );
+        const featuredOrder = localMatch ? getProjectFeaturedOrder(localMatch, localMatch._idx + 1) : (p.featuredOrder || p.featured_order || idx + 1);
+
         return normalizeAdminProject(
           {
             id: String(p.id),
@@ -423,7 +448,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             categoryAr: catAr,
             categories: Array.isArray(p.categories) ? p.categories : (cat ? [cat] : []),
             status: p.status || 'published',
-            featured: Boolean(p.is_featured),
+            featured: isFeatured,
+            is_featured: isFeatured,
+            isFeatured: isFeatured,
+            featuredOrder,
             year: String(p.year || new Date().getFullYear()),
             clientEn: p.client || '',
             clientAr: p.client || '',
@@ -1057,22 +1085,58 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
   const toggleFeaturedProject = useCallback(
     (id) => {
       let isNowFeatured = false;
-      setProjects((prev) =>
-        prev.map((p) => {
-          if (p.id === id) {
-            isNowFeatured = !p.featured;
-            return { ...p, featured: isNowFeatured };
+      let targetSlug = null;
+      setProjects((prev) => {
+        const updated = prev.map((p) => {
+          if (p.id === id || p.slug === id) {
+            isNowFeatured = !isProjectFeatured(p);
+            targetSlug = p.slug;
+            return {
+              ...p,
+              featured: isNowFeatured,
+              is_featured: isNowFeatured,
+              isFeatured: isNowFeatured,
+            };
           }
           return p;
-        })
-      );
+        });
 
-      if (/^\d+$/.test(String(id))) {
-        requestApi(`/api/v1/admin/projects/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify({ is_featured: isNowFeatured }),
-        }).catch(() => {});
-      }
+        safeSetItem('studio_admin_projects_v2', JSON.stringify(updated));
+
+        try {
+          const publicCache = safeGetItem('studio_published_projects_cache');
+          if (publicCache) {
+            const parsedPub = JSON.parse(publicCache);
+            if (Array.isArray(parsedPub)) {
+              const updatedPub = parsedPub.map((pubP) => {
+                if (pubP.id === id || pubP.slug === id || (targetSlug && pubP.slug === targetSlug)) {
+                  return {
+                    ...pubP,
+                    featured: isNowFeatured,
+                    is_featured: isNowFeatured,
+                    isFeatured: isNowFeatured,
+                  };
+                }
+                return pubP;
+              });
+              safeSetItem('studio_published_projects_cache', JSON.stringify(updatedPub));
+            }
+          }
+        } catch (e) {}
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('studio:projects-updated', { detail: { projects: updated } }));
+        }
+
+        return updated;
+      });
+
+      const numericId = /^\d+$/.test(String(id)) ? id : null;
+      const targetEndpoint = numericId ? `/api/v1/admin/projects/${numericId}` : `/api/v1/admin/projects/${id}`;
+      requestApi(targetEndpoint, {
+        method: 'PUT',
+        body: JSON.stringify({ is_featured: isNowFeatured }),
+      }).catch(() => {});
 
       addToast(lang === 'ar' ? 'تم تحديث حالة تمييز المشروع' : 'Featured status updated', 'success');
     },

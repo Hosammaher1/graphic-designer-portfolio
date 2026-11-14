@@ -5,6 +5,27 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { Skeleton } from './ui/Skeleton';
 import gsap from 'gsap';
 
+export function isProjectFeatured(p) {
+  if (!p || typeof p !== 'object') return false;
+  return Boolean(
+    p.featured === true || p.featured === 1 || p.featured === '1' || p.featured === 'true' ||
+    p.is_featured === true || p.is_featured === 1 || p.is_featured === '1' || p.is_featured === 'true' ||
+    p.isFeatured === true || p.isFeatured === 1 || p.isFeatured === '1' || p.isFeatured === 'true' ||
+    p.selected === true || p.is_selected === true || p.isSelected === true ||
+    (typeof p.featuredOrder === 'number' && p.featuredOrder > 0) ||
+    (typeof p.featured_order === 'number' && p.featured_order > 0)
+  );
+}
+
+export function getProjectFeaturedOrder(p, fallbackIndex = 99) {
+  if (!p || typeof p !== 'object') return fallbackIndex;
+  if (typeof p.featuredOrder === 'number' && !isNaN(p.featuredOrder)) return p.featuredOrder;
+  if (typeof p.featured_order === 'number' && !isNaN(p.featured_order)) return p.featured_order;
+  if (typeof p.sort_order === 'number' && !isNaN(p.sort_order)) return p.sort_order;
+  if (typeof p.order === 'number' && !isNaN(p.order)) return p.order;
+  return fallbackIndex;
+}
+
 export const SelectedWorkSection = ({
   lang,
   onOpenProject,
@@ -20,10 +41,11 @@ export const SelectedWorkSection = ({
   const t = translations[lang].work;
 
   const isProjectsLoaded = Array.isArray(passedProjects);
-  // Display ONLY published projects marked as featured in the Admin Dashboard.
-  // Never automatically substitute all projects; if none are marked featured, show an empty state.
+  // Display ONLY published projects marked as featured in the Admin Dashboard, strictly preserving saved order.
   const projects = isProjectsLoaded
-    ? passedProjects.filter((p) => Boolean(p.featured))
+    ? passedProjects
+        .filter((p) => isProjectFeatured(p))
+        .sort((a, b) => getProjectFeaturedOrder(a) - getProjectFeaturedOrder(b))
     : [];
   const total = projects.length;
   const currentProject = total > 0 ? projects[activeIndex] || projects[0] : null;
