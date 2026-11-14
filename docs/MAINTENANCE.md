@@ -224,3 +224,32 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
     - **Mobile (390x844 iPhone 12, 4G emulation):** Repeated reloads verified (3 runs, DOMContentLoaded ~4157ms on throttled 4G) with **zero black screen** (`heroVisible=true, h1Opacity=1`). Mobile hamburger drawer opened and navigated to section. All 7 sections 100% visible.
 - **Justification of Retained Device-Specific Behavior:**
   - CSS responsive grid classes (e.g. `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` or `hidden lg:flex` vs mobile drawer menu) are retained strictly for responsive presentation and layout adaptation, in accordance with Section 1 of the requirements.
+
+
+---
+
+## 9. Verification Checkpoint — Stage 31 (Selected Work & Featured Project Field Reconciliation)
+
+- **Task Title:** Fix Featured Project Field Mismatch & Selected Work Empty State
+- **Status:** Complete & Verified in Production
+- **Branch / Commit:** `dev` (Commit `4fee8ebc99588f048b471cfdca90c352295d9ebd`, pushed to `origin/dev`)
+- **Root Cause Analysis:**
+  1. **Field Name Inconsistency Across Layers:**
+     - The Admin Dashboard (`AdminContext.jsx`) stored curated project state under `p.featured` and `studio_admin_projects_v2`.
+     - Static curation definitions (`portfolioData.js`) stored `isFeatured: true` and `featuredOrder: 1..3`.
+     - The Laravel backend (`PublicProjectController.php` & `ProjectResource.php`) only outputted `is_featured: false/true`.
+     - When the fallback to all projects was removed in commit `cfb5897`, `passedProjects.filter(p => Boolean(p.featured))` evaluated to `[]` because `App.jsx` only mapped `featured: Boolean(p.is_featured)` from the remote API, ignoring `p.isFeatured`, `p.featuredOrder`, and the dashboard's local storage state `studio_admin_projects_v2`.
+  2. **Persistence Boundary:**
+     - Admin dashboard toggle calls to `/api/v1/admin/projects/:id` silently bypassed backend persistence when project IDs were string slugs rather than numeric keys, and unauthenticated demo sessions could not write to remote MySQL.
+- **Implemented Fixes:**
+  1. [`SelectedWorkSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/SelectedWorkSection.jsx): Added robust `isProjectFeatured(p)` helper checking all representation variants (`featured`, `is_featured`, `isFeatured`, `selected`, `is_selected`, `isSelected`, `featuredOrder > 0`, `featured_order > 0`). Added `getProjectFeaturedOrder(p)` to strictly preserve explicit dashboard-saved ordering (`featuredOrder`, `featured_order`, `sort_order`, `order`).
+  2. [`App.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/App.jsx): Reconciled API project normalization by merging dashboard curation maps (`studio_admin_projects_v2`, `studio_admin_projects`, `studio_featured_projects_cache`). Hydrates featured flags and exact ordering on mount, cache restoration, and API fetches. Added real-time event listener for `studio:projects-updated` and `storage`.
+  3. [`AdminContext.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/admin/context/AdminContext.jsx): Prevented `fetchProjects()` from erasing local featured states by merging with `studio_admin_projects_v2`. Updated `toggleFeaturedProject()` to sync `studio_published_projects_cache` and dispatch `studio:projects-updated` in real-time. Supports updating endpoints by slug or numeric ID.
+  4. [`ProjectController.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php): Updated `update()` to accept `string|int $id` (matching by numeric `id` OR string `slug`), preserving soft-delete safety and refreshing published snapshots.
+  5. [`PublicProjectController.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Controllers/Api/V1/PublicProjectController.php) & [`ProjectResource.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Resources/ProjectResource.php): Guaranteed that `is_featured`, `featured`, and `isFeatured` booleans are all returned in both list (`index`) and detail (`show`) endpoints.
+- **Verification & Deployment Results:**
+  - **Vitest Unit/Component Suite:** 42 test files, 237 passed (0 failed).
+  - **Vite Build & SSR Pre-render:** `npm run build` compiled client bundle, SSR server bundle, and pre-rendered `/` (`index.html`), `/en/`, and `/ar/` with exit code 0.
+  - **Vercel Production Deployment:** Deployment `dpl_E9pxVhoxA8S2Uxv6ufwogcG4ywGf` state `READY` on `https://mohammed-design.vercel.app`.
+  - **Render Production Deployment:** Deployment `dep-dbs2nuei0phs73bv9uu0` state `live` on `https://mohammed-portfolio-api.onrender.com`.
+  - **Live Verification:** HTTP 200 on `https://mohammed-design.vercel.app` (Selected Work rendered, "Curating New Works" placeholder gone). Proxy `/api/v1/projects` returns all three keys (`is_featured`, `featured`, `isFeatured`).
