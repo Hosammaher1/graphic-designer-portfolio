@@ -277,3 +277,35 @@ php artisan backup:run --filename=manual-backup-$(date +%Y%m%d).sql.enc
   - **Vite Build & SSR Pre-render:** `npm run build` compiled client and server bundles with exit code 0.
   - **Vercel Production Deployment:** Deployment `dpl_BRLmLXMajuNq6FtSu8KGNPyJYAMg` state `READY` on `https://mohammed-design.vercel.app`.
   - **Render API:** Unaltered and operational at `https://mohammed-portfolio-api.onrender.com`.
+
+---
+
+## 11. Verification Checkpoint — Stage 33 (Admin 3-Position Featured Project Curation & Database Persistence)
+
+- **Task Title:** Homepage Selected Work 3-Position Curation and Database Persistence
+- **Status:** Complete & Verified in Production
+- **Branch / Commit:** `dev` (Commit `0f55e4b65ddfe75df07fc6778f77cba476df423a`, pushed to `origin/dev`)
+- **Key Architecture & Implementation:**
+  1. **Database Schema & Migration:**
+     - Created migration [`2026_11_14_130000_add_featured_order_to_projects_table.php`](file:///D:/programming/mohammed-Portfolio/backend/database/migrations/2026_11_14_130000_add_featured_order_to_projects_table.php) adding indexed column `featured_order` (`unsignedTinyInteger`, nullable) to `projects` table.
+     - Automatically executed in production on Render via `php artisan migrate --force`.
+  2. **Laravel Models, Services & Controllers:**
+     - Updated [`Project.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Models/Project.php): Added `'featured_order'` to `$fillable` and `'featured_order' => 'integer'` to `$casts`.
+     - Updated [`ProjectPublishingService.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Services/Publishing/ProjectPublishingService.php): Added `featured_order` and `position` to immutable snapshots.
+     - Updated [`ProjectResource.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Resources/ProjectResource.php): Exposes `featured_order`, `featuredOrder`, and `position`.
+     - Updated [`StoreProjectRequest.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Requests/Admin/StoreProjectRequest.php) & [`UpdateProjectRequest.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Requests/Admin/UpdateProjectRequest.php): Enforces `featured_order` validation (`min:1`, `max:3`).
+     - Added dedicated route `PUT /api/v1/admin/projects/featured` preceding `apiResource` in [`api.php`](file:///D:/programming/mohammed-Portfolio/backend/routes/api.php).
+     - Implemented `reorderFeatured()` in [`ProjectController.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Controllers/Api/V1/Admin/ProjectController.php): Atomically validates maximum 3 projects, prevents duplicate positions (1, 2, 3), un-features omitted projects, updates database columns and snapshots, syncs `SiteSetting` preferences, and writes to audit log.
+     - Updated [`PublicProjectController.php`](file:///D:/programming/mohammed-Portfolio/backend/app/Http/Controllers/Api/V1/PublicProjectController.php): When `is_featured=1` is queried, orders by `featured_order ASC`, then `published_at DESC`.
+  3. **Admin Dashboard State & UI:**
+     - In [`AdminContext.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/admin/context/AdminContext.jsx): Added `saveFeaturedShowcase(list)` and `setProjectFeaturedPosition(id, pos)` supporting automatic position swapping, duplicate prevention, and server synchronization with real-time DOM events.
+     - In [`ProjectsListPage.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/admin/pages/ProjectsListPage.jsx): Added interactive top showcase management card with 3 visual slots (1st, 2nd, 3rd Slide), project dropdown assignment, position swap buttons, remove buttons, and explicit "Save Showcase to DB" button. Replaced table and grid toggles with direct position assignment dropdowns (`Standard`, `★ 1st`, `★ 2nd`, `★ 3rd`).
+     - In [`ProjectEditorPage.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/admin/pages/ProjectEditorPage.jsx): Added slide position dropdown selector when featured is enabled, persisting `featured_order` upon save.
+  4. **Homepage Presentation:**
+     - In [`SelectedWorkSection.jsx`](file:///D:/programming/mohammed-Portfolio/frontend/src/components/SelectedWorkSection.jsx): Updated `isProjectFeatured` and `getProjectFeaturedOrder` to support `position`, filtering and sorting featured projects strictly by assigned positions, capped to top 3.
+- **Verification & Deployment Results:**
+  - **Vitest Unit/Component Suite:** 42 test files, 237 passed (0 failed).
+  - **Vite Build & SSR Pre-render:** `npm run build` compiled client bundle, server SSR bundle, and static prerendered HTML with 0 errors.
+  - **PHP Syntax & Linting:** 9 modified files verified with `php -l` (0 errors).
+  - **Render API Deployment:** Deployment `dep-dbs4aeu1egvs73cptkk0` LIVE with database migrations applied (`https://mohammed-portfolio-api.onrender.com/api/v1/health` -> 200 OK, `healthy`).
+  - **Vercel Production Deployment:** Deployment `dpl_8V7QcG9Xyqptv2tAk6yWtfQvwrRN` READY and Aliased to `https://mohammed-design.vercel.app` (HTTP 200 OK).
