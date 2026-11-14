@@ -18,6 +18,7 @@ class StoreProjectRequest extends FormRequest
             'slug'           => ['required', 'string', 'max:150', 'regex:/^[a-z0-9-]+$/', 'unique:projects,slug'],
             'status'         => ['sometimes', 'string', Rule::in(['draft', 'published', 'archived'])],
             'is_featured'    => ['sometimes', 'boolean'],
+            'featured_order' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:3'],
             'year'           => ['sometimes', 'nullable', 'integer', 'min:1900', 'max:2100'],
             'client'         => ['sometimes', 'nullable', 'string', 'max:255'],
             'cover_media_id' => ['sometimes', 'nullable', 'integer', 'exists:media_assets,id'],

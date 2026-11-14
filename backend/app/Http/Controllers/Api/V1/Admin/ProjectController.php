@@ -12,8 +12,10 @@ use App\Models\Project;
 use App\Models\ProjectMedia;
 use App\Services\AuditLogger;
 use App\Services\Media\MediaStorageInterface;
+use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
@@ -53,6 +55,7 @@ class ProjectController extends Controller
             'slug'           => $request->slug,
             'status'         => $request->input('status', 'draft'),
             'is_featured'    => $request->boolean('is_featured', false),
+            'featured_order' => $request->input('featured_order'),
             'year'           => $request->input('year'),
             'client'         => $request->input('client'),
             'cover_media_id' => $request->input('cover_media_id'),
@@ -133,7 +136,7 @@ class ProjectController extends Controller
         }
 
         $project->update($request->only([
-            'slug', 'status', 'is_featured', 'year', 'client', 'cover_media_id',
+            'slug', 'status', 'is_featured', 'featured_order', 'year', 'client', 'cover_media_id',
         ]));
 
         if ($request->has('translations')) {
@@ -480,6 +483,153 @@ class ProjectController extends Controller
         return response()->json([
             'status' => 'success',
             'project' => $project->fresh(),
+        ]);
+    }
+
+    /**
+     * Set and reorder the homepage featured projects showcase (maximum 3, positions 1, 2, 3).
+     * Prevents duplicate positions and ensures exactly selected projects are featured.
+     */
+    public function reorderFeatured(Request $request): JsonResponse
+    {
+        $rawProjects = $request->input('featured_projects', $request->input('projects', []));
+        if (!is_array($rawProjects)) {
+            $rawProjects = [];
+        }
+
+        if (count($rawProjects) > 3) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'A maximum of 3 projects can be featured on the homepage.',
+            ], 422);
+        }
+
+        $normalized = [];
+        $positions = [];
+        $ids = [];
+
+        foreach ($rawProjects as $index => $item) {
+            $id = is_array($item) ? ($item['id'] ?? null) : $item;
+            $pos = is_array($item) ? ($item['position'] ?? $item['featured_order'] ?? ($index + 1)) : ($index + 1);
+
+            if (!$id) {
+                continue;
+            }
+
+            $id = (int) $id;
+            $pos = (int) $pos;
+
+            if ($pos < 1 || $pos > 3) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => "Featured position for project ID {$id} must be between 1 and 3.",
+                ], 422);
+            }
+
+            if (in_array($pos, $positions, true)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => "Duplicate position #{$pos} detected. Each position (1st, 2nd, 3rd) must be assigned to at most one project.",
+                ], 422);
+            }
+
+            if (in_array($id, $ids, true)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => "Project ID {$id} is listed more than once.",
+                ], 422);
+            }
+
+            $positions[] = $pos;
+            $ids[] = $id;
+            $normalized[] = [
+                'id'       => $id,
+                'position' => $pos,
+            ];
+        }
+
+        // Verify all referenced projects exist
+        if (!empty($ids)) {
+            $existingCount = Project::whereIn('id', $ids)->count();
+            if ($existingCount !== count($ids)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'One or more selected projects do not exist.',
+                ], 404);
+            }
+        }
+
+        $featuredResults = [];
+
+        DB::transaction(function () use ($normalized, $ids, &$featuredResults) {
+            $publishingService = app(\App\Services\Publishing\ProjectPublishingService::class);
+
+            // 1. Un-feature all projects not in the new selection
+            $toUnfeature = Project::where('is_featured', true)
+                ->whereNotIn('id', $ids)
+                ->get();
+
+            foreach ($toUnfeature as $p) {
+                $p->is_featured = false;
+                $p->featured_order = null;
+                if ($p->status === 'published' && is_array($p->published_snapshot)) {
+                    $snapshot = $p->published_snapshot;
+                    $snapshot['is_featured'] = false;
+                    $snapshot['featured_order'] = null;
+                    $snapshot['position'] = null;
+                    $p->published_snapshot = $snapshot;
+                }
+                $p->save();
+            }
+
+            // 2. Set featured status and position for selected projects
+            foreach ($normalized as $item) {
+                $p = Project::find($item['id']);
+                if (!$p) {
+                    continue;
+                }
+
+                $p->is_featured = true;
+                $p->featured_order = (int) $item['position'];
+                $p->save();
+
+                if ($p->status === 'published') {
+                    $publishingService->publish($p);
+                }
+            }
+
+            // 3. Persist to SiteSetting for unified configuration sync
+            try {
+                $currentSettings = SiteSetting::getSetting('portfolio_settings', SiteSetting::defaultSettings());
+                if (!isset($currentSettings['preferences']) || !is_array($currentSettings['preferences'])) {
+                    $currentSettings['preferences'] = [];
+                }
+                $currentSettings['preferences']['featured_projects'] = $normalized;
+                SiteSetting::setSetting('portfolio_settings', $currentSettings);
+                \Illuminate\Support\Facades\Cache::forget(SiteSetting::CACHE_KEY . '_ar');
+                \Illuminate\Support\Facades\Cache::forget(SiteSetting::CACHE_KEY . '_en');
+            } catch (\Throwable $e) {
+                Log::warning('Failed to sync featured projects to SiteSetting: ' . $e->getMessage());
+            }
+
+            // 4. Return refreshed list
+            $featuredResults = Project::where('is_featured', true)
+                ->with(['translations', 'categories.translations', 'tools', 'coverMedia', 'media.mediaAsset'])
+                ->orderBy('featured_order', 'asc')
+                ->get();
+        });
+
+        AuditLogger::log('projects.featured_reordered', [
+            'featured_count' => count($normalized),
+            'projects'       => $normalized,
+        ], $request->user(), $request);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Homepage featured showcase updated successfully.',
+            'data'    => [
+                'featured_projects' => ProjectResource::collection($featuredResults),
+            ],
         ]);
     }
 }

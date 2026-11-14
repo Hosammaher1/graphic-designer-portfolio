@@ -71,6 +71,8 @@ class ProjectPublishingService
                 'year'             => $project->year,
                 'client'           => $project->client,
                 'is_featured'      => (bool) $project->is_featured,
+                'featured_order'   => $project->featured_order ? (int) $project->featured_order : null,
+                'position'         => $project->featured_order ? (int) $project->featured_order : null,
                 'enable_watermark' => (bool) $project->enable_watermark,
                 'cover_url'        => $coverUrl,
                 'translations'     => [

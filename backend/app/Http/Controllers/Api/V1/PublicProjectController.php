@@ -40,23 +40,29 @@ class PublicProjectController extends Controller
         }
 
         $sort = $request->input('sort', 'newest');
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('published_at', 'asc')->orderBy('id', 'asc');
-                break;
-            case 'most_viewed':
-                $query->orderByDesc('view_count')->orderByDesc('id');
-                break;
-            case 'year_desc':
-                $query->orderByDesc('year')->orderByDesc('published_at')->orderByDesc('id');
-                break;
-            case 'year_asc':
-                $query->orderBy('year', 'asc')->orderBy('published_at', 'asc')->orderBy('id', 'asc');
-                break;
-            case 'newest':
-            default:
-                $query->orderByDesc('published_at')->orderByDesc('id');
-                break;
+        if ($request->has('is_featured') && $request->boolean('is_featured') && !$request->filled('sort')) {
+            $query->orderByRaw('CASE WHEN featured_order IS NULL THEN 999 ELSE featured_order END ASC')
+                ->orderByDesc('published_at')
+                ->orderByDesc('id');
+        } else {
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                    break;
+                case 'most_viewed':
+                    $query->orderByDesc('view_count')->orderByDesc('id');
+                    break;
+                case 'year_desc':
+                    $query->orderByDesc('year')->orderByDesc('published_at')->orderByDesc('id');
+                    break;
+                case 'year_asc':
+                    $query->orderBy('year', 'asc')->orderBy('published_at', 'asc')->orderBy('id', 'asc');
+                    break;
+                case 'newest':
+                default:
+                    $query->orderByDesc('published_at')->orderByDesc('id');
+                    break;
+            }
         }
 
         $paginated = $query->paginate(15);
@@ -65,19 +71,23 @@ class PublicProjectController extends Controller
             $snapshot = $project->published_snapshot ?? [];
             $trans = $snapshot['translations'][$locale] ?? $snapshot['translations']['ar'] ?? [];
             $isFeatured = (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false));
+            $featuredOrder = $project->featured_order ?? $snapshot['featured_order'] ?? $snapshot['position'] ?? null;
 
             return [
-                'id'           => $project->id,
-                'slug'         => $project->slug,
-                'year'         => $project->year,
-                'client'       => $project->client,
-                'is_featured'  => $isFeatured,
-                'featured'     => $isFeatured,
-                'isFeatured'   => $isFeatured,
-                'published_at' => $project->published_at?->toIso8601String(),
-                'title'        => $trans['title'] ?? '',
-                'summary'      => $trans['summary'] ?? '',
-                'cover_url'    => $snapshot['cover_url'] ?? $project->cover_url ?? null,
+                'id'             => $project->id,
+                'slug'           => $project->slug,
+                'year'           => $project->year,
+                'client'         => $project->client,
+                'is_featured'    => $isFeatured,
+                'featured'       => $isFeatured,
+                'isFeatured'     => $isFeatured,
+                'featured_order' => $featuredOrder ? (int) $featuredOrder : null,
+                'featuredOrder'  => $featuredOrder ? (int) $featuredOrder : null,
+                'position'       => $featuredOrder ? (int) $featuredOrder : null,
+                'published_at'   => $project->published_at?->toIso8601String(),
+                'title'          => $trans['title'] ?? '',
+                'summary'        => $trans['summary'] ?? '',
+                'cover_url'      => $snapshot['cover_url'] ?? $project->cover_url ?? null,
                 'categories'   => !empty($snapshot['categories']) ? $snapshot['categories'] : $project->categories->map(fn($c) => [
                     'id'   => $c->id,
                     'slug' => $c->slug,
@@ -168,6 +178,8 @@ class PublicProjectController extends Controller
             ];
         })->all();
 
+        $featuredOrder = $project->featured_order ?? $snapshot['featured_order'] ?? $snapshot['position'] ?? null;
+
         return response()->json([
             'status' => 'success',
             'data'   => [
@@ -179,6 +191,9 @@ class PublicProjectController extends Controller
                     'is_featured'     => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
                     'featured'        => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
                     'isFeatured'      => (bool) ($project->is_featured || ($snapshot['is_featured'] ?? false)),
+                    'featured_order'  => $featuredOrder ? (int) $featuredOrder : null,
+                    'featuredOrder'   => $featuredOrder ? (int) $featuredOrder : null,
+                    'position'        => $featuredOrder ? (int) $featuredOrder : null,
                     'view_count'      => $project->view_count,
                     'published_at'    => $project->published_at?->toIso8601String(),
                     'title'           => $trans['title'] ?? '',

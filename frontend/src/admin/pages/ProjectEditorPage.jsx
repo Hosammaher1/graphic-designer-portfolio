@@ -59,6 +59,7 @@ export function ProjectEditorPage({ projectId }) {
   const [coverImage, setCoverImage] = useState('');
   const [coverMediaId, setCoverMediaId] = useState(null);
   const [featured, setFeatured] = useState(false);
+  const [featuredPosition, setFeaturedPosition] = useState(1);
   const [status, setStatus] = useState('published');
   const [gallery, setGallery] = useState([]);
   const [seoTitle, setSeoTitle] = useState('');
@@ -98,7 +99,10 @@ export function ProjectEditorPage({ projectId }) {
       setDescAr(dAr);
       setCoverImage(existingProject.coverImage || existingProject.image || existingProject.cover_url || '');
       setCoverMediaId(existingProject.coverMediaId || existingProject.cover_media_id || (existingProject.coverMedia?.id ? existingProject.coverMedia.id : null));
-      setFeatured(Boolean(existingProject.featured ?? existingProject.is_featured ?? existingProject.isFeatured ?? false));
+      const isFeat = Boolean(existingProject.featured ?? existingProject.is_featured ?? existingProject.isFeatured ?? false);
+      const rawPos = existingProject.featured_order ?? existingProject.featuredOrder ?? existingProject.position;
+      setFeatured(isFeat);
+      setFeaturedPosition(rawPos ? Number(rawPos) : 1);
       setStatus(existingProject.status || 'published');
       const rawGallery = existingProject.gallery || existingProject.media || [];
       setGallery(
@@ -245,6 +249,11 @@ export function ProjectEditorPage({ projectId }) {
       coverMediaId,
       cover_media_id: coverMediaId,
       featured,
+      is_featured: featured,
+      isFeatured: featured,
+      featured_order: featured ? Number(featuredPosition) : null,
+      featuredOrder: featured ? Number(featuredPosition) : null,
+      position: featured ? Number(featuredPosition) : null,
       status: publishState,
       gallery,
       seoTitle,
@@ -571,7 +580,7 @@ export function ProjectEditorPage({ projectId }) {
               </div>
 
               {/* Featured in Homepage Carousel Toggle */}
-              <div className="pt-3 border-t border-white/10">
+              <div className="pt-3 border-t border-white/10 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="text-xs font-semibold text-white flex items-center gap-1.5">
@@ -589,6 +598,26 @@ export function ProjectEditorPage({ projectId }) {
                     className="mt-1 rounded border-white/20 bg-white/10 text-[#842b45] focus:ring-[#f4a496] w-4 h-4 cursor-pointer"
                   />
                 </div>
+
+                {featured && (
+                  <div className="p-3 rounded-2xl glass-panel-subtle border border-[#f4a496]/20 space-y-1.5 animate-fadeIn">
+                    <label className="block text-[11px] font-medium text-[#f4a496]">
+                      {lang === 'ar' ? 'موضع الظهور في السلايدر (الصفحة الرئيسية):' : 'Carousel Position (Homepage):'}
+                    </label>
+                    <select
+                      value={featuredPosition}
+                      onChange={(e) => setFeaturedPosition(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-xl bg-[#120a17] border border-white/15 text-white text-xs focus:outline-none focus:border-[#f4a496] cursor-pointer"
+                    >
+                      <option value={1}>{lang === 'ar' ? 'الموضع الأول (1st Slide) ★' : 'Position 1 (1st Slide) ★'}</option>
+                      <option value={2}>{lang === 'ar' ? 'الموضع الثاني (2nd Slide) ★' : 'Position 2 (2nd Slide) ★'}</option>
+                      <option value={3}>{lang === 'ar' ? 'الموضع الثالث (3rd Slide) ★' : 'Position 3 (3rd Slide) ★'}</option>
+                    </select>
+                    <p className="text-[10px] text-neutral-400 font-light">
+                      {lang === 'ar' ? 'تظهر فقط أفضل 3 مشاريع في السلايدر حسب الترتيب المحدد.' : 'Only the top 3 featured projects appear on the homepage carousel in this exact order.'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

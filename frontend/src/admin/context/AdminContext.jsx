@@ -436,7 +436,10 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
           p.featured === true || p.isFeatured === true ||
           (localMatch && isProjectFeatured(localMatch))
         );
-        const featuredOrder = localMatch ? getProjectFeaturedOrder(localMatch, localMatch._idx + 1) : (p.featuredOrder || p.featured_order || idx + 1);
+        const rawOrder = p.featured_order || p.featuredOrder || p.position;
+        const apiOrder = (rawOrder !== null && rawOrder !== undefined && rawOrder !== '') ? Number(rawOrder) : null;
+        const localOrder = localMatch ? getProjectFeaturedOrder(localMatch, null) : null;
+        const featuredOrder = isFeatured ? (apiOrder ?? localOrder ?? (idx + 1)) : null;
 
         return normalizeAdminProject(
           {
@@ -452,6 +455,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             is_featured: isFeatured,
             isFeatured: isFeatured,
             featuredOrder,
+            featured_order: featuredOrder,
+            position: featuredOrder,
             year: String(p.year || new Date().getFullYear()),
             clientEn: p.client || '',
             clientAr: p.client || '',
@@ -841,10 +846,12 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         });
       }
 
+      const featuredPos = newProj.featuredOrder || newProj.featured_order || newProj.position;
       const payload = {
         slug,
         status: newProj.status || 'published',
         is_featured: Boolean(newProj.featured),
+        featured_order: featuredPos ? Number(featuredPos) : null,
         year: parseInt(newProj.year, 10) || new Date().getFullYear(),
         client: newProj.clientEn || newProj.client || '',
         cover_media_id: parsedCoverId,
@@ -944,10 +951,15 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         const rawCoverMediaId = updatedFields.coverMediaId !== undefined ? updatedFields.coverMediaId : updatedFields.cover_media_id;
         const parsedCoverId = rawCoverMediaId && /^\d+$/.test(String(rawCoverMediaId)) ? parseInt(rawCoverMediaId, 10) : null;
 
+        const featuredPos = updatedFields.featuredOrder !== undefined
+          ? updatedFields.featuredOrder
+          : (updatedFields.featured_order !== undefined ? updatedFields.featured_order : updatedFields.position);
+
         const payload = {
           slug: updatedFields.slug,
           status: updatedFields.status,
           is_featured: updatedFields.featured !== undefined ? Boolean(updatedFields.featured) : undefined,
+          featured_order: featuredPos !== undefined ? (featuredPos ? Number(featuredPos) : null) : undefined,
           year: updatedFields.year ? parseInt(updatedFields.year, 10) : undefined,
           client: updatedFields.clientEn || updatedFields.client,
           cover_media_id: rawCoverMediaId !== undefined ? parsedCoverId : undefined,
@@ -1082,25 +1094,86 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     [projects, addToast, lang, fetchTrash, fetchActivities]
   );
 
-  const toggleFeaturedProject = useCallback(
-    (id) => {
-      let isNowFeatured = false;
-      let targetSlug = null;
+  const saveFeaturedShowcase = useCallback(
+    async (showcaseList) => {
+      const rawList = Array.isArray(showcaseList) ? showcaseList : [];
+      if (rawList.length > 3) {
+        addToast(
+          lang === 'ar'
+            ? 'الحد الأقصى هو 3 مشاريع مميزة في الصفحة الرئيسية.'
+            : 'Maximum of 3 featured projects allowed for the homepage.',
+          'error'
+        );
+        return { ok: false, message: 'Max 3' };
+      }
+
+      // Normalize entries
+      const normalized = [];
+      const usedPositions = new Set();
+      const usedIds = new Set();
+
+      for (let i = 0; i < rawList.length; i++) {
+        const item = rawList[i];
+        const id = typeof item === 'object' && item !== null ? String(item.id) : String(item);
+        const pos = typeof item === 'object' && item !== null ? Number(item.position || item.featuredOrder || (i + 1)) : (i + 1);
+
+        if (!id || id === 'undefined' || id === 'null') continue;
+
+        if (pos < 1 || pos > 3) {
+          addToast(
+            lang === 'ar' ? `الموضع ${pos} غير صالح (يجب أن يكون بين 1 و 3)` : `Invalid position #${pos} (must be 1, 2, or 3)`,
+            'error'
+          );
+          return { ok: false, message: 'Invalid position' };
+        }
+
+        if (usedPositions.has(pos)) {
+          addToast(
+            lang === 'ar' ? `الموضع رقم ${pos} مكرر! كل موضع يجب أن يعين لمشروع واحد فقط.` : `Position #${pos} is assigned more than once. Positions must be unique.`,
+            'error'
+          );
+          return { ok: false, message: 'Duplicate position' };
+        }
+
+        if (usedIds.has(id)) {
+          addToast(
+            lang === 'ar' ? 'تم تكرار نفس المشروع في التحديد.' : 'The same project cannot be selected more than once.',
+            'error'
+          );
+          return { ok: false, message: 'Duplicate project' };
+        }
+
+        usedPositions.add(pos);
+        usedIds.add(id);
+        normalized.push({ id, position: pos });
+      }
+
+      const featuredMap = new Map();
+      normalized.forEach((item) => {
+        featuredMap.set(String(item.id), item.position);
+      });
+
+      let updatedProjectsList = [];
+
       setProjects((prev) => {
         const updated = prev.map((p) => {
-          if (p.id === id || p.slug === id) {
-            isNowFeatured = !isProjectFeatured(p);
-            targetSlug = p.slug;
-            return {
-              ...p,
-              featured: isNowFeatured,
-              is_featured: isNowFeatured,
-              isFeatured: isNowFeatured,
-            };
-          }
-          return p;
+          const strId = String(p.id);
+          const slug = p.slug;
+          const isFeatured = featuredMap.has(strId) || (slug && featuredMap.has(slug));
+          const assignedPos = isFeatured ? (featuredMap.get(strId) ?? featuredMap.get(slug) ?? 99) : null;
+
+          return {
+            ...p,
+            featured: isFeatured,
+            is_featured: isFeatured,
+            isFeatured: isFeatured,
+            featuredOrder: assignedPos,
+            featured_order: assignedPos,
+            position: assignedPos,
+          };
         });
 
+        updatedProjectsList = updated;
         safeSetItem('studio_admin_projects_v2', JSON.stringify(updated));
 
         try {
@@ -1109,15 +1182,20 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
             const parsedPub = JSON.parse(publicCache);
             if (Array.isArray(parsedPub)) {
               const updatedPub = parsedPub.map((pubP) => {
-                if (pubP.id === id || pubP.slug === id || (targetSlug && pubP.slug === targetSlug)) {
-                  return {
-                    ...pubP,
-                    featured: isNowFeatured,
-                    is_featured: isNowFeatured,
-                    isFeatured: isNowFeatured,
-                  };
-                }
-                return pubP;
+                const pubId = String(pubP.id);
+                const pubSlug = pubP.slug;
+                const isFeatured = featuredMap.has(pubId) || (pubSlug && featuredMap.has(pubSlug));
+                const assignedPos = isFeatured ? (featuredMap.get(pubId) ?? featuredMap.get(pubSlug) ?? 99) : null;
+
+                return {
+                  ...pubP,
+                  featured: isFeatured,
+                  is_featured: isFeatured,
+                  isFeatured: isFeatured,
+                  featuredOrder: assignedPos,
+                  featured_order: assignedPos,
+                  position: assignedPos,
+                };
               });
               safeSetItem('studio_published_projects_cache', JSON.stringify(updatedPub));
             }
@@ -1131,16 +1209,145 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
         return updated;
       });
 
-      const numericId = /^\d+$/.test(String(id)) ? id : null;
-      const targetEndpoint = numericId ? `/api/v1/admin/projects/${numericId}` : `/api/v1/admin/projects/${id}`;
-      requestApi(targetEndpoint, {
-        method: 'PUT',
-        body: JSON.stringify({ is_featured: isNowFeatured }),
-      }).catch(() => {});
+      const apiPayload = {
+        featured_projects: normalized.map((item) => ({
+          id: /^\d+$/.test(item.id) ? Number(item.id) : item.id,
+          position: item.position,
+        })),
+      };
 
-      addToast(lang === 'ar' ? 'تم تحديث حالة تمييز المشروع' : 'Featured status updated', 'success');
+      const res = await requestApi('/api/v1/admin/projects/featured', {
+        method: 'PUT',
+        body: JSON.stringify(apiPayload),
+      });
+
+      if (res.ok) {
+        addToast(
+          lang === 'ar'
+            ? 'تم حفظ اختيار وترتيب الأعمال المميزة في قاعدة البيانات بنجاح.'
+            : 'Homepage featured showcase saved to database successfully.',
+          'success'
+        );
+        return { ok: true, projects: updatedProjectsList };
+      } else {
+        addToast(
+          lang === 'ar'
+            ? 'تم حفظ التعديلات محلياً وسيتم المزامنة عند توفر الاتصال.'
+            : 'Featured selection saved locally. Will sync with server.',
+          'info'
+        );
+        return { ok: true, projects: updatedProjectsList, offline: true };
+      }
     },
     [addToast, lang]
+  );
+
+  const setProjectFeaturedPosition = useCallback(
+    async (projectId, targetPosition) => {
+      const pos = targetPosition ? Number(targetPosition) : 0;
+      const strId = String(projectId);
+
+      const currentFeatured = projects
+        .filter((p) => isProjectFeatured(p))
+        .map((p) => ({
+          id: String(p.id),
+          position: getProjectFeaturedOrder(p, 1),
+        }))
+        .filter((item) => item.position >= 1 && item.position <= 3);
+
+      if (pos === 0 || isNaN(pos)) {
+        const remaining = currentFeatured.filter((item) => item.id !== strId);
+        return await saveFeaturedShowcase(remaining);
+      }
+
+      if (pos < 1 || pos > 3) {
+        addToast(
+          lang === 'ar' ? 'الموضع يجب أن يكون 1 أو 2 أو 3' : 'Position must be 1, 2, or 3',
+          'error'
+        );
+        return;
+      }
+
+      const occupant = currentFeatured.find((item) => item.position === pos && item.id !== strId);
+      const existingMe = currentFeatured.find((item) => item.id === strId);
+
+      let nextList = [];
+
+      if (occupant) {
+        if (existingMe) {
+          // Swap positions
+          nextList = currentFeatured.map((item) => {
+            if (item.id === strId) return { id: strId, position: pos };
+            if (item.id === occupant.id) return { id: occupant.id, position: existingMe.position };
+            return item;
+          });
+        } else {
+          // Slot already taken by occupant: check for empty position for occupant
+          const usedPositions = new Set(currentFeatured.map((item) => item.position));
+          const freeSlot = [1, 2, 3].find((pNum) => pNum !== pos && !usedPositions.has(pNum));
+
+          if (freeSlot) {
+            nextList = currentFeatured.map((item) => {
+              if (item.id === occupant.id) return { id: occupant.id, position: freeSlot };
+              return item;
+            });
+            nextList.push({ id: strId, position: pos });
+          } else {
+            nextList = currentFeatured
+              .filter((item) => item.id !== occupant.id)
+              .concat([{ id: strId, position: pos }]);
+          }
+        }
+      } else {
+        if (existingMe) {
+          nextList = currentFeatured.map((item) => {
+            if (item.id === strId) return { id: strId, position: pos };
+            return item;
+          });
+        } else {
+          if (currentFeatured.length >= 3) {
+            nextList = currentFeatured.slice(0, 2).concat([{ id: strId, position: pos }]);
+          } else {
+            nextList = [...currentFeatured, { id: strId, position: pos }];
+          }
+        }
+      }
+
+      nextList.sort((a, b) => a.position - b.position);
+      return await saveFeaturedShowcase(nextList.slice(0, 3));
+    },
+    [projects, saveFeaturedShowcase, addToast, lang]
+  );
+
+  const toggleFeaturedProject = useCallback(
+    async (id) => {
+      const strId = String(id);
+      const proj = projects.find((p) => String(p.id) === strId || p.slug === id);
+      if (!proj) return;
+
+      const isCurrentlyFeatured = isProjectFeatured(proj);
+
+      if (isCurrentlyFeatured) {
+        return await setProjectFeaturedPosition(strId, 0);
+      } else {
+        const currentFeatured = projects.filter((p) => isProjectFeatured(p));
+        if (currentFeatured.length >= 3) {
+          addToast(
+            lang === 'ar'
+              ? 'الحد الأقصى هو 3 مشاريع مميزة في الصفحة الرئيسية. قم بإلغاء أو تعديل أحد المشاريع الحالية.'
+              : 'Maximum 3 featured projects allowed. Remove or replace an existing project.',
+            'warning'
+          );
+          return false;
+        }
+
+        const usedPositions = new Set(currentFeatured.map((p) => getProjectFeaturedOrder(p, 1)));
+        const firstFreePos = [1, 2, 3].find((pos) => !usedPositions.has(pos)) || (currentFeatured.length + 1);
+
+        return await setProjectFeaturedPosition(strId, firstFreePos);
+      }
+    },
+    [projects, setProjectFeaturedPosition, addToast, lang]
   );
 
   // Category Actions
@@ -1502,6 +1709,8 @@ export function AdminProvider({ children, initialPath = '/admin/dashboard' }) {
     updateProject,
     deleteProject,
     toggleFeaturedProject,
+    setProjectFeaturedPosition,
+    saveFeaturedShowcase,
     categories,
     fetchCategories,
     addCategory,

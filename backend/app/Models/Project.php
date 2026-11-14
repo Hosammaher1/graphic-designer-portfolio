@@ -17,6 +17,7 @@ class Project extends Model
         'slug',
         'status',
         'is_featured',
+        'featured_order',
         'published_at',
         'year',
         'client',
@@ -29,6 +30,7 @@ class Project extends Model
 
     protected $casts = [
         'is_featured' => 'boolean',
+        'featured_order' => 'integer',
         'enable_watermark' => 'boolean',
         'published_at' => 'datetime',
         'year' => 'integer',

@@ -13,16 +13,21 @@ export function isProjectFeatured(p) {
     p.isFeatured === true || p.isFeatured === 1 || p.isFeatured === '1' || p.isFeatured === 'true' ||
     p.selected === true || p.is_selected === true || p.isSelected === true ||
     (typeof p.featuredOrder === 'number' && p.featuredOrder > 0) ||
-    (typeof p.featured_order === 'number' && p.featured_order > 0)
+    (typeof p.featured_order === 'number' && p.featured_order > 0) ||
+    (typeof p.position === 'number' && p.position > 0)
   );
 }
 
 export function getProjectFeaturedOrder(p, fallbackIndex = 99) {
   if (!p || typeof p !== 'object') return fallbackIndex;
-  if (typeof p.featuredOrder === 'number' && !isNaN(p.featuredOrder)) return p.featuredOrder;
-  if (typeof p.featured_order === 'number' && !isNaN(p.featured_order)) return p.featured_order;
-  if (typeof p.sort_order === 'number' && !isNaN(p.sort_order)) return p.sort_order;
-  if (typeof p.order === 'number' && !isNaN(p.order)) return p.order;
+  const numPos = p.position !== undefined && p.position !== null ? Number(p.position) : NaN;
+  if (!isNaN(numPos) && numPos > 0) return numPos;
+  const numOrder = p.featuredOrder !== undefined && p.featuredOrder !== null ? Number(p.featuredOrder) : NaN;
+  if (!isNaN(numOrder) && numOrder > 0) return numOrder;
+  const numOrderSnake = p.featured_order !== undefined && p.featured_order !== null ? Number(p.featured_order) : NaN;
+  if (!isNaN(numOrderSnake) && numOrderSnake > 0) return numOrderSnake;
+  if (typeof p.sort_order === 'number' && !isNaN(p.sort_order) && p.sort_order > 0) return p.sort_order;
+  if (typeof p.order === 'number' && !isNaN(p.order) && p.order > 0) return p.order;
   return fallbackIndex;
 }
 

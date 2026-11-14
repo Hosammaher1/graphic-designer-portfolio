@@ -68,9 +68,11 @@ Route::prefix('v1')->middleware('throttle:api_general')->group(function () {
 
         Route::apiResource('users', \App\Http\Controllers\Api\V1\Admin\UserController::class);
 
-        // Project CRUD & Trash (trash list must precede apiResource to avoid {project}='trash' collision)
+        // Project CRUD & Trash (trash list and featured reorder must precede apiResource to avoid {project} collision)
         Route::get('projects/trash', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'trash'])
             ->name('api.v1.admin.projects.trash');
+        Route::put('projects/featured', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'reorderFeatured'])
+            ->name('api.v1.admin.projects.featured');
         Route::apiResource('projects', \App\Http\Controllers\Api\V1\Admin\ProjectController::class);
         Route::post('projects/{project}/restore', [\App\Http\Controllers\Api\V1\Admin\ProjectController::class, 'restore'])
             ->name('api.v1.admin.projects.restore');
